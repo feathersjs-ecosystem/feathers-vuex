@@ -1,0 +1,6 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "jshint.enable": false,
+  "semistandard.enable": false,
+  "standard.enable": true
+}
