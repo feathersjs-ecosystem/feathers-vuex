@@ -4,7 +4,7 @@ import socketio from 'feathers-socketio/client'
 import rest from 'feathers-rest/client'
 import axios from 'axios'
 import auth from 'feathers-authentication-client'
-import io from 'socket.io-client'
+import io from 'socket.io-client/dist/socket.io'
 
 const baseUrl = 'http://localhost:3030'
 

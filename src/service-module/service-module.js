@@ -24,6 +24,7 @@ export default function setupServiceModule (store) {
     // update the name
     deepAssign(service.vuexOptions, { module: {name} })
     vuexOptions.modules[service.path] = vuexOptions.module
+    const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
 
     // Setup or re-setup the module if .vuex() was called manually.
     if (!store.state[name] || force) {
@@ -33,7 +34,12 @@ export default function setupServiceModule (store) {
           ids: [],
           keyedById: {},
           currentId: undefined,
-          copy: undefined
+          copy: undefined,
+          service,
+          idField,
+          isPending: false,
+          isError: false,
+          error: undefined
         },
         getters: mapGetters(service),
         mutations: mapMutations(service),

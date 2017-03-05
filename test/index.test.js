@@ -1,31 +1,25 @@
-import { assert } from 'chai'
-import store from './store'
+import assert from 'chai/chai'
+import 'steal-mocha'
+import makeStore from './fixtures/store'
 import feathersVuex from '../src/index'
-// import './auth.test.js';
-import './services.test.js'
-// import './vuex.test.js';
+import './feathers-module/feathers-module.test.js'
+import './service-module/service-module.test.js'
+import './service-module/actions.test.js'
 
 describe('feathers-vuex', () => {
   it('is CommonJS compatible', () => {
-    assert(typeof require('../lib') === 'function')
+    assert(typeof feathersVuex === 'function')
   })
 
   it('basic functionality', () => {
     assert(typeof feathersVuex === 'function', 'It worked')
   })
 
-  it('throws an error if the auth plugin is missing', () => {
-    var app = {}
-    var store = {}
-    var plugin = feathersVuex(store).bind(app)
-    assert.throws(plugin, 'You must first register the feathers-authentication-client plugin')
-  })
-
   describe('Store', () => {
     it('responds to commits', () => {
-      var state = store.state
+      var store = makeStore()
       store.commit('increment')
-      assert(state.count === 1)
+      assert(store.state.count === 1)
     })
   })
 })

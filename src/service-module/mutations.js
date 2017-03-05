@@ -36,22 +36,26 @@ export default function mapMutations (service) {
       state.currentId = id
       state.copy = deepAssign({}, payload)
     },
-
     clearCurrent (state) {
       state.currentId = undefined
       state.copy = undefined
     },
-
     // Deep assigns current to copy
     rejectCopy (state) {
       let current = state.keyedById[state.currentId]
       deepAssign(state.copy, current)
     },
-
     // Deep assigns copy to current
     commitCopy (state) {
       let current = state.keyedById[state.currentId]
       deepAssign(current, state.copy)
+    },
+
+    setPending (state) {
+      state.isPending = true
+    },
+    unsetPending (state) {
+      state.isPending = false
     }
   }
 }

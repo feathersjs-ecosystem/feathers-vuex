@@ -1,7 +1,8 @@
-import rubberduck from 'rubberduck'
+import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
+import { normalizePath } from './utils'
 
 const defaultOptions = {
   idField: 'id',
@@ -41,6 +42,7 @@ export default function (clientOrStore, options = {}, modules = {}) {
     const addVuexMethod = function (service, options, modules) {
       if (typeof service.vuex !== 'function') {
         service.vuex = function (moduleOptions) {
+          normalizePath(service)
           // options passed to .vuex() will overwrite the previous options.
           deepAssign(modules[service.path], moduleOptions)
 
@@ -65,6 +67,7 @@ export default function (clientOrStore, options = {}, modules = {}) {
           global: options,
           modules: modules
         }
+        normalizePath(service)
         // Make any service-specific config available on the service.
         if (modules[service.path]) {
           service.vuexOptions.module = modules[service.path]

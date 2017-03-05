@@ -85,7 +85,7 @@ describe('feathers-vuex:auth - Reducer', () => {
   it('Has defaults', () => {
     const state = undefined
     const defaultState = {
-      isLoading: false,
+      isPending: false,
       isError: false,
       isSignedIn: false,
       accessToken: undefined,
@@ -105,7 +105,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       }
     }
     const expectedState = {
-      isLoading: true,
+      isPending: true,
       isError: false,
       isSignedIn: false,
       accessToken: undefined,
@@ -123,7 +123,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       data: { accessToken }
     }
     const expectedState = {
-      isLoading: false,
+      isPending: false,
       isError: false,
       isSignedIn: true,
       accessToken: accessToken,
@@ -141,7 +141,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       error
     }
     const expectedState = {
-      isLoading: false,
+      isPending: false,
       isError: true,
       isSignedIn: false,
       accessToken: undefined,
@@ -157,7 +157,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       type: actionTypes.FEATHERS_AUTH_LOGOUT
     }
     const expectedState = {
-      isLoading: false,
+      isPending: false,
       isError: false,
       isSignedIn: false,
       accessToken: undefined,

@@ -33,7 +33,7 @@
     "release:major": "npm version major && npm publish",
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
     "compile": "shx rm -rf lib/ && babel -d lib/ src/",
-    "watch": "babel --watch -d lib/ src/",
+    "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard src/**/*.js test/**/*.js --fix",
     "mocha": "mocha --opts mocha.opts",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
@@ -46,6 +46,20 @@
       "mocha"
     ]
   },
+  "steal": {
+    "map": {
+      "assert": "chai/chai"
+    },
+    "meta": {
+      "chai/chai": {
+        "format": "global",
+        "exports": "chai.assert"
+      }
+    },
+    "plugins": [
+      "chai"
+    ]
+  },
   "directories": {
     "lib": "lib"
   },
@@ -53,6 +67,7 @@
     "debug": "^2.6.1",
     "deep-assign": "^2.0.0",
     "feathers-errors": "^2.5.0",
+    "rubberduck": "^1.1.1",
     "standard": "^9.0.0"
   },
   "devDependencies": {
@@ -63,21 +78,23 @@
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-stage-2": "^6.22.0",
-    "body-parser": "^1.16.1",
-    "chai": "^3.5.0",
-    "feathers": "^2.0.3",
+    "body-parser": "^1.17.0",
+    "chai": "3.4.1",
+    "feathers": "^2.1.1",
     "feathers-authentication": "pre",
-    "feathers-authentication-client": "^0.1.8",
+    "feathers-authentication-client": "^0.1.10",
     "feathers-authentication-jwt": "^0.3.1",
-    "feathers-hooks": "^1.7.1",
+    "feathers-hooks": "^1.8.1",
     "feathers-memory": "^1.1.0",
-    "feathers-rest": "^1.6.0",
-    "feathers-socketio": "^1.4.2",
+    "feathers-rest": "^1.7.1",
+    "feathers-socketio": "^1.5.2",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.2.0",
     "shx": "^0.2.2",
-    "socket.io-client": "^1.7.2",
-    "vue": "^2.2.0-beta.1",
-    "vuex": "^2.1.2"
+    "socket.io-client": "^1.7.3",
+    "steal": "^1.2.10",
+    "steal-mocha": "^1.0.0",
+    "vue": "^2.2.1",
+    "vuex": "^2.2.1"
   }
 }

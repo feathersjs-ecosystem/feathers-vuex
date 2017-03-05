@@ -2,6 +2,11 @@ export function stripSlashes (name) {
   return name.replace(/^(\/*)|(\/*)$/g, '')
 }
 
+export function normalizePath (service) {
+  service.path = service.path || service.name
+  return service
+}
+
 export function upperCaseFirst (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
