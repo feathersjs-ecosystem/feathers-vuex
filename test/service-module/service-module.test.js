@@ -94,7 +94,7 @@ describe('Service Module', () => {
       assert.deepEqual(options, expectedOptions)
     })
 
-    it('can require explicitly set names', () => {
+    it('can require names to be explicitly set', () => {
       const store = makeStore()
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store, {nameStyle: 'explicit'}))
