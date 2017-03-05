@@ -38,7 +38,7 @@ export function getNameFromPath (service) {
 }
 
 export function getNameFromConfig (service) {
-  const name = service.vuexOptions.module.name
+  const name = service.vuexOptions.module && service.vuexOptions.module.name
   if (!name) {
     throw new Error(`The feathers-vuex nameStyle attribute is set to explicit, but no name was provided for the ${service.path} service.`)
   }

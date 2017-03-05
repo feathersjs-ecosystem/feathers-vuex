@@ -53,9 +53,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
             modules: modules
           }
           setup(service, {force: true})
+          return service
         }
       }
-      return service
     }
 
     // Duck punch the service method so we can detect when services are created.
