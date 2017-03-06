@@ -1,12 +1,19 @@
 export default options => {
   return {
     addService (state, service) {
-      const name = service.vuexOptions.module.name
-      const vuexServices = {
-        [name]: service,
-        ...state.services.vuex
+      const name = service.path
+      // Overwrite existing services
+      if (state.services.vuex[name]) {
+        state.services.vuex[name] = service
+
+      // Add new services
+      } else {
+        const vuexServices = {
+          [name]: service,
+          ...state.services.vuex
+        }
+        state.services.vuex = vuexServices
       }
-      state.services.vuex = vuexServices
     }
   }
 }

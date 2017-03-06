@@ -13,9 +13,7 @@ describe('Feathers Module Mutations', () => {
     }
     const name = 'todos'
     const service = {
-      vuexOptions: {
-        module: { name }
-      }
+      path: name
     }
 
     addService(state, service)

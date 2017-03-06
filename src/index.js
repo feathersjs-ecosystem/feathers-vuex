@@ -58,8 +58,8 @@ export default function (clientOrStore, options = {}, modules = {}) {
       if (options.auto) {
         normalizePath(service)
         addConfigTo(service)
-        addToFeathersModule(service)
         setup(service, {force: options.autoForce})
+        addToFeathersModule(service)
       }
       addVuexMethod(service, options, modules)
       return service

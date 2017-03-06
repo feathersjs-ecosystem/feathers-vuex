@@ -54,8 +54,7 @@ describe('Feathers Module', () => {
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store))
       var todoService = feathersClient.service('api/todos')
-      debugger
-      assert(store.state.feathers.services.vuex['todos'] === todoService)
+      assert(store.state.feathers.services.vuex['api/todos'] === todoService)
     })
   })
 })
