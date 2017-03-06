@@ -41,27 +41,28 @@ export default function (clientOrStore, options = {}, modules = {}) {
 
     // Add .vuex() function to each service to allow individual configuration.
     const addVuexMethod = function (service, options, modules) {
-      if (typeof service.vuex !== 'function') {
-        service.vuex = function (moduleOptions) {
-          normalizePath(service)
-          addConfigTo(service, moduleOptions)
-          setup(service, {force: true})
-          addToFeathersModule(service)
-          return service
-        }
+      service.vuex = function (moduleOptions = {}) {
+        // Setting force will rebuild the vuex store.
+        const force = moduleOptions.hasOwnProperty('force') ? moduleOptions.force : true
+        delete moduleOptions.force
+
+        normalizePath(service)
+        addConfigTo(service, moduleOptions)
+        setup(service, { force })
+        addToFeathersModule(service)
+        return service
       }
     }
 
     // Duck punch the service method so we can detect when services are created.
     const emitter = rubberduck.emitter(feathers).punch('service')
     emitter.on('afterService', function (service, args, instance) {
-      if (options.auto) {
-        normalizePath(service)
-        addConfigTo(service)
-        setup(service, {force: options.autoForce})
-        addToFeathersModule(service)
-      }
       addVuexMethod(service, options, modules)
+
+      // Only auto-setup on service creation, not on lookup
+      if (options.auto && !service.vuexOptions) {
+        service.vuex({force: false})
+      }
       return service
     })
 

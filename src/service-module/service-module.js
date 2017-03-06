@@ -1,8 +1,8 @@
 import { getShortName, getNameFromPath, getNameFromConfig } from '../utils'
 import deepAssign from 'deep-assign'
-import mapGetters from './getters'
-import mapMutations from './mutations'
-import mapActions from './actions'
+import makeGetters from './getters'
+import makeMutations from './mutations'
+import makeActions from './actions'
 
 export default function setupServiceModule (store) {
   return function setupServiceOnStore (service, { force }) {
@@ -25,6 +25,7 @@ export default function setupServiceModule (store) {
     deepAssign(service.vuexOptions, { module: {name} })
     vuexOptions.modules[service.path] = vuexOptions.module
     const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
+    debugger
 
     // Setup or re-setup the module if .vuex() was called manually.
     if (!store.state[name] || force) {
@@ -41,9 +42,9 @@ export default function setupServiceModule (store) {
           isError: false,
           error: undefined
         },
-        getters: mapGetters(service),
-        mutations: mapMutations(service),
-        actions: mapActions(service)
+        getters: makeGetters(service),
+        mutations: makeMutations(service),
+        actions: makeActions(service)
       })
     }
   }
