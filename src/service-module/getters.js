@@ -2,7 +2,7 @@ import deepAssign from 'deep-assign'
 
 export default function mapGetters (service) {
   return {
-    data (state) {
+    list (state) {
       return Object.keys(state.keyedById).map(key => state.keyedById[key])
     },
     current (state) {
