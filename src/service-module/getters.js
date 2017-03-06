@@ -3,7 +3,23 @@ import deepAssign from 'deep-assign'
 export default function mapGetters (service) {
   return {
     list (state) {
-      return Object.keys(state.keyedById).map(key => state.keyedById[key])
+      return state.ids.map(id => state.keyedById[id])
+    },
+    findList: (state, getters) => (params) => {
+      const { query } = params
+      let list = getters.list
+      if (query) {
+        return list.filter(item => {
+          return Object.keys(query).reduce((acc, queryParam) => {
+            if (acc) {
+              return item[queryParam] === query[queryParam]
+            }
+            return false
+          }, true)
+        })
+      } else {
+        return list
+      }
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
