@@ -8,8 +8,8 @@ export default function setupFeathersModule (store, options) {
       namespaced: true,
       state: {
         services: {
-          vuex: {},
-          all: feathers.services
+          all: feathers.services,
+          vuex: {}
         }
       },
       mutations: setupMutations(options)
