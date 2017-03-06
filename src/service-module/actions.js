@@ -1,7 +1,8 @@
 export default function mapActions (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  return {
+  const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+  const availableActions = {
     find ({ commit, dispatch }, params) {
       commit('setPending')
       return service.find(params)
@@ -68,4 +69,12 @@ export default function mapActions (service) {
       existing ? commit('updateItem', item) : commit('addItem', item)
     }
   }
+
+  const actions = {}
+  methods.map(method => {
+    if (typeof service[method] === 'function') {
+      actions[method] = availableActions[method]
+    }
+  })
+  return actions
 }
