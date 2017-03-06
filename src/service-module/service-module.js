@@ -25,7 +25,6 @@ export default function setupServiceModule (store) {
     deepAssign(service.vuexOptions, { module: {name} })
     vuexOptions.modules[service.path] = vuexOptions.module
     const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
-    debugger
 
     // Setup or re-setup the module if .vuex() was called manually.
     if (!store.state[name] || force) {
