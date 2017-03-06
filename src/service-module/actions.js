@@ -4,13 +4,14 @@ export default function mapActions (service) {
   const serviceActions = {
     find ({ commit, dispatch }, params) {
       commit('setPending')
-      return service.find(params)
-        .then(response => {
-          commit('unsetPending')
-          let data = response.data || response
-          data.map(item => dispatch('addOrUpdate', item))
-          return response
-        })
+      const handleResponse = response => {
+        commit('unsetPending')
+        let data = response.data || response
+        data.map(item => dispatch('addOrUpdate', item))
+        return response
+      }
+      const request = service.find(params)
+      return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
     get ({ commit, dispatch }, params) {
