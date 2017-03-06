@@ -1,3 +1,5 @@
+import deepAssign from 'deep-assign'
+
 export function stripSlashes (name) {
   return name.replace(/^(\/*)|(\/*)$/g, '')
 }
@@ -43,4 +45,23 @@ export function getNameFromConfig (service) {
     throw new Error(`The feathers-vuex nameStyle attribute is set to explicit, but no name was provided for the ${service.path} service.`)
   }
   return name
+}
+
+export function makeConfig (options, modules) {
+  return (service, moduleOptions) => {
+    modules[service.path] = modules[service.path] || {}
+
+    // moduleOptions (passed to the vuex method) will overwrite previous options.
+    if (moduleOptions) {
+      deepAssign(modules[service.path], moduleOptions)
+    }
+
+    // Make the config available on the service.
+    service.vuexOptions = {
+      global: options,
+      module: modules[service.path],
+      modules: modules
+    }
+    return service
+  }
 }

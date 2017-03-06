@@ -3,6 +3,7 @@ import 'steal-mocha'
 import makeStore from './fixtures/store'
 import feathersVuex from '../src/index'
 import './feathers-module/feathers-module.test.js'
+import './feathers-module/mutations.test.js'
 import './service-module/service-module.test.js'
 import './service-module/actions.test.js'
 

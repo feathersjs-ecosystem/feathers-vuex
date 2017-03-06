@@ -14,21 +14,48 @@ describe('Feathers Module', () => {
       const options = service.vuexOptions.global
       assert(options.feathersModuleName === feathersModuleName)
     })
+
+    it('can turn off automatically setting up Feathers services', () => {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store, {auto: false}))
+      feathersClient.service('api/animals')
+      const services = store.state.feathers.services
+
+      assert(services.all)
+      assert(services.vuex)
+      assert(!services.vuex.animals)
+    })
   })
 
   describe('Basics', () => {
     it('The feathers module gets added to the store', () => {
       const store = makeStore()
       makeFeathersRestClient().configure(feathersVuex(store))
-      assert.deepEqual({services: {}}, store.state.feathers)
+      const expected = {
+        services: {
+          vuex: {},
+          all: {}
+        }
+      }
+      assert.deepEqual(expected, store.state.feathers)
     })
 
-    it('populates with new services', () => {
+    it('has a map of all feathers services', () => {
       const store = makeStore()
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store))
       var todoService = feathersClient.service('api/todos')
-      assert(store.state.feathers.services['api/todos'] === todoService)
+      assert(store.state.feathers.services.all['api/todos'] === todoService)
+    })
+
+    it('adds new vuex services to the services.vuex attribute', () => {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store))
+      var todoService = feathersClient.service('api/todos')
+      debugger
+      assert(store.state.feathers.services.vuex['todos'] === todoService)
     })
   })
 })

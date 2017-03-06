@@ -2,7 +2,7 @@ import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
-import { normalizePath } from './utils'
+import { normalizePath, makeConfig } from './utils'
 
 const defaultOptions = {
   idField: 'id',
@@ -28,9 +28,6 @@ export default function (clientOrStore, options = {}, modules = {}) {
       throw new Error('You must pass a Feathers Client instance to the Feathers-Vuex plugin.')
     }
 
-    setupFeathersModule(store, options)(feathers)
-    const setup = setupServiceModule(store)
-
     // Normalize the modules into objects if they were provided as a string.
     Object.keys(modules).forEach(name => {
       if (typeof modules[name] === 'string') {
@@ -38,21 +35,18 @@ export default function (clientOrStore, options = {}, modules = {}) {
       }
     })
 
+    const addToFeathersModule = setupFeathersModule(store, options)(feathers)
+    const setup = setupServiceModule(store)
+    const addConfigTo = makeConfig(options, modules)
+
     // Add .vuex() function to each service to allow individual configuration.
     const addVuexMethod = function (service, options, modules) {
       if (typeof service.vuex !== 'function') {
         service.vuex = function (moduleOptions) {
           normalizePath(service)
-          // options passed to .vuex() will overwrite the previous options.
-          deepAssign(modules[service.path], moduleOptions)
-
-          // Make the config available on the service.
-          service.vuexOptions = {
-            global: options,
-            module: modules[service.path],
-            modules: modules
-          }
+          addConfigTo(service, moduleOptions)
           setup(service, {force: true})
+          addToFeathersModule(service)
           return service
         }
       }
@@ -62,19 +56,11 @@ export default function (clientOrStore, options = {}, modules = {}) {
     const emitter = rubberduck.emitter(feathers).punch('service')
     emitter.on('afterService', function (service, args, instance) {
       if (options.auto) {
-        // Make global feathers-vuex config available on the service.
-        service.vuexOptions = {
-          global: options,
-          modules: modules
-        }
         normalizePath(service)
-        // Make any service-specific config available on the service.
-        if (modules[service.path]) {
-          service.vuexOptions.module = modules[service.path]
-        }
+        addConfigTo(service)
+        addToFeathersModule(service)
         setup(service, {force: options.autoForce})
       }
-
       addVuexMethod(service, options, modules)
       return service
     })
