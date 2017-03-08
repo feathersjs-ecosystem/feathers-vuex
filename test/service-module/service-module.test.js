@@ -24,7 +24,7 @@ describe('Service Module', () => {
         auto: true,
         autoForce: false,
         nameStyle: 'short',
-        feathersModule: {
+        feathers: {
           name: 'feathers'
         },
         authModule: {

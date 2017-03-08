@@ -9,10 +9,10 @@ describe('Feathers Module', () => {
       const store = makeStore()
       const name = 'Feathaz'
       const feathersClient = makeFeathersRestClient()
-        .configure(feathersVuex(store, { feathersModule: { name } }))
+        .configure(feathersVuex(store, { feathers: { name } }))
       const service = feathersClient.service('todos')
       const options = service.vuexOptions.global
-      assert(options.feathersModule.name === name)
+      assert(options.feathers.name === name)
     })
 
     it('can turn off automatic setup of Feathers services', () => {
