@@ -51,6 +51,10 @@ export function makeConfig (options, modules) {
   return (service, moduleOptions) => {
     modules[service.path] = modules[service.path] || {}
 
+    if (service.vuexOptions && service.vuexOptions.module) {
+      moduleOptions.oldName = service.vuexOptions.module.name
+    }
+
     // moduleOptions (passed to the vuex method) will overwrite previous options.
     if (moduleOptions) {
       deepAssign(modules[service.path], moduleOptions)

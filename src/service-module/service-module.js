@@ -13,11 +13,11 @@ export default function setupServiceModule (store) {
       explicit: getNameFromConfig
     }
     let name = nameStyles[vuexOptions.global.nameStyle](service)
-    const existingName = service.vuexOptions.module && service.vuexOptions.module.name
+    const existingName = service.vuexOptions.module.oldName
 
     // When .vuex() is manually called, tear down the previous module.
     // Tear down before the module name is updated to remove the correct one.
-    if (store.state[existingName] && force) {
+    if (store.state[existingName]) {
       store.unregisterModule(existingName)
     }
 
