@@ -18,15 +18,20 @@ describe('Service Module', () => {
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store))
       const service = feathersClient.service('todos')
-      const options = service.vuexOptions.global
-      const expectedGlobals = {
+      const { global } = service.vuexOptions
+      const expectedGlobal = {
         idField: 'id',
         auto: true,
         autoForce: false,
         nameStyle: 'short',
-        feathersModuleName: 'feathers'
+        feathersModule: {
+          name: 'feathers'
+        },
+        authModule: {
+          name: 'auth'
+        }
       }
-      assert.deepEqual(options, expectedGlobals)
+      assert.deepEqual(global, expectedGlobal)
     })
 
     it('service has vuexOptions module defaults', () => {

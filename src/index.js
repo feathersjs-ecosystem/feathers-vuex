@@ -2,6 +2,7 @@ import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
+import clone from 'clone'
 import { normalizePath, makeConfig } from './utils'
 
 const defaultOptions = {
@@ -10,11 +11,16 @@ const defaultOptions = {
   autoForce: false,
   // Determines the source of the module name. 'short', 'path', or 'explicit'
   nameStyle: 'short',
-  feathersModuleName: 'feathers'
+  feathersModule: {
+    name: 'feathers'
+  },
+  authModule: {
+    name: 'auth'
+  }
 }
 
 export default function (clientOrStore, options = {}, modules = {}) {
-  options = deepAssign({}, defaultOptions, options)
+  options = deepAssign({}, clone(defaultOptions), options)
 
   return function feathersVuex (arg) {
     const asFeathersPlugin = !arg

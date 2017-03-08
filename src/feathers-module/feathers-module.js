@@ -2,7 +2,12 @@ import setupMutations from './mutations'
 import { mapMutations } from 'vuex'
 
 export default function setupFeathersModule (store, options) {
-  const moduleName = options.feathersModuleName
+  if (!options.feathersModule || !options.feathersModule.name) {
+    return () => {}
+  }
+
+  const moduleName = options.feathersModule.name
+
   return feathers => {
     store.registerModule(moduleName, {
       namespaced: true,
@@ -14,7 +19,9 @@ export default function setupFeathersModule (store, options) {
       },
       mutations: setupMutations(options)
     })
-    const addService = mapMutations(moduleName, ['addService']).addService
+
+    const { addService } = mapMutations(moduleName, ['addService'])
+
     return function addToFeathersModule (service) {
       addService.call({$store: store}, service)
     }
