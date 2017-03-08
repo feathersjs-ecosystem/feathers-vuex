@@ -1,5 +1,6 @@
 import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
+import setupAuthModule from './auth-module/auth-module'
 import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
 import clone from 'clone'
@@ -11,11 +12,16 @@ const defaultOptions = {
   autoForce: false,
   // Determines the source of the module name. 'short', 'path', or 'explicit'
   nameStyle: 'short',
-  feathersModule: {
+  feathers: {
     name: 'feathers'
   },
-  authModule: {
-    name: 'auth'
+  auth: {
+    name: 'auth',
+    userService: null,
+    state: {},
+    getters: {},
+    mutations: {},
+    actions: {}
   }
 }
 
@@ -44,6 +50,7 @@ export default function (clientOrStore, options = {}, modules = {}) {
     const addToFeathersModule = setupFeathersModule(store, options)(feathers)
     const setup = setupServiceModule(store)
     const addConfigTo = makeConfig(options, modules)
+    setupAuthModule(store, options)(feathers)
 
     // Add .vuex() function to each service to allow individual configuration.
     const addVuexMethod = function (service, options, modules) {
