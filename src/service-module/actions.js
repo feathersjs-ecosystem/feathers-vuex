@@ -1,4 +1,4 @@
-export default function mapActions (service) {
+export default function makeServiceActions (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
   const serviceActions = {

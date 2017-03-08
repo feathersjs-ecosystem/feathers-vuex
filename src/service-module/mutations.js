@@ -1,6 +1,6 @@
 import deepAssign from 'deep-assign'
 
-export default function mapMutations (service) {
+export default function makeServiceMutations (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
   return {

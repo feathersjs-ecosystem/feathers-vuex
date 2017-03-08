@@ -1,6 +1,6 @@
 import deepAssign from 'deep-assign'
 
-export default function mapGetters (service) {
+export default function makeServiceGetters (service) {
   return {
     list (state) {
       return state.ids.map(id => state.keyedById[id])
