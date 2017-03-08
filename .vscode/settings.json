@@ -2,5 +2,10 @@
 {
   "jshint.enable": false,
   "semistandard.enable": false,
-  "standard.enable": true
+  "standard.enable": true,
+  "search.exclude": {
+    "lib/**": true,
+    "**/node_modules": true,
+    "**/bower_components": true
+  }
 }
