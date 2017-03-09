@@ -17,7 +17,7 @@ const defaultOptions = {
   },
   auth: {
     name: 'auth',
-    userService: null,
+    userService: '',
     state: {},
     getters: {},
     mutations: {},
@@ -26,7 +26,8 @@ const defaultOptions = {
 }
 
 export default function (clientOrStore, options = {}, modules = {}) {
-  options = deepAssign({}, clone(defaultOptions), options)
+  var theClone = clone(defaultOptions)
+  options = deepAssign(theClone, options)
 
   return function feathersVuex (arg) {
     const asFeathersPlugin = !arg
