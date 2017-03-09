@@ -3,6 +3,12 @@ export default function makeAuthMutations (feathers, options) {
     setAccessToken (state, payload) {
       state.accessToken = payload
     },
+    setPayload (state, payload) {
+      state.payload = payload
+    },
+    setUser (state, payload) {
+      state.user = payload
+    },
     setPending (state) {
       state.isPending = true
     },
