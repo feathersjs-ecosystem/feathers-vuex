@@ -7,6 +7,10 @@ export default function setupAuthModule (store, options) {
   }
 
   return feathers => {
+    if (!feathers.passport) {
+      throw new Error('You must register the feathers-authentication-client plugin before Feathers-Vuex')
+    }
+
     const { auth } = options
     const { name } = auth
     const state = {
