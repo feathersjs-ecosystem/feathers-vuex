@@ -21,10 +21,10 @@ export default function makeAuthMutations (feathers, options) {
     },
     setError (state, error) {
       state.isError = true
-      state.error = error
+      state.error = Object.assign({}, error)
     },
     logout (state) {
-      
+
     }
   }
 }
