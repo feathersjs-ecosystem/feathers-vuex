@@ -13,10 +13,10 @@ const defaultOptions = {
   // Determines the source of the module name. 'short', 'path', or 'explicit'
   nameStyle: 'short',
   feathers: {
-    name: 'feathers'
+    namespace: 'feathers'
   },
   auth: {
-    name: 'auth',
+    namespace: 'auth',
     userService: '',
     state: {},
     getters: {},
@@ -42,9 +42,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
     }
 
     // Normalize the modules into objects if they were provided as a string.
-    Object.keys(modules).forEach(name => {
-      if (typeof modules[name] === 'string') {
-        modules[name] = { name: modules[name] }
+    Object.keys(modules).forEach(namespace => {
+      if (typeof modules[namespace] === 'string') {
+        modules[namespace] = { namespace: modules[namespace] }
       }
     })
 

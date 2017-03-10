@@ -29,7 +29,7 @@ export default function makeAuthActions (feathers, options) {
         .catch(error => {
           commit('unsetPending')
           commit('setError', error)
-          return error
+          return Promise.reject(error)
         })
     },
     populateUser ({ commit }, userId) {

@@ -7,17 +7,16 @@ describe('Feathers Module', () => {
   describe('Configuration', () => {
     it('allows customizing the feathers module name', () => {
       const store = makeStore()
-      const name = 'Feathaz'
+      const namespace = 'Feathaz'
       const feathersClient = makeFeathersRestClient()
-        .configure(feathersVuex(store, { feathers: { name } }))
+        .configure(feathersVuex(store, { feathers: { namespace } }))
       const service = feathersClient.service('todos')
       const options = service.vuexOptions.global
-      assert(options.feathers.name === name)
+      assert(options.feathers.namespace === namespace)
     })
 
     it('can turn off automatic setup of Feathers services', () => {
       const store = makeStore()
-      debugger
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store, {auto: false}))
       feathersClient.service('api/animals')

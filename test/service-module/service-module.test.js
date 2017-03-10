@@ -25,10 +25,15 @@ describe('Service Module', () => {
         autoForce: false,
         nameStyle: 'short',
         feathers: {
-          name: 'feathers'
+          namespace: 'feathers'
         },
-        authModule: {
-          name: 'auth'
+        auth: {
+          namespace: 'auth',
+          userService: '',
+          state: {},
+          getters: {},
+          mutations: {},
+          actions: {}
         }
       }
       assert.deepEqual(global, expectedGlobal)
@@ -41,7 +46,7 @@ describe('Service Module', () => {
       const service = feathersClient.service('todos')
       const options = service.vuexOptions.module
       const expectedOptions = {
-        name: 'todos'
+        namespace: 'todos'
       }
       assert.deepEqual(options, expectedOptions)
     })
@@ -55,7 +60,7 @@ describe('Service Module', () => {
 
       const moduleOptions = service.vuexOptions.module
       const expectedOptions = {
-        name: 'todos'
+        namespace: 'todos'
       }
       assert.deepEqual(moduleOptions, expectedOptions)
 
@@ -70,7 +75,7 @@ describe('Service Module', () => {
       const service = feathersClient.service('api/animals')
       const options = service.vuexOptions.module
       const expectedOptions = {
-        name: 'animals'
+        namespace: 'animals'
       }
       assert.deepEqual(options, expectedOptions)
     })
@@ -79,10 +84,11 @@ describe('Service Module', () => {
       const store = makeStore()
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store, {nameStyle: 'path'}))
-      const service = feathersClient.service('api/animals').vuex({name: 'animales'})
+      const service = feathersClient.service('api/animals').vuex({namespace: 'animales'})
       const options = service.vuexOptions.module
       const expectedOptions = {
-        name: 'animales'
+        namespace: 'animales',
+        oldName: 'api/animals'
       }
       assert.deepEqual(options, expectedOptions)
     })
@@ -94,7 +100,7 @@ describe('Service Module', () => {
       const service = feathersClient.service('api/animals')
       const options = service.vuexOptions.module
       const expectedOptions = {
-        name: 'api/animals'
+        namespace: 'api/animals'
       }
       assert.deepEqual(options, expectedOptions)
     })

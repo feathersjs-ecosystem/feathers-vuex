@@ -1,7 +1,7 @@
 import deepAssign from 'deep-assign'
 
-export function stripSlashes (name) {
-  return name.replace(/^(\/*)|(\/*)$/g, '')
+export function stripSlashes (location) {
+  return location.replace(/^(\/*)|(\/*)$/g, '')
 }
 
 export function normalizePath (service) {
@@ -15,7 +15,7 @@ export function upperCaseFirst (string) {
 
 export function getShortName (service) {
   // If a name was manually provided, use it.
-  let explicitName = service.vuexOptions.module && service.vuexOptions.module.name
+  let explicitName = service.vuexOptions.module && service.vuexOptions.module.namespace
   if (explicitName) {
     return stripSlashes(explicitName)
   }
@@ -30,7 +30,7 @@ export function getShortName (service) {
 
 export function getNameFromPath (service) {
   // If a name was manually provided, use it.
-  let explicitName = service.vuexOptions.module && service.vuexOptions.module.name
+  let explicitName = service.vuexOptions.module && service.vuexOptions.module.namespace
   if (explicitName) {
     return stripSlashes(explicitName)
   }
@@ -40,11 +40,11 @@ export function getNameFromPath (service) {
 }
 
 export function getNameFromConfig (service) {
-  const name = service.vuexOptions.module && service.vuexOptions.module.name
-  if (!name) {
+  const namespace = service.vuexOptions.module && service.vuexOptions.module.namespace
+  if (!namespace) {
     throw new Error(`The feathers-vuex nameStyle attribute is set to explicit, but no name was provided for the ${service.path} service.`)
   }
-  return name
+  return namespace
 }
 
 export function makeConfig (options, modules) {
@@ -52,7 +52,7 @@ export function makeConfig (options, modules) {
     modules[service.path] = modules[service.path] || {}
 
     if (service.vuexOptions && service.vuexOptions.module) {
-      moduleOptions.oldName = service.vuexOptions.module.name
+      moduleOptions.oldName = service.vuexOptions.module.namespace
     }
 
     // moduleOptions (passed to the vuex method) will overwrite previous options.

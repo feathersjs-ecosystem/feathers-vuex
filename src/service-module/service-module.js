@@ -12,7 +12,7 @@ export default function setupServiceModule (store) {
       path: getNameFromPath,
       explicit: getNameFromConfig
     }
-    let name = nameStyles[vuexOptions.global.nameStyle](service)
+    let namespace = nameStyles[vuexOptions.global.nameStyle](service)
     const existingName = service.vuexOptions.module.oldName
 
     // When .vuex() is manually called, tear down the previous module.
@@ -22,13 +22,13 @@ export default function setupServiceModule (store) {
     }
 
     // update the name
-    deepAssign(service.vuexOptions, { module: {name} })
+    deepAssign(service.vuexOptions, { module: {namespace} })
     vuexOptions.modules[service.path] = vuexOptions.module
     const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
 
     // Setup or re-setup the module if .vuex() was called manually.
-    if (!store.state[name] || force) {
-      store.registerModule(name, {
+    if (!store.state[namespace] || force) {
+      store.registerModule(namespace, {
         namespaced: true,
         state: {
           ids: [],

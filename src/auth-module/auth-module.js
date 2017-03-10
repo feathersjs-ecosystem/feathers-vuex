@@ -12,7 +12,7 @@ export default function setupAuthModule (store, options) {
     }
 
     const { auth } = options
-    const { name } = auth
+    const { namespace } = auth
     const state = {
       accessToken: undefined, // The JWT
       payload: undefined, // The JWT payload
@@ -28,7 +28,7 @@ export default function setupAuthModule (store, options) {
     const mutations = setupMutations(feathers, options)
     const actions = setupActions(feathers, options)
 
-    store.registerModule(name, {
+    store.registerModule(namespace, {
       namespaced: true,
       state: combinedState,
       mutations,

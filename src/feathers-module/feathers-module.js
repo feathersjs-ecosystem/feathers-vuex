@@ -2,11 +2,11 @@ import setupMutations from './mutations'
 import { mapMutations } from 'vuex'
 
 export default function setupFeathersModule (store, options) {
-  if (!options.feathers || !options.feathers.name) {
+  if (!options.feathers || !options.feathers.namespace) {
     return () => {}
   }
-  
-  const moduleName = options.feathers.name
+
+  const moduleName = options.feathers.namespace
 
   return feathers => {
     store.registerModule(moduleName, {
