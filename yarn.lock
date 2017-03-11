@@ -1798,7 +1798,7 @@ feathers-memory@^1.1.0:
     feathers-query-filters "^2.0.0"
     uberproto "^1.2.0"
 
-feathers-query-filters@^2.0.0:
+feathers-query-filters@^2.0.0, feathers-query-filters@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/feathers-query-filters/-/feathers-query-filters-2.1.2.tgz#cdb18224db5e19cc0140d528108e0908d5eb0654"
   dependencies:

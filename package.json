@@ -67,7 +67,9 @@
     "clone": "^2.1.0",
     "debug": "^2.6.1",
     "deep-assign": "^2.0.0",
+    "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.5.0",
+    "feathers-query-filters": "^2.1.2",
     "rubberduck": "^1.1.1",
     "standard": "^9.0.0"
   },
