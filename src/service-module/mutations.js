@@ -3,14 +3,33 @@ import deepAssign from 'deep-assign'
 export default function makeServiceMutations (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
+
+  function addItem (state, item) {
+    let id = item[idField]
+    state.ids.push(id)
+    state.keyedById = {
+      ...state.keyedById,
+      [id]: item
+    }
+  }
+
+  function updateItem (state, item) {
+    let id = item[idField]
+    state.keyedById[id] = item
+  }
+
   return {
     addItem (state, payload) {
-      let id = payload[idField]
-      state.ids.push(id)
-      state.keyedById = {
-        ...state.keyedById,
-        [id]: payload
-      }
+      addItem(state, payload)
+    },
+    addItems (state, payload) {
+      payload.forEach(item => addItem(state, item))
+    },
+    updateItem (state, payload) {
+      updateItem(state, payload)
+    },
+    updateItems (state, payload) {
+      payload.forEach(item => updateItem(state, payload))
     },
     removeData (state, id) {
       state.data = state.data.filter(item => item[service.id] !== id)
@@ -18,10 +37,6 @@ export default function makeServiceMutations (service) {
         state.currentId = undefined
         state.copy = undefined
       }
-    },
-    updateItem (state, payload) {
-      let id = payload[idField]
-      state.keyedById[id] = payload
     },
 
     clearAll (state) {
