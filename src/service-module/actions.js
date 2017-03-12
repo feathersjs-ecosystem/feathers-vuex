@@ -6,15 +6,15 @@ export default function makeServiceActions (service) {
     find ({ commit, dispatch }, params) {
       commit('setFindPending')
       const handleResponse = response => {
-        commit('unsetFindPending')
         let data = response.data || response
         dispatch('addOrUpdateList', data)
+        commit('unsetFindPending')
         return response
       }
       const request = service.find(params)
         .catch(error => {
-          commit('unsetFindPending')
           commit('setFindError', error)
+          commit('unsetFindPending')
           return error
         })
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
@@ -34,15 +34,15 @@ export default function makeServiceActions (service) {
 
       return service.get(id, params)
         .then(item => {
-          commit('unsetGetPending')
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
+          commit('unsetGetPending')
           return item
         })
         .catch(error => {
-          commit('unsetGetPending')
           commit('setGetError', error)
-          return error
+          commit('unsetGetPending')
+          return Promise.reject(error)
         })
     },
 
@@ -51,15 +51,15 @@ export default function makeServiceActions (service) {
 
       return service.create(data)
         .then(item => {
-          commit('unsetCreatePending')
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
+          commit('unsetCreatePending')
           return item
         })
         .catch(error => {
-          commit('unsetCreatePending')
           commit('setCreateError', error)
-          return error
+          commit('unsetCreatePending')
+          return Promise.reject(error)
         })
     },
 
@@ -68,14 +68,14 @@ export default function makeServiceActions (service) {
 
       return service.update(id, data)
         .then(item => {
-          commit('unsetUpdatePending')
           dispatch('addOrUpdate', item)
+          commit('unsetUpdatePending')
           return item
         })
         .catch(error => {
-          commit('unsetUpdatePending')
           commit('setUpdateError', error)
-          return error
+          commit('unsetUpdatePending')
+          return Promise.reject(error)
         })
     },
 
@@ -84,13 +84,13 @@ export default function makeServiceActions (service) {
 
       return service.patch(id, data)
         .then(item => {
-          commit('unsetPatchPending')
           dispatch('addOrUpdate', item)
+          commit('unsetPatchPending')
           return item
         })
         .catch(error => {
-          commit('unsetPatchPending')
           commit('setPatchError', error)
+          commit('unsetPatchPending')
           return error
         })
     },
@@ -100,14 +100,14 @@ export default function makeServiceActions (service) {
 
       return service.remove(id)
         .then(item => {
-          commit('unsetRemovePending')
           dispatch('removeItem', item)
+          commit('unsetRemovePending')
           return item
         })
         .catch(error => {
-          commit('unsetRemovePending')
           commit('setRemoveError', error)
-          return error
+          commit('unsetRemovePending')
+          return Promise.reject(error)
         })
     }
   }
