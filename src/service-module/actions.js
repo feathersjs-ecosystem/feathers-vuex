@@ -13,9 +13,9 @@ export default function makeServiceActions (service) {
       }
       const request = service.find(params)
         .catch(error => {
-          commit('setFindError', error)
+          commit('setFindError', Object.assign({}, error))
           commit('unsetFindPending')
-          return error
+          return Promise.reject(error)
         })
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
@@ -40,7 +40,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setGetError', error)
+          commit('setGetError', Object.assign({}, error))
           commit('unsetGetPending')
           return Promise.reject(error)
         })
@@ -57,7 +57,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setCreateError', error)
+          commit('setCreateError', Object.assign({}, error))
           commit('unsetCreatePending')
           return Promise.reject(error)
         })
@@ -73,7 +73,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setUpdateError', error)
+          commit('setUpdateError', Object.assign({}, error))
           commit('unsetUpdatePending')
           return Promise.reject(error)
         })
@@ -89,7 +89,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setPatchError', error)
+          commit('setPatchError', Object.assign({}, error))
           commit('unsetPatchPending')
           return error
         })
@@ -105,7 +105,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setRemoveError', error)
+          commit('setRemoveError', Object.assign({}, error))
           commit('unsetRemovePending')
           return Promise.reject(error)
         })
