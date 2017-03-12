@@ -60,22 +60,50 @@ export default function makeServiceActions (service) {
     },
 
     update ({ commit, dispatch }, id, data) {
-      console.log(id)
-      console.log(data)
       commit('setUpdatePending')
+      return service.update(id, data)
+        .then(item => {
           commit('unsetUpdatePending')
+          dispatch('addOrUpdate', item)
+          return item
+        })
+        .catch(error => {
           commit('unsetUpdatePending')
+          commit('setUpdateError', error)
+          return error
+        })
     },
 
-    patch ({ commit, dispatch }) {
+    patch ({ commit, dispatch }, id, data) {
       commit('setPatchPending')
+      return service.patch(id, data)
+        .then(item => {
           commit('unsetPatchPending')
+          dispatch('addOrUpdate', item)
+          return item
+        })
+        .catch(error => {
           commit('unsetPatchPending')
+          commit('setPatchError', error)
+          return error
+        })
     },
-    remove ({ commit, dispatch }) {
+
+    remove ({ commit, dispatch }, id) {
       commit('setRemovePending')
+      return service.remove(id)
+        .then(item => {
           commit('unsetRemovePending')
+          dispatch('removeItem', item)
+          return item
+        })
+        .catch(error => {
           commit('unsetRemovePending')
+          commit('setRemoveError', error)
+          return error
+        })
+    }
+  }
 
   function checkId (id, item) {
     if (id === undefined) {
