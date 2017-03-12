@@ -11,7 +11,11 @@ export default function makeServiceActions (service) {
         return response
       }
       const request = service.find(params)
+        .catch(error => {
           commit('unsetFindPending')
+          commit('setFindError', error)
+          return error
+        })
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
@@ -32,7 +36,11 @@ export default function makeServiceActions (service) {
           commit('setCurrent', item)
           return item
         })
+        .catch(error => {
           commit('unsetGetPending')
+          commit('setGetError', error)
+          return error
+        })
     },
 
     create ({ commit, dispatch }, data) {
@@ -44,7 +52,11 @@ export default function makeServiceActions (service) {
           commit('setCurrent', item)
           return item
         })
+        .catch(error => {
           commit('unsetCreatePending')
+          commit('setCreateError', error)
+          return error
+        })
     },
 
     update ({ commit, dispatch }, id, data) {
