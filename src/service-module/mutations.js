@@ -51,11 +51,44 @@ export default function makeServiceMutations (service) {
       deepAssign(current, state.copy)
     },
 
-    setPending (state) {
-      state.isPending = true
+    setFindPending (state) {
+      state.isPending.find = true
     },
-    unsetPending (state) {
-      state.isPending = false
+    unsetFindPending (state) {
+      state.isPending.find = false
+    },
+    setGetPending (state) {
+      state.isPending.get = true
+    },
+    unsetGetPending (state) {
+      state.isPending.get = false
+    },
+    setCreatePending (state) {
+      state.isPending.create = true
+    },
+    unsetCreatePending (state) {
+      state.isPending.create = false
+    },
+    setUpdatePending (state) {
+      state.isPending.update = true
+    },
+    unsetUpdatePending (state) {
+      state.isPending.update = false
+    },
+    setPatchPending (state) {
+      state.isPending.patch = true
+    },
+    unsetPatchPending (state) {
+      state.isPending.patch = false
+    },
+    setRemovePending (state) {
+      state.isPending.remove = true
+    },
+    unsetRemovePending (state) {
+      state.isPending.remove = false
+    },
+
+    },
     }
   }
 }

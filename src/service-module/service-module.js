@@ -40,6 +40,14 @@ export default function setupServiceModule (store) {
           isPending: false,
           isError: false,
           error: undefined
+          isPending: {
+            find: false,
+            get: false,
+            create: false,
+            update: false,
+            patch: false,
+            remove: false
+          },
         },
         getters: makeGetters(service),
         mutations: makeMutations(service),

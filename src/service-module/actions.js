@@ -3,14 +3,15 @@ export default function makeServiceActions (service) {
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
   const serviceActions = {
     find ({ commit, dispatch }, params) {
-      commit('setPending')
+      commit('setFindPending')
       const handleResponse = response => {
-        commit('unsetPending')
+        commit('unsetFindPending')
         let data = response.data || response
         data.map(item => dispatch('addOrUpdate', item))
         return response
       }
       const request = service.find(params)
+          commit('unsetFindPending')
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
@@ -23,41 +24,46 @@ export default function makeServiceActions (service) {
         id = params
         params = undefined
       }
-      commit('setPending')
+      commit('setGetPending')
       return service.get(id, params)
         .then(item => {
-          commit('unsetPending')
+          commit('unsetGetPending')
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
           return item
         })
+          commit('unsetGetPending')
     },
 
     create ({ commit, dispatch }, data) {
-      commit('setPending')
+      commit('setCreatePending')
       return service.create(data)
         .then(item => {
-          commit('unsetPending')
+          commit('unsetCreatePending')
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
           return item
         })
+          commit('unsetCreatePending')
     },
 
     update ({ commit, dispatch }, id, data) {
-      commit('setPending')
-      commit('unsetPending')
       console.log(id)
       console.log(data)
+      commit('setUpdatePending')
+          commit('unsetUpdatePending')
+          commit('unsetUpdatePending')
     },
 
     patch ({ commit, dispatch }) {
-      commit('setPending')
-      commit('unsetPending')
+      commit('setPatchPending')
+          commit('unsetPatchPending')
+          commit('unsetPatchPending')
     },
     remove ({ commit, dispatch }) {
-      commit('setPending')
-      commit('unsetPending')
+      commit('setRemovePending')
+          commit('unsetRemovePending')
+          commit('unsetRemovePending')
     }
   }
 
