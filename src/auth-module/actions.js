@@ -4,13 +4,12 @@ export default function makeAuthActions (feathers, options) {
     authenticate (store, data) {
       const { commit, state, dispatch } = store
 
-      commit('setPending')
-      if (state.isError) {
-        commit('clearError')
+      commit('setAuthenticationPending')
+      if (state.errorOnAuthentication) {
+        commit('clearAuthenticationError')
       }
       return feathers.authenticate(data)
         .then(response => {
-          commit('unsetPending')
           commit('setAccessToken', response.accessToken)
 
           // Decode the token and set the payload, but return the response
@@ -21,17 +20,23 @@ export default function makeAuthActions (feathers, options) {
               // Populate the user if the userService was provided
               if (auth.userService && payload.userId) {
                 return dispatch('populateUser', payload.userId)
-                  .then(() => response)
+                  .then(() => {
+                    commit('unsetAuthenticationPending')
+                    return response
+                  })
+              } else {
+                commit('unsetAuthenticationPending')
               }
               return response
             })
         })
         .catch(error => {
-          commit('unsetPending')
-          commit('setError', error)
+          commit('setAuthenticationError', error)
+          commit('unsetAuthenticationPending')
           return Promise.reject(error)
         })
     },
+
     populateUser ({ commit }, userId) {
       return feathers.service(auth.userService)
         .get(userId)
@@ -39,17 +44,14 @@ export default function makeAuthActions (feathers, options) {
           commit('setUser', user)
           return user
         })
-        .catch(error => {
-          commit('setError', error)
-          return error
-        })
     },
+
     logout ({commit}) {
-      commit('setPending')
+      commit('setLogoutPending')
       return feathers.logout()
         .then(response => {
-          commit('unsetPending')
           commit('logout')
+          commit('unsetLogoutPending')
           return response
         })
     }

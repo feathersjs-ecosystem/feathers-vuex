@@ -16,9 +16,12 @@ export default function setupAuthModule (store, options) {
     const state = {
       accessToken: undefined, // The JWT
       payload: undefined, // The JWT payload
-      isPending: false,
-      isError: false,
-      error: undefined
+
+      isAuthenticationPending: false,
+      isLogoutPending: false,
+
+      errorOnAuthentication: undefined,
+      errorOnLogout: undefined
     }
     // If a userService string was passed, add a user attribute
     if (auth.userService) {

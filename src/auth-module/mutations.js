@@ -9,22 +9,39 @@ export default function makeAuthMutations (feathers, options) {
     setUser (state, payload) {
       state.user = payload
     },
-    setPending (state) {
-      state.isPending = true
-    },
-    unsetPending (state) {
-      state.isPending = false
-    },
-    clearError (state) {
-      state.isError = false
-      state.error = undefined
-    },
-    setError (state, error) {
-      state.isError = true
-      state.error = Object.assign({}, error)
-    },
-    logout (state) {
 
+    setAuthenticationPending (state) {
+      state.isAuthenticationPending = true
+    },
+    unsetAuthenticationPending (state) {
+      state.isAuthenticationPending = false
+    },
+    setLogoutPending (state) {
+      state.isLogoutPending = true
+    },
+    unsetLogoutPending (state) {
+      state.isLogoutPending = false
+    },
+
+    setAuthenticationError (state, error) {
+      state.errorOnAuthentication = Object.assign({}, error)
+    },
+    clearAuthenticationError (state) {
+      state.errorOnAuthentication = undefined
+    },
+    setLogoutError (state, error) {
+      state.errorOnLogout = Object.assign({}, error)
+    },
+    clearLogoutError (state) {
+      state.errorOnLogout = undefined
+    },
+
+    logout (state) {
+      state.payload = undefined
+      state.accessToken = undefined
+      if (state.user) {
+        state.user = undefined
+      }
     }
   }
 }
