@@ -76,17 +76,37 @@ export default function makeServiceActions (service) {
       commit('setRemovePending')
           commit('unsetRemovePending')
           commit('unsetRemovePending')
+
+  function checkId (id, item) {
+    if (id === undefined) {
+      throw new Error('No id found for item. Did you set the idField?', item)
     }
   }
 
   const actions = {
+    addOrUpdateList ({ state, commit }, list) {
+      let toAdd = []
+      let toUpdate = []
+
+      list.forEach(item => {
+        let id = item[idField]
+        let existingItem = state.keyedById[id]
+
+        checkId(id, item)
+
+        existingItem ? toUpdate.push(item) : toAdd.push(item)
+      })
+
+      commit('addItems', toAdd)
+      commit('updateItems', toUpdate)
+    },
     addOrUpdate ({ state, commit }, item) {
       let id = item[idField]
-      if (id === undefined) {
-        throw new Error('No id found for item. Did you set the idField?', item)
-      }
-      let existing = state.keyedById[id]
-      existing ? commit('updateItem', item) : commit('addItem', item)
+      let existingItem = state.keyedById[id]
+
+      checkId(id, item)
+
+      existingItem ? commit('updateItem', item) : commit('addItem', item)
     }
   }
   Object.keys(serviceActions).map(method => {
