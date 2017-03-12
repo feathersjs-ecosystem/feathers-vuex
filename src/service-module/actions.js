@@ -1,13 +1,14 @@
 export default function makeServiceActions (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
+
   const serviceActions = {
     find ({ commit, dispatch }, params) {
       commit('setFindPending')
       const handleResponse = response => {
         commit('unsetFindPending')
         let data = response.data || response
-        data.map(item => dispatch('addOrUpdate', item))
+        dispatch('addOrUpdateList', data)
         return response
       }
       const request = service.find(params)
@@ -28,7 +29,9 @@ export default function makeServiceActions (service) {
         id = params
         params = undefined
       }
+
       commit('setGetPending')
+
       return service.get(id, params)
         .then(item => {
           commit('unsetGetPending')
@@ -45,6 +48,7 @@ export default function makeServiceActions (service) {
 
     create ({ commit, dispatch }, data) {
       commit('setCreatePending')
+
       return service.create(data)
         .then(item => {
           commit('unsetCreatePending')
@@ -61,6 +65,7 @@ export default function makeServiceActions (service) {
 
     update ({ commit, dispatch }, id, data) {
       commit('setUpdatePending')
+
       return service.update(id, data)
         .then(item => {
           commit('unsetUpdatePending')
@@ -76,6 +81,7 @@ export default function makeServiceActions (service) {
 
     patch ({ commit, dispatch }, id, data) {
       commit('setPatchPending')
+
       return service.patch(id, data)
         .then(item => {
           commit('unsetPatchPending')
@@ -91,6 +97,7 @@ export default function makeServiceActions (service) {
 
     remove ({ commit, dispatch }, id) {
       commit('setRemovePending')
+
       return service.remove(id)
         .then(item => {
           commit('unsetRemovePending')
