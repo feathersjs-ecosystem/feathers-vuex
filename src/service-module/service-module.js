@@ -37,22 +37,20 @@ export default function setupServiceModule (store) {
           copy: undefined,
           service,
           idField,
-          isPending: {
-            find: false,
-            get: false,
-            create: false,
-            update: false,
-            patch: false,
-            remove: false
-          },
-          errors: {
-            find: undefined,
-            get: undefined,
-            create: undefined,
-            update: undefined,
-            patch: undefined,
-            remove: undefined
-          }
+
+          isFindPending: false,
+          isGetPending: false,
+          isCreatePending: false,
+          idUpdatePending: false,
+          isPatchPending: false,
+          isRemovePending: false,
+
+          errorOnfind: undefined,
+          errorOnGet: undefined,
+          errorOnCreate: undefined,
+          errorOnUpdate: undefined,
+          errorOnPatch: undefined,
+          errorOnRemove: undefined
         },
         getters: makeGetters(service),
         mutations: makeMutations(service),

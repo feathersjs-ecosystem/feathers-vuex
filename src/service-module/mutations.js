@@ -67,77 +67,77 @@ export default function makeServiceMutations (service) {
     },
 
     setFindPending (state) {
-      state.isPending.find = true
+      state.isFindPending = true
     },
     unsetFindPending (state) {
-      state.isPending.find = false
+      state.isFindPending = false
     },
     setGetPending (state) {
-      state.isPending.get = true
+      state.isGetPending = true
     },
     unsetGetPending (state) {
-      state.isPending.get = false
+      state.isGetPending = false
     },
     setCreatePending (state) {
-      state.isPending.create = true
+      state.isCreatePending = true
     },
     unsetCreatePending (state) {
-      state.isPending.create = false
+      state.isCreatePending = false
     },
     setUpdatePending (state) {
-      state.isPending.update = true
+      state.isUpdatePending = true
     },
     unsetUpdatePending (state) {
-      state.isPending.update = false
+      state.isUpdatePending = false
     },
     setPatchPending (state) {
-      state.isPending.patch = true
+      state.isPatchPending = true
     },
     unsetPatchPending (state) {
-      state.isPending.patch = false
+      state.isPatchPending = false
     },
     setRemovePending (state) {
-      state.isPending.remove = true
+      state.isRemovePending = true
     },
     unsetRemovePending (state) {
-      state.isPending.remove = false
+      state.isRemovePending = false
     },
 
     setFindError (state, payload) {
-      state.errors.find = Object.assign({}, payload)
+      state.errorOnFind = Object.assign({}, payload)
     },
     clearFindError (state) {
-      state.errors.find = undefined
+      state.errorOnFind = undefined
     },
     setGetError (state, payload) {
-      state.errors.get = Object.assign({}, payload)
+      state.errorOnGet = Object.assign({}, payload)
     },
     clearGetError (state) {
-      state.errors.get = undefined
+      state.errorOnGet = undefined
     },
     setCreateError (state, payload) {
-      state.errors.create = Object.assign({}, payload)
+      state.errorOnCreate = Object.assign({}, payload)
     },
     clearCreateError (state) {
-      state.errors.create = undefined
+      state.errorOnCreate = undefined
     },
     setUpdateError (state, payload) {
-      state.errors.update = Object.assign({}, payload)
+      state.errorOnUpdate = Object.assign({}, payload)
     },
     clearUpdateError (state) {
-      state.errors.update = undefined
+      state.errorOnUpdate = undefined
     },
     setPatchError (state, payload) {
-      state.errors.patch = Object.assign({}, payload)
+      state.errorOnPatch = Object.assign({}, payload)
     },
     clearPatchError (state) {
-      state.errors.patch = undefined
+      state.errorOnPatch = undefined
     },
     setRemoveError (state, payload) {
-      state.errors.remove = Object.assign({}, payload)
+      state.errorOnRemove = Object.assign({}, payload)
     },
     clearRemoveError (state) {
-      state.errors.remove = undefined
+      state.errorOnRemove = undefined
     }
   }
 }
