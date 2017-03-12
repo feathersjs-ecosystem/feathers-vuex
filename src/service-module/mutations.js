@@ -106,20 +106,38 @@ export default function makeServiceMutations (service) {
     setFindError (state, payload) {
       state.errors.find = Object.assign({}, payload)
     },
+    clearFindError (state) {
+      state.errors.find = undefined
+    },
     setGetError (state, payload) {
       state.errors.get = Object.assign({}, payload)
+    },
+    clearGetError (state) {
+      state.errors.get = undefined
     },
     setCreateError (state, payload) {
       state.errors.create = Object.assign({}, payload)
     },
+    clearCreateError (state) {
+      state.errors.create = undefined
+    },
     setUpdateError (state, payload) {
       state.errors.update = Object.assign({}, payload)
+    },
+    clearUpdateError (state) {
+      state.errors.update = undefined
     },
     setPatchError (state, payload) {
       state.errors.patch = Object.assign({}, payload)
     },
+    clearPatchError (state) {
+      state.errors.patch = undefined
+    },
     setRemoveError (state, payload) {
       state.errors.remove = Object.assign({}, payload)
+    },
+    clearRemoveError (state) {
+      state.errors.remove = undefined
     }
   }
 }
