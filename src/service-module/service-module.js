@@ -37,9 +37,6 @@ export default function setupServiceModule (store) {
           copy: undefined,
           service,
           idField,
-          isPending: false,
-          isError: false,
-          error: undefined
           isPending: {
             find: false,
             get: false,
@@ -48,6 +45,14 @@ export default function setupServiceModule (store) {
             patch: false,
             remove: false
           },
+          errors: {
+            find: undefined,
+            get: undefined,
+            create: undefined,
+            update: undefined,
+            patch: undefined,
+            remove: undefined
+          }
         },
         getters: makeGetters(service),
         mutations: makeMutations(service),
