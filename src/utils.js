@@ -4,8 +4,8 @@ export function stripSlashes (location) {
   return location.replace(/^(\/*)|(\/*)$/g, '')
 }
 
-export function normalizePath (service) {
-  service.path = service.path || service.name
+export function normalizePath (service, location) {
+  service.path = service.path || service.name || stripSlashes(location)
   return service
 }
 

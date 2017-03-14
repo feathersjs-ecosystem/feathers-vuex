@@ -60,7 +60,6 @@ export default function (clientOrStore, options = {}, modules = {}) {
         const force = moduleOptions.hasOwnProperty('force') ? moduleOptions.force : true
         delete moduleOptions.force
 
-        normalizePath(service)
         addConfigTo(service, moduleOptions)
         setup(service, { force })
         addToFeathersModule(service)
@@ -71,6 +70,8 @@ export default function (clientOrStore, options = {}, modules = {}) {
     // Duck punch the service method so we can detect when services are created.
     const emitter = rubberduck.emitter(feathers).punch('service')
     emitter.on('afterService', function (service, args, instance) {
+      var location = args[0]
+      normalizePath(service, location)
       addVuexMethod(service, options, modules)
 
       // Only auto-setup on service creation, not on lookup

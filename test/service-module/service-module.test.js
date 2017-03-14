@@ -2,6 +2,7 @@ import assert from 'chai/chai'
 import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
+import memory from 'feathers-memory'
 
 describe('Service Module', () => {
   describe('Configuration', () => {
@@ -130,13 +131,11 @@ describe('Service Module', () => {
       const store = makeStore()
       makeFeathersRestClient()
         .configure(feathersVuex(store, {idField: '_id'}))
-        .service('todos')
+        .service('todos', memory())
 
       const todoState = store.state.todos
 
       assert(todoState.ids.length === 0)
-      assert(todoState.isPending === false)
-      assert(todoState.isError === false)
       assert(todoState.error === undefined)
       assert(todoState.idField === '_id')
       assert.deepEqual(todoState.keyedById, {})
