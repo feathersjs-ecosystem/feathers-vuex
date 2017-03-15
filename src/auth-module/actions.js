@@ -18,7 +18,7 @@ export default function makeAuthActions (feathers, options) {
               commit('setPayload', payload)
 
               // Populate the user if the userService was provided
-              if (auth.userService && payload.userId) {
+              if (auth.userService && payload.hasOwnProperty('userId')) {
                 return dispatch('populateUser', payload.userId)
                   .then(() => {
                     commit('unsetAuthenticatePending')
@@ -55,7 +55,6 @@ export default function makeAuthActions (feathers, options) {
           return response
         })
         .catch(error => {
-          debugger
           return Promise.reject(error)
         })
     }

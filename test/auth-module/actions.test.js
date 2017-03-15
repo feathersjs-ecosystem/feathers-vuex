@@ -3,8 +3,9 @@ import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
 import { mapActions } from 'vuex'
+import memory from 'feathers-memory'
 
-const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6OTk5OTk5OTk5OTk5OX0.RSVn5U51HLa8xAo2ilpOHB076DmD7au6tYQw5cEgPKY'
+const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjAsImV4cCI6OTk5OTk5OTk5OTk5OX0.zmvEm8w142xGI7CbUsnvVGZk_hrVE1KEjzDt80LSW50'
 
 describe('Auth Module Actions', () => {
   it('Authenticate', (done) => {
@@ -36,9 +37,7 @@ describe('Auth Module Actions', () => {
       assert(authState.isAuthenticatePending === false)
       assert(authState.isLogoutPending === false)
       let expectedPayload = {
-        sub: '1234567890',
-        name: 'John Doe',
-        admin: true,
+        userId: 0,
         exp: 9999999999999
       }
       assert.deepEqual(authState.payload, expectedPayload)
@@ -61,9 +60,6 @@ describe('Auth Module Actions', () => {
     feathersClient.service('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
-      },
-      remove (data) {
-        debugger
       }
     })
 
@@ -83,6 +79,34 @@ describe('Auth Module Actions', () => {
         assert(authState.payload === undefined)
         done()
       })
+    })
+  })
+
+  it('Authenticate with userService config option', (done) => {
+    const store = makeStore()
+    const feathersClient = makeFeathersRestClient()
+      .configure(feathersVuex(store, {auth: {userService: 'users'}}))
+    feathersClient.service('authentication', {
+      create (data) {
+        return Promise.resolve({ accessToken })
+      }
+    })
+    feathersClient.service('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
+
+    const authState = store.state.auth
+    const actions = mapActions('auth', ['authenticate'])
+
+    assert(authState.user === undefined)
+
+    const request = {strategy: 'local', email: 'test', password: 'test'}
+    actions.authenticate.call({$store: store}, request)
+    .then(response => {
+      let expectedUser = {
+        id: 0,
+        email: 'test@test.com'
+      }
+      assert.deepEqual(authState.user, expectedUser)
+      done()
     })
   })
 })

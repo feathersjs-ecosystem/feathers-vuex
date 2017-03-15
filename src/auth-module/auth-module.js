@@ -25,7 +25,7 @@ export default function setupAuthModule (store, options) {
     }
     // If a userService string was passed, add a user attribute
     if (auth.userService) {
-      state.user = null
+      state.user = undefined
     }
     const combinedState = Object.assign(state, auth.state)
     const mutations = setupMutations(feathers, options)
