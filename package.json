@@ -37,7 +37,8 @@
     "lint": "standard src/**/*.js test/**/*.js --fix",
     "mocha": "mocha --opts mocha.opts",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "test": "npm run compile && npm run lint && npm run coverage",
+    "test": "npm run lint && npm run testee",
+    "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app"
   },
   "standard": {
@@ -97,6 +98,7 @@
     "socket.io-client": "^1.7.3",
     "steal": "^1.2.10",
     "steal-mocha": "^1.0.0",
+    "testee": "^0.3.1",
     "vue": "^2.2.1",
     "vuex": "^2.2.1"
   }
