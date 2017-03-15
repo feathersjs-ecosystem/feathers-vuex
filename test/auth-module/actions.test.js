@@ -3,7 +3,6 @@ import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
 import { mapActions } from 'vuex'
-import memory from 'feathers-memory'
 
 const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6OTk5OTk5OTk5OTk5OX0.RSVn5U51HLa8xAo2ilpOHB076DmD7au6tYQw5cEgPKY'
 
@@ -53,5 +52,37 @@ describe('Auth Module Actions', () => {
     assert(authState.isAuthenticatePending === true)
     assert(authState.isLogoutPending === false)
     assert(authState.payload === undefined)
+  })
+
+  it('Logout', (done) => {
+    const store = makeStore()
+    const feathersClient = makeFeathersRestClient()
+      .configure(feathersVuex(store))
+    feathersClient.service('authentication', {
+      create (data) {
+        return Promise.resolve({ accessToken })
+      },
+      remove (data) {
+        debugger
+      }
+    })
+
+    const authState = store.state.auth
+    const actions = mapActions('auth', ['authenticate', 'logout'])
+    const request = {strategy: 'local', email: 'test', password: 'test'}
+
+    actions.authenticate.call({$store: store}, request)
+    .then(authResponse => {
+      actions.logout.call({$store: store})
+      .then(response => {
+        assert(authState.accessToken === undefined)
+        assert(authState.errorOnAuthenticate === undefined)
+        assert(authState.errorOnLogout === undefined)
+        assert(authState.isAuthenticatePending === false)
+        assert(authState.isLogoutPending === false)
+        assert(authState.payload === undefined)
+        done()
+      })
+    })
   })
 })

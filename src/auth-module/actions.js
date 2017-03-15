@@ -54,6 +54,10 @@ export default function makeAuthActions (feathers, options) {
           commit('unsetLogoutPending')
           return response
         })
+        .catch(error => {
+          debugger
+          return Promise.reject(error)
+        })
     }
   }
 }
