@@ -31,8 +31,18 @@ export default function makeServiceMutations (service) {
     updateItems (state, payload) {
       payload.forEach(item => updateItem(state, payload))
     },
-    removeData (state, id) {
-      state.data = state.data.filter(item => item[service.id] !== id)
+    removeItem (state, id) {
+      var keyedById = {}
+      state.ids = state.ids.filter(currentId => {
+        let notSame = currentId !== id
+        if (notSame) {
+          keyedById[currentId] = state.keyedById[currentId]
+        }
+        return notSame
+      })
+
+      state.keyedById = keyedById
+
       if (state.currentId === id) {
         state.currentId = undefined
         state.copy = undefined

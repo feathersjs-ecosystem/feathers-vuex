@@ -21,13 +21,13 @@ export default function makeServiceActions (service) {
     },
 
     get ({ commit, dispatch }, params) {
-      let id
+      var id = null
       if (typeof params === 'string' || typeof params === 'number') {
+        id = params
+        params = {}
+      } else if (params && typeof params[idField] !== 'undefined') {
         id = params[idField]
         delete params[idField]
-      } else {
-        id = params
-        params = undefined
       }
 
       commit('setGetPending')
@@ -63,10 +63,10 @@ export default function makeServiceActions (service) {
         })
     },
 
-    update ({ commit, dispatch }, id, data) {
+    update ({ commit, dispatch }, [id, data, params]) {
       commit('setUpdatePending')
 
-      return service.update(id, data)
+      return service.update(id, data, params)
         .then(item => {
           dispatch('addOrUpdate', item)
           commit('unsetUpdatePending')
@@ -79,7 +79,7 @@ export default function makeServiceActions (service) {
         })
     },
 
-    patch ({ commit, dispatch }, id, data) {
+    patch ({ commit, dispatch }, [id, data, params]) {
       commit('setPatchPending')
 
       return service.patch(id, data)
@@ -100,7 +100,7 @@ export default function makeServiceActions (service) {
 
       return service.remove(id)
         .then(item => {
-          dispatch('removeItem', item)
+          commit('removeItem', id)
           commit('unsetRemovePending')
           return item
         })
