@@ -17,10 +17,10 @@ export default function setupAuthModule (store, options) {
       accessToken: undefined, // The JWT
       payload: undefined, // The JWT payload
 
-      isAuthenticationPending: false,
+      isAuthenticatePending: false,
       isLogoutPending: false,
 
-      errorOnAuthentication: undefined,
+      errorOnAuthenticate: undefined,
       errorOnLogout: undefined
     }
     // If a userService string was passed, add a user attribute

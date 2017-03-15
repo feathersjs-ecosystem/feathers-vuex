@@ -4,9 +4,9 @@ export default function makeAuthActions (feathers, options) {
     authenticate (store, data) {
       const { commit, state, dispatch } = store
 
-      commit('setAuthenticationPending')
+      commit('setAuthenticatePending')
       if (state.errorOnAuthentication) {
-        commit('clearAuthenticationError')
+        commit('clearAuthenticateError')
       }
       return feathers.authenticate(data)
         .then(response => {
@@ -21,18 +21,18 @@ export default function makeAuthActions (feathers, options) {
               if (auth.userService && payload.userId) {
                 return dispatch('populateUser', payload.userId)
                   .then(() => {
-                    commit('unsetAuthenticationPending')
+                    commit('unsetAuthenticatePending')
                     return response
                   })
               } else {
-                commit('unsetAuthenticationPending')
+                commit('unsetAuthenticatePending')
               }
               return response
             })
         })
         .catch(error => {
-          commit('setAuthenticationError', error)
-          commit('unsetAuthenticationPending')
+          commit('setAuthenticateError', error)
+          commit('unsetAuthenticatePending')
           return Promise.reject(error)
         })
     },

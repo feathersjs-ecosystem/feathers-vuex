@@ -10,11 +10,11 @@ export default function makeAuthMutations (feathers, options) {
       state.user = payload
     },
 
-    setAuthenticationPending (state) {
-      state.isAuthenticationPending = true
+    setAuthenticatePending (state) {
+      state.isAuthenticatePending = true
     },
-    unsetAuthenticationPending (state) {
-      state.isAuthenticationPending = false
+    unsetAuthenticatePending (state) {
+      state.isAuthenticatePending = false
     },
     setLogoutPending (state) {
       state.isLogoutPending = true
@@ -23,11 +23,11 @@ export default function makeAuthMutations (feathers, options) {
       state.isLogoutPending = false
     },
 
-    setAuthenticationError (state, error) {
-      state.errorOnAuthentication = Object.assign({}, error)
+    setAuthenticateError (state, error) {
+      state.errorOnAuthenticate = Object.assign({}, error)
     },
-    clearAuthenticationError (state) {
-      state.errorOnAuthentication = undefined
+    clearAuthenticateError (state) {
+      state.errorOnAuthenticate = undefined
     },
     setLogoutError (state, error) {
       state.errorOnLogout = Object.assign({}, error)
