@@ -71,8 +71,7 @@
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.5.0",
     "feathers-query-filters": "^2.1.2",
-    "rubberduck": "^1.1.1",
-    "standard": "^9.0.0"
+    "rubberduck": "^1.1.1"
   },
   "devDependencies": {
     "axios": "^0.15.3",
@@ -96,6 +95,7 @@
     "mocha": "^3.2.0",
     "shx": "^0.2.2",
     "socket.io-client": "^1.7.3",
+    "standard": "^9.0.1",
     "steal": "^1.2.10",
     "steal-mocha": "^1.0.0",
     "testee": "^0.3.1",
