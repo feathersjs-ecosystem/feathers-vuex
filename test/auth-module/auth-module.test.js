@@ -2,7 +2,6 @@ import assert from 'chai/chai'
 import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
-import memory from 'feathers-memory'
 
 describe('Auth Module', () => {
   describe('Configuration', () => {
