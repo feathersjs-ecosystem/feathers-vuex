@@ -79,6 +79,7 @@ An action is included for each of the Feathers service interface methods.  These
 Each service that is setup with Vuex will have the following getters:
 - `find`: accepts a `params` object which allows you to use the [Feathers query syntax]() to query an array of records from the Vuex store.
 - `get`: similar to `find`, but allows you to query a single record from the Vuex store.
+
 ## Auth Module
 The Auth module helps setup your app for login / logout.  It includes the following state by default:
 ```js
@@ -86,6 +87,7 @@ The Auth module helps setup your app for login / logout.  It includes the follow
   accessToken: undefined
 }
 ```
+
 ### Actions
 The following actions are included in the `auth` module:
 - `authenticate`: Same as `feathersClient.authenticate()`
