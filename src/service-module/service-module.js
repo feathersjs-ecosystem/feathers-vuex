@@ -41,7 +41,7 @@ export default function setupServiceModule (store) {
           isFindPending: false,
           isGetPending: false,
           isCreatePending: false,
-          idUpdatePending: false,
+          isUpdatePending: false,
           isPatchPending: false,
           isRemovePending: false,
 
