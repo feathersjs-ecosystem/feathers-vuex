@@ -61,6 +61,9 @@ The following actions are included in the `auth` module:
 ### Configuration
 You can provide an `auth.userService` in the feathersVuex options to automatically populate the user upon successful login.
 
+## Handling Realtime Events
+This plugin works perfectly with the [`feathers-reactive`](https://github.com/feathersjs/feathers-reactive) plugin.  Realtime events are handled in that plugin, allowing this plugin to stay lean and focused.  See the example below for how to add support for Feathers realtime events using `feathers-reactive`.
+
 
 ## Complete Example
 
