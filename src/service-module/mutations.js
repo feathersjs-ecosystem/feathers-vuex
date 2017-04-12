@@ -29,7 +29,7 @@ export default function makeServiceMutations (service) {
       updateItem(state, payload)
     },
     updateItems (state, payload) {
-      payload.forEach(item => updateItem(state, payload))
+      payload.forEach(item => updateItem(state, item))
     },
     removeItem (state, id) {
       var keyedById = {}
