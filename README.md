@@ -1,8 +1,6 @@
 # feathers-vuex
 
 [![Build Status](https://travis-ci.org/feathersjs/feathers-vuex.png?branch=master)](https://travis-ci.org/feathersjs/feathers-vuex)
-[![Code Climate](https://codeclimate.com/github/feathersjs/feathers-vuex/badges/gpa.svg)](https://codeclimate.com/github/feathersjs/feathers-vuex)
-[![Test Coverage](https://codeclimate.com/github/feathersjs/feathers-vuex/badges/coverage.svg)](https://codeclimate.com/github/feathersjs/feathers-vuex/coverage)
 [![Dependency Status](https://img.shields.io/david/feathersjs/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
@@ -15,37 +13,6 @@ npm install feathers-vuex --save
 ```
 
 ## Documentation
-
-Please refer to the [feathers-vuex documentation](http://docs.feathersjs.com/) for more details.
-
-## Complete Example
-
-Here's an example of a Feathers server that uses `feathers-vuex`.
-
-```js
-const feathers = require('feathers/client');
-const socketio = require('feathers-socketio/client');
-const auth = require('feathers-authentication-client');
-const reactive = require('feathers-reactive')
-const RxJS = require('rxjs');
-const hooks = require('feathers-hooks');
-const feathersVuex = require('feathers-vuex');
-
-// Bring in your Vuex store
-const store = require('/path/to/vuex/store');
-
-// Initialize the application
-const feathersClient = feathers()
-  .configure(rest())
-  .configure(hooks())
-  .configure(auth())
-  .configure(reactive(RxJS))
-  // Initialize feathersVuex with the Vuex store
-  .configure(feathersVuex(store));
-
-// Automatically setup Vuex with a todos module
-app.service('todos')
-```
 
 There are three modules included:
 1. The Feathers module keeps a list of all services with vuex stores attached.
@@ -96,6 +63,38 @@ The following actions are included in the `auth` module:
 ### Configuration
 You can provide an `auth.userService` in the feathersVuex options to automatically populate the user upon successful login.
 
+## Handling Realtime Events
+This plugin works perfectly with the [`feathers-reactive`](https://github.com/feathersjs/feathers-reactive) plugin.  Realtime events are handled in that plugin, allowing this plugin to stay lean and focused.  See the example below for how to add support for Feathers realtime events using `feathers-reactive`.
+
+
+## Complete Example
+
+Here's an example of a Feathers server that uses `feathers-vuex`.
+
+```js
+const feathers = require('feathers/client');
+const socketio = require('feathers-socketio/client');
+const auth = require('feathers-authentication-client');
+const reactive = require('feathers-reactive')
+const RxJS = require('rxjs');
+const hooks = require('feathers-hooks');
+const feathersVuex = require('feathers-vuex');
+
+// Bring in your Vuex store
+const store = require('/path/to/vuex/store');
+
+// Initialize the application
+const feathersClient = feathers()
+  .configure(rest())
+  .configure(hooks())
+  .configure(auth())
+  .configure(reactive(RxJS))
+  // Initialize feathersVuex with the Vuex store
+  .configure(feathersVuex(store));
+
+// Automatically setup Vuex with a todos module
+app.service('todos')
+```
 
 ## License
 
