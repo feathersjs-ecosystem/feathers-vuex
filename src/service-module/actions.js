@@ -11,12 +11,20 @@ export default function makeServiceActions (service) {
         commit('unsetFindPending')
         return response
       }
+      const handleError = error => {
+        commit('setFindError', Object.assign({}, error))
+        commit('unsetFindPending')
+        return Promise.reject(error)
+      }
+
       const request = service.find(params)
-        .catch(error => {
-          commit('setFindError', Object.assign({}, error))
-          commit('unsetFindPending')
-          return Promise.reject(error)
-        })
+
+      if (service.rx) {
+        Object.getPrototypeOf(request).catch(handleError)
+      } else {
+        request.catch(handleError)
+      }
+
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
