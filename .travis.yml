@@ -5,6 +5,10 @@ addons:
   code_climate:
     repo_token: 'your repo token'
   firefox: "51.0"
+before_install:
+  - "export DISPLAY=:99.0"
+  - "export DEBUG=testee:*"
+  - "sh -e /etc/init.d/xvfb start"
 notifications:
   email: false
 before_script:
