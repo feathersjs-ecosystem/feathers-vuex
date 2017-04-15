@@ -20,7 +20,7 @@ There are three modules included:
 3. The Auth module sets up the Vuex store for authentication / logout.
 
 ## Feathers Module
-Includes the following state
+The `Feathers Module` allows your application to peer into how the Feathers client services are setup. It includes the following state:
 ```js
 {
   services: {
@@ -31,7 +31,7 @@ Includes the following state
 ```
 
 ## Service Module
-Automatically sets up newly-created services into the Vuex store.
+The `Service Module` automatically sets up newly-created services into the Vuex store.
 
 ### Actions
 An action is included for each of the Feathers service interface methods.  These actions will affect changes in both the Feathers API server and the Vuex store.
