@@ -70,6 +70,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
     // Duck punch the service method so we can detect when services are created.
     const emitter = rubberduck.emitter(feathers).punch('service')
     emitter.on('afterService', function (service, args, instance) {
+      if (!service) {
+        throw new Error('No service was created. Make sure you are using the client modules of all Feathers packages. For example, use `feathers-socketio/client` instead of `feathers-socketio`.')
+      }
       var location = args[0]
       normalizePath(service, location)
       addVuexMethod(service, options, modules)
