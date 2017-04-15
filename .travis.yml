@@ -6,6 +6,7 @@ node_js:
 addons:
   code_climate:
     repo_token: 'your repo token'
+  firefox: "51.0"
 notifications:
   email: false
 before_script:
