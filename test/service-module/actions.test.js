@@ -5,7 +5,7 @@ import { makeFeathersRestClient } from '../fixtures/feathers-client'
 import { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 
-describe('Service Module Actions', () => {
+describe('Service Module - Actions', () => {
   it('Find', (done) => {
     const store = makeStore()
     const feathersClient = makeFeathersRestClient()

@@ -7,7 +7,7 @@ import memory from 'feathers-memory'
 
 const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjAsImV4cCI6OTk5OTk5OTk5OTk5OX0.zmvEm8w142xGI7CbUsnvVGZk_hrVE1KEjzDt80LSW50'
 
-describe('Auth Module Actions', () => {
+describe('Auth Module - Actions', () => {
   it('Authenticate', (done) => {
     const store = makeStore()
     const feathersClient = makeFeathersRestClient()

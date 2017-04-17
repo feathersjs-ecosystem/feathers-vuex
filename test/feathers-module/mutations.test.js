@@ -4,7 +4,7 @@ import mapMutations from '~/src/feathers-module/mutations'
 const mutations = mapMutations()
 const { addService } = mutations
 
-describe('Feathers Module Mutations', () => {
+describe('Feathers Module - Mutations', () => {
   it('addService', () => {
     const state = {
       services: {
