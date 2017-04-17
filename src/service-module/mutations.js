@@ -62,6 +62,15 @@ export default function makeServiceMutations (service) {
       state.keyedById = {}
     },
 
+    clearList (state) {
+      let currentId = state.currentId
+      let current = state.keyedById[currentId]
+      state.keyedById = {
+        [currentId]: current
+      }
+      state.ids = [currentId]
+    },
+
     setCurrent (state, payload) {
       let id = payload[idField]
       state.currentId = id
