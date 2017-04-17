@@ -1,4 +1,5 @@
 import deepAssign from 'deep-assign'
+import serializeError from 'serialize-error'
 
 export default function makeServiceMutations (service) {
   const { vuexOptions } = service
@@ -119,37 +120,37 @@ export default function makeServiceMutations (service) {
     },
 
     setFindError (state, payload) {
-      state.errorOnFind = Object.assign({}, payload)
+      state.errorOnFind = Object.assign({}, serializeError(payload))
     },
     clearFindError (state) {
       state.errorOnFind = undefined
     },
     setGetError (state, payload) {
-      state.errorOnGet = Object.assign({}, payload)
+      state.errorOnGet = Object.assign({}, serializeError(payload))
     },
     clearGetError (state) {
       state.errorOnGet = undefined
     },
     setCreateError (state, payload) {
-      state.errorOnCreate = Object.assign({}, payload)
+      state.errorOnCreate = Object.assign({}, serializeError(payload))
     },
     clearCreateError (state) {
       state.errorOnCreate = undefined
     },
     setUpdateError (state, payload) {
-      state.errorOnUpdate = Object.assign({}, payload)
+      state.errorOnUpdate = Object.assign({}, serializeError(payload))
     },
     clearUpdateError (state) {
       state.errorOnUpdate = undefined
     },
     setPatchError (state, payload) {
-      state.errorOnPatch = Object.assign({}, payload)
+      state.errorOnPatch = Object.assign({}, serializeError(payload))
     },
     clearPatchError (state) {
       state.errorOnPatch = undefined
     },
     setRemoveError (state, payload) {
-      state.errorOnRemove = Object.assign({}, payload)
+      state.errorOnRemove = Object.assign({}, serializeError(payload))
     },
     clearRemoveError (state) {
       state.errorOnRemove = undefined
