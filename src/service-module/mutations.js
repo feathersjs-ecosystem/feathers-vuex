@@ -6,7 +6,12 @@ export default function makeServiceMutations (service) {
 
   function addItem (state, item) {
     let id = item[idField]
-    state.ids.push(id)
+
+    // Only add the id if it's not already in the `ids` list.
+    if (!state.ids.includes(id)) {
+      state.ids.push(id)
+    }
+
     state.keyedById = {
       ...state.keyedById,
       [id]: item
