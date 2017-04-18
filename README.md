@@ -172,17 +172,76 @@ The following mutations are called automatically by the service actions, and wil
 
 ### Service Actions
 An action is included for each of the Feathers service interface methods.  These actions will affect changes in both the Feathers API server and the Vuex store.
-- `find`: query an array of records from the server & add to Vuex store
-- `get`: query a single record from the server & add to Vuex store
-- `create`: create one (as an object) or multiple (as an array) records
-- `update`: update (overwrite) a record
-- `patch`: patch (merge in changes) one or more records
-- `remove`: remove/delete the record
 
-### Getters
-Each service that is setup with Vuex will have the following getters:
-- `find`: accepts a `params` object which allows you to use the [Feathers query syntax]() to query an array of records from the Vuex store.
-- `get`: similar to `find`, but allows you to query a single record from the Vuex store.
+All of the [Feathers Service Methods](https://docs.feathersjs.com/api/databases/common.html#service-methods) are supported.  Because Vuex only supports providing a single argument to actions, there is a slight change in syntax that works well.  If you need to pass multiple arguments to a service method, pass an array to the action with the order of the array elements matching the order of the arguments.  See each method for examples.
+
+> Note: If you use the Feathers service methods, directly, the store will not change. Only the actions will cause store changes.
+
+#### `find(params)`
+Query an array of records from the server & add to the Vuex store.
+- `params {Object}` - An object containing a `query` object.
+
+```js
+let params = {query: {completed: true}}
+store.dispatch('todos/find', params)
+```
+
+#### `get(id)` or `get([id, params])`
+Query a single record from the server & add to Vuex store
+- `id {Number|String}` - the `id` of the record being requested from the API server.
+- `params {Object}` - An object containing a `query` object.
+
+```js
+store.dispatch('todos/get', 1)
+
+// Use an array to pass params
+let params = {}
+store.dispatch('todos/get', [1, params])
+```
+
+#### `create(data)`
+Create one or multiple records.
+- `data {Object|Array}` - if an object is provided, a single record will be created. If an array of objects is provided, multiple records will be created.
+
+```js
+let newTodo = {description: 'write good tests'}
+store.dispatch('todos/create', newTodo)
+```
+
+
+#### `update([id, data, params])`
+Update (overwrite) a record.
+- `id {Number|String}` - the `id` of the existing record being requested from the API server.
+- `data {Object}` - the data that will overwrite the existing record
+- `params {Object}` - An object containing a `query` object.
+
+```js
+let data = {id: 5, description: 'write your tests', completed: true}
+let params = {}
+// Overwrite item 1 with the above data (FYI: Most databases won't let you change the id.)
+store.dispatch('todos/update', [1, data, params])
+```
+
+#### `patch([id, data, params])`
+Patch (merge in changes) one or more records
+- `id {Number|String}` - the `id` of the existing record being requested from the API server.
+- `data {Object}` - the data that will be merged into the existing record
+- `params {Object}` - An object containing a `query` object.
+
+```js
+let data = {description: 'write your tests', completed: true}
+let params = {}
+store.dispatch('todos/update', [1, data, params])
+```
+
+
+#### `remove(id)`
+Remove/delete the record with the given `id`.
+- `id {Number|String}` - the `id` of the existing record being requested from the API server.
+
+```js
+store.dispatch('todos/remove', 1)
+```
 
 ## Auth Module
 The Auth module helps setup your app for login / logout.  It includes the following state by default:
