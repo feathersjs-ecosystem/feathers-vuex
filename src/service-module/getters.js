@@ -45,9 +45,6 @@ export default function makeServiceGetters (service) {
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
-    },
-    copy (state) {
-      return state.currentId ? deepAssign(state.keyedById[state.currentId]) : null
     }
   }
 }
