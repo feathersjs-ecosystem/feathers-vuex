@@ -97,36 +97,49 @@ Service modules include the following getters:
 
 ### Service Mutations
 The following mutations are included in each service module.
+
 #### `addItem(state, item)`
 Adds a single item to the `keyedById` map.
 - `item {Object}` - The item to be added to the store.
+
 #### `addItems(state, items)`
 Adds an array of items to the `keyedById` map.
 - `items {Array}` - the items to be added to the store.
+
 #### `updateItem(state, item)`
 Updates an item in the store to match the passed in `item`.
 - `item {Object}` the item, including `id`, to replace the currently-stored item.
+
 #### `updateItems(state, items)`
 Updates multiple items in the store to match the passed in array of items.
 - `items {Array}` - An array of items.
+
 #### `removeItem(state, item)`
 Removes a single item.  `item` can be
 - `item {Number|String|Object}` - The item or id of the item to be deleted.
+
 #### `removeItems(state, items)`
 Removes the passed in items or ids from the store.
 - `items {Array}` - An array of ids or of objects with ids that will be removed from the data store.
+
 #### `setCurrent(state, item)`
 - `item {Number|String|Object}` - the object with id to be set as the current item, or the id of the object in the store that should become the `current` item.  Setting the `current` item or id also create the deep-cloned `copy`.
+
 #### `commitCopy(state)`
 Saves changes from the `copy` to the `current` item.
+
 #### `rejectCopy(state)`
 Re-copies the data from `current` to `copy`, restoring the original copy.
+
 #### `clearCurrent(state)`
 Clears the `current` item, which also clears the copy.
+
 #### `clearList(state)`
 Clears the `list`, excepting the `current` item.
+
 #### `clearAll(state)`
 Clears all data from `ids`, `keyedById`, and `currentId`
+
 #### Mutations for Managing Pending State
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
 - `setFindPending(state)` - sets `isFindPending` to `true`
