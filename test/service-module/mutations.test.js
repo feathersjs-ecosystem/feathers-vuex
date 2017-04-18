@@ -268,6 +268,19 @@ describe('Service Module - Mutations', () => {
     assert(state.copy === undefined)
   })
 
+  it('copy works', () => {
+    const state = makeServiceState(dummyService)
+    const item1 = {
+      _id: 1,
+      test: true
+    }
+    addItem(state, item1)
+    setCurrent(state, item1)
+    assert(state.copy.test === true, 'the copy is in place')
+    state.copy.test = false
+    assert(state.copy.test === false, 'the copy was updated successfully.')
+  })
+
   it('rejectCopy', () => {
     const state = makeServiceState(dummyService)
     const item1 = {
