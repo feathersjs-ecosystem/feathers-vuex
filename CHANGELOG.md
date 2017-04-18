@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.1.0](https://github.com/feathersjs/feathers-vuex/tree/v0.1.0) (2017-04-18)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.0.5...v0.1.0)
+
+**Merged pull requests:**
+
+- Service tests clear list [\#3](https://github.com/feathersjs/feathers-vuex/pull/3) ([marshallswain](https://github.com/marshallswain))
+- add before-install script [\#2](https://github.com/feathersjs/feathers-vuex/pull/2) ([marshallswain](https://github.com/marshallswain))
+
 ## [v0.0.5](https://github.com/feathersjs/feathers-vuex/tree/v0.0.5) (2017-04-15)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.0.4...v0.0.5)
 
