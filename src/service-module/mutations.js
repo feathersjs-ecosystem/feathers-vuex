@@ -112,10 +112,16 @@ export default function makeServiceMutations (service) {
     clearList (state) {
       let currentId = state.currentId
       let current = state.keyedById[currentId]
-      state.keyedById = {
-        [currentId]: current
+
+      if (currentId && current) {
+        state.keyedById = {
+          [currentId]: current
+        }
+        state.ids = [currentId]
+      } else {
+        state.keyedById = {}
+        state.ids = []
       }
-      state.ids = [currentId]
     },
 
     setCurrent (state, item) {
