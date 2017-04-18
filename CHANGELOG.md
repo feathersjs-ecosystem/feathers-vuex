@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.2.1](https://github.com/feathersjs/feathers-vuex/tree/v0.2.1) (2017-04-18)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.2.0...v0.2.1)
+
+**Closed issues:**
+
+- `clearList` mutation behaves unexpectedly if `current` isn't defined [\#5](https://github.com/feathersjs/feathers-vuex/issues/5)
+
+**Merged pull requests:**
+
+- Fix clearList unexpected behavior. Closes \#5 [\#6](https://github.com/feathersjs/feathers-vuex/pull/6) ([silvestreh](https://github.com/silvestreh))
+
 ## [v0.2.0](https://github.com/feathersjs/feathers-vuex/tree/v0.2.0) (2017-04-18)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.1.1...v0.2.0)
 
