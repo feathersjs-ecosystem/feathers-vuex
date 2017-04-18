@@ -62,13 +62,14 @@ describe('Service Module - Actions', () => {
     assert(todoState.idField === 'id')
     assert(todoState.service)
 
+    // Calling a service directly won't update the store.
     feathersClient.service('todos').create([
       { description: 'Do the dishes' },
       { description: 'Do the laundry' },
       { description: 'Do all the things' }
     ])
     .then(response => {
-      actions.get.call({$store: store}, {id: 0})
+      actions.get.call({$store: store}, 0)
       .then(response => {
         assert(todoState.ids.length === 1)
         assert(todoState.errorOnGet === undefined)
@@ -77,7 +78,18 @@ describe('Service Module - Actions', () => {
           0: { id: 0, description: 'Do the dishes' }
         }
         assert.deepEqual(todoState.keyedById, expectedKeyedById)
-        done()
+
+        // Make a request with the array syntax that allows passing params
+        actions.get.call({$store: store}, [1, {}])
+          .then(response2 => {
+            expectedKeyedById = {
+              0: { id: 0, description: 'Do the dishes' },
+              1: { id: 1, description: 'Do the laundry' }
+            }
+            assert(response2.description === 'Do the laundry')
+            assert.deepEqual(todoState.keyedById, expectedKeyedById)
+            done()
+          })
       })
 
       // Make sure proper state changes occurred before response
