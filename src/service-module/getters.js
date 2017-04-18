@@ -1,4 +1,3 @@
-import deepAssign from 'deep-assign'
 import getFilter from 'feathers-query-filters'
 import { sorter, matcher, select, _ } from 'feathers-commons'
 
@@ -45,9 +44,6 @@ export default function makeServiceGetters (service) {
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
-    },
-    copy (state) {
-      return state.currentId ? deepAssign(state.keyedById[state.currentId]) : null
     }
   }
 }

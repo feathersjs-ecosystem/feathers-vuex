@@ -71,7 +71,9 @@
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.6.3",
     "feathers-query-filters": "^2.1.2",
-    "rubberduck": "^1.1.1"
+    "lodash.isobject": "^3.0.2",
+    "rubberduck": "^1.1.1",
+    "serialize-error": "^2.1.0"
   },
   "devDependencies": {
     "axios": "^0.16.1",
@@ -87,7 +89,7 @@
     "feathers-authentication": "^1.2.2",
     "feathers-authentication-client": "^0.3.1",
     "feathers-authentication-jwt": "^0.3.1",
-    "feathers-hooks": "^1.8.1",
+    "feathers-hooks": "^2.0.0",
     "feathers-memory": "^1.1.0",
     "feathers-rest": "^1.7.2",
     "feathers-socketio": "^1.5.2",

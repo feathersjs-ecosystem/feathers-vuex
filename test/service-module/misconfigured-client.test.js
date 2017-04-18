@@ -9,7 +9,7 @@ const feathersClient = feathers()
   .configure(hooks())
   .configure(auth())
 
-describe('Service Module with Bad Client Setup', () => {
+describe('Service Module - Bad Client Setup', () => {
   it('throws an error when no client transport plugin is registered', () => {
     const store = makeStore()
     feathersClient.configure(feathersVuex(store, {idField: '_id'}))
