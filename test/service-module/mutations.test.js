@@ -17,6 +17,7 @@ const {
   updateItem,
   updateItems,
   removeItem,
+  removeItems,
   clearAll,
   clearList,
   setCurrent,
@@ -154,6 +155,41 @@ describe('Service Module - Mutations', () => {
 
     assert(state.ids.length === 0)
     assert(Object.keys(state.keyedById).length === 0)
+  })
+
+  it('removeItems with array of ids', () => {
+    const state = makeServiceState(dummyService)
+    const items = [
+      {_id: 1, test: true},
+      {_id: 2, test: true},
+      {_id: 3, test: true},
+      {_id: 4, test: true}
+    ]
+    addItems(state, items)
+    const itemsToRemove = [1, 2]
+    removeItems(state, itemsToRemove)
+
+    assert(state.ids.length === 2, 'should have 2 ids left')
+    assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
+  })
+
+  it('removeItems with array of items', () => {
+    const state = makeServiceState(dummyService)
+    const items = [
+      {_id: 1, test: true},
+      {_id: 2, test: true},
+      {_id: 3, test: true},
+      {_id: 4, test: true}
+    ]
+    addItems(state, items)
+    const itemsToRemove = [
+      {_id: 1, test: true},
+      {_id: 2, test: true}
+    ]
+    removeItems(state, itemsToRemove)
+
+    assert(state.ids.length === 2, 'should have 2 ids left')
+    assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
   })
 
   it('clearAll', () => {

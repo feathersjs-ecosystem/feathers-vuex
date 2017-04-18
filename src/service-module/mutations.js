@@ -1,5 +1,6 @@
 import deepAssign from 'deep-assign'
 import serializeError from 'serialize-error'
+import isObject from 'lodash.isobject'
 
 export default function makeServiceMutations (service) {
   const { vuexOptions } = service
@@ -25,31 +26,77 @@ export default function makeServiceMutations (service) {
   }
 
   return {
-    addItem (state, payload) {
-      addItem(state, payload)
+    addItem (state, item) {
+      addItem(state, item)
     },
-    addItems (state, payload) {
-      payload.forEach(item => addItem(state, item))
+    addItems (state, items) {
+      items.forEach(item => addItem(state, item))
     },
-    updateItem (state, payload) {
-      updateItem(state, payload)
+    updateItem (state, item) {
+      updateItem(state, item)
     },
-    updateItems (state, payload) {
-      payload.forEach(item => updateItem(state, item))
+    updateItems (state, items) {
+      if (!Array.isArray(items)) {
+        throw new Error('You must provide an array to the `removeItems` mutation.')
+      }
+      items.forEach(item => updateItem(state, item))
     },
-    removeItem (state, id) {
-      var keyedById = {}
-      state.ids = state.ids.filter(currentId => {
-        let notSame = currentId !== id
-        if (notSame) {
-          keyedById[currentId] = state.keyedById[currentId]
+
+    removeItem (state, item) {
+      const idToBeRemoved = isObject(item) ? item[idField] : item
+      const keyedById = {}
+      const { currentId } = state
+
+      state.ids = state.ids.filter(id => {
+        if (id === idToBeRemoved) {
+          return false
+        } else {
+          keyedById[id] = state.keyedById[id]
+          return true
         }
-        return notSame
       })
 
       state.keyedById = keyedById
 
-      if (state.currentId === id) {
+      if (currentId === idToBeRemoved) {
+        state.currentId = undefined
+        state.copy = undefined
+      }
+    },
+
+    removeItems (state, items) {
+      if (!Array.isArray(items)) {
+        throw new Error('You must provide an array to the `removeItems` mutation.')
+      }
+      const containsObjects = items[0] && isObject(items[0])
+      const keyedById = {}
+      const currentId = state.currentId
+      let idsToRemove = items
+      const mapOfIdsToRemove = {}
+
+      // If the array contains objects, create an array of ids. Assume all are the same.
+      if (containsObjects) {
+        idsToRemove = items.map(item => item[idField])
+      }
+
+      // Make a hash map of the idsToRemove, so we don't have to iterate inside a loop
+      idsToRemove.forEach(idToRemove => {
+        mapOfIdsToRemove[idToRemove] = idToRemove
+      })
+
+      // Filter the ids to be those we're keeping. Also create new keyedById.
+      state.ids = state.ids.filter(id => {
+        if (mapOfIdsToRemove[id]) {
+          return false
+        } else {
+          keyedById[id] = state.keyedById[id]
+          return true
+        }
+      })
+
+      state.keyedById = keyedById
+
+      if (currentId && mapOfIdsToRemove[currentId]) {
         state.currentId = undefined
         state.copy = undefined
       }
@@ -71,20 +118,23 @@ export default function makeServiceMutations (service) {
       state.ids = [currentId]
     },
 
-    setCurrent (state, payload) {
-      let id = payload[idField]
+    setCurrent (state, item) {
+      let id = isObject(item) ? item[idField] : item
       state.currentId = id
-      state.copy = deepAssign({}, payload)
+      state.copy = deepAssign({}, item)
     },
+
     clearCurrent (state) {
       state.currentId = undefined
       state.copy = undefined
     },
+
     // Deep assigns current to copy
     rejectCopy (state) {
       let current = state.keyedById[state.currentId]
       deepAssign(state.copy, current)
     },
+
     // Deep assigns copy to current
     commitCopy (state) {
       let current = state.keyedById[state.currentId]
