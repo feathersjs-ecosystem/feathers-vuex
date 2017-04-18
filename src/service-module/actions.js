@@ -28,14 +28,18 @@ export default function makeServiceActions (service) {
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
-    get ({ commit, dispatch }, params) {
-      var id = null
-      if (typeof params === 'string' || typeof params === 'number') {
-        id = params
-        params = {}
-      } else if (params && typeof params[idField] !== 'undefined') {
-        id = params[idField]
-        delete params[idField]
+    // Two query syntaxes are supported, since actions only receive onee argument.
+    //   1. Just pass the id: `get(1)`
+    //   2. Pass arguments as an array: `get([null, params])`
+    get ({ commit, dispatch }, args) {
+      let id
+      let params
+
+      if (Array.isArray(args)) {
+        id = args[0]
+        params = args[1]
+      } else {
+        id = args
       }
 
       commit('setGetPending')
