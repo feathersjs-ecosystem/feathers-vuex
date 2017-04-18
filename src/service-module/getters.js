@@ -1,4 +1,3 @@
-import deepAssign from 'deep-assign'
 import getFilter from 'feathers-query-filters'
 import { sorter, matcher, select, _ } from 'feathers-commons'
 
