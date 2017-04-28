@@ -12,6 +12,59 @@
 npm install feathers-vuex --save
 ```
 
+## Use
+Use `feathers-vuex` the same as any other FeathersJS plugin. The only prerequisite is that you have Vuex configured in your Vue app.  Suppose you have the following Vuex store:
+
+**store/index.js:**
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  state: {}
+})
+```
+
+And here's how you would configure the plugin with your Feathers Client setup:
+
+**feathers-client.js:**
+```js
+import feathers from 'feathers'
+import hooks from 'feathers-hooks'
+import socketio from 'feathers-socketio'
+import auth from 'feathers-authentication-client'
+import io from 'socket.io-client'
+import feathersVuex from 'feathers-vuex'
+import store from '@/store/'
+import rx from 'feathers-reactive'
+import RxJS from 'rxjs'
+
+const socket = io('http://localhost:3030', {transports: ['websocket']})
+
+const feathersClient = feathers()
+  .configure(hooks())
+  .configure(socketio(socket))
+  .configure(auth({ storage: window.localStorage }))
+  .configure(rx(RxJS, {idField: '_id'}))
+  // Register feathers-vuex by passing the store and options
+  .configure(feathersVuex(store, {
+    idField: '_id',
+    auth: {
+      userService: '/users'
+    }
+  }))
+
+// For every service created, a Vuex store module will be created.
+feathersClient.service('/users')
+feathersClient.service('/messages')
+
+export default feathersClient
+```
+
+To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
+
 ## API Documentation
 
 There are three modules included:
