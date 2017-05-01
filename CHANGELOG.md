@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.3.0](https://github.com/feathersjs/feathers-vuex/tree/v0.3.0) (2017-05-01)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.2.2...v0.3.0)
+
+**Merged pull requests:**
+
+- Node: Keep functions out of Vuex state [\#9](https://github.com/feathersjs/feathers-vuex/pull/9) ([marshallswain](https://github.com/marshallswain))
+
 ## [v0.2.2](https://github.com/feathersjs/feathers-vuex/tree/v0.2.2) (2017-04-28)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.2.1...v0.2.2)
 
