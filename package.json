@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "Implement Vuex as a Feathers Client plugin",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
   "keywords": [
