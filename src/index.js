@@ -4,7 +4,7 @@ import setupAuthModule from './auth-module/auth-module'
 import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
 import clone from 'clone'
-import { normalizePath, makeConfig } from './utils'
+import { normalizePath, makeConfig, isBrowser } from './utils'
 
 const defaultOptions = {
   idField: 'id',
@@ -48,7 +48,10 @@ export default function (clientOrStore, options = {}, modules = {}) {
       }
     })
 
-    const addToFeathersModule = setupFeathersModule(store, options)(feathers)
+    var addToFeathersModule
+    if (isBrowser) {
+      addToFeathersModule = setupFeathersModule(store, options)(feathers)
+    }
     const setup = setupServiceModule(store)
     const addConfigTo = makeConfig(options, modules)
     setupAuthModule(store, options)(feathers)
@@ -62,7 +65,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
 
         addConfigTo(service, moduleOptions)
         setup(service, { force })
-        addToFeathersModule(service)
+        if (isBrowser) {
+          addToFeathersModule(service)
+        }
         return service
       }
     }

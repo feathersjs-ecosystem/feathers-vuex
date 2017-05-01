@@ -36,7 +36,7 @@
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard src/**/*.js test/**/*.js --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "test": "npm run lint && npm run testee",
+    "test": "npm run lint && npm run test-node && npm run testee",
     "test-node": "mocha --opts mocha.opts",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app"
