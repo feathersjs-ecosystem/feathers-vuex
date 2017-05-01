@@ -69,3 +69,8 @@ export function makeConfig (options, modules) {
     return service
   }
 }
+
+// from https://github.com/iliakan/detect-node
+export const isNode = Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]'
+
+export const isBrowser = !isNode

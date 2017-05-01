@@ -1,3 +1,2 @@
 --compilers js:babel-core/register
---debug-brk
-test/index.test.js
+test/node.test.js

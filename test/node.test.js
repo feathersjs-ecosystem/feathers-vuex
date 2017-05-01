@@ -1,26 +1,20 @@
 
 import chai from 'chai/chai'
-import 'steal-mocha'
 import store from './fixtures/store'
+import { isNode, isBrowser } from '../src/utils'
 // import feathersVuex from '../src/index'
 // require('./vuex.test.js')
 
 const assert = chai.assert
 
 describe('feathers-vuex', () => {
-  it('is CommonJS compatible', () => {
-    assert(typeof require('../lib') === 'function')
-  })
+  describe('Utils', () => {
+    it('sets isNode to true', () => {
+      assert(isNode, 'isNode was true')
+    })
 
-  it('basic functionality', () => {
-    assert(typeof feathersVuex === 'function', 'It worked')
-  })
-
-  describe('Store', () => {
-    it('responds to commits', () => {
-      var state = store.state
-      store.commit('increment')
-      assert(state.count === 1)
+    it('sets isBrowser to false', () => {
+      assert(!isBrowser, 'isBrowser was false')
     })
   })
 })

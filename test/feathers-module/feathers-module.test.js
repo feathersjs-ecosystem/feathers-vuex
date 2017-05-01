@@ -1,6 +1,7 @@
 import assert from 'chai/chai'
 import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
+import { isNode, isBrowser } from '../../src/utils'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
 
 describe('Feathers Module', () => {
@@ -55,6 +56,16 @@ describe('Feathers Module', () => {
         .configure(feathersVuex(store))
       var todoService = feathersClient.service('api/todos')
       assert(store.state.feathers.services.vuex['api/todos'] === todoService)
+    })
+  })
+
+  describe('Utils', () => {
+    it('sets isNode to false', () => {
+      assert(!isNode, 'isNode was false')
+    })
+
+    it('sets isBrowser to true', () => {
+      assert(isBrowser, 'isBrowser was true')
     })
   })
 })
