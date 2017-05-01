@@ -1,5 +1,6 @@
 import setupMutations from './mutations'
 import { mapMutations } from 'vuex'
+import { isBrowser } from '../utils'
 
 export default function setupFeathersModule (store, options) {
   if (!options.feathers || !options.feathers.namespace) {
@@ -9,13 +10,18 @@ export default function setupFeathersModule (store, options) {
   const moduleName = options.feathers.namespace
 
   return feathers => {
+    const services = {
+      vuex: {}
+    }
+
+    if (isBrowser) {
+      services.all = feathers.services
+    }
+
     store.registerModule(moduleName, {
       namespaced: true,
       state: {
-        services: {
-          all: feathers.services,
-          vuex: {}
-        }
+        services
       },
       mutations: setupMutations(options)
     })
