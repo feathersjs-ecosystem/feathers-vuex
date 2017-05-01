@@ -1,13 +1,14 @@
+import { isBrowser } from '../utils'
+
 export default service => {
   const vuexOptions = service.vuexOptions
   const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
 
-  return {
+  const state = {
     ids: [],
     keyedById: {},
     currentId: undefined,
     copy: undefined,
-    service,
     idField,
 
     isFindPending: false,
@@ -24,4 +25,8 @@ export default service => {
     errorOnPatch: undefined,
     errorOnRemove: undefined
   }
+  if (isBrowser) {
+    state.service = service
+  }
+  return state
 }
