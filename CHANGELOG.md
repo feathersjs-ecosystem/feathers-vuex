@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.4.0](https://github.com/feathersjs/feathers-vuex/tree/v0.4.0) (2017-05-01)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.3.1...v0.4.0)
+
 ## [v0.3.1](https://github.com/feathersjs/feathers-vuex/tree/v0.3.1) (2017-05-01)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.3.0...v0.3.1)
 
