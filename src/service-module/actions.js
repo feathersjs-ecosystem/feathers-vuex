@@ -94,7 +94,7 @@ export default function makeServiceActions (service) {
     patch ({ commit, dispatch }, [id, data, params]) {
       commit('setPatchPending')
 
-      return service.patch(id, data)
+      return service.patch(id, data, params)
         .then(item => {
           dispatch('addOrUpdate', item)
           commit('unsetPatchPending')
