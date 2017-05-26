@@ -94,7 +94,7 @@ export default function makeServiceActions (service) {
     patch ({ commit, dispatch }, [id, data, params]) {
       commit('setPatchPending')
 
-      return service.patch(id, data)
+      return service.patch(id, data, params)
         .then(item => {
           dispatch('addOrUpdate', item)
           commit('unsetPatchPending')
@@ -134,6 +134,14 @@ export default function makeServiceActions (service) {
     addOrUpdateList ({ state, commit }, list) {
       let toAdd = []
       let toUpdate = []
+      let toRemove = [] // Added
+
+      // Find IDs from the state which are not in the list
+      state.ids.forEach(id => {
+        if (!list.some(c => c.id === id)) {
+          toRemove.push(state.keyedById[id])
+        }
+      })
 
       list.forEach(item => {
         let id = item[idField]
@@ -144,6 +152,7 @@ export default function makeServiceActions (service) {
         existingItem ? toUpdate.push(item) : toAdd.push(item)
       })
 
+      commit('removeItems', toRemove) // commit removal
       commit('addItems', toAdd)
       commit('updateItems', toUpdate)
     },
