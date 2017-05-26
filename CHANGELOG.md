@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.4.1](https://github.com/feathersjs/feathers-vuex/tree/v0.4.1) (2017-05-26)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.0...v0.4.1)
+
+**Closed issues:**
+
+- Is possible to upload a file using feathers-vuex? [\#11](https://github.com/feathersjs/feathers-vuex/issues/11)
+- Integration with Nuxt [\#8](https://github.com/feathersjs/feathers-vuex/issues/8)
+
+**Merged pull requests:**
+
+- Bugfix - add params to patch action service call [\#14](https://github.com/feathersjs/feathers-vuex/pull/14) ([ndamjan](https://github.com/ndamjan))
+- fix item removal in addOrUpdateList \(\#12\) [\#13](https://github.com/feathersjs/feathers-vuex/pull/13) ([ndamjan](https://github.com/ndamjan))
+
 ## [v0.4.0](https://github.com/feathersjs/feathers-vuex/tree/v0.4.0) (2017-05-01)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.3.1...v0.4.0)
 
