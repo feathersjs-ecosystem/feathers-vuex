@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.4.2](https://github.com/feathersjs/feathers-vuex/tree/v0.4.2) (2017-06-07)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.1...v0.4.2)
+
+**Closed issues:**
+
+- What is the benefit to convert data in feathers to vuex instead of accessing feathers services directly? [\#18](https://github.com/feathersjs/feathers-vuex/issues/18)
+- items not being removed from the list - fix proposal [\#12](https://github.com/feathersjs/feathers-vuex/issues/12)
+
+**Merged pull requests:**
+
+- QuickFix: Use idField for removal [\#20](https://github.com/feathersjs/feathers-vuex/pull/20) ([cmeissl](https://github.com/cmeissl))
+
 ## [v0.4.1](https://github.com/feathersjs/feathers-vuex/tree/v0.4.1) (2017-05-26)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.0...v0.4.1)
 
