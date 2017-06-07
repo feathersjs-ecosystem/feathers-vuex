@@ -138,7 +138,7 @@ export default function makeServiceActions (service) {
 
       // Find IDs from the state which are not in the list
       state.ids.forEach(id => {
-        if (!list.some(c => c.id === id)) {
+        if (!list.some(item => item[idField] === id)) {
           toRemove.push(state.keyedById[id])
         }
       })
