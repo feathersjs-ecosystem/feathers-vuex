@@ -65,6 +65,9 @@ export default feathersClient
 
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
 
+## A note about feathers-reactive
+If you are using feathers-socketio, you'll probably want to use feathers-reactive with RxJS, as shown in the above example.  This plugin adds reactivity to each query, so lists of data will automatically update upon receive realtime messages from the server.  If you're using `feathers-rest`, feel free to remove `feathers-reactive`, because it won't offer any functionality.
+
 ## API Documentation
 
 ### Global Configuration
