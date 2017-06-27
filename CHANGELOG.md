@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.7.0](https://github.com/feathersjs/feathers-vuex/tree/v0.7.0) (2017-06-27)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.6.0...v0.7.0)
+
+**Merged pull requests:**
+
+- Remove “feathers” module completely [\#27](https://github.com/feathersjs/feathers-vuex/pull/27) ([marshallswain](https://github.com/marshallswain))
+
 ## [v0.6.0](https://github.com/feathersjs/feathers-vuex/tree/v0.6.0) (2017-06-27)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.5.0...v0.6.0)
 
