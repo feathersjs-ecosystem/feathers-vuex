@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.6.0](https://github.com/feathersjs/feathers-vuex/tree/v0.6.0) (2017-06-27)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.5.0...v0.6.0)
+
+**Merged pull requests:**
+
+- Allow customizing a service’s default store [\#26](https://github.com/feathersjs/feathers-vuex/pull/26) ([marshallswain](https://github.com/marshallswain))
+
 ## [v0.5.0](https://github.com/feathersjs/feathers-vuex/tree/v0.5.0) (2017-06-27)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.2...v0.5.0)
 
