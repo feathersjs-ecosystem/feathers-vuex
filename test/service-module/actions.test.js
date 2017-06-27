@@ -18,7 +18,6 @@ describe('Service Module - Actions', () => {
     assert(todoState.errorOnFind === undefined)
     assert(todoState.isFindPending === false)
     assert(todoState.idField === 'id')
-    assert(todoState.service)
 
     feathersClient.service('todos').create([
       { description: 'Do the dishes' },
@@ -60,7 +59,6 @@ describe('Service Module - Actions', () => {
     assert(todoState.errorOnGet === undefined)
     assert(todoState.isGetPending === false)
     assert(todoState.idField === 'id')
-    assert(todoState.service)
 
     // Calling a service directly won't update the store.
     feathersClient.service('todos').create([
@@ -122,7 +120,6 @@ describe('Service Module - Actions', () => {
     assert(todoState.errorOnCreate === undefined)
     assert(todoState.isCreatePending === true)
     assert(todoState.idField === 'id')
-    assert(todoState.service)
     assert.deepEqual(todoState.keyedById, {})
   })
 
@@ -150,7 +147,6 @@ describe('Service Module - Actions', () => {
         assert(todoState.errorOnUpdate === undefined)
         assert(todoState.isUpdatePending === true)
         assert(todoState.idField === 'id')
-        assert(todoState.service)
       })
   })
 
@@ -178,7 +174,6 @@ describe('Service Module - Actions', () => {
         assert(todoState.errorOnPatch === undefined)
         assert(todoState.isPatchPending === true)
         assert(todoState.idField === 'id')
-        assert(todoState.service)
       })
   })
 
@@ -206,7 +201,6 @@ describe('Service Module - Actions', () => {
         assert(todoState.errorOnRemove === undefined)
         assert(todoState.isRemovePending === true)
         assert(todoState.idField === 'id')
-        assert(todoState.service)
       })
   })
 })
