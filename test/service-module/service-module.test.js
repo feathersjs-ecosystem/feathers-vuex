@@ -3,6 +3,7 @@ import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
 import memory from 'feathers-memory'
+import todos from '../fixtures/todos'
 
 describe('Service Module', () => {
   describe('Configuration', () => {
@@ -139,6 +140,27 @@ describe('Service Module', () => {
       assert(todoState.error === undefined)
       assert(todoState.idField === '_id')
       assert.deepEqual(todoState.keyedById, {})
+    })
+
+    it(`populates items on find`, function (done) {
+      const store = makeStore()
+      makeFeathersRestClient()
+        .configure(feathersVuex(store, {idField: '_id'}))
+        .service('todos', memory({store: todos}))
+
+      const todoState = store.state.todos
+
+      assert(todoState.ids.length === 0)
+
+      store.dispatch('todos/find', { query: {} })
+        .then(todos => {
+          assert(todoState.ids.length === 3)
+          done()
+        })
+        .catch(error => {
+          assert(!error, error.message)
+          done()
+        })
     })
   })
 })
