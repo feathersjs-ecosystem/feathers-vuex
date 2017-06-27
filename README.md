@@ -112,7 +112,7 @@ The `Feathers Module` allows your application to peer into how the Feathers clie
 ```
 
 ## Service Module
-The `Service Module` automatically sets up newly-created services into the Vuex store.
+The `Service Module` automatically sets up newly-created services into the Vuex store.  Each service will have the below default state in its store. The service will also have a `vuex` method that will allow you to add custom `state`, `getters`, `mutations`, and `actions` to an individual service's store.
 
 ### Service State
 Each service comes loaded with the following default state:
@@ -322,6 +322,37 @@ Remove/delete the record with the given `id`.
 
 ```js
 store.dispatch('todos/remove', 1)
+```
+
+## Customizing a Service's Default Store
+
+Each registered service will have a `vuex` method that allows you to customize its store:
+
+```js
+app.service('todos').vuex({
+  state: {
+    isCompleted: false
+  },
+  getters: {
+    oneTwoThree (state) {
+      return 123
+    }
+  },
+  mutations: {
+    setToTrue (state) {
+      state.isCompleted = true
+    }
+  },
+  actions: {
+    triggerSetToTrue (context) {
+      context.commit('setToTrue')
+    }
+  }
+})
+
+assert(store.getters['todos/oneTwoThree'] === 123, 'the custom getter was available')
+store.dispatch('todos/trigger')
+assert(store.state.todos.isTrue === true, 'the custom action was run')
 ```
 
 ## Auth Module

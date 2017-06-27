@@ -5,6 +5,7 @@ import isObject from 'lodash.isobject'
 export default function makeServiceMutations (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
+  const customMutations = (vuexOptions.module && vuexOptions.module.mutations) || {}
 
   function addItem (state, item) {
     let id = item[idField]
@@ -219,6 +220,8 @@ export default function makeServiceMutations (service) {
     },
     clearRemoveError (state) {
       state.errorOnRemove = undefined
-    }
+    },
+
+    ...customMutations
   }
 }

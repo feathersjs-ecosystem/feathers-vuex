@@ -1,6 +1,7 @@
 export default service => {
   const vuexOptions = service.vuexOptions
   const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
+  const customState = (vuexOptions.module && vuexOptions.module.state) || {}
 
   const state = {
     ids: [],
@@ -21,7 +22,8 @@ export default service => {
     errorOnCreate: undefined,
     errorOnUpdate: undefined,
     errorOnPatch: undefined,
-    errorOnRemove: undefined
+    errorOnRemove: undefined,
+    ...customState
   }
   return state
 }
