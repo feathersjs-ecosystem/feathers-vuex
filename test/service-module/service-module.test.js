@@ -24,6 +24,7 @@ describe('Service Module', () => {
       const expectedGlobal = {
         idField: 'id',
         auto: true,
+        autoRemove: false,
         nameStyle: 'short',
         feathers: {
           namespace: 'feathers'
