@@ -3,7 +3,7 @@ import feathersVuex from '~/src/index'
 import makeStore from '../fixtures/store'
 import { makeFeathersRestClient } from '../fixtures/feathers-client'
 import memory from 'feathers-memory'
-import todos from '../fixtures/todos'
+import makeTodos from '../fixtures/todos'
 
 describe('Service Module', () => {
   describe('Configuration', () => {
@@ -146,7 +146,7 @@ describe('Service Module', () => {
       const store = makeStore()
       makeFeathersRestClient()
         .configure(feathersVuex(store, {idField: '_id'}))
-        .service('todos', memory({store: todos}))
+        .service('todos', memory({store: makeTodos()}))
 
       const todoState = store.state.todos
 
@@ -161,6 +161,82 @@ describe('Service Module', () => {
           assert(!error, error.message)
           done()
         })
+    })
+
+    describe('Auto-remove items', function () {
+      it(`removes missing items when pagination is off`, function (done) {
+        const store = makeStore()
+        const todoService = makeFeathersRestClient()
+          .configure(feathersVuex(store, {idField: '_id'}))
+          .service('todos', memory({store: makeTodos()}))
+
+        const todoState = store.state.todos
+
+        assert(todoState.ids.length === 0)
+
+        // Load some data into the store
+        store.dispatch('todos/find', { query: {} })
+          .then(todos => {
+            // Remove the third item from the service
+            return todoService.remove(3)
+          })
+          .then(response => {
+            // We went around using the store actions, so there will still be three items.
+            assert(todoState.ids.length === 3, 'there are still three items in the store')
+
+            // Perform the same query again
+            return store.dispatch('todos/find', { query: {} })
+          })
+          .then(todos => {
+            assert(!todos.hasOwnProperty('total'), 'pagination is off')
+            assert(todoState.ids.length === 2, 'there are now two items in the store')
+            done()
+          })
+          .catch(error => {
+            assert(!error, error.message)
+            done()
+          })
+      })
+
+      it(`does not remove missing items when pagination is on`, function (done) {
+        const store = makeStore()
+        const todoService = makeFeathersRestClient()
+          .configure(feathersVuex(store, {idField: '_id'}))
+          .service('todos', memory({
+            store: makeTodos(),
+            paginate: {
+              default: 10,
+              max: 50
+            }
+          }))
+
+        const todoState = store.state.todos
+
+        assert(todoState.ids.length === 0)
+
+        // Load some data into the store
+        store.dispatch('todos/find', { query: {} })
+          .then(todos => {
+            // Remove the third item from the service
+            return todoService.remove(3)
+          })
+          .then(response => {
+            // We went around using the store actions, so there will still be three items.
+            assert(todoState.ids.length === 3, 'there are still three items in the store')
+
+            // Perform the same query again
+            return store.dispatch('todos/find', { query: {} })
+          })
+          .then(todos => {
+            assert(todos.hasOwnProperty('total'), 'pagination is on')
+            assert(todoState.ids.length === 3, 'there are now two items in the store')
+            done()
+          })
+          .catch(error => {
+            assert(!error, error.message)
+            done()
+          })
+      })
     })
   })
 })
