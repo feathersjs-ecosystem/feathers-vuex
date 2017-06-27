@@ -108,7 +108,6 @@ The `Feathers Module` allows your application to peer into how the Feathers clie
 ```js
 {
   services: {
-    all: {}, // The same as feathersClient.services, keyed by path name.
     vuex: {} // All services that have been integrated into Vuex, keyed by path name
   }
 }
