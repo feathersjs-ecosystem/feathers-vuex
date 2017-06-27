@@ -6,8 +6,7 @@ export default function makeServiceActions (service) {
     find ({ commit, dispatch }, params) {
       commit('setFindPending')
       const handleResponse = response => {
-        let data = response.data || response
-        dispatch('addOrUpdateList', data)
+        dispatch('addOrUpdateList', response)
         commit('unsetFindPending')
         return response
       }
@@ -131,17 +130,21 @@ export default function makeServiceActions (service) {
   }
 
   const actions = {
-    addOrUpdateList ({ state, commit }, list) {
-      let toAdd = []
-      let toUpdate = []
-      let toRemove = [] // Added
+    addOrUpdateList ({ state, commit }, response) {
+      const list = response.data || response
+      const isPaginated = response.hasOwnProperty('total')
+      const toAdd = []
+      const toUpdate = []
+      const toRemove = [] // Added
 
-      // Find IDs from the state which are not in the list
-      state.ids.forEach(id => {
-        if (id !== state.currentId && !list.some(item => item[idField] === id)) {
-          toRemove.push(state.keyedById[id])
-        }
-      })
+      if (!isPaginated) {
+        // Find IDs from the state which are not in the list
+        state.ids.forEach(id => {
+          if (id !== state.currentId && !list.some(item => item[idField] === id)) {
+            toRemove.push(state.keyedById[id])
+          }
+        })
+      }
 
       list.forEach(item => {
         let id = item[idField]
