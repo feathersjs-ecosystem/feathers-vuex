@@ -1,7 +1,6 @@
 import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupAuthModule from './auth-module/auth-module'
-import setupFeathersModule from './feathers-module/feathers-module'
 import deepAssign from 'deep-assign'
 import clone from 'clone'
 import { normalizePath, makeConfig } from './utils'
@@ -11,9 +10,6 @@ const defaultOptions = {
   auto: true, // automatically setup a store for each service.
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
-  feathers: {
-    namespace: 'feathers'
-  },
   auth: {
     namespace: 'auth',
     userService: '', // Set this to automatically populate the user on login success.
@@ -47,7 +43,6 @@ export default function (clientOrStore, options = {}, modules = {}) {
       }
     })
 
-    const addToFeathersModule = setupFeathersModule(store, options)(feathers)
     const setup = setupServiceModule(store)
     const addConfigTo = makeConfig(options, modules)
     setupAuthModule(store, options)(feathers)
@@ -61,7 +56,6 @@ export default function (clientOrStore, options = {}, modules = {}) {
 
         addConfigTo(service, moduleOptions)
         setup(service, { force })
-        addToFeathersModule(service)
         return service
       }
     }

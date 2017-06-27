@@ -26,9 +26,6 @@ describe('Service Module', () => {
         auto: true,
         autoRemove: false,
         nameStyle: 'short',
-        feathers: {
-          namespace: 'feathers'
-        },
         auth: {
           namespace: 'auth',
           userService: '',
