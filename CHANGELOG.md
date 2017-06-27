@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.5.0](https://github.com/feathersjs/feathers-vuex/tree/v0.5.0) (2017-06-27)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.2...v0.5.0)
+
+**Closed issues:**
+
+- Are feathers-reactive and RxJS dependencies necessary? [\#22](https://github.com/feathersjs/feathers-vuex/issues/22)
+- Weird / destructive behaviour using mapActions service find between components [\#21](https://github.com/feathersjs/feathers-vuex/issues/21)
+- removeItems action added after create when upgrading version from version 0.4.0 to 0.4.1 [\#19](https://github.com/feathersjs/feathers-vuex/issues/19)
+
+**Merged pull requests:**
+
+- Remove all non-serializable data from the state [\#25](https://github.com/feathersjs/feathers-vuex/pull/25) ([marshallswain](https://github.com/marshallswain))
+- Opt in to `autoRemove` [\#24](https://github.com/feathersjs/feathers-vuex/pull/24) ([marshallswain](https://github.com/marshallswain))
+
 ## [v0.4.2](https://github.com/feathersjs/feathers-vuex/tree/v0.4.2) (2017-06-07)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.4.1...v0.4.2)
 
