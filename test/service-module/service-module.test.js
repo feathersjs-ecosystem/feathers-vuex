@@ -276,4 +276,93 @@ describe('Service Module', () => {
       })
     })
   })
+
+  describe('Customizing Service Stores', function () {
+    it('allows adding custom state', function () {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store, {idField: '_id'}))
+      const service = feathersClient.service('todos', {
+        state: makeTodos()
+      })
+
+      service.vuex({
+        state: {
+          thisIsATest: true
+        }
+      })
+
+      assert(store.state.todos.thisIsATest === true, 'the custom state was mixed into the store')
+    })
+
+    it('allows adding custom mutations', function () {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store, {idField: '_id'}))
+      const service = feathersClient.service('todos', {
+        state: makeTodos()
+      })
+
+      service.vuex({
+        state: {
+          thisIsATest: true
+        },
+        mutations: {
+          disableThisIsATest (state) {
+            state.thisIsATest = false
+          }
+        }
+      })
+
+      store.commit('todos/disableThisIsATest')
+      assert(store.state.todos.thisIsATest === false, 'the custom state was modified by the custom mutation')
+    })
+
+    it('allows adding custom getters', function () {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store, {idField: '_id'}))
+      const service = feathersClient.service('todos', {
+        state: makeTodos()
+      })
+
+      service.vuex({
+        getters: {
+          oneTwoThree (state) {
+            return 123
+          }
+        }
+      })
+
+      assert(store.getters['todos/oneTwoThree'] === 123, 'the custom getter was available')
+    })
+
+    it('allows adding custom actions', function () {
+      const store = makeStore()
+      const feathersClient = makeFeathersRestClient()
+        .configure(feathersVuex(store, {idField: '_id'}))
+      const service = feathersClient.service('todos', {
+        state: makeTodos()
+      })
+
+      service.vuex({
+        state: {
+          isTrue: false
+        },
+        mutations: {
+          setToTrue (state) {
+            state.isTrue = true
+          }
+        },
+        actions: {
+          trigger (context) {
+            context.commit('setToTrue')
+          }
+        }
+      })
+
+      store.dispatch('todos/trigger')
+      assert(store.state.todos.isTrue === true, 'the custom action was run')
+    })
+  })
 })

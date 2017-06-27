@@ -1,6 +1,7 @@
 export default function makeServiceActions (service) {
   const { vuexOptions } = service
   const idField = vuexOptions.module.idField || vuexOptions.global.idField
+  const customActions = (vuexOptions.module && vuexOptions.module.actions) || {}
 
   const serviceActions = {
     find ({ commit, dispatch }, params) {
@@ -166,7 +167,9 @@ export default function makeServiceActions (service) {
       checkId(id, item)
 
       existingItem ? commit('updateItem', item) : commit('addItem', item)
-    }
+    },
+
+    ...customActions
   }
   Object.keys(serviceActions).map(method => {
     if (typeof service[method] === 'function') {
