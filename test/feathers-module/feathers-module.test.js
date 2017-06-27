@@ -23,7 +23,7 @@ describe('Feathers Module', () => {
       feathersClient.service('api/animals')
       const services = store.state.feathers.services
 
-      assert(services.all)
+      assert(!services.all, 'there is no services.all property.')
       assert(services.vuex)
       assert(!services.vuex.animals)
     })
@@ -35,14 +35,13 @@ describe('Feathers Module', () => {
       makeFeathersRestClient().configure(feathersVuex(store))
       const expected = {
         services: {
-          vuex: {},
-          all: {}
+          vuex: {}
         }
       }
-      assert.deepEqual(expected, store.state.feathers)
+      assert.deepEqual(expected, store.state.feathers, 'the feathers module had the correct default state')
     })
 
-    it('has a map of all feathers services', () => {
+    it.skip('has a map of all feathers services', () => {
       const store = makeStore()
       const feathersClient = makeFeathersRestClient()
         .configure(feathersVuex(store))
