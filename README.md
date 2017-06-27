@@ -67,6 +67,34 @@ To see `feathers-vuex` in a working vue-cli application, check out [`feathers-ch
 
 ## API Documentation
 
+### Global Configuration
+
+The following default options are available for configuration:
+
+```js
+const defaultOptions = {
+  idField: 'id', // The field in each record that will contain the id
+  auto: true, // automatically setup a store for each service.
+  autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
+  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
+  feathers: {
+    namespace: 'feathers'
+  },
+  auth: {
+    namespace: 'auth',
+    userService: '', // Set this to automatically populate the user on login success.
+    state: {}, // add custom state to the auth module
+    getters: {}, // add custom getters to the auth module
+    mutations: {}, // add custom mutations to the auth module
+    actions: {} // add custom actions to the auth module
+  }
+}
+```
+
+Each service module can also be individually configured.
+
+### The Vuex modules
+
 There are three modules included:
 1. The Feathers module keeps a list of all services with vuex stores attached.
 2. The Service module adds a Vuex store for new services.

@@ -7,21 +7,20 @@ import clone from 'clone'
 import { normalizePath, makeConfig, isBrowser } from './utils'
 
 const defaultOptions = {
-  idField: 'id',
-  auto: true,
-  autoForce: false,
-  // Determines the source of the module name. 'short', 'path', or 'explicit'
-  nameStyle: 'short',
+  idField: 'id', // The field in each record that will contain the id
+  auto: true, // automatically setup a store for each service.
+  autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
+  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   feathers: {
     namespace: 'feathers'
   },
   auth: {
     namespace: 'auth',
-    userService: '',
-    state: {},
-    getters: {},
-    mutations: {},
-    actions: {}
+    userService: '', // Set this to automatically populate the user on login success.
+    state: {}, // add custom state to the auth module
+    getters: {}, // add custom getters to the auth module
+    mutations: {}, // add custom mutations to the auth module
+    actions: {} // add custom actions to the auth module
   }
 }
 
