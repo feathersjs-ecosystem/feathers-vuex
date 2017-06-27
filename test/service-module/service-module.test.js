@@ -24,7 +24,6 @@ describe('Service Module', () => {
       const expectedGlobal = {
         idField: 'id',
         auto: true,
-        autoForce: false,
         nameStyle: 'short',
         feathers: {
           namespace: 'feathers'
@@ -167,7 +166,10 @@ describe('Service Module', () => {
       it(`removes missing items when pagination is off`, function (done) {
         const store = makeStore()
         const todoService = makeFeathersRestClient()
-          .configure(feathersVuex(store, {idField: '_id'}))
+          .configure(feathersVuex(store, {
+            idField: '_id',
+            autoRemove: true
+          }))
           .service('todos', memory({store: makeTodos()}))
 
         const todoState = store.state.todos
@@ -229,7 +231,41 @@ describe('Service Module', () => {
           })
           .then(todos => {
             assert(todos.hasOwnProperty('total'), 'pagination is on')
-            assert(todoState.ids.length === 3, 'there are now two items in the store')
+            assert(todoState.ids.length === 3, 'there are still three items in the store')
+            done()
+          })
+          .catch(error => {
+            assert(!error, error.message)
+            done()
+          })
+      })
+
+      it(`does not remove missing items when autoRemove is off`, function (done) {
+        const store = makeStore()
+        const todoService = makeFeathersRestClient()
+          .configure(feathersVuex(store, {idField: '_id', autoRemove: false}))
+          .service('todos', memory({ store: makeTodos() }))
+
+        const todoState = store.state.todos
+
+        assert(todoState.ids.length === 0)
+
+        // Load some data into the store
+        store.dispatch('todos/find', { query: {} })
+          .then(todos => {
+            // Remove the third item from the service
+            return todoService.remove(3)
+          })
+          .then(response => {
+            // We went around using the store actions, so there will still be three items.
+            assert(todoState.ids.length === 3, 'there are still three items in the store')
+
+            // Perform the same query again
+            return store.dispatch('todos/find', { query: {} })
+          })
+          .then(todos => {
+            assert(!todos.hasOwnProperty('total'), 'pagination is off')
+            assert(todoState.ids.length === 3, 'there are still three items in the store')
             done()
           })
           .catch(error => {

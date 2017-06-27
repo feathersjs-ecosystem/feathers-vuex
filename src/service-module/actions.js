@@ -137,7 +137,7 @@ export default function makeServiceActions (service) {
       const toUpdate = []
       const toRemove = [] // Added
 
-      if (!isPaginated) {
+      if (!isPaginated && vuexOptions.global.autoRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
           if (id !== state.currentId && !list.some(item => item[idField] === id)) {
