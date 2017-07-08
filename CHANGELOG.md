@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.7.1](https://github.com/feathersjs/feathers-vuex/tree/v0.7.1) (2017-07-08)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.7.0...v0.7.1)
+
+**Closed issues:**
+
+- errorOnAuthenticate is not reset [\#29](https://github.com/feathersjs/feathers-vuex/issues/29)
+- Hoping to support server paging parameters [\#23](https://github.com/feathersjs/feathers-vuex/issues/23)
+
+**Merged pull requests:**
+
+- Fix 29 [\#30](https://github.com/feathersjs/feathers-vuex/pull/30) ([mgesmundo](https://github.com/mgesmundo))
+
 ## [v0.7.0](https://github.com/feathersjs/feathers-vuex/tree/v0.7.0) (2017-06-27)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.6.0...v0.7.0)
 
