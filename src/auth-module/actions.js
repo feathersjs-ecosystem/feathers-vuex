@@ -5,7 +5,7 @@ export default function makeAuthActions (feathers, options) {
       const { commit, state, dispatch } = store
 
       commit('setAuthenticatePending')
-      if (state.errorOnAuthentication) {
+      if (state.errorOnAuthenticate) {
         commit('clearAuthenticateError')
       }
       return feathers.authenticate(data)
