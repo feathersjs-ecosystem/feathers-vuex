@@ -103,7 +103,7 @@ export default function makeServiceActions (service) {
         .catch(error => {
           commit('setPatchError', Object.assign({}, error))
           commit('unsetPatchPending')
-          return error
+          return Promise.reject(error)
         })
     },
 
