@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.7.2](https://github.com/feathersjs/feathers-vuex/tree/v0.7.2) (2017-08-04)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.7.1...v0.7.2)
+
+**Closed issues:**
+
+- Mapped Action is not a function [\#31](https://github.com/feathersjs/feathers-vuex/issues/31)
+- Real time updates stops working sometimes depending on the query [\#28](https://github.com/feathersjs/feathers-vuex/issues/28)
+
+**Merged pull requests:**
+
+- Return Promise.reject for action path of services when catching an er… [\#32](https://github.com/feathersjs/feathers-vuex/pull/32) ([phenrigomes](https://github.com/phenrigomes))
+
 ## [v0.7.1](https://github.com/feathersjs/feathers-vuex/tree/v0.7.1) (2017-07-08)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.7.0...v0.7.1)
 
