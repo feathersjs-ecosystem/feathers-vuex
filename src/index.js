@@ -1,8 +1,8 @@
 import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupAuthModule from './auth-module/auth-module'
-import deepAssign from 'deep-assign'
-import clone from 'clone'
+import _merge from 'lodash.merge'
+import _cloneDeep from 'lodash.clonedeep'
 import { normalizePath, makeConfig } from './utils'
 
 const defaultOptions = {
@@ -21,8 +21,8 @@ const defaultOptions = {
 }
 
 export default function (clientOrStore, options = {}, modules = {}) {
-  var theClone = clone(defaultOptions)
-  options = deepAssign(theClone, options)
+  var theClone = _cloneDeep(defaultOptions)
+  options = _merge(theClone, options)
 
   return function feathersVuex (arg) {
     const asFeathersPlugin = !arg

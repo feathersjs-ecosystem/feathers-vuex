@@ -1,5 +1,5 @@
-import deepAssign from 'deep-assign'
-
+import _merge from 'lodash.merge'
+import _cloneDeep from 'lodash.clonedeep'
 export function stripSlashes (location) {
   return location.replace(/^(\/*)|(\/*)$/g, '')
 }
@@ -57,7 +57,7 @@ export function makeConfig (options, modules) {
 
     // moduleOptions (passed to the vuex method) will overwrite previous options.
     if (moduleOptions) {
-      deepAssign(modules[service.path], moduleOptions)
+      _merge(modules[service.path], moduleOptions)
     }
 
     // Make the config available on the service.
