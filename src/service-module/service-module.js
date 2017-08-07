@@ -1,4 +1,4 @@
-import { getShortName, getNameFromPath, getNameFromConfig } from '../utils'
+import { getShortName, getNameFromPath, getNameFromExplicit } from '../utils'
 import _merge from 'lodash.merge'
 import makeState from './state'
 import makeGetters from './getters'
@@ -11,7 +11,7 @@ export default function setupServiceModule (store) {
     const nameStyles = {
       short: getShortName,
       path: getNameFromPath,
-      explicit: getNameFromConfig
+      explicit: getNameFromExplicit
     }
     let namespace = nameStyles[vuexOptions.global.nameStyle](service)
     const existingName = service.vuexOptions.module.oldName
