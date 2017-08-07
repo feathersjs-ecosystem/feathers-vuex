@@ -36,9 +36,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
       throw new Error('You must pass a Feathers Client instance to the Feathers-Vuex plugin.')
     }
 
-    // Normalize the modules into objects if they were provided as a string.
+    // Normalize the modules into objects if they were provided as a string or an array
     Object.keys(modules).forEach(namespace => {
-      if (typeof modules[namespace] === 'string') {
+      if (typeof modules[namespace] === 'string' || Array.isArray(modules[namespace])) {
         modules[namespace] = { namespace: modules[namespace] }
       }
     })

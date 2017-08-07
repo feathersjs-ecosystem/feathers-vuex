@@ -1,7 +1,9 @@
 import _merge from 'lodash.merge'
 import _cloneDeep from 'lodash.clonedeep'
+import _trim from 'lodash.trim'
+
 export function stripSlashes (location) {
-  return location.replace(/^(\/*)|(\/*)$/g, '')
+  return Array.isArray(location) ? location.map(l => _trim(l, '/')) : _trim(location, '/')
 }
 
 export function normalizePath (service, location) {
@@ -13,34 +15,40 @@ export function upperCaseFirst (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+export function getNameFromConfig (service) {
+  return service.vuexOptions.module && service.vuexOptions.module.namespace
+}
+
 export function getShortName (service) {
   // If a name was manually provided, use it.
-  let explicitName = service.vuexOptions.module && service.vuexOptions.module.namespace
-  if (explicitName) {
-    return stripSlashes(explicitName)
+  let namespace = getNameFromConfig(service)
+  if (namespace) {
+    return stripSlashes(namespace)
   }
 
   // Otherwise, create a short name.
-  let location = stripSlashes(service.path)
-  if (location.includes('/')) {
-    location = location.slice(location.lastIndexOf('/') + 1)
+  namespace = stripSlashes(service.path)
+  if (Array.isArray(namespace)) {
+    namespace = namespace.slice(-1);
+  } else if (namespace.includes('/')) {
+    namespace = namespace.slice(namespace.lastIndexOf('/') + 1)
   }
-  return location
+  return namespace
 }
 
 export function getNameFromPath (service) {
   // If a name was manually provided, use it.
-  let explicitName = service.vuexOptions.module && service.vuexOptions.module.namespace
-  if (explicitName) {
-    return stripSlashes(explicitName)
+  let namespace = getNameFromConfig(service)
+  if (namespace) {
+    return stripSlashes(namespace)
   }
 
   // Otherwise return the full service path.
   return service.path
 }
 
-export function getNameFromConfig (service) {
-  const namespace = service.vuexOptions.module && service.vuexOptions.module.namespace
+export function getNameFromExplicit (service) {
+  const namespace = getNameFromConfig(service)
   if (!namespace) {
     throw new Error(`The feathers-vuex nameStyle attribute is set to explicit, but no name was provided for the ${service.path} service.`)
   }
