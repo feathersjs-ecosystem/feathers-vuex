@@ -26,6 +26,7 @@
     "node": ">= 4.6.0"
   },
   "scripts": {
+    "prepare": "npm run compile",
     "prepublish": "npm run compile",
     "publish": "git push origin --tags && npm run changelog && git push origin",
     "release:patch": "npm version patch && npm publish",
@@ -72,7 +73,6 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.isobject": "^3.0.2",
     "lodash.merge": "^4.6.0",
-    "lodash.topath": "^4.5.2",
     "lodash.trim": "^4.5.1",
     "rubberduck": "^1.1.1",
     "serialize-error": "^2.1.0"
