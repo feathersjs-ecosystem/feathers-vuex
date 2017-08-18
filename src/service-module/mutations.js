@@ -1,4 +1,5 @@
-import deepAssign from 'deep-assign'
+import _merge from 'lodash.merge'
+import _cloneDeep from 'lodash.clonedeep'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 
@@ -128,7 +129,7 @@ export default function makeServiceMutations (service) {
     setCurrent (state, item) {
       let id = isObject(item) ? item[idField] : item
       state.currentId = id
-      state.copy = deepAssign({}, item)
+      state.copy = _cloneDeep(item)
     },
 
     clearCurrent (state) {
@@ -139,13 +140,13 @@ export default function makeServiceMutations (service) {
     // Deep assigns current to copy
     rejectCopy (state) {
       let current = state.keyedById[state.currentId]
-      deepAssign(state.copy, current)
+      _merge(state.copy, current)
     },
 
     // Deep assigns copy to current
     commitCopy (state) {
       let current = state.keyedById[state.currentId]
-      deepAssign(current, state.copy)
+      _merge(current, state.copy)
     },
 
     setFindPending (state) {

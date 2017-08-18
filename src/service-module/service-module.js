@@ -1,5 +1,5 @@
-import { getShortName, getNameFromPath, getNameFromConfig } from '../utils'
-import deepAssign from 'deep-assign'
+import { getShortName, getNameFromPath, getNameFromExplicit } from '../utils'
+import _merge from 'lodash.merge'
 import makeState from './state'
 import makeGetters from './getters'
 import makeMutations from './mutations'
@@ -11,7 +11,7 @@ export default function setupServiceModule (store) {
     const nameStyles = {
       short: getShortName,
       path: getNameFromPath,
-      explicit: getNameFromConfig
+      explicit: getNameFromExplicit
     }
     let namespace = nameStyles[vuexOptions.global.nameStyle](service)
     const existingName = service.vuexOptions.module.oldName
@@ -23,7 +23,7 @@ export default function setupServiceModule (store) {
     }
 
     // update the name
-    deepAssign(service.vuexOptions, { module: {namespace} })
+    _merge(service.vuexOptions, { module: {namespace} })
     vuexOptions.modules[service.path] = vuexOptions.module
 
     // Setup or re-setup the module if .vuex() was called manually.

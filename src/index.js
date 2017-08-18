@@ -1,8 +1,8 @@
 import rubberduck from 'rubberduck/dist/rubberduck'
 import setupServiceModule from './service-module/service-module'
 import setupAuthModule from './auth-module/auth-module'
-import deepAssign from 'deep-assign'
-import clone from 'clone'
+import _merge from 'lodash.merge'
+import _cloneDeep from 'lodash.clonedeep'
 import { normalizePath, makeConfig } from './utils'
 
 const defaultOptions = {
@@ -21,8 +21,8 @@ const defaultOptions = {
 }
 
 export default function (clientOrStore, options = {}, modules = {}) {
-  var theClone = clone(defaultOptions)
-  options = deepAssign(theClone, options)
+  var theClone = _cloneDeep(defaultOptions)
+  options = _merge(theClone, options)
 
   return function feathersVuex (arg) {
     const asFeathersPlugin = !arg
@@ -36,9 +36,9 @@ export default function (clientOrStore, options = {}, modules = {}) {
       throw new Error('You must pass a Feathers Client instance to the Feathers-Vuex plugin.')
     }
 
-    // Normalize the modules into objects if they were provided as a string.
+    // Normalize the modules into objects if they were provided as a string or an array
     Object.keys(modules).forEach(namespace => {
-      if (typeof modules[namespace] === 'string') {
+      if (typeof modules[namespace] === 'string' || Array.isArray(modules[namespace])) {
         modules[namespace] = { namespace: modules[namespace] }
       }
     })

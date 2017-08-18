@@ -26,6 +26,7 @@
     "node": ">= 4.6.0"
   },
   "scripts": {
+    "prepare": "npm run compile",
     "prepublish": "npm run compile",
     "publish": "git push origin --tags && npm run changelog && git push origin",
     "release:patch": "npm version patch && npm publish",
@@ -65,13 +66,14 @@
     "lib": "lib"
   },
   "dependencies": {
-    "clone": "^2.1.1",
     "debug": "^2.6.3",
-    "deep-assign": "^2.0.0",
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.6.3",
     "feathers-query-filters": "^2.1.2",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.isobject": "^3.0.2",
+    "lodash.merge": "^4.6.0",
+    "lodash.trim": "^4.5.1",
     "rubberduck": "^1.1.1",
     "serialize-error": "^2.1.0"
   },
