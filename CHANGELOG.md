@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.8.0](https://github.com/feathersjs/feathers-vuex/tree/v0.8.0) (2017-08-18)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.7.2...v0.8.0)
+
+**Closed issues:**
+
+- How to setup vuex and vue-router to redirect when a store value is not set? [\#37](https://github.com/feathersjs/feathers-vuex/issues/37)
+- OAuth with Google and feathers-vuex [\#33](https://github.com/feathersjs/feathers-vuex/issues/33)
+
+**Merged pull requests:**
+
+- Support array namespaces for module nesting [\#35](https://github.com/feathersjs/feathers-vuex/pull/35) ([jskrzypek](https://github.com/jskrzypek))
+
 ## [v0.7.2](https://github.com/feathersjs/feathers-vuex/tree/v0.7.2) (2017-08-04)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.7.1...v0.7.2)
 
