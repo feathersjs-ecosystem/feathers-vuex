@@ -54,7 +54,7 @@ export default new Vuex.Store({
   plugins: [
     service('todos'),
 
-    // Specify a custom options per service
+    // Specify custom options per service
     service('/v1/tasks', {
       idField: '_id', // The field in each record that will contain the id
       nameStyle: 'path', // Use the full path name inside Vuex, instead of just the last section
