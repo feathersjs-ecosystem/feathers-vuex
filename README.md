@@ -305,7 +305,7 @@ Patch (merge in changes) one or more records
 ```js
 let data = {description: 'write your tests', completed: true}
 let params = {}
-store.dispatch('todos/update', [1, data, params])
+store.dispatch('todos/patch', [1, data, params])
 ```
 
 
