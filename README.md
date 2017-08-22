@@ -116,6 +116,7 @@ Each service comes loaded with the following default state:
     currentId: undefined, // The id of the item marked as current
     copy: undefined, // A deep copy of the current item
     idField: 'id',
+    servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
 
     isFindPending: false,
@@ -140,7 +141,7 @@ The following attributes are available in each service module's state:
 - `keyedById {Object}` - a hash map keyed by the id of each item.
 - `currentId {Number|String}` - the id of the item marked as current.
 - `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `rejectCopy` to revert `copy` to once again match `current`.
-- `service {FeathersService}` - the Feathers service object
+- `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
 
 The following state attributes allow you to bind to the pending state of requests:

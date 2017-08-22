@@ -3,7 +3,7 @@ import _cloneDeep from 'lodash.clonedeep'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 
-export default function makeServiceMutations (service) {
+export default function makeServiceMutations (servicePath) {
   function addItem (state, item) {
     const { idField } = state
     let id = item[idField]

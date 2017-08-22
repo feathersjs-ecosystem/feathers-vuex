@@ -1,10 +1,11 @@
-export default function makeDefaultState (service, { idField, autoRemove }) {
+export default function makeDefaultState (servicePath, { idField, autoRemove }) {
   const state = {
     ids: [],
     keyedById: {},
     currentId: undefined,
     copy: undefined,
     idField,
+    servicePath,
     autoRemove,
 
     isFindPending: false,
