@@ -1,11 +1,11 @@
 # Change Log
 
-## [Unreleased](https://github.com/feathersjs/feathers-vuex/tree/HEAD)
-
-[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.8.0...HEAD)
+## [v1.0.0-pre.1](https://github.com/feathersjs/feathers-vuex/tree/v1.0.0-pre.1) (2017-08-22)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v0.8.0...v1.0.0-pre.1)
 
 **Closed issues:**
 
+- Update mutation not changing store or backend [\#38](https://github.com/feathersjs/feathers-vuex/issues/38)
 - namespaces cannot be arrays for nested modules \(supported by vuex\) [\#34](https://github.com/feathersjs/feathers-vuex/issues/34)
 - using deep-assign package [\#15](https://github.com/feathersjs/feathers-vuex/issues/15)
 
