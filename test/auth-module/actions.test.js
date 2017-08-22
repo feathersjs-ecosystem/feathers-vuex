@@ -1,17 +1,19 @@
 import assert from 'chai/chai'
-import feathersVuex from '~/src/index'
-import makeStore from '../fixtures/store'
-import { makeFeathersRestClient } from '../fixtures/feathers-client'
-import { mapActions } from 'vuex'
+import setupVuexAuth from '~/src/auth-module/auth-module'
+import setupVuexService from '~/src/service-module/service-module'
+import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
+import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 
+const auth = setupVuexAuth(feathersClient)
+const service = setupVuexService(feathersClient)
 const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjAsImV4cCI6OTk5OTk5OTk5OTk5OX0.zmvEm8w142xGI7CbUsnvVGZk_hrVE1KEjzDt80LSW50'
 
 describe('Auth Module - Actions', () => {
   it('Authenticate', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
+    const store = new Vuex.Store({
+      plugins: [auth()]
+    })
     feathersClient.service('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
@@ -54,9 +56,9 @@ describe('Auth Module - Actions', () => {
   })
 
   it('Logout', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
+    const store = new Vuex.Store({
+      plugins: [auth()]
+    })
     feathersClient.service('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
@@ -83,9 +85,12 @@ describe('Auth Module - Actions', () => {
   })
 
   it('Authenticate with userService config option', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store, {auth: {userService: 'users'}}))
+    const store = new Vuex.Store({
+      plugins: [
+        auth({ userService: 'users' }),
+        service('users')
+      ]
+    })
     feathersClient.service('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
@@ -106,6 +111,10 @@ describe('Auth Module - Actions', () => {
         email: 'test@test.com'
       }
       assert.deepEqual(authState.user, expectedUser)
+      done()
+    })
+    .catch(error => {
+      assert(!error, error)
       done()
     })
   })

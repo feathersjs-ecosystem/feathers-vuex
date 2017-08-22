@@ -1,14 +1,11 @@
-export default service => {
-  const vuexOptions = service.vuexOptions
-  const idField = (vuexOptions.module && vuexOptions.module.idField) || vuexOptions.global.idField
-  const customState = (vuexOptions.module && vuexOptions.module.state) || {}
-
+export default function makeDefaultState (service, { idField, autoRemove }) {
   const state = {
     ids: [],
     keyedById: {},
     currentId: undefined,
     copy: undefined,
     idField,
+    autoRemove,
 
     isFindPending: false,
     isGetPending: false,
@@ -17,13 +14,12 @@ export default service => {
     isPatchPending: false,
     isRemovePending: false,
 
-    errorOnfind: undefined,
+    errorOnFind: undefined,
     errorOnGet: undefined,
     errorOnCreate: undefined,
     errorOnUpdate: undefined,
     errorOnPatch: undefined,
-    errorOnRemove: undefined,
-    ...customState
+    errorOnRemove: undefined
   }
   return state
 }

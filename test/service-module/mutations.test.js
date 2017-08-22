@@ -3,12 +3,9 @@ import makeServiceMutations from '~/src/service-module/mutations'
 import makeServiceState from '~/src/service-module/state'
 import errors from 'feathers-errors'
 
-const dummyService = {
-  vuexOptions: {
-    module: {
-      idField: '_id'
-    }
-  }
+const options = {
+  idField: '_id',
+  autoRemove: false
 }
 
 const {
@@ -48,11 +45,15 @@ const {
   clearPatchError,
   setRemoveError,
   clearRemoveError
-} = makeServiceMutations(dummyService)
+} = makeServiceMutations('todos', options)
 
-describe('Service Module - Mutations', () => {
-  it('addItem', () => {
-    const state = makeServiceState(dummyService)
+describe('Service Module - Mutations', function () {
+  beforeEach(function () {
+    this.state = makeServiceState('todos', options)
+  })
+
+  it('addItem', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -82,8 +83,8 @@ describe('Service Module - Mutations', () => {
     assert(state.keyedById[2] === item2)
   })
 
-  it('addItems', () => {
-    const state = makeServiceState(dummyService)
+  it('addItems', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -101,8 +102,8 @@ describe('Service Module - Mutations', () => {
     assert(state.keyedById[2] === item2)
   })
 
-  it('updateItem', () => {
-    const state = makeServiceState(dummyService)
+  it('updateItem', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -119,8 +120,8 @@ describe('Service Module - Mutations', () => {
     assert(state.keyedById[1].test === false)
   })
 
-  it('updateItems', () => {
-    const state = makeServiceState(dummyService)
+  it('updateItems', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -147,8 +148,8 @@ describe('Service Module - Mutations', () => {
     assert(state.keyedById[2].test === false)
   })
 
-  it('removeItem', () => {
-    const state = makeServiceState(dummyService)
+  it('removeItem', function () {
+    const state = this.state
 
     addItem(state, {_id: 1, test: true})
     removeItem(state, 1)
@@ -157,8 +158,8 @@ describe('Service Module - Mutations', () => {
     assert(Object.keys(state.keyedById).length === 0)
   })
 
-  it('removeItems with array of ids', () => {
-    const state = makeServiceState(dummyService)
+  it('removeItems with array of ids', function () {
+    const state = this.state
     const items = [
       {_id: 1, test: true},
       {_id: 2, test: true},
@@ -173,8 +174,8 @@ describe('Service Module - Mutations', () => {
     assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
   })
 
-  it('removeItems with array of items', () => {
-    const state = makeServiceState(dummyService)
+  it('removeItems with array of items', function () {
+    const state = this.state
     const items = [
       {_id: 1, test: true},
       {_id: 2, test: true},
@@ -192,8 +193,8 @@ describe('Service Module - Mutations', () => {
     assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
   })
 
-  it('clearAll', () => {
-    const state = makeServiceState(dummyService)
+  it('clearAll', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -210,8 +211,8 @@ describe('Service Module - Mutations', () => {
     assert(Object.keys(state.keyedById).length === 0)
   })
 
-  it('clearList', () => {
-    const state = makeServiceState(dummyService)
+  it('clearList', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -231,8 +232,8 @@ describe('Service Module - Mutations', () => {
     assert(state.keyedById[2] === item2, 'the item is still in keyedById')
   })
 
-  it('setCurrent', () => {
-    const state = makeServiceState(dummyService)
+  it('setCurrent', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -249,8 +250,8 @@ describe('Service Module - Mutations', () => {
     assert.deepEqual(state.copy, item2)
   })
 
-  it('clearCurrent', () => {
-    const state = makeServiceState(dummyService)
+  it('clearCurrent', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -268,8 +269,8 @@ describe('Service Module - Mutations', () => {
     assert(state.copy === undefined)
   })
 
-  it('copy works', () => {
-    const state = makeServiceState(dummyService)
+  it('copy works', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -281,8 +282,8 @@ describe('Service Module - Mutations', () => {
     assert(state.copy.test === false, 'the copy was updated successfully.')
   })
 
-  it('rejectCopy', () => {
-    const state = makeServiceState(dummyService)
+  it('rejectCopy', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -296,8 +297,8 @@ describe('Service Module - Mutations', () => {
     assert(state.copy.test === true, 'the copy was reset')
   })
 
-  it('commitCopy', () => {
-    const state = makeServiceState(dummyService)
+  it('commitCopy', function () {
+    const state = this.state
     const item1 = {
       _id: 1,
       test: true
@@ -311,103 +312,103 @@ describe('Service Module - Mutations', () => {
     assert(item1.test === false, 'the original item was updated after commitCopy')
   })
 
-  describe('Pending', () => {
-    it('setFindPending', () => {
-      const state = makeServiceState(dummyService)
+  describe('Pending', function () {
+    it('setFindPending', function () {
+      const state = this.state
       assert(!state.isFindPending)
       setFindPending(state)
       assert(state.isFindPending)
     })
 
-    it('setFindPending', () => {
-      const state = makeServiceState(dummyService)
+    it('setFindPending', function () {
+      const state = this.state
       setFindPending(state)
       unsetFindPending(state)
       assert(!state.isFindPending)
     })
 
-    it('setGetPending', () => {
-      const state = makeServiceState(dummyService)
+    it('setGetPending', function () {
+      const state = this.state
       assert(!state.isGetPending)
       setGetPending(state)
       assert(state.isGetPending)
     })
 
-    it('setGetPending', () => {
-      const state = makeServiceState(dummyService)
+    it('setGetPending', function () {
+      const state = this.state
       setGetPending(state)
       unsetGetPending(state)
       assert(!state.isGetPending)
     })
 
-    it('setCreatePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setCreatePending', function () {
+      const state = this.state
       assert(!state.isCreatePending)
       setCreatePending(state)
       assert(state.isCreatePending)
     })
 
-    it('setCreatePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setCreatePending', function () {
+      const state = this.state
       setCreatePending(state)
       unsetCreatePending(state)
       assert(!state.isCreatePending)
     })
 
-    it('setUpdatePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setUpdatePending', function () {
+      const state = this.state
       assert(!state.isUpdatePending)
       setUpdatePending(state)
       assert(state.isUpdatePending)
     })
 
-    it('setUpdatePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setUpdatePending', function () {
+      const state = this.state
       setUpdatePending(state)
       unsetUpdatePending(state)
       assert(!state.isUpdatePending)
     })
 
-    it('setPatchPending', () => {
-      const state = makeServiceState(dummyService)
+    it('setPatchPending', function () {
+      const state = this.state
       assert(!state.isPatchPending)
       setPatchPending(state)
       assert(state.isPatchPending)
     })
 
-    it('setPatchPending', () => {
-      const state = makeServiceState(dummyService)
+    it('setPatchPending', function () {
+      const state = this.state
       setPatchPending(state)
       unsetPatchPending(state)
       assert(!state.isPatchPending)
     })
 
-    it('setRemovePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setRemovePending', function () {
+      const state = this.state
       assert(!state.isRemovePending)
       setRemovePending(state)
       assert(state.isRemovePending)
     })
 
-    it('setRemovePending', () => {
-      const state = makeServiceState(dummyService)
+    it('setRemovePending', function () {
+      const state = this.state
       setRemovePending(state)
       unsetRemovePending(state)
       assert(!state.isRemovePending)
     })
   })
 
-  describe('Errors', () => {
-    it('setFindError', () => {
-      const state = makeServiceState(dummyService)
+  describe('Errors', function () {
+    it('setFindError', function () {
+      const state = this.state
       setFindError(state, new Error('This is a test'))
       assert(state.errorOnFind.message)
       assert(state.errorOnFind.name)
       assert(state.errorOnFind.stack)
     })
 
-    it('setFindError with feathers-errors', () => {
-      const state = makeServiceState(dummyService)
+    it('setFindError with feathers-errors', function () {
+      const state = this.state
       setFindError(state, new errors.NotAuthenticated('You are not logged in'))
       assert(state.errorOnFind.className)
       assert(state.errorOnFind.code)
@@ -418,83 +419,83 @@ describe('Service Module - Mutations', () => {
       assert(state.errorOnFind.stack)
     })
 
-    it('clearFindError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearFindError', function () {
+      const state = this.state
       setFindError(state, new Error('This is a test'))
       clearFindError(state)
       assert(!state.errorOnFind, 'errorOnFind was cleared')
     })
 
-    it('setGetError', () => {
-      const state = makeServiceState(dummyService)
+    it('setGetError', function () {
+      const state = this.state
       setGetError(state, new Error('This is a test'))
       assert(state.errorOnGet.message)
       assert(state.errorOnGet.name)
       assert(state.errorOnGet.stack)
     })
 
-    it('clearGetError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearGetError', function () {
+      const state = this.state
       setGetError(state, new Error('This is a test'))
       clearGetError(state)
       assert(!state.errorOnGet, 'errorOnGet was cleared')
     })
 
-    it('setCreateError', () => {
-      const state = makeServiceState(dummyService)
+    it('setCreateError', function () {
+      const state = this.state
       setCreateError(state, new Error('This is a test'))
       assert(state.errorOnCreate.message)
       assert(state.errorOnCreate.name)
       assert(state.errorOnCreate.stack)
     })
 
-    it('clearCreateError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearCreateError', function () {
+      const state = this.state
       setCreateError(state, new Error('This is a test'))
       clearCreateError(state)
       assert(!state.errorOnCreate, 'errorOnCreate was cleared')
     })
 
-    it('setUpdateError', () => {
-      const state = makeServiceState(dummyService)
+    it('setUpdateError', function () {
+      const state = this.state
       setUpdateError(state, new Error('This is a test'))
       assert(state.errorOnUpdate.message)
       assert(state.errorOnUpdate.name)
       assert(state.errorOnUpdate.stack)
     })
 
-    it('clearUpdateError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearUpdateError', function () {
+      const state = this.state
       setUpdateError(state, new Error('This is a test'))
       clearUpdateError(state)
       assert(!state.errorOnUpdate, 'errorOnUpdate was cleared')
     })
 
-    it('setPatchError', () => {
-      const state = makeServiceState(dummyService)
+    it('setPatchError', function () {
+      const state = this.state
       setPatchError(state, new Error('This is a test'))
       assert(state.errorOnPatch.message)
       assert(state.errorOnPatch.name)
       assert(state.errorOnPatch.stack)
     })
 
-    it('clearPatchError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearPatchError', function () {
+      const state = this.state
       setPatchError(state, new Error('This is a test'))
       clearPatchError(state)
       assert(!state.errorOnPatch, 'errorOnPatch was cleared')
     })
 
-    it('setRemoveError', () => {
-      const state = makeServiceState(dummyService)
+    it('setRemoveError', function () {
+      const state = this.state
       setRemoveError(state, new Error('This is a test'))
       assert(state.errorOnRemove.message)
       assert(state.errorOnRemove.name)
       assert(state.errorOnRemove.stack)
     })
 
-    it('clearRemoveError', () => {
-      const state = makeServiceState(dummyService)
+    it('clearRemoveError', function () {
+      const state = this.state
       setRemoveError(state, new Error('This is a test'))
       clearRemoveError(state)
       assert(!state.errorOnRemove, 'errorOnRemove was cleared')

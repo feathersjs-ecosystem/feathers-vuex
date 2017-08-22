@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/david/feathersjs/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
-> Vuex (Vue.js) integrated as a Feathers Client plugin
+> Integrate the Feathers Client into Vuex
 
 ## Installation
 
@@ -13,21 +13,7 @@ npm install feathers-vuex --save
 ```
 
 ## Use
-Use `feathers-vuex` the same as any other FeathersJS plugin. The only prerequisite is that you have Vuex configured in your Vue app.  Suppose you have the following Vuex store:
-
-**store/index.js:**
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  state: {}
-})
-```
-
-And here's how you would configure the plugin with your Feathers Client setup:
+`feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.
 
 **feathers-client.js:**
 ```js
@@ -36,8 +22,6 @@ import hooks from 'feathers-hooks'
 import socketio from 'feathers-socketio'
 import auth from 'feathers-authentication-client'
 import io from 'socket.io-client'
-import feathersVuex from 'feathers-vuex'
-import store from '@/store/'
 import rx from 'feathers-reactive'
 import RxJS from 'rxjs'
 
@@ -47,21 +31,51 @@ const feathersClient = feathers()
   .configure(hooks())
   .configure(socketio(socket))
   .configure(auth({ storage: window.localStorage }))
+  // only needed for feathers-socketio realtime updates, this requirement may be removed in the future
   .configure(rx(RxJS, {idField: '_id'}))
-  // Register feathers-vuex by passing the store and options
-  .configure(feathersVuex(store, {
-    idField: '_id',
-    auth: {
-      userService: '/users'
-    }
-  }))
-
-// For every service created, a Vuex store module will be created.
-feathersClient.service('/users')
-feathersClient.service('/messages')
 
 export default feathersClient
 ```
+
+And here's how you would integrate the Feathers Client into the Vuex store:
+
+**store/index.js:**
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from '../feathers-client'
+
+const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('todos'),
+
+    // Specify a custom options per service
+    service('/v1/tasks', {
+      idField: '_id', // The field in each record that will contain the id
+      nameStyle: 'path', // Use the full path name inside Vuex, instead of just the last section
+      namespace: 'custom-task-namespace', // Customize the plugin name inside Vuex.  Overrides nameStyle.
+      autoRemove: true // automatically remove records missing from responses (only use with feathers-rest)
+    })
+
+    // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
+    service('things', {
+      state: {},
+      getters: {},
+      mutations: {},
+      actions: {}
+    })
+
+    auth()
+  ]
+})
+```
+
+The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
 
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
 
@@ -77,20 +91,8 @@ The following default options are available for configuration:
 ```js
 const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
-  auto: true, // automatically setup a store for each service.
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
-  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
-  feathers: {
-    namespace: 'feathers'
-  },
-  auth: {
-    namespace: 'auth',
-    userService: '', // Set this to automatically populate the user on login success.
-    state: {}, // add custom state to the auth module
-    getters: {}, // add custom getters to the auth module
-    mutations: {}, // add custom mutations to the auth module
-    actions: {} // add custom actions to the auth module
-  }
+  nameStyle: 'short' // Determines the source of the module name. 'short' or 'path'
 }
 ```
 
@@ -98,23 +100,12 @@ Each service module can also be individually configured.
 
 ### The Vuex modules
 
-There are three modules included:
-1. The Feathers module keeps a list of all services with vuex stores attached.
-2. The Service module adds a Vuex store for new services.
-3. The Auth module sets up the Vuex store for authentication / logout.
-
-## Feathers Module
-The `Feathers Module` allows your application to peer into how the Feathers client services are setup. It includes the following state:
-```js
-{
-  services: {
-    vuex: {} // All services that have been integrated into Vuex, keyed by path name
-  }
-}
-```
+There are two modules included:
+1. The Service module adds a Vuex store for new services.
+2. The Auth module sets up the Vuex store for authentication / logout.
 
 ## Service Module
-The `Service Module` automatically sets up newly-created services into the Vuex store.  Each service will have the below default state in its store. The service will also have a `vuex` method that will allow you to add custom `state`, `getters`, `mutations`, and `actions` to an individual service's store.
+The `Service Module` sets up services in the Vuex store.  Each service will have the below default state in its store.
 
 ### Service State
 Each service comes loaded with the following default state:
@@ -124,8 +115,8 @@ Each service comes loaded with the following default state:
     keyedById: {}, // A hash map, keyed by id of each item
     currentId: undefined, // The id of the item marked as current
     copy: undefined, // A deep copy of the current item
-    service, // the FeathersService
     idField: 'id',
+    autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
 
     isFindPending: false,
     isGetPending: false,
@@ -328,28 +319,45 @@ store.dispatch('todos/remove', 1)
 
 ## Customizing a Service's Default Store
 
-Each registered service will have a `vuex` method that allows you to customize its store:
+As shown in the first example, the service module allows you to customize its store:
 
 ```js
-app.service('todos').vuex({
-  state: {
-    isCompleted: false
-  },
-  getters: {
-    oneTwoThree (state) {
-      return 123
-    }
-  },
-  mutations: {
-    setToTrue (state) {
-      state.isCompleted = true
-    }
-  },
-  actions: {
-    triggerSetToTrue (context) {
-      context.commit('setToTrue')
-    }
-  }
+const store = new Vuex.Store({
+  plugins: [
+    // Add custom state, getters, mutations, or actions, if needed
+    service('things', {
+      state: {
+        test: true
+      },
+      getters: {
+        getSomeData () {
+          return 'some data'
+        }
+      },
+      mutations: {
+        setTestToFalse (state) {
+          state.test = false
+        },
+        setTestToTrue (state) {
+          state.test = false
+        }
+      },
+      actions: {
+        asyncStuff ({ commit, dispatch }, args) {
+          commit('setTestToTrue')
+
+          return doSomethingAsync(id, params)
+            .then(result => {
+              commit('setTestToFalse')
+              return dispatch('otherAsyncStuff', result)
+            })
+        },
+        otherAsyncStuff ({commit}, args) {
+          return new Promise.resolve(result)
+        }
+      }
+    })
+  ]
 })
 
 assert(store.getters['todos/oneTwoThree'] === 123, 'the custom getter was available')
@@ -371,40 +379,10 @@ The following actions are included in the `auth` module:
 - `logout`: Same as `feathersClient.logout()`
 
 ### Configuration
-You can provide an `auth.userService` in the feathersVuex options to automatically populate the user upon successful login.
+You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
 
 ## Handling Realtime Events
 This plugin works perfectly with the [`feathers-reactive`](https://github.com/feathersjs/feathers-reactive) plugin.  Realtime events are handled in that plugin, allowing this plugin to stay lean and focused.  See the example below for how to add support for Feathers realtime events using `feathers-reactive`.
-
-
-## Complete Example
-
-Here's an example of a Feathers server that uses `feathers-vuex`.
-
-```js
-const feathers = require('feathers/client');
-const socketio = require('feathers-socketio/client');
-const auth = require('feathers-authentication-client');
-const reactive = require('feathers-reactive')
-const RxJS = require('rxjs');
-const hooks = require('feathers-hooks');
-const feathersVuex = require('feathers-vuex');
-
-// Bring in your Vuex store
-const store = require('/path/to/vuex/store');
-
-// Initialize the application
-const feathersClient = feathers()
-  .configure(rest())
-  .configure(hooks())
-  .configure(auth())
-  .configure(reactive(RxJS))
-  // Initialize feathersVuex with the Vuex store
-  .configure(feathersVuex(store));
-
-// Automatically setup Vuex with a todos module
-app.service('todos')
-```
 
 ## License
 

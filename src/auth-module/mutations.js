@@ -1,4 +1,4 @@
-export default function makeAuthMutations (feathers, options) {
+export default function makeAuthMutations (feathers) {
   return {
     setAccessToken (state, payload) {
       state.accessToken = payload

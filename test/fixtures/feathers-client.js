@@ -18,10 +18,20 @@ export function makeFeathersSocketClient () {
 }
 
 export function makeFeathersRestClient () {
-  const feathersClient = feathers()
+  return feathers()
     .configure(hooks())
     .configure(rest(baseUrl).axios(axios))
     .configure(auth())
-
-  return feathersClient
 }
+
+const sock = io(baseUrl)
+
+export const feathersSocketioClient = feathers()
+  .configure(hooks())
+  .configure(socketio(sock))
+  .configure(auth())
+
+export const feathersRestClient = feathers()
+  .configure(hooks())
+  .configure(rest(baseUrl).axios(axios))
+  .configure(auth())

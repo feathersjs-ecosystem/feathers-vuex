@@ -2,10 +2,6 @@ import getFilter from 'feathers-query-filters'
 import { sorter, matcher, select, _ } from 'feathers-commons'
 
 export default function makeServiceGetters (service) {
-  const { vuexOptions } = service
-  const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  const customGetters = (vuexOptions.module && vuexOptions.module.getters) || {}
-
   return {
     list (state) {
       return state.ids.map(id => state.keyedById[id])
@@ -45,8 +41,6 @@ export default function makeServiceGetters (service) {
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
-    },
-
-    ...customGetters
+    }
   }
 }

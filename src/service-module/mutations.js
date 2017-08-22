@@ -4,11 +4,8 @@ import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 
 export default function makeServiceMutations (service) {
-  const { vuexOptions } = service
-  const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  const customMutations = (vuexOptions.module && vuexOptions.module.mutations) || {}
-
   function addItem (state, item) {
+    const { idField } = state
     let id = item[idField]
 
     // Only add the id if it's not already in the `ids` list.
@@ -23,6 +20,7 @@ export default function makeServiceMutations (service) {
   }
 
   function updateItem (state, item) {
+    const { idField } = state
     let id = item[idField]
     state.keyedById[id] = item
   }
@@ -45,6 +43,7 @@ export default function makeServiceMutations (service) {
     },
 
     removeItem (state, item) {
+      const { idField } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
       const keyedById = {}
       const { currentId } = state
@@ -67,6 +66,8 @@ export default function makeServiceMutations (service) {
     },
 
     removeItems (state, items) {
+      const { idField } = state
+
       if (!Array.isArray(items)) {
         throw new Error('You must provide an array to the `removeItems` mutation.')
       }
@@ -127,6 +128,7 @@ export default function makeServiceMutations (service) {
     },
 
     setCurrent (state, item) {
+      const { idField } = state
       let id = isObject(item) ? item[idField] : item
       state.currentId = id
       state.copy = _cloneDeep(item)
@@ -221,8 +223,6 @@ export default function makeServiceMutations (service) {
     },
     clearRemoveError (state) {
       state.errorOnRemove = undefined
-    },
-
-    ...customMutations
+    }
   }
 }

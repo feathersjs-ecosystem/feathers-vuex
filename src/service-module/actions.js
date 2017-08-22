@@ -1,8 +1,4 @@
 export default function makeServiceActions (service) {
-  const { vuexOptions } = service
-  const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  const customActions = (vuexOptions.module && vuexOptions.module.actions) || {}
-
   const serviceActions = {
     find ({ commit, dispatch }, params) {
       commit('setFindPending')
@@ -28,7 +24,7 @@ export default function makeServiceActions (service) {
       return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
     },
 
-    // Two query syntaxes are supported, since actions only receive onee argument.
+    // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
     get ({ commit, dispatch }, args) {
@@ -126,7 +122,7 @@ export default function makeServiceActions (service) {
 
   function checkId (id, item) {
     if (id === undefined) {
-      throw new Error('No id found for item. Did you set the idField?', item)
+      throw new Error('No id found for item. Do you need to customize the `idField`?', item)
     }
   }
 
@@ -136,9 +132,10 @@ export default function makeServiceActions (service) {
       const isPaginated = response.hasOwnProperty('total')
       const toAdd = []
       const toUpdate = []
-      const toRemove = [] // Added
+      const toRemove = []
+      const { idField, autoRemove } = state
 
-      if (!isPaginated && vuexOptions.global.autoRemove) {
+      if (!isPaginated && autoRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
           if (id !== state.currentId && !list.some(item => item[idField] === id)) {
@@ -161,18 +158,17 @@ export default function makeServiceActions (service) {
       commit('updateItems', toUpdate)
     },
     addOrUpdate ({ state, commit }, item) {
+      const { idField } = state
       let id = item[idField]
       let existingItem = state.keyedById[id]
 
       checkId(id, item)
 
       existingItem ? commit('updateItem', item) : commit('addItem', item)
-    },
-
-    ...customActions
+    }
   }
   Object.keys(serviceActions).map(method => {
-    if (typeof service[method] === 'function') {
+    if (service[method] && typeof service[method] === 'function') {
       actions[method] = serviceActions[method]
     }
   })

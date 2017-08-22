@@ -1,23 +1,26 @@
 import assert from 'chai/chai'
-import feathersVuex from '~/src/index'
-import makeStore from '../fixtures/store'
-import { makeFeathersRestClient } from '../fixtures/feathers-client'
-import { mapActions } from 'vuex'
+import setupVuexService from '~/src/service-module/service-module'
+import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
+import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 
+const service = setupVuexService(feathersClient)
+
 describe('Service Module - Actions', () => {
+  beforeEach(function () {
+    this.todoService = feathersClient.service('todos', memory())
+  })
   it('Find', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['find'])
 
-    assert(todoState.ids.length === 0)
-    assert(todoState.errorOnFind === undefined)
-    assert(todoState.isFindPending === false)
-    assert(todoState.idField === 'id')
+    assert(todoState.ids.length === 0, 'no ids before find')
+    assert(todoState.errorOnFind === undefined, 'no error before find')
+    assert(todoState.isFindPending === false, 'isFindPending is false')
+    assert(todoState.idField === 'id', 'idField is `id`')
 
     feathersClient.service('todos').create([
       { description: 'Do the dishes' },
@@ -27,15 +30,15 @@ describe('Service Module - Actions', () => {
     .then(response => {
       actions.find.call({$store: store}, {})
       .then(response => {
-        assert(todoState.ids.length === 3)
-        assert(todoState.errorOnFind === undefined)
-        assert(todoState.isFindPending === false)
+        assert(todoState.ids.length === 3, 'three ids populated')
+        assert(todoState.errorOnFind === undefined, 'errorOnFind still undefined')
+        assert(todoState.isFindPending === false, 'isFindPending is false')
         let expectedKeyedById = {
           0: { id: 0, description: 'Do the dishes' },
           1: { id: 1, description: 'Do the laundry' },
           2: { id: 2, description: 'Do all the things' }
         }
-        assert.deepEqual(todoState.keyedById, expectedKeyedById)
+        assert.deepEqual(todoState.keyedById, expectedKeyedById, 'keyedById matches')
         done()
       })
 
@@ -48,10 +51,9 @@ describe('Service Module - Actions', () => {
   })
 
   it('Get', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['get'])
 
@@ -99,10 +101,9 @@ describe('Service Module - Actions', () => {
   })
 
   it('Create', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['create'])
 
@@ -124,10 +125,9 @@ describe('Service Module - Actions', () => {
   })
 
   it('Update', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['create', 'update'])
 
@@ -148,13 +148,15 @@ describe('Service Module - Actions', () => {
         assert(todoState.isUpdatePending === true)
         assert(todoState.idField === 'id')
       })
+      .catch(error => {
+        assert(!error, error)
+      })
   })
 
   it('Patch', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['create', 'patch'])
 
@@ -178,10 +180,9 @@ describe('Service Module - Actions', () => {
   })
 
   it('Remove', (done) => {
-    const store = makeStore()
-    const feathersClient = makeFeathersRestClient()
-      .configure(feathersVuex(store))
-    feathersClient.service('todos', memory())
+    const store = new Vuex.Store({
+      plugins: [service('todos')]
+    })
     const todoState = store.state.todos
     const actions = mapActions('todos', ['create', 'remove'])
 
