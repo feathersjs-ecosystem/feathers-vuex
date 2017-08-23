@@ -36,7 +36,7 @@ export default function makeServiceGetters (servicePath) {
         data: values
       }
     },
-    get: ({ keyedById }) => (id, params = {}) => {
+    get: ({ keyedById, idField }) => (id, params = {}) => {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
     },
     current (state) {
