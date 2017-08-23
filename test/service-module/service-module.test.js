@@ -121,7 +121,8 @@ describe('Service Module', () => {
         isUpdatePending: false,
         isPatchPending: false,
         isRemovePending: false,
-        keyedById: {}
+        keyedById: {},
+        servicePath: 'todos'
       }
 
       assert.deepEqual(todoState, expectedState, 'the expected state was returned')
