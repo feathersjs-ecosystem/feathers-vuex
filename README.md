@@ -54,7 +54,7 @@ export default new Vuex.Store({
     service('/v1/tasks', {
       idField: '_id', // The field in each record that will contain the id
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
-      namespace: 'custom-task-namespace', // Customize the Vuex module name.  Overrides nameStyle.
+      namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
       autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
       enableEvents: false // turn off socket event listeners. It's true by default
     })
