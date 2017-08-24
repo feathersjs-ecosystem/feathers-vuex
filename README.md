@@ -53,8 +53,8 @@ export default new Vuex.Store({
     // Specify custom options per service
     service('/v1/tasks', {
       idField: '_id', // The field in each record that will contain the id
-      nameStyle: 'path', // Use the full path name inside Vuex, instead of just the last section
-      namespace: 'custom-task-namespace', // Customize the plugin name inside Vuex.  Overrides nameStyle.
+      nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
+      namespace: 'custom-task-namespace', // Customize the Vuex module name.  Overrides nameStyle.
       autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
       enableEvents: false // turn off socket event listeners. It's true by default
     })
@@ -381,9 +381,6 @@ The following actions are included in the `auth` module:
 
 ### Configuration
 You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
-
-## Handling Realtime Events
-This plugin works perfectly with the [`feathers-reactive`](https://github.com/feathersjs/feathers-reactive) plugin.  Realtime events are handled in that plugin, allowing this plugin to stay lean and focused.  See the example below for how to add support for Feathers realtime events using `feathers-reactive`.
 
 ## License
 
