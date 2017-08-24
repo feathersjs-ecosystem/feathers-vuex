@@ -8,6 +8,7 @@ const defaults = {
   idField: 'id', // The field in each record that will contain the id
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
+  enableEvents: true, // Listens to socket.io events when available
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -37,8 +38,9 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     if (!service) {
       throw new Error('No service was found. Please configure a transport plugin on the Feathers Client')
     }
+    const paginate = service.hasOwnProperty('paginate') && service.paginate.hasOwnProperty('default')
 
-    const defaultState = makeState(servicePath, { idField, autoRemove })
+    const defaultState = makeState(servicePath, { idField, autoRemove, paginate })
     const defaultGetters = makeGetters(servicePath)
     const defaultMutations = makeMutations(servicePath)
     const defaultActions = makeActions(service)
@@ -57,6 +59,14 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
         mutations: Object.assign({}, defaultMutations, options.mutations),
         actions: Object.assign({}, defaultActions, options.actions)
       })
+
+      if (options.enableEvents) {
+        // Listen to socket events when available.
+        service.on('created', item => store.commit(`${namespace}/addItem`, item))
+        service.on('updated', item => store.commit(`${namespace}/updateItem`, item))
+        service.on('patched', item => store.commit(`${namespace}/updateItem`, item))
+        service.on('removed', item => store.commit(`${namespace}/removeItem`, item))
+      }
     }
   }
 }

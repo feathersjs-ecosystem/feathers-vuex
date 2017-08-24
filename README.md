@@ -13,7 +13,7 @@ npm install feathers-vuex --save
 ```
 
 ## Use
-`feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.
+`feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.  Note: as of version 1.0.0 `feathers-reactive` is no longer required to get socket updates.
 
 **feathers-client.js:**
 ```js
@@ -22,8 +22,6 @@ import hooks from 'feathers-hooks'
 import socketio from 'feathers-socketio'
 import auth from 'feathers-authentication-client'
 import io from 'socket.io-client'
-import rx from 'feathers-reactive'
-import RxJS from 'rxjs'
 
 const socket = io('http://localhost:3030', {transports: ['websocket']})
 
@@ -31,8 +29,6 @@ const feathersClient = feathers()
   .configure(hooks())
   .configure(socketio(socket))
   .configure(auth({ storage: window.localStorage }))
-  // only needed for feathers-socketio realtime updates, this requirement may be removed in the future
-  .configure(rx(RxJS, {idField: '_id'}))
 
 export default feathersClient
 ```
@@ -59,7 +55,8 @@ export default new Vuex.Store({
       idField: '_id', // The field in each record that will contain the id
       nameStyle: 'path', // Use the full path name inside Vuex, instead of just the last section
       namespace: 'custom-task-namespace', // Customize the plugin name inside Vuex.  Overrides nameStyle.
-      autoRemove: true // automatically remove records missing from responses (only use with feathers-rest)
+      autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
+      enableEvents: false // turn off socket event listeners. It's true by default
     })
 
     // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
@@ -80,7 +77,7 @@ The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
 
 ## A note about feathers-reactive
-If you are using feathers-socketio, you'll probably want to use feathers-reactive with RxJS, as shown in the above example.  This plugin adds reactivity to each query, so lists of data will automatically update upon receive realtime messages from the server.  If you're using `feathers-rest`, feel free to remove `feathers-reactive`, because it won't offer any functionality.
+Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required.
 
 ## API Documentation
 
@@ -92,7 +89,8 @@ The following default options are available for configuration:
 const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
-  nameStyle: 'short' // Determines the source of the module name. 'short' or 'path'
+  nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
+  enableEvents: true // Set to false to explicitly disable socket event handlers.
 }
 ```
 
@@ -118,6 +116,7 @@ Each service comes loaded with the following default state:
     idField: 'id',
     servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
+    paginate: false, // Indicates if pagination is enabled on the Feathers service.
 
     isFindPending: false,
     isGetPending: false,
@@ -143,6 +142,7 @@ The following attributes are available in each service module's state:
 - `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `rejectCopy` to revert `copy` to once again match `current`.
 - `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
+- `paginate {Boolean}` - Indicates if the service has pagination turned on.  This changes the response of the `find` action and getter to match the response that Feathers gives.
 
 The following state attributes allow you to bind to the pending state of requests:
 - `isFindPending {Boolean}` - `true` if there's a pending `find` request.  `false` if not.
@@ -164,7 +164,7 @@ The following state attribute will be populated with any request error, serializ
 Service modules include the following getters:
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
 - `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common.html) and [Query API](https://docs.feathersjs.com/api/databases/querying.html) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
-  - `params {Object}` - an object with a `query` object. The `query` is in the FeathersJS query format.
+  - `params {Object}` - an object with a `query` object and an optional `paginate` boolean property. The `query` is in the FeathersJS query format.  You can set `params.paginate` to `false` to disable pagination for a single request.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
@@ -254,7 +254,7 @@ All of the [Feathers Service Methods](https://docs.feathersjs.com/api/databases/
 
 #### `find(params)`
 Query an array of records from the server & add to the Vuex store.
-- `params {Object}` - An object containing a `query` object.
+- `params {Object}` - An object containing a `query` object and an optional `paginate` boolean.  You can set `params.paginate` to `false` to disable pagination for a single request.
 
 ```js
 let params = {query: {completed: true}}

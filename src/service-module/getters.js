@@ -28,15 +28,19 @@ export default function makeServiceGetters (servicePath) {
         values = values.map(value => _.pick(value, ...filters.$select))
       }
 
-      // TODO: Figure out a nice API for turning off pagination.
-      return {
-        total,
-        limit: filters.$limit,
-        skip: filters.$skip || 0,
-        data: values
+      const shouldPaginate = state.paginate && params.paginate !== false
+      if (shouldPaginate) {
+        return {
+          total,
+          limit: filters.$limit,
+          skip: filters.$skip || 0,
+          data: values
+        }
+      } else {
+        return values
       }
     },
-    get: ({ keyedById }) => (id, params = {}) => {
+    get: ({ keyedById, idField }) => (id, params = {}) => {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
     },
     current (state) {

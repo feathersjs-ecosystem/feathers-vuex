@@ -22,13 +22,13 @@ describe('Service Module - Actions', () => {
     assert(todoState.isFindPending === false, 'isFindPending is false')
     assert(todoState.idField === 'id', 'idField is `id`')
 
-    feathersClient.service('todos').create([
-      { description: 'Do the dishes' },
-      { description: 'Do the laundry' },
-      { description: 'Do all the things' }
-    ])
-    .then(response => {
-      actions.find.call({$store: store}, {})
+    feathersClient.service('todos').store = {
+      0: { id: 0, description: 'Do the dishes' },
+      1: { id: 1, description: 'Do the laundry' },
+      2: { id: 2, description: 'Do all the things' }
+    }
+
+    actions.find.call({$store: store}, {})
       .then(response => {
         assert(todoState.ids.length === 3, 'three ids populated')
         assert(todoState.errorOnFind === undefined, 'errorOnFind still undefined')
@@ -42,12 +42,11 @@ describe('Service Module - Actions', () => {
         done()
       })
 
-      // Make sure proper state changes occurred before response
-      assert(todoState.ids.length === 0)
-      assert(todoState.errorOnFind === undefined)
-      assert(todoState.isFindPending === true)
-      assert.deepEqual(todoState.keyedById, {})
-    })
+    // Make sure proper state changes occurred before response
+    assert(todoState.ids.length === 0)
+    assert(todoState.errorOnFind === undefined)
+    assert(todoState.isFindPending === true)
+    assert.deepEqual(todoState.keyedById, {})
   })
 
   it('Get', (done) => {
@@ -62,18 +61,17 @@ describe('Service Module - Actions', () => {
     assert(todoState.isGetPending === false)
     assert(todoState.idField === 'id')
 
-    // Calling a service directly won't update the store.
-    feathersClient.service('todos').create([
-      { description: 'Do the dishes' },
-      { description: 'Do the laundry' },
-      { description: 'Do all the things' }
-    ])
-    .then(response => {
-      actions.get.call({$store: store}, 0)
+    feathersClient.service('todos').store = {
+      0: { id: 0, description: 'Do the dishes' },
+      1: { id: 1, description: 'Do the laundry' },
+      2: { id: 2, description: 'Do all the things' }
+    }
+
+    actions.get.call({$store: store}, 0)
       .then(response => {
-        assert(todoState.ids.length === 1)
-        assert(todoState.errorOnGet === undefined)
-        assert(todoState.isGetPending === false)
+        assert(todoState.ids.length === 1, 'only one item is in the store')
+        assert(todoState.errorOnGet === undefined, 'there was no errorOnGet')
+        assert(todoState.isGetPending === false, 'isGetPending is set to false')
         let expectedKeyedById = {
           0: { id: 0, description: 'Do the dishes' }
         }
@@ -92,12 +90,11 @@ describe('Service Module - Actions', () => {
           })
       })
 
-      // Make sure proper state changes occurred before response
-      assert(todoState.ids.length === 0)
-      assert(todoState.errorOnCreate === undefined)
-      assert(todoState.isGetPending === true)
-      assert.deepEqual(todoState.keyedById, {})
-    })
+    // Make sure proper state changes occurred before response
+    assert(todoState.ids.length === 0)
+    assert(todoState.errorOnCreate === undefined)
+    assert(todoState.isGetPending === true)
+    assert.deepEqual(todoState.keyedById, {})
   })
 
   it('Create', (done) => {

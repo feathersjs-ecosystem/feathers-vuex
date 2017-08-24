@@ -1,11 +1,11 @@
 export default function makeServiceActions (service) {
   const serviceActions = {
-    find ({ commit, dispatch }, params) {
+    find ({ commit, dispatch, getters }, params) {
       commit('setFindPending')
       const handleResponse = response => {
         dispatch('addOrUpdateList', response)
         commit('unsetFindPending')
-        return response
+        return getters.find(params)
       }
       const handleError = error => {
         commit('setFindError', Object.assign({}, error))

@@ -1,6 +1,6 @@
 import assert from 'chai/chai'
 import setupVuexService from '~/src/service-module/service-module'
-import { makeFeathersRestClient, feathersRestClient as feathersClient } from '../fixtures/feathers-client'
+import { makeFeathersRestClient, feathersRestClient as feathersClient, feathersSocketioClient } from '../fixtures/feathers-client'
 import { stripSlashes } from '../../src/utils'
 import memory from 'feathers-memory'
 import makeTodos from '../fixtures/todos'
@@ -122,6 +122,7 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
+        paginate: false,
         servicePath: 'todos'
       }
 
@@ -194,9 +195,7 @@ describe('Service Module', () => {
         store.dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            return this.feathersClient.service('todos').remove(3)
-          })
-          .then(response => {
+            delete this.feathersClient.service('todos').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(todoState.ids.length === 3, 'there are still three items in the store')
 
@@ -229,9 +228,7 @@ describe('Service Module', () => {
         store.dispatch('tasks/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            return this.feathersClient.service('tasks').remove(3)
-          })
-          .then(response => {
+            delete this.feathersClient.service('tasks').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(taskState.ids.length === 3, 'there are still three items in the store')
 
@@ -263,9 +260,7 @@ describe('Service Module', () => {
         store.dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            return this.feathersClient.service('todos').remove(3)
-          })
-          .then(response => {
+            delete this.feathersClient.service('todos').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(todoState.ids.length === 3, 'there are still three items in the store')
 
@@ -359,6 +354,76 @@ describe('Service Module', () => {
 
       store.dispatch('todos/trigger')
       assert(store.state.todos.isTrue === true, 'the custom action was run')
+    })
+  })
+
+  describe('Updates the Store on Events', function () {
+    const socketService = setupVuexService(feathersSocketioClient)
+
+    it('created', function (done) {
+      const store = new Vuex.Store({
+        plugins: [
+          socketService('things')
+        ]
+      })
+
+      feathersSocketioClient.service('things').on('created', item => {
+        assert(store.state.things.keyedById[0].test, 'the item received from the socket event was added to the store')
+        done()
+      })
+
+      feathersSocketioClient.service('things').create({ test: true })
+    })
+
+    it('patched', function (done) {
+      const store = new Vuex.Store({
+        plugins: [
+          socketService('things')
+        ]
+      })
+
+      store.commit('things/addItem', { id: 1, test: false })
+
+      feathersSocketioClient.service('things').on('patched', item => {
+        assert(store.state.things.keyedById[1].test, 'the item received from the socket event was updated in the store')
+        done()
+      })
+
+      feathersSocketioClient.service('things').patch(1, { test: true })
+    })
+
+    it('updated', function (done) {
+      const store = new Vuex.Store({
+        plugins: [
+          socketService('things')
+        ]
+      })
+
+      store.commit('things/addItem', { id: 1, test: false })
+
+      feathersSocketioClient.service('things').on('updated', item => {
+        assert(store.state.things.keyedById[1].test, 'the item received from the socket event was updated in the store')
+        done()
+      })
+
+      feathersSocketioClient.service('things').update(1, { test: true })
+    })
+
+    it('removed', function (done) {
+      const store = new Vuex.Store({
+        plugins: [
+          socketService('things')
+        ]
+      })
+
+      store.commit('things/addItem', { id: 1, test: false })
+
+      feathersSocketioClient.service('things').on('removed', item => {
+        assert(!store.state.things.keyedById[1], 'the item received from the socket event was removed from the store')
+        done()
+      })
+
+      feathersSocketioClient.service('things').remove(1)
     })
   })
 })

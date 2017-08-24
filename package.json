@@ -66,6 +66,7 @@
     "lib": "lib"
   },
   "dependencies": {
+    "can-fixture-socket": "^0.7.0",
     "debug": "^2.6.3",
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.6.3",
