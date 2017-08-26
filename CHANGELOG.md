@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.0.0-pre.3](https://github.com/feathersjs/feathers-vuex/tree/v1.0.0-pre.3) (2017-08-26)
+[Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v1.0.0-pre.2...v1.0.0-pre.3)
+
+**Closed issues:**
+
+- \[Proposal\] Allow existing store modules to provide additional properties like the customActions, etc. [\#36](https://github.com/feathersjs/feathers-vuex/issues/36)
+
 ## [v1.0.0-pre.2](https://github.com/feathersjs/feathers-vuex/tree/v1.0.0-pre.2) (2017-08-24)
 [Full Changelog](https://github.com/feathersjs/feathers-vuex/compare/v1.0.0-pre.1...v1.0.0-pre.2)
 
