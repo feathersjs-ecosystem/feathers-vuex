@@ -7,7 +7,7 @@ export default function makeDefaultState (servicePath, { idField, autoRemove, pa
     idField,
     servicePath,
     autoRemove,
-    paginate,
+    pagination: {},
 
     isFindPending: false,
     isGetPending: false,

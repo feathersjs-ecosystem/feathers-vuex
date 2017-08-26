@@ -21,6 +21,7 @@ const {
   clearCurrent,
   rejectCopy,
   commitCopy,
+  updatePaginationForQuery,
   setFindPending,
   unsetFindPending,
   setGetPending,
@@ -310,6 +311,27 @@ describe('Service Module - Mutations', function () {
     commitCopy(state)
     assert(state.copy.test === false, `the copy wasn't changed after commitCopy`)
     assert(item1.test === false, 'the original item was updated after commitCopy')
+  })
+
+  it('updatePaginationForQuery', function () {
+    const state = this.state
+    const qid = 'query-identifier'
+    const query = { limit: 2 }
+    const response = {
+      data: [{ _id: 1, test: true }],
+      limit: 2,
+      skip: 0,
+      total: 1
+    }
+
+    updatePaginationForQuery(state, { qid, response, query })
+
+    const pageData = state.pagination[qid]
+    assert(pageData.ids.length === 1, `the _id was added to the pagination ids`)
+    assert(pageData.limit === 2, 'the limit was correct')
+    assert(pageData.skip === 0, 'the skip was correct')
+    assert(pageData.total === 1, 'the total was correct')
+    assert.deepEqual(pageData.query, query, 'the query was stored')
   })
 
   describe('Pending', function () {

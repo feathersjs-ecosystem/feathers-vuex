@@ -261,6 +261,8 @@ let params = {query: {completed: true}}
 store.dispatch('todos/find', params)
 ```
 
+See the section about pagination, below, for more information that is applicable to the `find` action.
+
 #### `get(id)` or `get([id, params])`
 Query a single record from the server & add to Vuex store
 - `id {Number|String}` - the `id` of the record being requested from the API server.
@@ -317,6 +319,66 @@ Remove/delete the record with the given `id`.
 ```js
 store.dispatch('todos/remove', 1)
 ```
+
+## Querying with Find & Pagination
+Both the `find` action and the `find` getter support pagination.  There are differences in how they work.
+
+### The `find` action
+
+The `find` action queries data from the remote server.  It returns a promise that resolves to the response from the server.  The presence of pagination data will be determined by the server.
+
+`feathers-vuex@1.0.0` can store pagination data on a per-query basis.  The `pagination` store attribute maps queries to their most-recent pagination data.  It's an empty object by default, but after performing a single query (with pagination in the response), it will have a `default` property.  This property stores pagination information for the query.  Here's what it will look like:
+
+**`params = { query: {} }`**
+```js
+{
+  pagination: {
+    default: {
+      query: {}, // Same as params.query
+      ids: [0, 1, 2], // the ids in the store for the records that were returned from the server
+      limit: 0, // the response.limit
+      skip: 0, // the response.skip
+      total: 3 // the response.total
+    }
+  }
+}
+```
+
+It's possible that you'll want to store pagination information for more than one query.  This might be for different components making queries against the same service, for example.  You can use the `params.qid` (query identifier) property to assign a name to the query.  If you set a `qid` of `mainListView`, for example, the pagination for this query will show up under `pagination.mainListView`.  The `pagination.default` property will be used any time a `params.qid` is not provided.  Here's an example of what this might look like:
+
+**`params = { query: { $limit: 1 }, qid: 'mainListView' }`**
+```js
+// Data in the store
+{
+  pagination: {
+    mainListView: {
+      query: { $limit: 1 }, // Same as params.query
+      ids: [0], // the ids in the store for the records that were returned from the server
+      limit: 1, // the response.limit
+      skip: 0, // the response.skip
+      total: 3 // the response.total
+    }
+  }
+}
+```
+
+### The `find` getter
+
+The `find` getter queries data from the local store using the same Feathers query syntax as on the server.  It is synchronous and directly returns the results of the query.  Pagination is **always** enabled and cannot be disabled.  It accepts a params object with a `query` attribute.  It does not use any other special attributes.  The returned object looks just like a paginated result that you would receive from the server:
+
+**`params = { query: {} }`**
+```js
+// The returned results object
+{
+  data: [{ _id: 1, ...etc }, ...etc],
+  limit: 0,
+  skip: 0,
+  total: 3
+}
+```
+
+
+###
 
 ## Customizing a Service's Default Store
 
@@ -384,6 +446,6 @@ You can provide a `userService` in the auth plugin's options to automatically po
 
 ## License
 
-Copyright (c) 2016
+Copyright (c) Forever and Ever, or at least the current year.
 
 Licensed under the [MIT license](LICENSE).

@@ -151,6 +151,17 @@ export default function makeServiceMutations (servicePath) {
       _merge(current, state.copy)
     },
 
+    // Stores pagination data on state.pagination based on the query identifier (qid)
+    // The qid must be manually assigned to `params.qid`
+    updatePaginationForQuery (state, { qid, response, query }) {
+      const { data, limit, skip, total } = response
+      const { idField } = state
+      const ids = data.map(item => {
+        return item[idField]
+      })
+      state.pagination = { ...state.pagination, [qid]: { limit, skip, total, ids, query } }
+    },
+
     setFindPending (state) {
       state.isFindPending = true
     },

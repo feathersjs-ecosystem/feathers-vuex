@@ -122,7 +122,7 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
-        paginate: false,
+        pagination: {},
         servicePath: 'todos'
       }
 
@@ -203,7 +203,6 @@ describe('Service Module', () => {
             return store.dispatch('todos/find', { query: {} })
           })
           .then(todos => {
-            assert(!todos.hasOwnProperty('total'), 'pagination is off')
             assert(todoState.ids.length === 2, 'there are now two items in the store')
             done()
           })
@@ -268,7 +267,6 @@ describe('Service Module', () => {
             return store.dispatch('todos/find', { query: {} })
           })
           .then(todos => {
-            assert(!todos.hasOwnProperty('total'), 'pagination is off')
             assert(todoState.ids.length === 3, 'there are still three items in the store')
             done()
           })

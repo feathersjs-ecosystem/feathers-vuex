@@ -1,6 +1,7 @@
 import './service-module/service-module.test.js'
 import './service-module/misconfigured-client.test.js'
 import './service-module/actions.test.js'
+import './service-module/getters.test.js'
 import './service-module/mutations.test.js'
 import './auth-module/auth-module.test.js'
 import './auth-module/actions.test.js'

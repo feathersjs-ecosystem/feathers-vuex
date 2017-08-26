@@ -1,11 +1,20 @@
 export default function makeServiceActions (service) {
   const serviceActions = {
-    find ({ commit, dispatch, getters }, params) {
+    find ({ commit, dispatch, getters }, params = {}) {
       commit('setFindPending')
+
       const handleResponse = response => {
+        const { qid = 'default', query } = params
+
         dispatch('addOrUpdateList', response)
         commit('unsetFindPending')
-        return getters.find(params)
+
+        // The pagination data will be under `pagination.default` or whatever qid is passed.
+        if (response.data) {
+          commit('updatePaginationForQuery', { qid, response, query })
+        }
+
+        return response
       }
       const handleError = error => {
         commit('setFindError', Object.assign({}, error))

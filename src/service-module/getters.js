@@ -28,16 +28,11 @@ export default function makeServiceGetters (servicePath) {
         values = values.map(value => _.pick(value, ...filters.$select))
       }
 
-      const shouldPaginate = state.paginate && params.paginate !== false
-      if (shouldPaginate) {
-        return {
-          total,
-          limit: filters.$limit,
-          skip: filters.$skip || 0,
-          data: values
-        }
-      } else {
-        return values
+      return {
+        total,
+        limit: filters.$limit || 0,
+        skip: filters.$skip || 0,
+        data: values
       }
     },
     get: ({ keyedById, idField }) => (id, params = {}) => {
