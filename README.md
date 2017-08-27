@@ -362,9 +362,13 @@ It's possible that you'll want to store pagination information for more than one
 }
 ```
 
+> Note: The `find` action no longer returns reactive lists.  The list data will still be reactive, but new matches that arrive from the server do NOT get automatically added to lists.  There are two solutions to this:
+- Use the `find` action to pull in data from the server.  Use the `find` getter to pull a reactive list from the store.
+- Configure the `feathers-reactive` plugin with RxJS on your Feathers Client instance.  [Read the docs for implementation details.](https://github.com/feathersjs/feathers-reactive)
+
 ### The `find` getter
 
-The `find` getter queries data from the local store using the same Feathers query syntax as on the server.  It is synchronous and directly returns the results of the query.  Pagination is **always** enabled and cannot be disabled.  It accepts a params object with a `query` attribute.  It does not use any other special attributes.  The returned object looks just like a paginated result that you would receive from the server:
+The `find` getter queries data from the local store using the same Feathers query syntax as on the server.  It is synchronous and returns the results of the query with pagination.  Pagination cannot be disabled.  It accepts a params object with a `query` attribute.  It does not use any other special attributes.  The returned object looks just like a paginated result that you would receive from the server:
 
 **`params = { query: {} }`**
 ```js
