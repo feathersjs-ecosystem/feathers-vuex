@@ -5,6 +5,7 @@ import './service-module/getters.test.js'
 import './service-module/mutations.test.js'
 import './auth-module/auth-module.test.js'
 import './auth-module/actions.test.js'
+import './utils.test.js'
 
 import assert from 'chai/chai'
 import 'steal-mocha'

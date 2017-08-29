@@ -71,6 +71,7 @@
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.6.3",
     "feathers-query-filters": "^2.1.2",
+    "jwt-decode": "^2.2.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isobject": "^3.0.2",
     "lodash.merge": "^4.6.0",
