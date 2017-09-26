@@ -442,8 +442,9 @@ The Auth module helps setup your app for login / logout.  It includes the follow
 
 ### Actions
 The following actions are included in the `auth` module:
-- `authenticate`: Same as `feathersClient.authenticate()`
-- `logout`: Same as `feathersClient.logout()`
+- `authenticate`: use instead of `feathersClient.authenticate()`
+- `logout`: use instead of `feathersClient.logout()`
+The Vuex auth store may not update if you use the feathers client version.
 
 ## Working with Auth & Nuxt
 
