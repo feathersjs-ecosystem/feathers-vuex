@@ -12,6 +12,9 @@
 npm install feathers-vuex --save
 ```
 
+## Important
+The current version of `feathers-vuex` is not compatible with the latest version of `feathers-reactive` (0.5.x). To keep on using `feathers-vuex` install version 0.4.x.
+
 ## Use
 Use `feathers-vuex` the same as any other FeathersJS plugin. The only prerequisite is that you have Vuex configured in your Vue app.  Suppose you have the following Vuex store:
 
@@ -39,6 +42,7 @@ import io from 'socket.io-client'
 import feathersVuex from 'feathers-vuex'
 import store from '@/store/'
 import rx from 'feathers-reactive'
+import RxJS from 'rxjs'
 
 const socket = io('http://localhost:3030', {transports: ['websocket']})
 
@@ -46,7 +50,7 @@ const feathersClient = feathers()
   .configure(hooks())
   .configure(socketio(socket))
   .configure(auth({ storage: window.localStorage }))
-  .configure(rx({idField: '_id'}))
+  .configure(rx(RxJS, {idField: '_id'}))
   // Register feathers-vuex by passing the store and options
   .configure(feathersVuex(store, {
     idField: '_id',
