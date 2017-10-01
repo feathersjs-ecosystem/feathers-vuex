@@ -126,8 +126,16 @@ export default function makeServiceMutations (service) {
       }
     },
 
-    setCurrent (state, item) {
-      let id = isObject(item) ? item[idField] : item
+    setCurrent (state, itemOrId) {
+      let id
+      let item
+      if (isObject(itemOrId)) {
+        id = itemOrId[idField]
+        item = itemOrId
+      } else {
+        id = itemOrId
+        item = state.keyedById[id]
+      }
       state.currentId = id
       state.copy = _cloneDeep(item)
     },
