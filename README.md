@@ -172,6 +172,7 @@ Service modules include the following getters:
 
 ### Service Mutations
 The following mutations are included in each service module.
+> **Note:** you would typically not call these directly, but instead with `store.commit('removeItem', 'itemId')`. Using vuex's mapMutations on a Vue component can simplify that to `this.removeItem('itemId')` 
 
 #### `addItem(state, item)`
 Adds a single item to the `keyedById` map.
