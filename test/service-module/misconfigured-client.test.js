@@ -15,7 +15,7 @@ describe('Service Module - Bad Client Setup', () => {
     try {
       service('todos')
     } catch (error) {
-      assert(error.message === 'No service was found. Please configure a transport plugin on the Feathers Client', 'got an error with a misconfigured client')
+      assert(error.message.includes('No service was found. Please configure a transport plugin on the Feathers Client'), 'got an error with a misconfigured client')
     }
   })
 })
