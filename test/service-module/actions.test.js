@@ -223,7 +223,6 @@ describe('Service Module - Actions', () => {
         'component-query-one'
       ]
 
-      
       actions.find.call({$store: store}, { query: {}, qid: qids[0] })
       .then(response => actions.find.call({$store: store}, { query: {}, qid: qids[1] }))
       .then(response => {
@@ -232,9 +231,9 @@ describe('Service Module - Actions', () => {
           assert(ids.length === 10, 'ten ids were returned in this page')
           assert(limit === 10, 'limit matches the default pagination limit on the server')
           assert(skip === 0, 'skip was correct')
-          assert(total === 10, 'total was correct')  
+          assert(total === 10, 'total was correct')
         })
-        
+
         done()
       })
     })

@@ -1,9 +1,6 @@
 
 import chai from 'chai/chai'
-import store from './fixtures/store'
 import { isNode, isBrowser } from '../src/utils'
-// import feathersVuex from '../src/index'
-// require('./vuex.test.js')
 
 const assert = chai.assert
 

@@ -1,4 +1,4 @@
-import { getShortName, getNameFromPath, stripSlashes } from '../utils'
+import { getShortName, getNameFromPath } from '../utils'
 import makeState from './state'
 import makeGetters from './getters'
 import makeMutations from './mutations'

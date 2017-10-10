@@ -8,7 +8,7 @@ const options = {
   autoRemove: false
 }
 
-const { get, find, list, current } = makeServiceGetters('todos', options)
+const { find, list } = makeServiceGetters('todos', options)
 const { addItems } = makeServiceMutations('todos', options)
 
 describe('Service Module - Getters', function () {
@@ -17,7 +17,7 @@ describe('Service Module - Getters', function () {
     this.items = [
       { _id: 1, otherField: true, test: true },
       { _id: 2, otherField: true, test: true },
-      { _id: 3, otherField: true, test: false}
+      { _id: 3, otherField: true, test: false }
     ]
     addItems(state, this.items)
     this.state = state
@@ -42,7 +42,7 @@ describe('Service Module - Getters', function () {
   })
 
   it('find with query', function () {
-    const { state, items } = this
+    const { state } = this
     const params = { query: { test: false } }
     const results = find(state)(params)
 
@@ -54,7 +54,7 @@ describe('Service Module - Getters', function () {
   })
 
   it('find with limit', function () {
-    const { state, items } = this
+    const { state } = this
     const params = { query: { $limit: 1 } }
     const results = find(state)(params)
 
@@ -66,7 +66,7 @@ describe('Service Module - Getters', function () {
   })
 
   it('find with skip', function () {
-    const { state, items } = this
+    const { state } = this
     const params = { query: { $skip: 1 } }
     const results = find(state)(params)
 
@@ -79,7 +79,7 @@ describe('Service Module - Getters', function () {
   })
 
   it('find with limit and skip', function () {
-    const { state, items } = this
+    const { state } = this
     const params = { query: { $limit: 1, $skip: 1 } }
     const results = find(state)(params)
 
@@ -91,7 +91,7 @@ describe('Service Module - Getters', function () {
   })
 
   it('find with select', function () {
-    const { state, items } = this
+    const { state } = this
     const params = { query: { $select: ['otherField'] } }
     const results = find(state)(params)
 
