@@ -36,7 +36,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
 
     const service = feathersClient.service(servicePath)
     if (!service) {
-      throw new Error('No service was found. Please configure a transport plugin on the Feathers Client')
+      throw new Error('No service was found. Please configure a transport plugin on the Feathers Client. Make sure you use the client version of the transport, like `feathers-socketio/client` or `feathers-rest/client`.')
     }
     const paginate = service.hasOwnProperty('paginate') && service.paginate.hasOwnProperty('default')
 
