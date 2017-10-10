@@ -128,6 +128,7 @@ export default function makeServiceMutations (servicePath) {
     },
 
     setCurrent (state, itemOrId) {
+      const { idField } = state
       let id
       let item
       if (isObject(itemOrId)) {
