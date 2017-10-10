@@ -3,7 +3,7 @@ import setupServiceModule from './service-module/service-module'
 import setupAuthModule from './auth-module/auth-module'
 import _merge from 'lodash.merge'
 import _cloneDeep from 'lodash.clonedeep'
-import { normalizePath, makeConfig } from './utils'
+import { normalizePath, makeConfig, initAuth } from './utils'
 
 const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
@@ -19,6 +19,8 @@ const defaultOptions = {
     actions: {} // add custom actions to the auth module
   }
 }
+
+export { initAuth }
 
 export default function (clientOrStore, options = {}, modules = {}) {
   var theClone = _cloneDeep(defaultOptions)
