@@ -1,7 +1,7 @@
 # feathers-vuex
 
-[![Build Status](https://travis-ci.org/feathersjs/feathers-vuex.png?branch=master)](https://travis-ci.org/feathersjs/feathers-vuex)
-[![Dependency Status](https://img.shields.io/david/feathersjs/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-vuex)
+[![Build Status](https://travis-ci.org/feathers-plus/feathers-vuex.png?branch=master)](https://travis-ci.org/feathers-plus/feathers-vuex)
+[![Dependency Status](https://img.shields.io/david/feathers-plus/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
 > Integrate the Feathers Client into Vuex
@@ -77,7 +77,7 @@ export default new Vuex.Store({
 
 The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
 
-To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
+To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathers-plus/feathers-chat-vuex).
 
 ## A note about feathers-reactive
 Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required.
@@ -368,7 +368,7 @@ It's possible that you'll want to store pagination information for more than one
 
 > Note: The `find` action no longer returns reactive lists.  The list data will still be reactive, but new matches that arrive from the server do NOT get automatically added to lists.  There are two solutions to this:
 - Use the `find` action to pull in data from the server.  Use the `find` getter to pull a reactive list from the store.
-- Configure the `feathers-reactive` plugin with RxJS on your Feathers Client instance.  [Read the docs for implementation details.](https://github.com/feathersjs/feathers-reactive)
+- Configure the `feathers-reactive` plugin with RxJS on your Feathers Client instance.  [Read the docs for implementation details.](https://github.com/feathers-plus/feathers-reactive)
 
 ### The `find` getter
 
