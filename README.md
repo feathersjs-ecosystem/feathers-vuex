@@ -437,7 +437,14 @@ assert(store.state.todos.isTrue === true, 'the custom action was run')
 The Auth module helps setup your app for login / logout.  It includes the following state by default:
 ```js
 {
-  accessToken: undefined
+  accessToken: undefined, // The JWT
+  payload: undefined, // The JWT payload
+
+  isAuthenticatePending: false,
+  isLogoutPending: false,
+
+  errorOnAuthenticate: undefined,
+  errorOnLogout: undefined
 }
 ```
 
