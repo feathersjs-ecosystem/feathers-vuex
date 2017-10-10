@@ -520,9 +520,9 @@ export default function (context) {
 
 For a summary, the `initAuth` function will make auth available in the state without much configuration.
 
-### Authentication storage with nuxt
+### Authentication storage with Nuxt
 
-Since nuxt is running both client- and server side, it has limits on the availability of certain browser specific variables like `window`. Because of that, trying to configure the feathers client to use `window.localStorage` will result in an error or unexpected / not working behaviour. There's a simple solution though:
+Since Nuxt is running both client- and server side, it has limits on the availability of certain browser specific variables like `window`. Because of that, trying to configure the feathers client to use `window.localStorage` will result in an error or unexpected / not working behaviour. There's a simple solution though:
 
 When you configure the auth module in your feathers-client, use [cookie-storage](https://www.npmjs.com/package/cookie-storage) instead of `window.localStorage` to store the authentication data inside a cookie.
 
