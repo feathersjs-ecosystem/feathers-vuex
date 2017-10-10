@@ -247,6 +247,11 @@ describe('Service Module - Mutations', () => {
 
     assert(state.currentId === 2)
     assert.deepEqual(state.copy, item2)
+
+    setCurrent(state, item1._id)
+
+    assert(state.currentId === 1)
+    assert.deepEqual(state.copy, item1)
   })
 
   it('clearCurrent', () => {
