@@ -1,41 +1,41 @@
+import setupState from './state'
 import setupMutations from './mutations'
 import setupActions from './actions'
 
-export default function setupAuthModule (store, options) {
-  if (!options.auth) {
-    return () => {}
+const defaults = {
+  namespace: 'auth',
+  userService: '', // Set this to automatically populate the user (using an additional request) on login success.
+  state: {},     // for custom state
+  getters: {},   // for custom getters
+  mutations: {}, // for custom mutations
+  actions: {}    // for custom actions
+}
+
+export default function authPluginInit (feathersClient) {
+  if (!feathersClient || !feathersClient.service) {
+    throw new Error('You must pass a Feathers Client instance to feathers-vuex')
   }
 
-  return feathers => {
-    if (!feathers.passport) {
-      throw new Error('You must register the feathers-authentication-client plugin before Feathers-Vuex')
+  return function createAuthModule (options) {
+    options = Object.assign({}, defaults, options)
+
+    if (!feathersClient.authenticate) {
+      throw new Error('You must register the feathers-authentication-client plugin before using the feathers-vuex auth module')
     }
 
-    const { auth } = options
-    const { namespace } = auth
-    const state = {
-      accessToken: undefined, // The JWT
-      payload: undefined, // The JWT payload
+    const defaultState = setupState(options)
+    const defaultMutations = setupMutations(feathersClient)
+    const defaultActions = setupActions(feathersClient)
 
-      isAuthenticatePending: false,
-      isLogoutPending: false,
+    return function setupStore (store) {
+      const { namespace } = options
 
-      errorOnAuthenticate: undefined,
-      errorOnLogout: undefined
+      store.registerModule(namespace, {
+        namespaced: true,
+        state: Object.assign({}, defaultState, options.state),
+        mutations: Object.assign({}, defaultMutations, options.mutations),
+        actions: Object.assign({}, defaultActions, options.actions)
+      })
     }
-    // If a userService string was passed, add a user attribute
-    if (auth.userService) {
-      state.user = undefined
-    }
-    const combinedState = Object.assign(state, auth.state)
-    const mutations = setupMutations(feathers, options)
-    const actions = setupActions(feathers, options)
-
-    store.registerModule(namespace, {
-      namespaced: true,
-      state: combinedState,
-      mutations,
-      actions
-    })
   }
 }

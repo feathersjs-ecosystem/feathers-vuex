@@ -1,11 +1,7 @@
 import getFilter from 'feathers-query-filters'
 import { sorter, matcher, select, _ } from 'feathers-commons'
 
-export default function makeServiceGetters (service) {
-  const { vuexOptions } = service
-  const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  const customGetters = (vuexOptions.module && vuexOptions.module.getters) || {}
-
+export default function makeServiceGetters (servicePath) {
   return {
     list (state) {
       return state.ids.map(id => state.keyedById[id])
@@ -32,21 +28,18 @@ export default function makeServiceGetters (service) {
         values = values.map(value => _.pick(value, ...filters.$select))
       }
 
-      // TODO: Figure out a nice API for turning off pagination.
       return {
         total,
-        limit: filters.$limit,
+        limit: filters.$limit || 0,
         skip: filters.$skip || 0,
         data: values
       }
     },
-    get: ({ keyedById }) => (id, params = {}) => {
+    get: ({ keyedById, idField }) => (id, params = {}) => {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
-    },
-
-    ...customGetters
+    }
   }
 }

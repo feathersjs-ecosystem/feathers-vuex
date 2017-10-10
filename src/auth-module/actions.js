@@ -1,5 +1,4 @@
-export default function makeAuthActions (feathers, options) {
-  const { auth } = options
+export default function makeAuthActions (feathersClient) {
   return {
     authenticate (store, data) {
       const { commit, state, dispatch } = store
@@ -8,27 +7,32 @@ export default function makeAuthActions (feathers, options) {
       if (state.errorOnAuthenticate) {
         commit('clearAuthenticateError')
       }
-      return feathers.authenticate(data)
+      return feathersClient.authenticate(data)
         .then(response => {
-          commit('setAccessToken', response.accessToken)
+          if (response.accessToken) {
+            commit('setAccessToken', response.accessToken)
 
-          // Decode the token and set the payload, but return the response
-          return feathers.passport.verifyJWT(response.accessToken)
-            .then(payload => {
-              commit('setPayload', payload)
+            // Decode the token and set the payload, but return the response
+            return feathersClient.passport.verifyJWT(response.accessToken)
+              .then(payload => {
+                commit('setPayload', payload)
 
-              // Populate the user if the userService was provided
-              if (auth.userService && payload.hasOwnProperty('userId')) {
-                return dispatch('populateUser', payload.userId)
-                  .then(() => {
-                    commit('unsetAuthenticatePending')
-                    return response
-                  })
-              } else {
-                commit('unsetAuthenticatePending')
-              }
-              return response
-            })
+                // Populate the user if the userService was provided
+                if (state.userService && payload.hasOwnProperty('userId')) {
+                  return dispatch('populateUser', payload.userId)
+                    .then(() => {
+                      commit('unsetAuthenticatePending')
+                      return response
+                    })
+                } else {
+                  commit('unsetAuthenticatePending')
+                }
+                return response
+              })
+          // If there was not an accessToken in the response, allow the response to pass through to handle two-factor-auth
+          } else {
+            return response
+          }
         })
         .catch(error => {
           commit('setAuthenticateError', error)
@@ -37,8 +41,8 @@ export default function makeAuthActions (feathers, options) {
         })
     },
 
-    populateUser ({ commit }, userId) {
-      return feathers.service(auth.userService)
+    populateUser ({ commit, state }, userId) {
+      return feathersClient.service(state.userService)
         .get(userId)
         .then(user => {
           commit('setUser', user)
@@ -48,7 +52,7 @@ export default function makeAuthActions (feathers, options) {
 
     logout ({commit}) {
       commit('setLogoutPending')
-      return feathers.logout()
+      return feathersClient.logout()
         .then(response => {
           commit('logout')
           commit('unsetLogoutPending')

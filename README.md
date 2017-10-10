@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/david/feathersjs/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
-> Vuex (Vue.js) integrated as a Feathers Client plugin
+> Integrate the Feathers Client into Vuex
 
 ## Installation
 
@@ -16,33 +16,15 @@ npm install feathers-vuex --save
 The current version of `feathers-vuex` is not compatible with the latest version of `feathers-reactive` (0.5.x). To keep on using `feathers-vuex` install version 0.4.x.
 
 ## Use
-Use `feathers-vuex` the same as any other FeathersJS plugin. The only prerequisite is that you have Vuex configured in your Vue app.  Suppose you have the following Vuex store:
-
-**store/index.js:**
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  state: {}
-})
-```
-
-And here's how you would configure the plugin with your Feathers Client setup:
+`feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.  Note: as of version 1.0.0 `feathers-reactive` is no longer required to get socket updates.
 
 **feathers-client.js:**
 ```js
-import feathers from 'feathers'
+import feathers from 'feathers/client'
 import hooks from 'feathers-hooks'
-import socketio from 'feathers-socketio'
+import socketio from 'feathers-socketio/client'
 import auth from 'feathers-authentication-client'
 import io from 'socket.io-client'
-import feathersVuex from 'feathers-vuex'
-import store from '@/store/'
-import rx from 'feathers-reactive'
-import RxJS from 'rxjs'
 
 const socket = io('http://localhost:3030', {transports: ['websocket']})
 
@@ -50,26 +32,55 @@ const feathersClient = feathers()
   .configure(hooks())
   .configure(socketio(socket))
   .configure(auth({ storage: window.localStorage }))
-  .configure(rx(RxJS, {idField: '_id'}))
-  // Register feathers-vuex by passing the store and options
-  .configure(feathersVuex(store, {
-    idField: '_id',
-    auth: {
-      userService: '/users'
-    }
-  }))
-
-// For every service created, a Vuex store module will be created.
-feathersClient.service('/users')
-feathersClient.service('/messages')
 
 export default feathersClient
 ```
 
+And here's how you would integrate the Feathers Client into the Vuex store:
+
+**store/index.js:**
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from '../feathers-client'
+
+const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('todos'),
+
+    // Specify custom options per service
+    service('/v1/tasks', {
+      idField: '_id', // The field in each record that will contain the id
+      nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
+      namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
+      autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
+      enableEvents: false // turn off socket event listeners. It's true by default
+    })
+
+    // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
+    service('things', {
+      state: {},
+      getters: {},
+      mutations: {},
+      actions: {}
+    })
+
+    auth()
+  ]
+})
+```
+
+The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
+
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs/feathers-chat-vuex).
 
 ## A note about feathers-reactive
-If you are using feathers-socketio, you'll probably want to use feathers-reactive with RxJS, as shown in the above example.  This plugin adds reactivity to each query, so lists of data will automatically update upon receive realtime messages from the server.  If you're using `feathers-rest`, feel free to remove `feathers-reactive`, because it won't offer any functionality.
+Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required.
 
 ## API Documentation
 
@@ -80,20 +91,9 @@ The following default options are available for configuration:
 ```js
 const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
-  auto: true, // automatically setup a store for each service.
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
-  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
-  feathers: {
-    namespace: 'feathers'
-  },
-  auth: {
-    namespace: 'auth',
-    userService: '', // Set this to automatically populate the user on login success.
-    state: {}, // add custom state to the auth module
-    getters: {}, // add custom getters to the auth module
-    mutations: {}, // add custom mutations to the auth module
-    actions: {} // add custom actions to the auth module
-  }
+  nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
+  enableEvents: true // Set to false to explicitly disable socket event handlers.
 }
 ```
 
@@ -101,23 +101,12 @@ Each service module can also be individually configured.
 
 ### The Vuex modules
 
-There are three modules included:
-1. The Feathers module keeps a list of all services with vuex stores attached.
-2. The Service module adds a Vuex store for new services.
-3. The Auth module sets up the Vuex store for authentication / logout.
-
-## Feathers Module
-The `Feathers Module` allows your application to peer into how the Feathers client services are setup. It includes the following state:
-```js
-{
-  services: {
-    vuex: {} // All services that have been integrated into Vuex, keyed by path name
-  }
-}
-```
+There are two modules included:
+1. The Service module adds a Vuex store for new services.
+2. The Auth module sets up the Vuex store for authentication / logout.
 
 ## Service Module
-The `Service Module` automatically sets up newly-created services into the Vuex store.  Each service will have the below default state in its store. The service will also have a `vuex` method that will allow you to add custom `state`, `getters`, `mutations`, and `actions` to an individual service's store.
+The `Service Module` sets up services in the Vuex store.  Each service will have the below default state in its store.
 
 ### Service State
 Each service comes loaded with the following default state:
@@ -127,8 +116,10 @@ Each service comes loaded with the following default state:
     keyedById: {}, // A hash map, keyed by id of each item
     currentId: undefined, // The id of the item marked as current
     copy: undefined, // A deep copy of the current item
-    service, // the FeathersService
     idField: 'id',
+    servicePath: 'v1/todos' // The full service path
+    autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
+    paginate: false, // Indicates if pagination is enabled on the Feathers service.
 
     isFindPending: false,
     isGetPending: false,
@@ -152,8 +143,9 @@ The following attributes are available in each service module's state:
 - `keyedById {Object}` - a hash map keyed by the id of each item.
 - `currentId {Number|String}` - the id of the item marked as current.
 - `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `rejectCopy` to revert `copy` to once again match `current`.
-- `service {FeathersService}` - the Feathers service object
+- `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
+- `paginate {Boolean}` - Indicates if the service has pagination turned on.  This changes the response of the `find` action and getter to match the response that Feathers gives.
 
 The following state attributes allow you to bind to the pending state of requests:
 - `isFindPending {Boolean}` - `true` if there's a pending `find` request.  `false` if not.
@@ -175,7 +167,7 @@ The following state attribute will be populated with any request error, serializ
 Service modules include the following getters:
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
 - `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common.html) and [Query API](https://docs.feathersjs.com/api/databases/querying.html) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
-  - `params {Object}` - an object with a `query` object. The `query` is in the FeathersJS query format.
+  - `params {Object}` - an object with a `query` object and an optional `paginate` boolean property. The `query` is in the FeathersJS query format.  You can set `params.paginate` to `false` to disable pagination for a single request.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
@@ -183,6 +175,7 @@ Service modules include the following getters:
 
 ### Service Mutations
 The following mutations are included in each service module.
+> **Note:** you would typically not call these directly, but instead with `store.commit('removeItem', 'itemId')`. Using vuex's mapMutations on a Vue component can simplify that to `this.removeItem('itemId')`
 
 #### `addItem(state, item)`
 Adds a single item to the `keyedById` map.
@@ -265,12 +258,14 @@ All of the [Feathers Service Methods](https://docs.feathersjs.com/api/databases/
 
 #### `find(params)`
 Query an array of records from the server & add to the Vuex store.
-- `params {Object}` - An object containing a `query` object.
+- `params {Object}` - An object containing a `query` object and an optional `paginate` boolean.  You can set `params.paginate` to `false` to disable pagination for a single request.
 
 ```js
 let params = {query: {completed: true}}
 store.dispatch('todos/find', params)
 ```
+
+See the section about pagination, below, for more information that is applicable to the `find` action.
 
 #### `get(id)` or `get([id, params])`
 Query a single record from the server & add to Vuex store
@@ -317,7 +312,7 @@ Patch (merge in changes) one or more records
 ```js
 let data = {description: 'write your tests', completed: true}
 let params = {}
-store.dispatch('todos/update', [1, data, params])
+store.dispatch('todos/patch', [1, data, params])
 ```
 
 
@@ -329,30 +324,111 @@ Remove/delete the record with the given `id`.
 store.dispatch('todos/remove', 1)
 ```
 
-## Customizing a Service's Default Store
+## Querying with Find & Pagination
+Both the `find` action and the `find` getter support pagination.  There are differences in how they work.
 
-Each registered service will have a `vuex` method that allows you to customize its store:
+### The `find` action
 
+The `find` action queries data from the remote server.  It returns a promise that resolves to the response from the server.  The presence of pagination data will be determined by the server.
+
+`feathers-vuex@1.0.0` can store pagination data on a per-query basis.  The `pagination` store attribute maps queries to their most-recent pagination data.  It's an empty object by default, but after performing a single query (with pagination in the response), it will have a `default` property.  This property stores pagination information for the query.  Here's what it will look like:
+
+**`params = { query: {} }`**
 ```js
-app.service('todos').vuex({
-  state: {
-    isCompleted: false
-  },
-  getters: {
-    oneTwoThree (state) {
-      return 123
-    }
-  },
-  mutations: {
-    setToTrue (state) {
-      state.isCompleted = true
-    }
-  },
-  actions: {
-    triggerSetToTrue (context) {
-      context.commit('setToTrue')
+{
+  pagination: {
+    default: {
+      query: {}, // Same as params.query
+      ids: [0, 1, 2], // the ids in the store for the records that were returned from the server
+      limit: 0, // the response.limit
+      skip: 0, // the response.skip
+      total: 3 // the response.total
     }
   }
+}
+```
+
+It's possible that you'll want to store pagination information for more than one query.  This might be for different components making queries against the same service, for example.  You can use the `params.qid` (query identifier) property to assign a name to the query.  If you set a `qid` of `mainListView`, for example, the pagination for this query will show up under `pagination.mainListView`.  The `pagination.default` property will be used any time a `params.qid` is not provided.  Here's an example of what this might look like:
+
+**`params = { query: { $limit: 1 }, qid: 'mainListView' }`**
+```js
+// Data in the store
+{
+  pagination: {
+    mainListView: {
+      query: { $limit: 1 }, // Same as params.query
+      ids: [0], // the ids in the store for the records that were returned from the server
+      limit: 1, // the response.limit
+      skip: 0, // the response.skip
+      total: 3 // the response.total
+    }
+  }
+}
+```
+
+> Note: The `find` action no longer returns reactive lists.  The list data will still be reactive, but new matches that arrive from the server do NOT get automatically added to lists.  There are two solutions to this:
+- Use the `find` action to pull in data from the server.  Use the `find` getter to pull a reactive list from the store.
+- Configure the `feathers-reactive` plugin with RxJS on your Feathers Client instance.  [Read the docs for implementation details.](https://github.com/feathersjs/feathers-reactive)
+
+### The `find` getter
+
+The `find` getter queries data from the local store using the same Feathers query syntax as on the server.  It is synchronous and returns the results of the query with pagination.  Pagination cannot be disabled.  It accepts a params object with a `query` attribute.  It does not use any other special attributes.  The returned object looks just like a paginated result that you would receive from the server:
+
+**`params = { query: {} }`**
+```js
+// The returned results object
+{
+  data: [{ _id: 1, ...etc }, ...etc],
+  limit: 0,
+  skip: 0,
+  total: 3
+}
+```
+
+
+###
+
+## Customizing a Service's Default Store
+
+As shown in the first example, the service module allows you to customize its store:
+
+```js
+const store = new Vuex.Store({
+  plugins: [
+    // Add custom state, getters, mutations, or actions, if needed
+    service('things', {
+      state: {
+        test: true
+      },
+      getters: {
+        getSomeData () {
+          return 'some data'
+        }
+      },
+      mutations: {
+        setTestToFalse (state) {
+          state.test = false
+        },
+        setTestToTrue (state) {
+          state.test = false
+        }
+      },
+      actions: {
+        asyncStuff ({ commit, dispatch }, args) {
+          commit('setTestToTrue')
+
+          return doSomethingAsync(id, params)
+            .then(result => {
+              commit('setTestToFalse')
+              return dispatch('otherAsyncStuff', result)
+            })
+        },
+        otherAsyncStuff ({commit}, args) {
+          return new Promise.resolve(result)
+        }
+      }
+    })
+  ]
 })
 
 assert(store.getters['todos/oneTwoThree'] === 123, 'the custom getter was available')
@@ -364,53 +440,115 @@ assert(store.state.todos.isTrue === true, 'the custom action was run')
 The Auth module helps setup your app for login / logout.  It includes the following state by default:
 ```js
 {
-  accessToken: undefined
+  accessToken: undefined, // The JWT
+  payload: undefined, // The JWT payload
+
+  isAuthenticatePending: false,
+  isLogoutPending: false,
+
+  errorOnAuthenticate: undefined,
+  errorOnLogout: undefined
 }
 ```
 
 ### Actions
 The following actions are included in the `auth` module:
-- `authenticate`: Same as `feathersClient.authenticate()`
-- `logout`: Same as `feathersClient.logout()`
+- `authenticate`: use instead of `feathersClient.authenticate()`
+- `logout`: use instead of `feathersClient.logout()`
+The Vuex auth store may not update if you use the feathers client version.
 
-### Configuration
-You can provide an `auth.userService` in the feathersVuex options to automatically populate the user upon successful login.
+## Working with Auth & Nuxt
 
-## Handling Realtime Events
-This plugin works perfectly with the [`feathers-reactive`](https://github.com/feathersjs/feathers-reactive) plugin.  Realtime events are handled in that plugin, allowing this plugin to stay lean and focused.  See the example below for how to add support for Feathers realtime events using `feathers-reactive`.
-
-
-## Complete Example
-
-Here's an example of a Feathers server that uses `feathers-vuex`.
+`feathers-vuex@1.0.0` ships with utilities that help with Nuxt auth related to JSON Web Tokens (JWT).  The most important utility is the `initAuth` utility.  It's for use during Nuxt's `nuxtServerInit` method, and sets up auth data automatically.  Here's an example store that uses it:
 
 ```js
-const feathers = require('feathers/client');
-const socketio = require('feathers-socketio/client');
-const auth = require('feathers-authentication-client');
-const reactive = require('feathers-reactive')
-const RxJS = require('rxjs');
-const hooks = require('feathers-hooks');
-const feathersVuex = require('feathers-vuex');
+import Vuex from 'vuex'
+import feathersClient from './feathers-client'
+import feathersVuex, { initAuth } from 'feathers-vuex'
 
-// Bring in your Vuex store
-const store = require('/path/to/vuex/store');
+const { service, auth } = feathersVuex(feathersClient)
 
-// Initialize the application
-const feathersClient = feathers()
-  .configure(rest())
-  .configure(hooks())
-  .configure(auth())
-  .configure(reactive(RxJS))
-  // Initialize feathersVuex with the Vuex store
-  .configure(feathersVuex(store));
+const createStore = () => {
+  return new Vuex.Store({
+    state: {},
+    mutations: {
+      increment (state) {
+        state.counter++
+      }
+    },
+    actions: {
+      nuxtServerInit ({ commit, dispatch }, { req }) {
+        return initAuth({
+          commit,
+          dispatch,
+          req,
+          moduleName: 'auth',
+          cookieName: 'feathers-jwt'
+        })
+      }
+    },
+    plugins: [
+      service('courses'),
+      auth({
+        state: {
+          publicPages: [
+            'login',
+            'signup'
+          ]
+        }
+      })
+    ]
+  })
+}
 
-// Automatically setup Vuex with a todos module
-app.service('todos')
+export default createStore
 ```
+
+Notice in the above example, I've added a `publicPages` property to the auth state.  Let's now use this state to redirect the browser when it's not on a public page and there's no auth:
+
+In your Nuxt project, create the file `/middleware/auth.js`.  Then edit the `nuxt.config.js` and add after the `head` property, add a string that references this routing middleware so it looks like this:
+
+*// nuxt.config.js*
+```js
+router: {
+  middleware: ['auth']
+},
+```
+
+Now open the middleware and paste the following content.  All it does is redirect the page if there's no auth data in the store.
+
+```js
+// If it's a private page and there's no payload, redirect.
+export default function (context) {
+  const { store, redirect, route } = context
+  const { auth } = store.state
+
+  if (!auth.publicPages.includes(route.name) && !auth.payload) {
+    return redirect('login')
+  }
+}
+```
+
+For a summary, the `initAuth` function will make auth available in the state without much configuration.
+
+### Authentication storage with Nuxt
+
+Since Nuxt is running both client- and server side, it has limits on the availability of certain browser specific variables like `window`. Because of that, trying to configure the feathers client to use `window.localStorage` will result in an error or unexpected / not working behaviour. There's a simple solution though:
+
+When you configure the auth module in your feathers-client, use [cookie-storage](https://www.npmjs.com/package/cookie-storage) instead of `window.localStorage` to store the authentication data inside a cookie.
+
+```
+import { CookieStorage } from 'cookie-storage';
+
+const feathersClient = feathers()
+  .configure(auth({ storage: new CookieStorage() }));
+```
+
+### Configuration
+You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
 
 ## License
 
-Copyright (c) 2016
+Copyright (c) Forever and Ever, or at least the current year.
 
 Licensed under the [MIT license](LICENSE).

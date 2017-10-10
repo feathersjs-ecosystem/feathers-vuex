@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "Implement Vuex as a Feathers Client plugin",
-  "version": "0.8.0",
+  "version": "1.0.0-pre.3",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
   "keywords": [
@@ -35,7 +35,7 @@
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
     "compile": "shx rm -rf lib/ && babel -d lib/ src/",
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
-    "lint": "standard src/**/*.js test/**/*.js --fix",
+    "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
     "test": "npm run lint && npm run test-node && npm run testee",
     "test-node": "mocha --opts mocha.opts",
@@ -66,15 +66,16 @@
     "lib": "lib"
   },
   "dependencies": {
+    "can-fixture-socket": "^0.7.0",
     "debug": "^2.6.3",
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.6.3",
     "feathers-query-filters": "^2.1.2",
+    "jwt-decode": "^2.2.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isobject": "^3.0.2",
     "lodash.merge": "^4.6.0",
     "lodash.trim": "^4.5.1",
-    "rubberduck": "^1.1.1",
     "serialize-error": "^2.1.0"
   },
   "devDependencies": {

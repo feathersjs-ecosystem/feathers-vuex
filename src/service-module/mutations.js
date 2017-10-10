@@ -3,12 +3,9 @@ import _cloneDeep from 'lodash.clonedeep'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 
-export default function makeServiceMutations (service) {
-  const { vuexOptions } = service
-  const idField = vuexOptions.module.idField || vuexOptions.global.idField
-  const customMutations = (vuexOptions.module && vuexOptions.module.mutations) || {}
-
+export default function makeServiceMutations (servicePath) {
   function addItem (state, item) {
+    const { idField } = state
     let id = item[idField]
 
     // Only add the id if it's not already in the `ids` list.
@@ -23,6 +20,7 @@ export default function makeServiceMutations (service) {
   }
 
   function updateItem (state, item) {
+    const { idField } = state
     let id = item[idField]
     state.keyedById[id] = item
   }
@@ -45,6 +43,7 @@ export default function makeServiceMutations (service) {
     },
 
     removeItem (state, item) {
+      const { idField } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
       const keyedById = {}
       const { currentId } = state
@@ -67,6 +66,8 @@ export default function makeServiceMutations (service) {
     },
 
     removeItems (state, items) {
+      const { idField } = state
+
       if (!Array.isArray(items)) {
         throw new Error('You must provide an array to the `removeItems` mutation.')
       }
@@ -127,6 +128,7 @@ export default function makeServiceMutations (service) {
     },
 
     setCurrent (state, itemOrId) {
+      const { idField } = state
       let id
       let item
       if (isObject(itemOrId)) {
@@ -155,6 +157,17 @@ export default function makeServiceMutations (service) {
     commitCopy (state) {
       let current = state.keyedById[state.currentId]
       _merge(current, state.copy)
+    },
+
+    // Stores pagination data on state.pagination based on the query identifier (qid)
+    // The qid must be manually assigned to `params.qid`
+    updatePaginationForQuery (state, { qid, response, query }) {
+      const { data, limit, skip, total } = response
+      const { idField } = state
+      const ids = data.map(item => {
+        return item[idField]
+      })
+      state.pagination = { ...state.pagination, [qid]: { limit, skip, total, ids, query } }
     },
 
     setFindPending (state) {
@@ -229,8 +242,6 @@ export default function makeServiceMutations (service) {
     },
     clearRemoveError (state) {
       state.errorOnRemove = undefined
-    },
-
-    ...customMutations
+    }
   }
 }
