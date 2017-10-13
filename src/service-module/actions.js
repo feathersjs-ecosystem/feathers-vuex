@@ -17,7 +17,7 @@ export default function makeServiceActions (service) {
         return response
       }
       const handleError = error => {
-        commit('setFindError', Object.assign({}, error))
+        commit('setFindError', error)
         commit('unsetFindPending')
         return Promise.reject(error)
       }
@@ -57,7 +57,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setGetError', Object.assign({}, error))
+          commit('setGetError', error)
           commit('unsetGetPending')
           return Promise.reject(error)
         })
@@ -74,7 +74,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setCreateError', Object.assign({}, error))
+          commit('setCreateError', error)
           commit('unsetCreatePending')
           return Promise.reject(error)
         })
@@ -90,7 +90,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setUpdateError', Object.assign({}, error))
+          commit('setUpdateError', error)
           commit('unsetUpdatePending')
           return Promise.reject(error)
         })
@@ -106,7 +106,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setPatchError', Object.assign({}, error))
+          commit('setPatchError', error)
           commit('unsetPatchPending')
           return Promise.reject(error)
         })
@@ -122,7 +122,7 @@ export default function makeServiceActions (service) {
           return item
         })
         .catch(error => {
-          commit('setRemoveError', Object.assign({}, error))
+          commit('setRemoveError', error)
           commit('unsetRemovePending')
           return Promise.reject(error)
         })
