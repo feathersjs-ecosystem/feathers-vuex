@@ -410,7 +410,7 @@ const store = new Vuex.Store({
           state.test = false
         },
         setTestToTrue (state) {
-          state.test = false
+          state.test = true
         }
       },
       actions: {
