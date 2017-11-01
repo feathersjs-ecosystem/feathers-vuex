@@ -88,7 +88,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       isPending: false,
       isError: false,
       isSignedIn: false,
-      accessToken: undefined,
+      accessToken: null,
       error: undefined
     }
     const newState = reducer(state, {})
@@ -108,7 +108,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       isPending: true,
       isError: false,
       isSignedIn: false,
-      accessToken: undefined,
+      accessToken: null,
       error: undefined
     }
     const newState = reducer(state, action)
@@ -144,7 +144,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       isPending: false,
       isError: true,
       isSignedIn: false,
-      accessToken: undefined,
+      accessToken: null,
       error
     }
     const newState = reducer(state, action)
@@ -160,7 +160,7 @@ describe('feathers-vuex:auth - Reducer', () => {
       isPending: false,
       isError: false,
       isSignedIn: false,
-      accessToken: undefined,
+      accessToken: null,
       error: undefined
     }
     const newState = reducer(state, action)

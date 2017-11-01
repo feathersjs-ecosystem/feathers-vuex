@@ -23,19 +23,19 @@ describe('Auth Module - Actions', () => {
     const authState = store.state.auth
     const actions = mapActions('auth', ['authenticate'])
 
-    assert(authState.accessToken === undefined)
-    assert(authState.errorOnAuthenticate === undefined)
-    assert(authState.errorOnLogout === undefined)
+    assert(authState.accessToken === null)
+    assert(authState.errorOnAuthenticate === null)
+    assert(authState.errorOnLogout === null)
     assert(authState.isAuthenticatePending === false)
     assert(authState.isLogoutPending === false)
-    assert(authState.payload === undefined)
+    assert(authState.payload === null)
 
     const request = {strategy: 'local', email: 'test', password: 'test'}
     actions.authenticate.call({$store: store}, request)
     .then(response => {
       assert(authState.accessToken === response.accessToken)
-      assert(authState.errorOnAuthenticate === undefined)
-      assert(authState.errorOnLogout === undefined)
+      assert(authState.errorOnAuthenticate === null)
+      assert(authState.errorOnLogout === null)
       assert(authState.isAuthenticatePending === false)
       assert(authState.isLogoutPending === false)
       let expectedPayload = {
@@ -47,12 +47,12 @@ describe('Auth Module - Actions', () => {
     })
 
     // Make sure proper state changes occurred before response
-    assert(authState.accessToken === undefined)
-    assert(authState.errorOnAuthenticate === undefined)
-    assert(authState.errorOnLogout === undefined)
+    assert(authState.accessToken === null)
+    assert(authState.errorOnAuthenticate === null)
+    assert(authState.errorOnLogout === null)
     assert(authState.isAuthenticatePending === true)
     assert(authState.isLogoutPending === false)
-    assert(authState.payload === undefined)
+    assert(authState.payload === null)
   })
 
   it('Logout', (done) => {
@@ -73,12 +73,12 @@ describe('Auth Module - Actions', () => {
     .then(authResponse => {
       actions.logout.call({$store: store})
       .then(response => {
-        assert(authState.accessToken === undefined)
-        assert(authState.errorOnAuthenticate === undefined)
-        assert(authState.errorOnLogout === undefined)
+        assert(authState.accessToken === null)
+        assert(authState.errorOnAuthenticate === null)
+        assert(authState.errorOnLogout === null)
         assert(authState.isAuthenticatePending === false)
         assert(authState.isLogoutPending === false)
-        assert(authState.payload === undefined)
+        assert(authState.payload === null)
         done()
       })
     })
@@ -101,7 +101,7 @@ describe('Auth Module - Actions', () => {
     const authState = store.state.auth
     const actions = mapActions('auth', ['authenticate'])
 
-    assert(authState.user === undefined)
+    assert(authState.user === null)
 
     const request = {strategy: 'local', email: 'test', password: 'test'}
     actions.authenticate.call({$store: store}, request)
