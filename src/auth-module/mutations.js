@@ -27,20 +27,20 @@ export default function makeAuthMutations (feathers) {
       state.errorOnAuthenticate = Object.assign({}, error)
     },
     clearAuthenticateError (state) {
-      state.errorOnAuthenticate = undefined
+      state.errorOnAuthenticate = null
     },
     setLogoutError (state, error) {
       state.errorOnLogout = Object.assign({}, error)
     },
     clearLogoutError (state) {
-      state.errorOnLogout = undefined
+      state.errorOnLogout = null
     },
 
     logout (state) {
-      state.payload = undefined
-      state.accessToken = undefined
+      state.payload = null
+      state.accessToken = null
       if (state.user) {
-        state.user = undefined
+        state.user = null
       }
     }
   }
