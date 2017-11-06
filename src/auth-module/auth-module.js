@@ -1,4 +1,5 @@
 import setupState from './state'
+import setupGetters from './getters'
 import setupMutations from './mutations'
 import setupActions from './actions'
 
@@ -24,6 +25,7 @@ export default function authPluginInit (feathersClient) {
     }
 
     const defaultState = setupState(options)
+    const defaultGetters = setupGetters()
     const defaultMutations = setupMutations(feathersClient)
     const defaultActions = setupActions(feathersClient)
 
@@ -33,6 +35,7 @@ export default function authPluginInit (feathersClient) {
       store.registerModule(namespace, {
         namespaced: true,
         state: Object.assign({}, defaultState, options.state),
+        getters: Object.assign({}, defaultGetters, options.getters),
         mutations: Object.assign({}, defaultMutations, options.mutations),
         actions: Object.assign({}, defaultActions, options.actions)
       })
