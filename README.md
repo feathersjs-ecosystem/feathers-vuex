@@ -292,7 +292,7 @@ store.dispatch('todos/create', newTodo)
 
 #### `update(paramArray)`
 Update (overwrite) a record.
-- `paramArray {Array}` - array contailning the three parameters update takes.
+- `paramArray {Array}` - array containing the three parameters update takes.
   - `id {Number|String}` - the `id` of the existing record being requested from the API server.
   - `data {Object}` - the data that will overwrite the existing record
   - `params {Object}` - An object containing a `query` object.
@@ -320,7 +320,7 @@ export default {
 
 #### `patch(paramArray)`
 Patch (merge in changes) one or more records
-- `paramArray {Array}` - array contailning the three parameters patch takes.
+- `paramArray {Array}` - array containing the three parameters patch takes.
   - `id {Number|String}` - the `id` of the existing record being requested from the API server.
   - `data {Object}` - the data that will be merged into the existing record
   - `params {Object}` - An object containing a `query` object.
