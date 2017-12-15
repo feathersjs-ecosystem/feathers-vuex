@@ -547,6 +547,20 @@ const feathersClient = feathers()
 ### Configuration
 You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
 
+```js
+import Vuex from 'vuex'
+import feathersClient from './feathers-client'
+import feathersVuex from 'feathers-vuex'
+
+const { auth } = feathersVuex(feathersClient, { idField: '_id' })
+
+const store = new Vuex.Store({
+  plugins: [
+    auth({ userService: 'users' }) // if your user service endpoint is named 'users'
+  ]
+})
+```
+
 ## License
 
 Copyright (c) Forever and Ever, or at least the current year.
