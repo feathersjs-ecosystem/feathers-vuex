@@ -290,11 +290,12 @@ store.dispatch('todos/create', newTodo)
 ```
 
 
-#### `update([id, data, params])`
+#### `update(paramArray)`
 Update (overwrite) a record.
-- `id {Number|String}` - the `id` of the existing record being requested from the API server.
-- `data {Object}` - the data that will overwrite the existing record
-- `params {Object}` - An object containing a `query` object.
+- `paramArray {Array}` - array containing the three parameters update takes.
+  - `id {Number|String}` - the `id` of the existing record being requested from the API server.
+  - `data {Object}` - the data that will overwrite the existing record
+  - `params {Object}` - An object containing a `query` object.
 
 ```js
 let data = {id: 5, description: 'write your tests', completed: true}
@@ -303,11 +304,26 @@ let params = {}
 store.dispatch('todos/update', [1, data, params])
 ```
 
-#### `patch([id, data, params])`
+Alternatively in a Vue component
+```
+import { mapActions } from 'vuex'
+export default {
+  methods: {
+    ...mapActions('todos', [ 'update' ]),
+    addTodo () {
+      let data = {id: 5, description: 'write your tests', completed: true}
+      this.update([1, data, {}])
+    }
+  }
+}
+```
+
+#### `patch(paramArray)`
 Patch (merge in changes) one or more records
-- `id {Number|String}` - the `id` of the existing record being requested from the API server.
-- `data {Object}` - the data that will be merged into the existing record
-- `params {Object}` - An object containing a `query` object.
+- `paramArray {Array}` - array containing the three parameters patch takes.
+  - `id {Number|String}` - the `id` of the existing record being requested from the API server.
+  - `data {Object}` - the data that will be merged into the existing record
+  - `params {Object}` - An object containing a `query` object.
 
 ```js
 let data = {description: 'write your tests', completed: true}
