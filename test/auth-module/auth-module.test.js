@@ -15,12 +15,13 @@ describe('Auth Module', () => {
       })
       const authState = store.state.auth
       const expectedAuthState = {
-        accessToken: undefined,
-        errorOnAuthenticate: undefined,
-        errorOnLogout: undefined,
+        accessToken: null,
+        errorOnAuthenticate: null,
+        errorOnLogout: null,
         isAuthenticatePending: false,
         isLogoutPending: false,
-        payload: undefined
+        payload: null,
+        user: null
       }
 
       assert.deepEqual(authState, expectedAuthState, 'has the default state')

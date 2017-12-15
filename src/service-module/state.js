@@ -2,8 +2,8 @@ export default function makeDefaultState (servicePath, { idField, autoRemove, pa
   const state = {
     ids: [],
     keyedById: {},
-    currentId: undefined,
-    copy: undefined,
+    currentId: null,
+    copy: null,
     idField,
     servicePath,
     autoRemove,
@@ -16,12 +16,12 @@ export default function makeDefaultState (servicePath, { idField, autoRemove, pa
     isPatchPending: false,
     isRemovePending: false,
 
-    errorOnFind: undefined,
-    errorOnGet: undefined,
-    errorOnCreate: undefined,
-    errorOnUpdate: undefined,
-    errorOnPatch: undefined,
-    errorOnRemove: undefined
+    errorOnFind: null,
+    errorOnGet: null,
+    errorOnCreate: null,
+    errorOnUpdate: null,
+    errorOnPatch: null,
+    errorOnRemove: null
   }
   return state
 }

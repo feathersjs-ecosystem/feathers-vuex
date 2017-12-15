@@ -70,14 +70,14 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('todos', ['find'])
 
         assert(todoState.ids.length === 0, 'no ids before find')
-        assert(todoState.errorOnFind === undefined, 'no error before find')
+        assert(todoState.errorOnFind === null, 'no error before find')
         assert(todoState.isFindPending === false, 'isFindPending is false')
         assert(todoState.idField === 'id', 'idField is `id`')
 
         actions.find.call({$store: store}, {})
           .then(response => {
             assert(todoState.ids.length === 10, 'three ids populated')
-            assert(todoState.errorOnFind === undefined, 'errorOnFind still undefined')
+            assert(todoState.errorOnFind === null, 'errorOnFind still null')
             assert(todoState.isFindPending === false, 'isFindPending is false')
             let expectedKeyedById = makeStore()
             assert.deepEqual(todoState.keyedById, expectedKeyedById, 'keyedById matches')
@@ -86,7 +86,7 @@ describe('Service Module - Actions', () => {
 
         // Make sure proper state changes occurred before response
         assert(todoState.ids.length === 0)
-        assert(todoState.errorOnFind === undefined)
+        assert(todoState.errorOnFind === null)
         assert(todoState.isFindPending === true)
         assert.deepEqual(todoState.keyedById, {})
       })
@@ -280,7 +280,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnFind === undefined)
+      assert(brokenState.errorOnFind === null)
       assert(brokenState.isFindPending === true)
     })
   })
@@ -294,14 +294,14 @@ describe('Service Module - Actions', () => {
       const actions = mapActions('todos', ['get'])
 
       assert(todoState.ids.length === 0)
-      assert(todoState.errorOnGet === undefined)
+      assert(todoState.errorOnGet === null)
       assert(todoState.isGetPending === false)
       assert(todoState.idField === 'id')
 
       actions.get.call({$store: store}, 0)
         .then(response => {
           assert(todoState.ids.length === 1, 'only one item is in the store')
-          assert(todoState.errorOnGet === undefined, 'there was no errorOnGet')
+          assert(todoState.errorOnGet === null, 'there was no errorOnGet')
           assert(todoState.isGetPending === false, 'isGetPending is set to false')
           let expectedKeyedById = {
             0: { id: 0, description: 'Do the first' }
@@ -323,7 +323,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(todoState.ids.length === 0)
-      assert(todoState.errorOnCreate === undefined)
+      assert(todoState.errorOnCreate === null)
       assert(todoState.isGetPending === true)
       assert.deepEqual(todoState.keyedById, {})
     })
@@ -343,7 +343,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnGet === undefined)
+      assert(brokenState.errorOnGet === null)
       assert(brokenState.isGetPending === true)
     })
   })
@@ -359,7 +359,7 @@ describe('Service Module - Actions', () => {
       actions.create.call({$store: store}, {description: 'Do the second'})
         .then(response => {
           assert(todoState.ids.length === 1)
-          assert(todoState.errorOnCreate === undefined)
+          assert(todoState.errorOnCreate === null)
           assert(todoState.isCreatePending === false)
           assert.deepEqual(todoState.keyedById[response.id], response)
           done()
@@ -367,7 +367,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(todoState.ids.length === 0)
-      assert(todoState.errorOnCreate === undefined)
+      assert(todoState.errorOnCreate === null)
       assert(todoState.isCreatePending === true)
       assert(todoState.idField === 'id')
       assert.deepEqual(todoState.keyedById, {})
@@ -388,7 +388,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnCreate === undefined)
+      assert(brokenState.errorOnCreate === null)
       assert(brokenState.isCreatePending === true)
     })
   })
@@ -406,7 +406,7 @@ describe('Service Module - Actions', () => {
           actions.update.call({$store: store}, [0, {id: 0, description: 'Do da dishuz'}])
           .then(responseFromUpdate => {
             assert(todoState.ids.length === 1)
-            assert(todoState.errorOnUpdate === undefined)
+            assert(todoState.errorOnUpdate === null)
             assert(todoState.isUpdatePending === false)
             assert.deepEqual(todoState.keyedById[responseFromUpdate.id], responseFromUpdate)
             done()
@@ -414,7 +414,7 @@ describe('Service Module - Actions', () => {
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
-          assert(todoState.errorOnUpdate === undefined)
+          assert(todoState.errorOnUpdate === null)
           assert(todoState.isUpdatePending === true)
           assert(todoState.idField === 'id')
         })
@@ -438,7 +438,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnUpdate === undefined)
+      assert(brokenState.errorOnUpdate === null)
       assert(brokenState.isUpdatePending === true)
     })
   })
@@ -456,7 +456,7 @@ describe('Service Module - Actions', () => {
           actions.patch.call({$store: store}, [0, {description: 'Write a Vue app'}])
           .then(responseFromPatch => {
             assert(todoState.ids.length === 1)
-            assert(todoState.errorOnPatch === undefined)
+            assert(todoState.errorOnPatch === null)
             assert(todoState.isPatchPending === false)
             assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
             done()
@@ -464,7 +464,7 @@ describe('Service Module - Actions', () => {
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
-          assert(todoState.errorOnPatch === undefined)
+          assert(todoState.errorOnPatch === null)
           assert(todoState.isPatchPending === true)
           assert(todoState.idField === 'id')
         })
@@ -485,7 +485,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnPatch === undefined)
+      assert(brokenState.errorOnPatch === null)
       assert(brokenState.isPatchPending === true)
     })
   })
@@ -503,7 +503,7 @@ describe('Service Module - Actions', () => {
           actions.remove.call({$store: store}, 0)
           .then(responseFromRemove => {
             assert(todoState.ids.length === 0)
-            assert(todoState.errorOnRemove === undefined)
+            assert(todoState.errorOnRemove === null)
             assert(todoState.isRemovePending === false)
             assert.deepEqual(todoState.keyedById, {})
             done()
@@ -511,7 +511,7 @@ describe('Service Module - Actions', () => {
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
-          assert(todoState.errorOnRemove === undefined)
+          assert(todoState.errorOnRemove === null)
           assert(todoState.isRemovePending === true)
           assert(todoState.idField === 'id')
         })
@@ -532,7 +532,7 @@ describe('Service Module - Actions', () => {
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
-      assert(brokenState.errorOnRemove === undefined)
+      assert(brokenState.errorOnRemove === null)
       assert(brokenState.isRemovePending === true)
     })
   })

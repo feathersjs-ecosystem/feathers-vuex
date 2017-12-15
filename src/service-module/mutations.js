@@ -60,8 +60,8 @@ export default function makeServiceMutations (servicePath) {
       state.keyedById = keyedById
 
       if (currentId === idToBeRemoved) {
-        state.currentId = undefined
-        state.copy = undefined
+        state.currentId = null
+        state.copy = null
       }
     },
 
@@ -100,15 +100,15 @@ export default function makeServiceMutations (servicePath) {
       state.keyedById = keyedById
 
       if (currentId && mapOfIdsToRemove[currentId]) {
-        state.currentId = undefined
-        state.copy = undefined
+        state.currentId = null
+        state.copy = null
       }
     },
 
     clearAll (state) {
       state.ids = []
-      state.currentId = undefined
-      state.copy = undefined
+      state.currentId = null
+      state.copy = null
       state.keyedById = {}
     },
 
@@ -143,8 +143,8 @@ export default function makeServiceMutations (servicePath) {
     },
 
     clearCurrent (state) {
-      state.currentId = undefined
-      state.copy = undefined
+      state.currentId = null
+      state.copy = null
     },
 
     // Deep assigns current to copy
@@ -211,37 +211,37 @@ export default function makeServiceMutations (servicePath) {
       state.errorOnFind = Object.assign({}, serializeError(payload))
     },
     clearFindError (state) {
-      state.errorOnFind = undefined
+      state.errorOnFind = null
     },
     setGetError (state, payload) {
       state.errorOnGet = Object.assign({}, serializeError(payload))
     },
     clearGetError (state) {
-      state.errorOnGet = undefined
+      state.errorOnGet = null
     },
     setCreateError (state, payload) {
       state.errorOnCreate = Object.assign({}, serializeError(payload))
     },
     clearCreateError (state) {
-      state.errorOnCreate = undefined
+      state.errorOnCreate = null
     },
     setUpdateError (state, payload) {
       state.errorOnUpdate = Object.assign({}, serializeError(payload))
     },
     clearUpdateError (state) {
-      state.errorOnUpdate = undefined
+      state.errorOnUpdate = null
     },
     setPatchError (state, payload) {
       state.errorOnPatch = Object.assign({}, serializeError(payload))
     },
     clearPatchError (state) {
-      state.errorOnPatch = undefined
+      state.errorOnPatch = null
     },
     setRemoveError (state, payload) {
       state.errorOnRemove = Object.assign({}, serializeError(payload))
     },
     clearRemoveError (state) {
-      state.errorOnRemove = undefined
+      state.errorOnRemove = null
     }
   }
 }

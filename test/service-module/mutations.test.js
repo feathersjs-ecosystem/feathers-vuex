@@ -271,8 +271,8 @@ describe('Service Module - Mutations', function () {
     setCurrent(state, item2)
     clearCurrent(state)
 
-    assert(state.currentId === undefined)
-    assert(state.copy === undefined)
+    assert(state.currentId === null)
+    assert(state.copy === null)
   })
 
   it('copy works', function () {
