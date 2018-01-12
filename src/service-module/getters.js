@@ -40,6 +40,9 @@ export default function makeServiceGetters (servicePath) {
     },
     current (state) {
       return state.currentId ? state.keyedById[state.currentId] : null
+    },
+    getCopy (state) {
+      return state.copy ? state.copy : null
     }
   }
 }
