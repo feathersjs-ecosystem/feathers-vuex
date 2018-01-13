@@ -172,6 +172,7 @@ Service modules include the following getters:
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
 - `current {Object}` - the object representing the `currentId`. It's pulled from the `keyedById` state.
+- `getCopy {Object}` - An alias to the `state.copy`.
 
 ### Service Mutations
 The following mutations are included in each service module.
