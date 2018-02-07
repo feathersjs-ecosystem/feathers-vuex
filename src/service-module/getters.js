@@ -10,7 +10,7 @@ export default function makeServiceGetters (servicePath) {
     find: state => (params = {}) => {
       const { query, filters } = getFilter(params.query || {})
       let values = _.values(state.keyedById)
-      values = require(query, values)
+      values = sift(query, values)
 
       const total = values.length
 
