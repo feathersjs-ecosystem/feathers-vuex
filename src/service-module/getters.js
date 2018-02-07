@@ -1,5 +1,6 @@
 import getFilter from 'feathers-query-filters'
-import { sorter, matcher, select, _ } from 'feathers-commons'
+import sift from 'sift'
+import { sorter, select, _ } from 'feathers-commons'
 
 export default function makeServiceGetters (servicePath) {
   return {
@@ -8,7 +9,8 @@ export default function makeServiceGetters (servicePath) {
     },
     find: state => (params = {}) => {
       const { query, filters } = getFilter(params.query || {})
-      let values = _.values(state.keyedById).filter(matcher(query))
+      let values = _.values(state.keyedById)
+      values = sift(query, values)
 
       const total = values.length
 
