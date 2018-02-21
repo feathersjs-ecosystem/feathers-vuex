@@ -1,0 +1,2 @@
+- Can now call `create` action with array of [data, params]
+- Can now call `remove` action with array of [id, params]

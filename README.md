@@ -44,6 +44,11 @@ import feathersVuex from 'feathers-vuex'
 import feathersClient from '../feathers-client'
 
 const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
+const { serviceModule, serviceModel, servicePlugin } = service
+
+const todoModule = serviceModule('todos', { nameStyle: '' })
+const TodoModel = serviceModel(todoModule)
+const todoPlugin = servicePlugin(todoModule, { Model: TodoModel })
 
 Vue.use(Vuex)
 
@@ -91,7 +96,8 @@ const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
-  enableEvents: true // Set to false to explicitly disable socket event handlers.
+  enableEvents: true, // Set to false to explicitly disable socket event handlers.
+  preferUpdate: false, // When true, calling modelInstance.save() will do an update instead of a patch.
 }
 ```
 

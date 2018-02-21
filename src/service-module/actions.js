@@ -63,10 +63,22 @@ export default function makeServiceActions (service) {
         })
     },
 
-    create ({ commit, dispatch }, data) {
+    create ({ commit, dispatch }, dataOrArray) {
+      let data
+      let params
+
+      if (Array.isArray(dataOrArray)) {
+        data = dataOrArray[0]
+        params = dataOrArray[1]
+      } else {
+        data = dataOrArray
+      }
+
       commit('setCreatePending')
 
-      return service.create(data)
+      console.log('dataOrArray', dataOrArray)
+
+      return service.create(data, params)
         .then(item => {
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
@@ -112,10 +124,20 @@ export default function makeServiceActions (service) {
         })
     },
 
-    remove ({ commit, dispatch }, id) {
+    remove ({ commit, dispatch }, idOrArray) {
+      let id
+      let params
+
+      if (Array.isArray(idOrArray)) {
+        id = idOrArray[0]
+        params = idOrArray[1]
+      } else {
+        id = idOrArray
+      }
+
       commit('setRemovePending')
 
-      return service.remove(id)
+      return service.remove(id, params)
         .then(item => {
           commit('removeItem', id)
           commit('unsetRemovePending')
