@@ -359,7 +359,7 @@ describe('Service Module', () => {
   describe('Updates the Store on Events', function () {
     const socketService = setupVuexService(feathersSocketioClient)
 
-    it.skip('created', function (done) {
+    it('created', function (done) {
       const store = new Vuex.Store({
         plugins: [
           socketService('things')
@@ -372,12 +372,9 @@ describe('Service Module', () => {
       })
 
       feathersSocketioClient.service('things').create({ test: true })
-        .catch(error => {
-          console.log(error)
-        })
     })
 
-    it.skip('patched', function (done) {
+    it('patched', function (done) {
       const store = new Vuex.Store({
         plugins: [
           socketService('things')
@@ -394,7 +391,7 @@ describe('Service Module', () => {
       feathersSocketioClient.service('things').patch(1, { test: true })
     })
 
-    it.skip('updated', function (done) {
+    it('updated', function (done) {
       const store = new Vuex.Store({
         plugins: [
           socketService('things')
@@ -411,7 +408,7 @@ describe('Service Module', () => {
       feathersSocketioClient.service('things').update(1, { test: true })
     })
 
-    it.skip('removed', function (done) {
+    it('removed', function (done) {
       const store = new Vuex.Store({
         plugins: [
           socketService('things')
