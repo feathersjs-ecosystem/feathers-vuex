@@ -11,6 +11,7 @@ const defaults = {
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
+  debug: false,  // Set to true to enable logging messages.
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -30,7 +31,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     }
 
     options = Object.assign({}, globalOptions, options)
-    const { idField, autoRemove, preferUpdate, enableEvents } = options
+    const { idField, autoRemove, preferUpdate, enableEvents, debug } = options
 
     if (typeof servicePath !== 'string') {
       throw new Error('The first argument to setup a feathers-vuex service must be a string')
@@ -44,8 +45,8 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
 
     const defaultState = makeState(servicePath, { idField, autoRemove, paginate, preferUpdate, enableEvents })
     const defaultGetters = makeGetters(servicePath)
-    const defaultMutations = makeMutations(servicePath)
-    const defaultActions = makeActions(service)
+    const defaultMutations = makeMutations(servicePath, { debug })
+    const defaultActions = makeActions(service, { debug })
     const module = {
       namespaced: true,
       state: Object.assign({}, defaultState, options.state),

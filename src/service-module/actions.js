@@ -1,4 +1,6 @@
-export default function makeServiceActions (service) {
+import { checkId } from '../utils'
+
+export default function makeServiceActions (service, { debug }) {
   const serviceActions = {
     find ({ commit, dispatch, getters }, params = {}) {
       commit('setFindPending')
@@ -151,12 +153,6 @@ export default function makeServiceActions (service) {
     }
   }
 
-  function checkId (id, item) {
-    if (id === undefined) {
-      throw new Error('No id found for item. Do you need to customize the `idField`?', item)
-    }
-  }
-
   const actions = {
     addOrUpdateList ({ state, commit }, response) {
       const list = response.data || response
@@ -170,9 +166,11 @@ export default function makeServiceActions (service) {
         let id = item[idField]
         let existingItem = state.keyedById[id]
 
-        checkId(id, item)
+        const isIdOk = checkId(id, item, debug)
 
-        existingItem ? toUpdate.push(item) : toAdd.push(item)
+        if (isIdOk) {
+          existingItem ? toUpdate.push(item) : toAdd.push(item)
+        }
       })
 
       if (!isPaginated && autoRemove) {
@@ -199,13 +197,15 @@ export default function makeServiceActions (service) {
       let id = item[idField]
       let existingItem = state.keyedById[id]
 
-      checkId(id, item)
+      const isIdOk = checkId(id, item, debug)
 
       if (service.Model && !existingItem) {
         item = new service.Model(item)
       }
 
-      existingItem ? commit('updateItem', item) : commit('addItem', item)
+      if (isIdOk) {
+        existingItem ? commit('updateItem', item) : commit('addItem', item)
+      }
     }
   }
   Object.keys(serviceActions).map(method => {

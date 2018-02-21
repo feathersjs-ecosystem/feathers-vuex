@@ -511,6 +511,9 @@ describe('Service Module - Actions', () => {
             assert.deepEqual(todoState.keyedById, {})
             done()
           })
+          .catch(error => {
+            console.log(error)
+          })
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)

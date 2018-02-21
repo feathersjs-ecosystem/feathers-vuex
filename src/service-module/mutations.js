@@ -2,27 +2,35 @@ import _merge from 'lodash.merge'
 import _cloneDeep from 'lodash.clonedeep'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
+import { checkId } from '../utils'
 
-export default function makeServiceMutations (servicePath) {
+export default function makeServiceMutations (servicePath, { debug }) {
   function addItem (state, item) {
     const { idField } = state
     let id = item[idField]
+    const isIdOk = checkId(id, item, debug)
 
-    // Only add the id if it's not already in the `ids` list.
-    if (!state.ids.includes(id)) {
-      state.ids.push(id)
-    }
+    if (isIdOk) {
+      // Only add the id if it's not already in the `ids` list.
+      if (!state.ids.includes(id)) {
+        state.ids.push(id)
+      }
 
-    state.keyedById = {
-      ...state.keyedById,
-      [id]: item
+      state.keyedById = {
+        ...state.keyedById,
+        [id]: item
+      }
     }
   }
 
   function updateItem (state, item) {
     const { idField } = state
     let id = item[idField]
-    state.keyedById[id] = item
+    const isIdOk = checkId(id, item, debug)
+
+    if (isIdOk) {
+      state.keyedById[id] = item
+    }
   }
 
   return {
@@ -47,21 +55,24 @@ export default function makeServiceMutations (servicePath) {
       const idToBeRemoved = isObject(item) ? item[idField] : item
       const keyedById = {}
       const { currentId } = state
+      const isIdOk = checkId(idToBeRemoved, item, debug)
 
-      state.ids = state.ids.filter(id => {
-        if (id === idToBeRemoved) {
-          return false
-        } else {
-          keyedById[id] = state.keyedById[id]
-          return true
+      if (isIdOk) {
+        state.ids = state.ids.filter(id => {
+          if (id === idToBeRemoved) {
+            return false
+          } else {
+            keyedById[id] = state.keyedById[id]
+            return true
+          }
+        })
+
+        state.keyedById = keyedById
+
+        if (currentId === idToBeRemoved) {
+          state.currentId = null
+          state.copy = null
         }
-      })
-
-      state.keyedById = keyedById
-
-      if (currentId === idToBeRemoved) {
-        state.currentId = null
-        state.copy = null
       }
     },
 

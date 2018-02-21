@@ -91,3 +91,13 @@ export function readCookie (cookies, name) {
   }
   return null
 }
+
+export function checkId (id, item, debug) {
+  if (id === undefined) {
+    if (debug) {
+      console.error('No id found for item. Do you need to customize the `idField`?', item)
+    }
+    return false
+  }
+  return true
+}
