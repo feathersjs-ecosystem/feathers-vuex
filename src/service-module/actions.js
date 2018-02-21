@@ -166,7 +166,7 @@ export default function makeServiceActions (service) {
       const toRemove = []
       const { idField, autoRemove } = state
 
-      list.forEach(item => {
+      list.forEach((item, index) => {
         let id = item[idField]
         let existingItem = state.keyedById[id]
 
@@ -183,6 +183,12 @@ export default function makeServiceActions (service) {
           }
         })
         commit('removeItems', toRemove) // commit removal
+      }
+
+      if (service.Model) {
+        toAdd.forEach((item, index) => {
+          toAdd[index] = new service.Model(item)
+        })
       }
 
       commit('addItems', toAdd)

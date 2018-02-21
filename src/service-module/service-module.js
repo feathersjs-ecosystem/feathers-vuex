@@ -67,6 +67,8 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     const nameStyle = options.nameStyle || globalOptions.nameStyle
     const service = feathersClient.service(servicePath)
 
+    service.Model = Model
+
     const nameStyles = {
       short: getShortName,
       path: getNameFromPath
