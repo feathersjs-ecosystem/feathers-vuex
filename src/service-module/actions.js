@@ -144,15 +144,6 @@ export default function makeServiceActions (service) {
       const toRemove = []
       const { idField, autoRemove } = state
 
-      if (!isPaginated && autoRemove) {
-        // Find IDs from the state which are not in the list
-        state.ids.forEach(id => {
-          if (id !== state.currentId && !list.some(item => item[idField] === id)) {
-            toRemove.push(state.keyedById[id])
-          }
-        })
-      }
-
       list.forEach(item => {
         let id = item[idField]
         let existingItem = state.keyedById[id]
@@ -162,7 +153,16 @@ export default function makeServiceActions (service) {
         existingItem ? toUpdate.push(item) : toAdd.push(item)
       })
 
-      commit('removeItems', toRemove) // commit removal
+      if (!isPaginated && autoRemove) {
+        // Find IDs from the state which are not in the list
+        state.ids.forEach(id => {
+          if (id !== state.currentId && !list.some(item => item[idField] === id)) {
+            toRemove.push(state.keyedById[id])
+          }
+        })
+        commit('removeItems', toRemove) // commit removal
+      }
+
       commit('addItems', toAdd)
       commit('updateItems', toUpdate)
     },
