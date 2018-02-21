@@ -356,7 +356,7 @@ describe('Service Module', () => {
     })
   })
 
-  describe('Updates the Store on Events', function () {
+  describe.skip('Updates the Store on Events', function () {
     const socketService = setupVuexService(feathersSocketioClient)
 
     it('created', function (done) {
