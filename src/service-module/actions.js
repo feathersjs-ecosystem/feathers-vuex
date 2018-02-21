@@ -201,6 +201,10 @@ export default function makeServiceActions (service) {
 
       checkId(id, item)
 
+      if (service.Model && !existingItem) {
+        item = new service.Model(item)
+      }
+
       existingItem ? commit('updateItem', item) : commit('addItem', item)
     }
   }
