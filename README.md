@@ -46,14 +46,16 @@ import feathersClient from '../feathers-client'
 const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
 const { serviceModule, serviceModel, servicePlugin } = service
 
-const todoModule = serviceModule('todos', { nameStyle: '' })
-const TodoModel = serviceModel(todoModule)
-const todoPlugin = servicePlugin(todoModule, { Model: TodoModel })
+const todoModule = serviceModule('todos')
+const TodoModel = serviceModel(todoModule) // TodoModel is an extensible class
+const todoPlugin = servicePlugin(todoModule, TodoModel)
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   plugins: [
+    todoPlugin, // With our potentially customized TodoModel
+
     service('todos'),
 
     // Specify custom options per service
