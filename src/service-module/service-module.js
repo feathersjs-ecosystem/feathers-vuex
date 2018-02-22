@@ -1,4 +1,4 @@
-import { getShortName, getNameFromPath } from '../utils'
+import { getShortName, getNameFromPath, registerModel } from '../utils'
 import makeState from './state'
 import makeGetters from './getters'
 import makeMutations from './mutations'
@@ -11,6 +11,7 @@ const defaults = {
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
+  apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
   debug: false,  // Set to true to enable logging messages.
   state: {},     // for custom state
   getters: {},   // for custom getters
@@ -18,7 +19,7 @@ const defaults = {
   actions: {}    // for custom actions
 }
 
-export default function servicePluginInit (feathersClient, globalOptions = {}) {
+export default function servicePluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
   if (!feathersClient || !feathersClient.service) {
     throw new Error('You must provide a Feathers Client instance to feathers-vuex')
   }
@@ -57,18 +58,22 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     return module
   }
 
-  const serviceModel = function serviceModel (module) {
-    const Model = makeModel(module)
+  const serviceModel = function serviceModel (moduleOrOptions) {
+    // Add the globalOptions to the passed in options, if not a module.
+    // (modules have a `store` property)
+    if (!moduleOrOptions.hasOwnProperty('store')) {
+      moduleOrOptions = Object.assign({}, globalOptions, moduleOrOptions)
+    }
+    const Model = makeModel(moduleOrOptions)
 
     return Model
   }
 
   const servicePlugin = function servicePlugin (module, Model, options = {}) {
+    options = Object.assign({}, globalOptions, options)
     const { servicePath } = module.state
-    const nameStyle = options.nameStyle || globalOptions.nameStyle
+    const nameStyle = options.nameStyle
     const service = feathersClient.service(servicePath)
-
-    service.Model = Model
 
     const nameStyles = {
       short: getShortName,
@@ -78,6 +83,13 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
 
     return function setupStore (store) {
       store.registerModule(namespace, module)
+
+      service.Model = Model
+      // Add servicePath to Model so it can be accessed
+      Object.defineProperty(Model, 'servicePath', { value: servicePath })
+
+      // Add Model to the globalModels object, so it's available in the Vue plugin
+      registerModel(Model, globalModels, Object.assign)
 
       // Upgrade the Model's API methods to use the store.actions
       Object.assign(Model.prototype, {

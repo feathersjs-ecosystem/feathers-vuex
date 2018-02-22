@@ -43,18 +43,38 @@ import Vuex from 'vuex'
 import feathersVuex from 'feathers-vuex'
 import feathersClient from '../feathers-client'
 
-const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
 const { serviceModule, serviceModel, servicePlugin } = service
 
+
+const api1Client = feathersVuex(feathersClient, { idField: '_id', apiPrefix: 'api1' })
+const api2Client = feathersVuex(feathersClient2, { idField: '_id' })
+
+
+Vue.use(FeathersVuex)
+
 const todoModule = serviceModule('todos')
-const TodoModel = serviceModel(todoModule) // TodoModel is an extensible class
+
+// const Model = serviceModel(todoModule) // TodoModel is an extensible class
+const Model = serviceModel()
+class TodoModel = extends Model {}
 const todoPlugin = servicePlugin(todoModule, TodoModel)
 
+const TaskModel extends Model {}
+
+export { TaskModel }
+
+
+created () {
+  this.todo = new this.$FeathersVuex.api1.Todo(data)
+}
+
 Vue.use(Vuex)
+Vue.use(FeathersVuex)
 
 export default new Vuex.Store({
   plugins: [
-    todoPlugin, // With our potentially customized TodoModel
+    servicePlugin('/tasks', TaskModel), // With our potentially customized TodoModel
 
     service('todos'),
 
@@ -64,7 +84,8 @@ export default new Vuex.Store({
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
       namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
       autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
-      enableEvents: false // turn off socket event listeners. It's true by default
+      enableEvents: false, // turn off socket event listeners. It's true by default
+      modelName: 'Task'
     })
 
     // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.

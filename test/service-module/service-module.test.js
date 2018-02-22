@@ -6,14 +6,23 @@ import memory from 'feathers-memory'
 import makeTodos from '../fixtures/todos'
 import Vuex from 'vuex'
 
-const service = setupVuexService(feathersClient)
+const globalModels = {}
+const service = setupVuexService(feathersClient, {}, globalModels)
 
 describe('Service Module', () => {
-  it('registers a vuex plugin for the service', () => {
+  it('registers a vuex plugin and Model for the service', () => {
     const serviceName = 'todos'
     const store = new Vuex.Store({
       plugins: [service(serviceName)]
     })
+    assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+
+    const todo = new globalModels.Todo({
+      description: 'Do the dishes',
+      isComplete: false
+    })
+    assert(todo instanceof globalModels.Todo, 'Model can be instantiated.')
+
     assert(store.state[serviceName])
   })
 
