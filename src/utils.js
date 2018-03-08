@@ -94,7 +94,7 @@ export function readCookie (cookies, name) {
 }
 
 export function checkId (id, item, debug) {
-  if (id === undefined) {
+  if (id === undefined || id === null) {
     if (debug) {
       console.error('No id found for item. Do you need to customize the `idField`?', item)
     }
@@ -103,11 +103,12 @@ export function checkId (id, item, debug) {
   return true
 }
 
-export function registerModel (Model, globalModels, options) {
-  const { apiPrefix } = options
+export function registerModel (Model, globalModels, apiPrefix, servicePath) {
   const modelName = getModelName(Model)
   let path = apiPrefix ? `${apiPrefix}.${modelName}` : modelName
   setByDot(globalModels, path, Model)
+  globalModels.byServicePath[servicePath] = Model
+  return path
 }
 
 // Creates a Model class name from the last part of the servicePath

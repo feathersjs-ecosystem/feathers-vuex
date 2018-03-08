@@ -1,19 +1,52 @@
-export default function (moduleOrOptions) {
-  let idField = 'id'
-  let preferUpdate = false
+const defaults = {
+  idField: 'id',
+  preferUpdate: false,
+  _defaults: {}
+}
 
-  if (moduleOrOptions.hasOwnProperty('state')) {
-    idField = moduleOrOptions.state.idField
-    preferUpdate = moduleOrOptions.state.preferUpdate
-  } else {
-    idField = moduleOrOptions.idField
-    preferUpdate = moduleOrOptions.preferUpdate
-  }
+export default function (options) {
+  options = Object.assign({}, defaults, options)
+  const { idField, preferUpdate, _defaults } = options
 
   return class FeathersVuexModel {
-    constructor (data) {
-      Object.assign(this, data)
+    constructor (data, options = {}) {
+      if (options.isClone) {
+        Object.defineProperty(this, 'isClone', { value: true })
+      }
+      Object.assign(this, this._defaults, data)
     }
+
+    _defaults: _defaults
+
+    clone () {
+      if (this.isClone) {
+        throw new Error('You cannot clone a copy')
+      }
+      const id = this[idField]
+
+      return this._clone(id)
+    }
+    _clone (id) {}
+
+    reset () {
+      if (this.isClone) {
+        const id = this[idField]
+        this._reset(id)
+      } else {
+        throw new Error('You cannot reset a non-copy')
+      }
+    }
+    _reset () {}
+
+    commit () {
+      if (this.isClone) {
+        const id = this[idField]
+        this._commit(id)
+      } else {
+        throw new Error('You cannnot call commit on a non-copy')
+      }
+    }
+    _commit (id) {}
 
     save (params) {
       if (this[idField]) {

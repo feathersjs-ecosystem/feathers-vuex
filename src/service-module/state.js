@@ -3,6 +3,7 @@ export default function makeDefaultState (servicePath, options) {
   const state = {
     ids: [],
     keyedById: {},
+    copiesById: {},
     currentId: null,
     copy: null,
     idField,

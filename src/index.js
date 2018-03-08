@@ -9,7 +9,9 @@ const globalDefaults = {
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   apiPrefix: '' // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
 }
-const globalModels = {}
+const globalModels = {
+  byServicePath: {}
+}
 
 export { initAuth }
 

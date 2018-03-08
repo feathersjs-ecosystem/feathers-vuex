@@ -13,6 +13,7 @@ const defaults = {
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
   apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
   debug: false,  // Set to true to enable logging messages.
+  modelPath: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -20,6 +21,7 @@ const defaults = {
 }
 
 export default function servicePluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
+  globalModels.byServicePath = globalModels.byServicePath || {}
   if (!feathersClient || !feathersClient.service) {
     throw new Error('You must provide a Feathers Client instance to feathers-vuex')
   }
@@ -32,7 +34,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     }
 
     options = Object.assign({}, globalOptions, options)
-    const { idField, autoRemove, preferUpdate, enableEvents, debug } = options
+    const { idField, autoRemove, preferUpdate, enableEvents, debug, apiPrefix } = options
 
     if (typeof servicePath !== 'string') {
       throw new Error('The first argument to setup a feathers-vuex service must be a string')
@@ -46,7 +48,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
 
     const defaultState = makeState(servicePath, { idField, autoRemove, paginate, preferUpdate, enableEvents })
     const defaultGetters = makeGetters(servicePath)
-    const defaultMutations = makeMutations(servicePath, { debug })
+    const defaultMutations = makeMutations(servicePath, { debug, globalModels, apiPrefix })
     const defaultActions = makeActions(service, { debug })
     const module = {
       namespaced: true,
@@ -58,13 +60,8 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     return module
   }
 
-  const serviceModel = function serviceModel (moduleOrOptions) {
-    // Add the globalOptions to the passed in options, if not a module.
-    // (modules have a `store` property)
-    if (!moduleOrOptions.hasOwnProperty('store')) {
-      moduleOrOptions = Object.assign({}, globalOptions, moduleOrOptions)
-    }
-    const Model = makeModel(moduleOrOptions)
+  const serviceModel = function serviceModel (options) {
+    const Model = makeModel(options)
 
     return Model
   }
@@ -72,7 +69,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
   const servicePlugin = function servicePlugin (module, Model, options = {}) {
     options = Object.assign({}, globalOptions, options)
     const { servicePath } = module.state
-    const nameStyle = options.nameStyle
+    const { nameStyle, apiPrefix } = options
     const service = feathersClient.service(servicePath)
 
     const nameStyles = {
@@ -82,28 +79,54 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     let namespace = options.namespace || nameStyles[nameStyle](servicePath)
 
     return function setupStore (store) {
-      store.registerModule(namespace, module)
-
       service.Model = Model
       // Add servicePath to Model so it can be accessed
       Object.defineProperty(Model, 'servicePath', { value: servicePath })
 
       // Add Model to the globalModels object, so it's available in the Vue plugin
-      registerModel(Model, globalModels, Object.assign)
+      const modelPath = registerModel(Model, globalModels, apiPrefix, servicePath)
+
+      module.state.modelPath = modelPath
+      store.registerModule(namespace, module)
 
       // Upgrade the Model's API methods to use the store.actions
-      Object.assign(Model.prototype, {
-        _create (data, params) {
-          return store.dispatch(`${namespace}/addItem`, [data, params])
+      Object.defineProperties(Model.prototype, {
+        _clone: {
+          value (id) {
+            store.commit(`${namespace}/createCopy`, id)
+            const getterName = `${namespace}/getCopyById`
+            return store.getters[getterName](id)
+          }
         },
-        _patch (id, data, params) {
-          return store.dispatch(namespace + '/patch', [id, data, params])
+        _commit: {
+          value (id) {
+            store.commit(`${namespace}/commitCopy`, id)
+          }
         },
-        _update (id, data, params) {
-          return store.dispatch(namespace + '/update', [id, data, params])
+        _reset: {
+          value (id) {
+            store.commit(`${namespace}/rejectCopy`, id)
+          }
         },
-        _remove (id, params) {
-          return store.dispatch(namespace + '/remove', [id, params])
+        _create: {
+          value (data, params) {
+            return store.dispatch(`${namespace}/addItem`, [data, params])
+          }
+        },
+        _patch: {
+          value (id, data, params) {
+            return store.dispatch(`${namespace}/patch`, [id, data, params])
+          }
+        },
+        _update: {
+          value (id, data, params) {
+            return store.dispatch(`${namespace}/update`, [id, data, params])
+          }
+        },
+        _remove: {
+          value (id, params) {
+            return store.dispatch(`${namespace}/remove`, [id, params])
+          }
         }
       })
 

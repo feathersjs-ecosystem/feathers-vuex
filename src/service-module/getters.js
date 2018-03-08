@@ -45,6 +45,9 @@ export default function makeServiceGetters (servicePath) {
     },
     getCopy (state) {
       return state.copy ? state.copy : null
+    },
+    getCopyById: state => id => {
+      return state.copiesById[id]
     }
   }
 }

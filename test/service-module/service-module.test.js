@@ -26,6 +26,63 @@ describe('Service Module', () => {
     assert(store.state[serviceName])
   })
 
+  describe('Models', function () {
+    beforeEach(function () {
+      const serviceName = 'todos'
+      const store = new Vuex.Store({
+        plugins: [service(serviceName)]
+      })
+      assert(store)
+      assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+
+      const data = {
+        id: 1,
+        description: 'Do the dishes',
+        isComplete: false
+      }
+      store.commit('todos/addItem', data)
+
+      const todo = store.state.todos.keyedById[1]
+
+      this.todo = todo
+      this.todoClone = todo.clone()
+    })
+
+    it('allows creating model clones', function () {
+      const { todoClone } = this
+
+      assert(todoClone.isClone, 'created a todo clone')
+      assert(todoClone instanceof globalModels.Todo, 'the copy is an instance of the same class')
+    })
+
+    it('allows modifying clones without affecting the original', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+
+      assert(todo.description === 'Do the dishes', 'the original todo remained intact')
+    })
+
+    it('allows commiting changes back to the original in the store', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+      todoClone.commit()
+
+      assert(todo.description === 'Do something else', 'the original todo was updated')
+    })
+
+    it('allows reseting copy changes back to match the original', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+      todoClone.reset()
+
+      assert(todo.description === 'Do the dishes', 'the original todo was untouched')
+      assert(todoClone.description === 'Do the dishes', 'the clone was reset to match the original')
+    })
+  })
+
   describe('Setting Up', () => {
     it('service stores have global defaults', () => {
       const store = new Vuex.Store({
@@ -132,6 +189,8 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
+        copiesById: {},
+        modelPath: 'Todo',
         preferUpdate: false,
         servicePath: 'todos'
       }

@@ -4,13 +4,20 @@ import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId } from '../utils'
 
-export default function makeServiceMutations (servicePath, { debug }) {
+export default function makeServiceMutations (servicePath, { debug, globalModels }) {
+  globalModels = globalModels || { byServicePath: {} }
+
   function addItem (state, item) {
     const { idField } = state
+    const Model = globalModels.byServicePath[servicePath]
     let id = item[idField]
     const isIdOk = checkId(id, item, debug)
 
     if (isIdOk) {
+      if (Model) {
+        item = new Model(item)
+      }
+
       // Only add the id if it's not already in the `ids` list.
       if (!state.ids.includes(id)) {
         state.ids.push(id)
@@ -158,16 +165,38 @@ export default function makeServiceMutations (servicePath, { debug }) {
       state.copy = null
     },
 
-    // Deep assigns current to copy
-    rejectCopy (state) {
-      let current = state.keyedById[state.currentId]
-      _merge(state.copy, current)
+    // Removes the copy from copiesById
+    clearCopy (state, id) {
+      const newCopiesById = Object.assign({}, state.copiesById)
+      delete newCopiesById[id]
+      state.copiesById = newCopiesById
     },
 
-    // Deep assigns copy to current
-    commitCopy (state) {
-      let current = state.keyedById[state.currentId]
-      _merge(current, state.copy)
+    // Creates a copy of the record with the passed-in id, stores it in copiesById
+    createCopy (state, id) {
+      const current = state.keyedById[id]
+      const Model = globalModels.byServicePath[servicePath]
+      const copyData = _merge({}, current)
+      const copy = new Model(copyData, { isClone: true })
+      state.copiesById[id] = copy
+    },
+
+    // Resets the copy to match the original record, locally
+    rejectCopy (state, id) {
+      const isIdOk = checkId(id, undefined, debug)
+      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const copy = isIdOk ? state.copiesById[id] : state.copy
+
+      _merge(copy, current)
+    },
+
+    // Deep assigns copy to original record, locally
+    commitCopy (state, id) {
+      const isIdOk = checkId(id, undefined, debug)
+      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const copy = isIdOk ? state.copiesById[id] : state.copy
+
+      _merge(current, copy)
     },
 
     // Stores pagination data on state.pagination based on the query identifier (qid)
