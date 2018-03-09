@@ -51,7 +51,7 @@ describe('Service Module', () => {
     it('allows creating model clones', function () {
       const { todoClone } = this
 
-      assert(todoClone.isClone, 'created a todo clone')
+      assert(todoClone.isClone, 'created a todo clone with isClone attribute')
       assert(todoClone instanceof globalModels.Todo, 'the copy is an instance of the same class')
     })
 
@@ -80,6 +80,53 @@ describe('Service Module', () => {
 
       assert(todo.description === 'Do the dishes', 'the original todo was untouched')
       assert(todoClone.description === 'Do the dishes', 'the clone was reset to match the original')
+    })
+  })
+
+  describe.only('Models - Default Values', function () {
+    beforeEach(function () {
+      const taskDefaults = this.taskDefaults = {
+        id: null,
+        description: '',
+        isComplete: false
+      }
+      this.store = new Vuex.Store({
+        plugins: [
+          service('todos'),
+          service('tasks', {
+            instanceDefaults: taskDefaults
+          })
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+    })
+
+    // store.commit('todos/addItem', data)
+
+    it('models default to an empty object', function () {
+      const { Todo } = this
+      const todo = new Todo()
+
+      assert.deepEqual(todo, {}, 'default model is an empty object')
+    })
+
+    it('allows customizing the default values for a model', function () {
+      const { Task, taskDefaults } = this
+      const task = new Task()
+
+      assert.deepEqual(task, taskDefaults, 'the instance had the customized values')
+    })
+
+    it('keeps the options on the Model', function () {
+      const { Task, taskDefaults } = this
+      const options = {
+        idField: 'id',
+        instanceDefaults: taskDefaults,
+        preferUpdate: false
+      }
+
+      assert.deepEqual(Task.options, options, 'The Model.options object should be in place')
     })
   })
 

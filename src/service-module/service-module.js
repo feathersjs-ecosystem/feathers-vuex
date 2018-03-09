@@ -14,6 +14,7 @@ const defaults = {
   apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
   debug: false,  // Set to true to enable logging messages.
   modelPath: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
+  instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -142,7 +143,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
 
   const createServicePlugin = function createServicePlugin (servicePath, options = {}) {
     const module = serviceModule(servicePath, options)
-    const Model = serviceModel(module)
+    const Model = serviceModel(options)
 
     return servicePlugin(module, Model, options)
   }

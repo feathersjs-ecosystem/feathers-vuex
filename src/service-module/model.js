@@ -1,22 +1,20 @@
 const defaults = {
   idField: 'id',
   preferUpdate: false,
-  _defaults: {}
+  instanceDefaults: {}
 }
 
 export default function (options) {
   options = Object.assign({}, defaults, options)
-  const { idField, preferUpdate, _defaults } = options
+  const { idField, preferUpdate, instanceDefaults } = options
 
-  return class FeathersVuexModel {
+  class FeathersVuexModel {
     constructor (data, options = {}) {
       if (options.isClone) {
         Object.defineProperty(this, 'isClone', { value: true })
       }
-      Object.assign(this, this._defaults, data)
+      Object.assign(this, instanceDefaults, data)
     }
-
-    _defaults: _defaults
 
     clone () {
       if (this.isClone) {
@@ -88,4 +86,8 @@ export default function (options) {
     }
     _remove () {}
   }
+
+  Object.assign(FeathersVuexModel, { options: options })
+
+  return FeathersVuexModel
 }
