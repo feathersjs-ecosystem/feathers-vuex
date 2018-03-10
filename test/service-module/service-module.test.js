@@ -229,6 +229,7 @@ describe('Service Module', () => {
       const todoState = store.state.todos
       const expectedState = {
         autoRemove: false,
+        copiesById: {},
         copy: null,
         currentId: null,
         enableEvents: true,
@@ -247,9 +248,9 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
-        copiesById: {},
         modelPath: 'Todo',
         preferUpdate: false,
+        replaceItems: false,
         servicePath: 'todos'
       }
 
