@@ -54,7 +54,7 @@ export default function (options) {
         if (data[idField] === null) {
           delete data[idField]
         }
-        return this.create(this)
+        return this.create(data)
       }
     }
 
