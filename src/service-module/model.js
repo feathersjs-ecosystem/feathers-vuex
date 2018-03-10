@@ -46,11 +46,15 @@ export default function (options) {
     }
     _commit (id) {}
 
-    save (params) {
+    save () {
       if (this[idField]) {
-        return preferUpdate ? this.update(null, params) : this.patch(null, params)
+        return preferUpdate ? this.update(null, this) : this.patch(null, this)
       } else {
-        return this.create(params)
+        const data = Object.assign({}, this)
+        if (data[idField] === null) {
+          delete data[idField]
+        }
+        return this.create(this)
       }
     }
 
