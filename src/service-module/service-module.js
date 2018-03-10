@@ -64,7 +64,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
   }
 
   const serviceModel = function serviceModel (options) {
-    options = Object.assign({}, defaults, options)
+    options = Object.assign({}, globalOptions, options)
     const Model = makeModel(options)
 
     return Model
