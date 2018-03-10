@@ -50,16 +50,16 @@ export default function (options) {
       if (this[idField]) {
         return preferUpdate ? this.update(null, this) : this.patch(null, this)
       } else {
-        const data = Object.assign({}, this)
-        if (data[idField] === null) {
-          delete data[idField]
-        }
-        return this.create(data)
+        return this.create(this)
       }
     }
 
     create (params) {
-      return this._create(this, params)
+      const data = Object.assign({}, this)
+      if (data[idField] === null) {
+        delete data[idField]
+      }
+      return this._create(data, params)
     }
     _create (data, params) {}
 
