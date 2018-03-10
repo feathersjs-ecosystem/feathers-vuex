@@ -78,8 +78,6 @@ export default function makeServiceActions (service, { debug }) {
 
       commit('setCreatePending')
 
-      console.log('dataOrArray', dataOrArray)
-
       return service.create(data, params)
         .then(item => {
           dispatch('addOrUpdate', item)
