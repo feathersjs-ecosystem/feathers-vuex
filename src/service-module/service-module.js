@@ -111,7 +111,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
         },
         _create: {
           value (data, params) {
-            return store.dispatch(`${namespace}/addItem`, [data, params])
+            return store.dispatch(`${namespace}/create`, [data, params])
           }
         },
         _patch: {
