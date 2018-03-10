@@ -11,6 +11,7 @@ export default function makeDefaultState (servicePath, options) {
     autoRemove,
     enableEvents,
     preferUpdate,
+    replaceItems: false,
 
     isFindPending: false,
     isGetPending: false,

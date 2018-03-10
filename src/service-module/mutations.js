@@ -31,12 +31,16 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   }
 
   function updateItem (state, item) {
-    const { idField } = state
+    const { idField, replaceItems } = state
     let id = item[idField]
     const isIdOk = checkId(id, item, debug)
 
     if (isIdOk) {
-      state.keyedById[id] = item
+      if (replaceItems) {
+        state.keyedById[id] = item
+      } else {
+        _merge(state.keyedById[id], item)
+      }
     }
   }
 

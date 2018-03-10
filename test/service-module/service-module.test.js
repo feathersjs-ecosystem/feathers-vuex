@@ -83,7 +83,7 @@ describe('Service Module', () => {
     })
   })
 
-  describe.only('Models - Default Values', function () {
+  describe('Models - Default Values', function () {
     beforeEach(function () {
       const taskDefaults = this.taskDefaults = {
         id: null,
@@ -121,9 +121,20 @@ describe('Service Module', () => {
     it('keeps the options on the Model', function () {
       const { Task, taskDefaults } = this
       const options = {
+        actions: {},
+        apiPrefix: '',
+        autoRemove: false,
+        debug: false,
+        enableEvents: true,
+        getters: {},
         idField: 'id',
         instanceDefaults: taskDefaults,
-        preferUpdate: false
+        modelPath: '',
+        mutations: {},
+        nameStyle: 'short',
+        preferUpdate: false,
+        replaceItems: false,
+        state: {}
       }
 
       assert.deepEqual(Task.options, options, 'The Model.options object should be in place')

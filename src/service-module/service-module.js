@@ -15,6 +15,7 @@ const defaults = {
   debug: false,  // Set to true to enable logging messages.
   modelPath: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
+  replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -35,7 +36,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     }
 
     options = Object.assign({}, globalOptions, options)
-    const { idField, autoRemove, preferUpdate, enableEvents, debug, apiPrefix } = options
+    const { debug, apiPrefix } = options
 
     if (typeof servicePath !== 'string') {
       throw new Error('The first argument to setup a feathers-vuex service must be a string')
@@ -46,8 +47,9 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
       throw new Error('No service was found. Please configure a transport plugin on the Feathers Client. Make sure you use the client version of the transport, like `feathers-socketio/client` or `feathers-rest/client`.')
     }
     const paginate = service.hasOwnProperty('paginate') && service.paginate.hasOwnProperty('default')
+    const stateOptions = Object.assign(options, { paginate })
 
-    const defaultState = makeState(servicePath, { idField, autoRemove, paginate, preferUpdate, enableEvents })
+    const defaultState = makeState(servicePath, stateOptions)
     const defaultGetters = makeGetters(servicePath)
     const defaultMutations = makeMutations(servicePath, { debug, globalModels, apiPrefix })
     const defaultActions = makeActions(service, { debug })
@@ -62,6 +64,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
   }
 
   const serviceModel = function serviceModel (options) {
+    options = Object.assign({}, defaults, options)
     const Model = makeModel(options)
 
     return Model
