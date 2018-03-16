@@ -2,9 +2,8 @@ import { checkId } from '../utils'
 
 export default function makeServiceActions (service, { debug }) {
   const serviceActions = {
-    find ({ commit, dispatch, getters }, params = {}) {
-      commit('setFindPending')
-
+    find ({ commit, dispatch, getters, state }, params = {}) {
+      const { idField } = state
       const handleResponse = response => {
         const { qid = 'default', query } = params
 
@@ -14,6 +13,17 @@ export default function makeServiceActions (service, { debug }) {
         // The pagination data will be under `pagination.default` or whatever qid is passed.
         if (response.data) {
           commit('updatePaginationForQuery', { qid, response, query })
+          response.data = response.data.map(item => {
+            const id = item[idField]
+
+            return state.keyedById[id]
+          })
+        } else {
+          response = response.map(item => {
+            const id = item[idField]
+
+            return state.keyedById[id]
+          })
         }
 
         return response
@@ -23,8 +33,9 @@ export default function makeServiceActions (service, { debug }) {
         commit('unsetFindPending')
         return Promise.reject(error)
       }
-
       const request = service.find(params)
+
+      commit('setFindPending')
 
       if (service.rx) {
         Object.getPrototypeOf(request).catch(handleError)
@@ -38,7 +49,8 @@ export default function makeServiceActions (service, { debug }) {
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    get ({ commit, dispatch }, args) {
+    get ({ commit, dispatch, state }, args) {
+      const { idField } = state
       let id
       let params
 
@@ -53,10 +65,12 @@ export default function makeServiceActions (service, { debug }) {
 
       return service.get(id, params)
         .then(item => {
+          const id = item[idField]
+
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
           commit('unsetGetPending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setGetError', error)
@@ -65,7 +79,8 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    create ({ commit, dispatch }, dataOrArray) {
+    create ({ commit, dispatch, state }, dataOrArray) {
+      const { idField } = state
       let data
       let params
 
@@ -79,11 +94,23 @@ export default function makeServiceActions (service, { debug }) {
       commit('setCreatePending')
 
       return service.create(data, params)
-        .then(item => {
-          dispatch('addOrUpdate', item)
-          commit('setCurrent', item)
+        .then(response => {
+          if (Array.isArray(response)) {
+            dispatch('addOrUpdateList', response)
+            response = response.map(item => {
+              const id = item[idField]
+
+              return state.keyedById[id]
+            })
+          } else {
+            const id = response[idField]
+
+            dispatch('addOrUpdate', response)
+            commit('setCurrent', response)
+            response = state.keyedById[id]
+          }
           commit('unsetCreatePending')
-          return item
+          return response
         })
         .catch(error => {
           commit('setCreateError', error)
@@ -92,14 +119,17 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    update ({ commit, dispatch }, [id, data, params]) {
+    update ({ commit, dispatch, state }, [id, data, params]) {
+      const { idField } = state
+
       commit('setUpdatePending')
 
       return service.update(id, data, params)
         .then(item => {
+          const id = item[idField]
           dispatch('addOrUpdate', item)
           commit('unsetUpdatePending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setUpdateError', error)
@@ -108,14 +138,18 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    patch ({ commit, dispatch }, [id, data, params]) {
+    patch ({ commit, dispatch, state }, [id, data, params]) {
+      const { idField } = state
+
       commit('setPatchPending')
 
       return service.patch(id, data, params)
         .then(item => {
+          const id = item[idField]
+
           dispatch('addOrUpdate', item)
           commit('unsetPatchPending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setPatchError', error)
