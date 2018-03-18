@@ -122,6 +122,7 @@ export function getModelName (Model) {
   const parts = Model.servicePath.split('/')
   let name = parts[parts.length - 1]
   name = inflection.titleize(name)
+  name = name.split('-').join('')
   name = inflection.singularize(name)
   return name
 }
