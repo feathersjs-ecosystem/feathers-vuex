@@ -121,7 +121,8 @@ export function getModelName (Model) {
   // Otherwise, use an inflection of the last bit of the servicePath
   const parts = Model.servicePath.split('/')
   let name = parts[parts.length - 1]
-  name = inflection.classify(name)
+  name = inflection.titleize(name)
+  name = inflection.singularize(name)
   return name
 }
 
