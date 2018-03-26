@@ -106,9 +106,13 @@ export function checkId (id, item, debug) {
 export function registerModel (Model, globalModels, apiPrefix, servicePath) {
   const modelName = getModelName(Model)
   let path = apiPrefix ? `${apiPrefix}.${modelName}` : modelName
+
   setByDot(globalModels, path, Model)
   globalModels.byServicePath[servicePath] = Model
-  return path
+  return {
+    path,
+    name: modelName
+  }
 }
 
 // Creates a Model class name from the last part of the servicePath

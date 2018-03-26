@@ -231,7 +231,7 @@ export default function makeServiceActions (service, { debug }) {
 
       const isIdOk = checkId(id, item, debug)
 
-      if (service.Model && !existingItem) {
+      if (service.Model && !existingItem && !item.isFeathersVuexInstance) {
         item = new service.Model(item)
       }
 

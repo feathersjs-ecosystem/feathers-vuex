@@ -64,7 +64,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
   }
 
   const serviceModel = function serviceModel (options) {
-    options = Object.assign({}, globalOptions, options)
+    options = Object.assign({}, globalOptions, options, { globalModels })
     const Model = makeModel(options)
 
     return Model
@@ -85,12 +85,23 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     return function setupStore (store) {
       service.Model = Model
       // Add servicePath to Model so it can be accessed
-      Object.defineProperty(Model, 'servicePath', { value: servicePath })
+      Object.defineProperties(Model, {
+        servicePath: {
+          value: servicePath
+        },
+        namespace: {
+          value: namespace
+        },
+        store: {
+          value: store
+        }
+      })
 
       // Add Model to the globalModels object, so it's available in the Vue plugin
-      const modelPath = registerModel(Model, globalModels, apiPrefix, servicePath)
+      const modelInfo = registerModel(Model, globalModels, apiPrefix, servicePath)
 
-      module.state.modelPath = modelPath
+      Object.defineProperty(Model, 'name', { value: modelInfo.name })
+      module.state.modelPath = modelInfo.path
       store.registerModule(namespace, module)
 
       // Upgrade the Model's API methods to use the store.actions

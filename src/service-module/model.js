@@ -6,15 +6,58 @@ const defaults = {
 
 export default function (options) {
   options = Object.assign({}, defaults, options)
-  const { idField, preferUpdate, instanceDefaults } = options
+  const { idField, preferUpdate, instanceDefaults, globalModels } = options
 
   class FeathersVuexModel {
-    constructor (data, options = {}) {
+    constructor (data = {}, options = {}) {
+      const { store, namespace } = this.constructor
+      const relationships = {}
+
+      Object.keys(instanceDefaults).forEach(key => {
+        const modelName = instanceDefaults[key]
+
+        // If the default value for an instanceDefault matches a model name...
+        if (globalModels.hasOwnProperty(modelName)) {
+          // Store the relationship
+          relationships[key] = globalModels[modelName]
+          // Reset the instance default for this prop to null
+          instanceDefaults[key] = null
+        }
+      })
+
       if (options.isClone) {
         Object.defineProperty(this, 'isClone', { value: true })
       }
+
+      Object.defineProperty(this, 'isFeathersVuexInstance', { value: true })
+
+      // Check the relationships to
+      Object.keys(relationships).forEach(prop => {
+        const Model = relationships[prop]
+
+        if (data[prop]) {
+          // Create store instances (if data contains an idField)
+          const model = new Model(data[prop])
+          const id = model[idField]
+          const storedModel = store.state[model.constructor.namespace].keyedById[id]
+
+          // Replace the data's prop value with a reference to the model
+          data[prop] = storedModel || model
+        }
+      })
+
       Object.assign(this, instanceDefaults, data)
+
+      // If this record has an id, addOrUpdate the store
+      if (data[idField]) {
+        store.dispatch(`${namespace}/addOrUpdate`, this)
+      }
     }
+
+    // servicePath - the path of the service which this Model uses
+    // store - a reference to the store gets added by service-module.js
+
+    _addItem () {}
 
     clone () {
       if (this.isClone) {

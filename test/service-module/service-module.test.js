@@ -127,6 +127,7 @@ describe('Service Module', () => {
         debug: false,
         enableEvents: true,
         getters: {},
+        globalModels,
         idField: 'id',
         instanceDefaults: taskDefaults,
         modelPath: '',
@@ -138,6 +139,80 @@ describe('Service Module', () => {
       }
 
       assert.deepEqual(Task.options, options, 'The Model.options object should be in place')
+    })
+  })
+
+  describe('Models - Relationships', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        plugins: [
+          service('tasks', {
+            instanceDefaults: {
+              id: null,
+              description: '',
+              isComplete: false
+            }
+          }),
+          service('todos', {
+            instanceDefaults: {
+              id: null,
+              description: '',
+              isComplete: false,
+              task: 'Task',
+              item: 'Item'
+            }
+          }),
+          service('items')
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+    })
+
+    it('converts keys that match Model names into Model instances', function () {
+      const { Todo, store } = this
+      const todo = new Todo({
+        task: {
+          description: 'test',
+          isComplete: true
+        }
+      })
+
+      assert(todo.task.constructor.name === 'Task', 'task is an instance of Task')
+      assert.deepEqual(store.state.tasks.keyedById, {}, 'nothing was added to the store')
+    })
+
+    it('adds model instances containing an id to the store', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        }
+      })
+
+      assert.deepEqual(store.state.tasks.keyedById[1], todo.task, 'task was added to the store')
+    })
+
+    it('works with multiple keys that match Model names', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        },
+        item: {
+          id: 2,
+          test: true
+        }
+      })
+
+      assert.deepEqual(store.state.tasks.keyedById[1], todo.task, 'task was added to the store')
+      assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
     })
   })
 

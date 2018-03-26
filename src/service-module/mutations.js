@@ -14,7 +14,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     const isIdOk = checkId(id, item, debug)
 
     if (isIdOk) {
-      if (Model) {
+      if (Model && !item.isFeathersVuexInstance) {
         item = new Model(item)
       }
 
