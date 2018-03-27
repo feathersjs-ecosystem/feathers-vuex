@@ -162,7 +162,11 @@ describe('Service Module', () => {
               item: 'Item'
             }
           }),
-          service('items')
+          service('items', {
+            instanceDefaults: {
+              todo: 'Todo'
+            }
+          })
         ]
       })
       this.Todo = globalModels.Todo
@@ -213,6 +217,49 @@ describe('Service Module', () => {
 
       assert.deepEqual(store.state.tasks.keyedById[1], todo.task, 'task was added to the store')
       assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
+    })
+
+    it('handles nested relationships', function () {
+      const { Todo } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        },
+        item: {
+          id: 2,
+          test: true,
+          todo: {
+            description: 'nested todo under item'
+          }
+        }
+      })
+
+      assert(todo.item.todo.constructor.name === 'Todo', 'the nested todo is an instance of Todo')
+    })
+
+    it('handles recursive nested relationships', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        id: 1,
+        description: 'todo description',
+        item: {
+          id: 2,
+          test: true,
+          todo: {
+            id: 1,
+            description: 'todo description'
+          }
+        }
+      })
+
+      assert.deepEqual(store.state.todos.keyedById[1], todo, 'todo was added to the store')
+      assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
+      assert(todo.item, 'todo still has an item')
+      assert(todo.item.todo, 'todo still nested in itself')
     })
   })
 
