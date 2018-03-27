@@ -145,6 +145,7 @@ describe('Service Module', () => {
   describe('Models - Relationships', function () {
     beforeEach(function () {
       this.store = new Vuex.Store({
+        strict: true,
         plugins: [
           service('tasks', {
             instanceDefaults: {
@@ -164,7 +165,13 @@ describe('Service Module', () => {
           }),
           service('items', {
             instanceDefaults: {
-              todo: 'Todo'
+              test: false,
+              todo: 'Todo',
+            },
+            mutations: {
+              toggleTestBoolean (state, item) {
+                item.test = !item.test
+              }
             }
           })
         ]
@@ -260,6 +267,33 @@ describe('Service Module', () => {
       assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
       assert(todo.item, 'todo still has an item')
       assert(todo.item.todo, 'todo still nested in itself')
+    })
+
+    it('updating related data', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: {
+          id: 'item-2',
+          test: true,
+          todo: {
+            id: 'todo-1',
+            description: 'todo description'
+          }
+        }
+      })
+
+      const storedTodo = store.state.todos.keyedById['todo-1']
+      const storedItem = store.state.items.keyedById['item-2']
+
+      store.commit('items/toggleTestBoolean', storedItem)
+      // todo.item.test = false
+
+      assert.equal(todo.item.test, false, 'the nested todo.item.test should be false')
+      assert.equal(storedTodo.item.test, false, 'the nested item.test should be false')
+      assert.equal(storedItem.test, false, 'item.test should be false')
     })
   })
 
