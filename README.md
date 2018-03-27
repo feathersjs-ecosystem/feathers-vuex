@@ -13,7 +13,7 @@ npm install feathers-vuex --save
 ```
 
 ## Important
-The current version of `feathers-vuex` no longer requires (nor doe sit support) using `feathers-reactive` (0.5.x). `feathers-vuex` now takes full advantage of Vue's built-in reactivity.  If you still need to use `feathers-vuex` with `feathers-reactive`, install `feathers-vuex@0.4.x`.
+The current version of `feathers-vuex` no longer requires (nor does it support) using `feathers-reactive` (0.5.x). `feathers-vuex` now takes full advantage of Vue's built-in reactivity.  If you still need to use `feathers-vuex` with `feathers-reactive`, install `feathers-vuex@0.4.x`.
 
 ## Use
 `feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.  Note: as of version 1.0.0 `feathers-reactive` is no longer required to get socket updates.
