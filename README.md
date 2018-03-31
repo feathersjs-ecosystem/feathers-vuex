@@ -20,8 +20,8 @@ The current version of `feathers-vuex` no longer requires (nor does it support) 
 
 **feathers-client.js:**
 ```js
-import feathers from '@feathersjs/feathers';
-import socketio from '@feathersjs/socketio-client';
+import feathers from '@feathersjs/feathers'
+import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
 import io from 'socket.io-client'
 
@@ -553,10 +553,10 @@ Since Nuxt is running both client- and server side, it has limits on the availab
 When you configure the auth module in your feathers-client, use [cookie-storage](https://www.npmjs.com/package/cookie-storage) instead of `window.localStorage` to store the authentication data inside a cookie.
 
 ```
-import { CookieStorage } from 'cookie-storage';
+import { CookieStorage } from 'cookie-storage'
 
 const feathersClient = feathers()
-  .configure(auth({ storage: new CookieStorage() }));
+  .configure(auth({ storage: new CookieStorage() }))
 ```
 
 ### Configuration
