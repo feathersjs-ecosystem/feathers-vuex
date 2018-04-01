@@ -197,7 +197,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const Model = globalModels.byServicePath[servicePath]
       let copy
 
-      if (state.keepCopiesInStore) {
+      if (state.keepCopiesInStore || !Model) {
         copy = isIdOk ? state.copiesById[id] : state.copy
       } else {
         copy = Model.copiesById[id]
@@ -213,7 +213,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const Model = globalModels.byServicePath[servicePath]
       let copy
 
-      if (state.keepCopiesInStore) {
+      if (state.keepCopiesInStore || !Model) {
         copy = isIdOk ? state.copiesById[id] : state.copy
       } else {
         copy = Model.copiesById[id]
