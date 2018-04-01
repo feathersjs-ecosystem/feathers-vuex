@@ -117,7 +117,7 @@ export function registerModel (Model, globalModels, apiPrefix, servicePath) {
 // Creates a Model class name from the last part of the servicePath
 export function getModelName (Model) {
   // If the Model.name has been customized, use it.
-  if (Model.name !== 'FeathersVuexModel') {
+  if (Model.name && Model.name !== 'FeathersVuexModel') {
     return Model.name
   }
 
