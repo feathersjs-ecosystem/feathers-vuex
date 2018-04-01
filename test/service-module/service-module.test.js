@@ -94,6 +94,7 @@ describe('Service Module', () => {
         plugins: [
           service('todos'),
           service('tasks', {
+            keepCopiesInStore: true,
             instanceDefaults: taskDefaults
           })
         ]
@@ -109,6 +110,21 @@ describe('Service Module', () => {
       const todo = new Todo()
 
       assert.deepEqual(todo, {}, 'default model is an empty object')
+    })
+
+    it('stores clones in Model.copiesById by default', function () {
+      const { Todo } = this
+      const todo = new Todo({ id: 1, description: 'Do something' })
+
+      assert.deepEqual(Todo.copiesById, {}, 'Model.copiesById should start out empty')
+
+      const todoClone = todo.clone()
+      assert(Todo.copiesById[1], 'should have a copy stored on Model.copiesById')
+
+      todoClone.description = 'Do something else'
+      todoClone.commit()
+
+      assert.equal(todo.description, 'Do something else', 'the original should have been updated')
     })
 
     it('allows customizing the default values for a model', function () {
@@ -130,6 +146,7 @@ describe('Service Module', () => {
         globalModels,
         idField: 'id',
         instanceDefaults: taskDefaults,
+        keepCopiesInStore: true,
         modelPath: '',
         mutations: {},
         nameStyle: 'short',

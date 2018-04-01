@@ -49,7 +49,7 @@ export default function (options) {
       Object.assign(this, instanceDefaults, data)
 
       // If this record has an id, addOrUpdate the store
-      if (data[idField]) {
+      if (data[idField] && !options.isClone) {
         store.dispatch(`${namespace}/addOrUpdate`, this)
       }
     }
@@ -89,11 +89,13 @@ export default function (options) {
     }
     _commit (id) {}
 
-    save () {
+    save (params) {
       if (this[idField]) {
-        return preferUpdate ? this.update(null, this) : this.patch(null, this)
+        return preferUpdate
+          ? this.update(null, this, params)
+          : this.patch(null, this, params)
       } else {
-        return this.create(this)
+        return this.create(params)
       }
     }
 
@@ -106,35 +108,34 @@ export default function (options) {
     }
     _create (data, params) {}
 
-    patch (newData, params) {
-      const data = newData || this
-
+    patch (params) {
       if (!this[idField]) {
-        const error = new Error(`Missing ${idField} property. You must create the data before you can patch with this data`, data)
+        const error = new Error(`Missing ${idField} property. You must create the data before you can patch with this data`, this)
         return Promise.reject(error)
       }
-      return this._patch(this[idField], data, params)
+      return this._patch(this[idField], this, params)
     }
     _patch () {}
 
-    update (newData, params) {
-      const data = newData || this
-
+    update (params) {
       if (!this[idField]) {
-        const error = new Error(`Missing ${idField} property. You must create the data before you can update with this data`, data)
+        const error = new Error(`Missing ${idField} property. You must create the data before you can update with this data`, this)
         return Promise.reject(error)
       }
-      return this._update(this[idField], data, params)
+      return this._update(this[idField], this, params)
     }
     _update () {}
 
-    remove () {
-      return this._remove(this[idField])
+    remove (params) {
+      return this._remove(this[idField], params)
     }
     _remove () {}
   }
 
-  Object.assign(FeathersVuexModel, { options: options })
+  Object.assign(FeathersVuexModel, {
+    options,
+    copiesById: {} // For cloned data
+  })
 
   return FeathersVuexModel
 }

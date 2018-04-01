@@ -16,6 +16,7 @@ const defaults = {
   modelPath: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
   replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
+  keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -109,8 +110,12 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
         _clone: {
           value (id) {
             store.commit(`${namespace}/createCopy`, id)
-            const getterName = `${namespace}/getCopyById`
-            return store.getters[getterName](id)
+
+            if (store.state[Model.servicePath].keepCopiesInStore) {
+              return store.getters[`${namespace}/getCopyById`](id)
+            } else {
+              return Model.copiesById[id]
+            }
           }
         },
         _commit: {

@@ -182,14 +182,26 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const Model = globalModels.byServicePath[servicePath]
       const copyData = _merge({}, current)
       const copy = new Model(copyData, { isClone: true })
-      state.copiesById[id] = copy
+
+      if (state.keepCopiesInStore) {
+        state.copiesById[id] = copy
+      } else {
+        Model.copiesById[id] = copy
+      }
     },
 
     // Resets the copy to match the original record, locally
     rejectCopy (state, id) {
       const isIdOk = checkId(id, undefined, debug)
       const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
-      const copy = isIdOk ? state.copiesById[id] : state.copy
+      const Model = globalModels.byServicePath[servicePath]
+      let copy
+
+      if (state.keepCopiesInStore) {
+        copy = isIdOk ? state.copiesById[id] : state.copy
+      } else {
+        copy = Model.copiesById[id]
+      }
 
       _merge(copy, current)
     },
@@ -198,7 +210,14 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     commitCopy (state, id) {
       const isIdOk = checkId(id, undefined, debug)
       const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
-      const copy = isIdOk ? state.copiesById[id] : state.copy
+      const Model = globalModels.byServicePath[servicePath]
+      let copy
+
+      if (state.keepCopiesInStore) {
+        copy = isIdOk ? state.copiesById[id] : state.copy
+      } else {
+        copy = Model.copiesById[id]
+      }
 
       _merge(current, copy)
     },
