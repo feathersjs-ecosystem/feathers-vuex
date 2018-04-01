@@ -1,3 +1,5 @@
+import serializeError from 'serialize-error'
+
 export default function makeAuthMutations (feathers) {
   return {
     setAccessToken (state, payload) {
@@ -24,13 +26,13 @@ export default function makeAuthMutations (feathers) {
     },
 
     setAuthenticateError (state, error) {
-      state.errorOnAuthenticate = Object.assign({}, error)
+      state.errorOnAuthenticate = Object.assign({}, serializeError(error))
     },
     clearAuthenticateError (state) {
       state.errorOnAuthenticate = null
     },
     setLogoutError (state, error) {
-      state.errorOnLogout = Object.assign({}, error)
+      state.errorOnLogout = Object.assign({}, serializeError(error))
     },
     clearLogoutError (state) {
       state.errorOnLogout = null

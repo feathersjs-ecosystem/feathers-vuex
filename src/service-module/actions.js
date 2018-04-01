@@ -194,6 +194,7 @@ export default function makeServiceActions (service, { debug }) {
       const toRemove = []
       const { idField, autoRemove } = state
 
+
       list.forEach((item, index) => {
         let id = item[idField]
         let existingItem = state.keyedById[id]

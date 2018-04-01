@@ -13,15 +13,15 @@ npm install feathers-vuex --save
 ```
 
 ## Important
-The current version of `feathers-vuex` is not compatible with the latest version of `feathers-reactive` (0.5.x). To keep on using `feathers-vuex` install version 0.4.x.
+The current version of `feathers-vuex` no longer requires (nor does it support) using `feathers-reactive` (0.5.x). `feathers-vuex` now takes full advantage of Vue's built-in reactivity.  If you still need to use `feathers-vuex` with `feathers-reactive`, install `feathers-vuex@0.4.x`.
 
 ## Use
 `feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.  Note: as of version 1.0.0 `feathers-reactive` is no longer required to get socket updates.
 
 **feathers-client.js:**
 ```js
-import feathers from '@feathersjs/feathers';
-import socketio from '@feathersjs/socketio-client';
+import feathers from '@feathersjs/feathers'
+import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
 import io from 'socket.io-client'
 
@@ -582,10 +582,10 @@ Since Nuxt is running both client- and server side, it has limits on the availab
 When you configure the auth module in your feathers-client, use [cookie-storage](https://www.npmjs.com/package/cookie-storage) instead of `window.localStorage` to store the authentication data inside a cookie.
 
 ```
-import { CookieStorage } from 'cookie-storage';
+import { CookieStorage } from 'cookie-storage'
 
 const feathersClient = feathers()
-  .configure(auth({ storage: new CookieStorage() }));
+  .configure(auth({ storage: new CookieStorage() }))
 ```
 
 ### Configuration

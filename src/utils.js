@@ -76,7 +76,6 @@ export function payloadIsValid (payload) {
 // Reads and returns the contents of a cookie with the provided name.
 export function readCookie (cookies, name) {
   if (!cookies) {
-    console.log('no cookies found')
     return undefined
   }
   var nameEQ = name + '='
