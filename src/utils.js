@@ -117,9 +117,9 @@ export function registerModel (Model, globalModels, apiPrefix, servicePath) {
 // Creates a Model class name from the last part of the servicePath
 export function getModelName (Model) {
   // If the Model.name has been customized, use it.
-  if (Model.name && Model.name !== 'FeathersVuexModel') {
-    return Model.name
-  }
+  // if (Model.name && Model.name !== 'FeathersVuexModel') {
+  //   return Model.name
+  // }
 
   // Otherwise, use an inflection of the last bit of the servicePath
   const parts = Model.servicePath.split('/')
