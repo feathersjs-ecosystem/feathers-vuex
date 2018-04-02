@@ -159,6 +159,88 @@ describe('Service Module', () => {
     })
   })
 
+  describe.only('Models - Methods', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        strict: true,
+        plugins: [
+          service('tasks', {
+            preferUpdate: true
+          }),
+          service('todos'),
+          service('items')
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+    })
+
+    it('save calls create with correct arguments', function () {
+      const { Todo } = this
+      const todo = new Todo({ test: true })
+
+      Object.defineProperty(todo, 'create', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params === undefined, 'no params should have been passed this time')
+        }
+      })
+
+      todo.save()
+    })
+
+    it('save passes params to create', function () {
+      const { Todo } = this
+      const todo = new Todo({ test: true })
+      let called = false
+
+      Object.defineProperty(todo, 'create', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      todo.save({ test: true })
+      assert(called, 'create should have been called')
+    })
+
+    it('save passes params to patch', function () {
+      const { Todo } = this
+      const todo = new Todo({ id: 1, test: true })
+      let called = false
+
+      Object.defineProperty(todo, 'patch', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      todo.save({ test: true })
+      assert(called, 'patch should have been called')
+    })
+
+    it('save passes params to update', function () {
+      const { Task } = this
+      const task = new Task({ id: 1, test: true })
+      let called = false
+
+      Object.defineProperty(task, 'update', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      task.save({ test: true })
+      assert(called, 'update should have been called')
+    })
+  })
+
   describe('Models - Relationships', function () {
     beforeEach(function () {
       this.store = new Vuex.Store({

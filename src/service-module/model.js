@@ -92,8 +92,8 @@ export default function (options) {
     save (params) {
       if (this[idField]) {
         return preferUpdate
-          ? this.update(null, this, params)
-          : this.patch(null, this, params)
+          ? this.update(params)
+          : this.patch(params)
       } else {
         return this.create(params)
       }
