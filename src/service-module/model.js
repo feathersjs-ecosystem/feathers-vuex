@@ -35,15 +35,25 @@ export default function (options) {
       // Check the relationships to
       Object.keys(relationships).forEach(prop => {
         const Model = relationships[prop]
+        const related = data[prop]
 
-        if (data[prop]) {
-          // Create store instances (if data contains an idField)
-          const model = new Model(data[prop])
-          const id = model[idField]
-          const storedModel = store.state[model.constructor.namespace].keyedById[id]
+        if (related) {
+          // Handle arrays
+          if (Array.isArray(related)) {
+            related.forEach((item, index) => {
+              const { model, storedModel } = createRelatedInstance({ item, Model, idField, store })
 
-          // Replace the data's prop value with a reference to the model
-          data[prop] = storedModel || model
+              // Replace the original array value with a reference to the model
+              related[index] = storedModel || model
+            })
+
+          // Handle objects
+          } else {
+            const { model, storedModel } = createRelatedInstance({ item: related, Model, idField, store })
+
+            // Replace the data's prop value with a reference to the model
+            data[prop] = storedModel || model
+          }
         }
       })
 
@@ -139,4 +149,13 @@ export default function (options) {
   })
 
   return FeathersVuexModel
+}
+
+function createRelatedInstance ({ item, Model, idField, store }) {
+  // Create store instances (if data contains an idField)
+  const model = new Model(item)
+  const id = model[idField]
+  const storedModel = store.state[model.constructor.namespace].keyedById[id]
+
+  return { model, storedModel }
 }

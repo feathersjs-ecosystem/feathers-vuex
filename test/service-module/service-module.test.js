@@ -423,6 +423,54 @@ describe('Service Module', () => {
       assert.equal(storedTodo.item.test, true, 'the nested item.test should be true')
       assert.equal(storedItem.test, true, 'item.test should be true')
     })
+
+    it(`handles arrays of related data`, function () {
+      const { Todo, store } = this
+
+      const todo1 = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: [
+          {
+            id: 'item-1',
+            test: true
+          }, {
+            id: 'item-2',
+            test: true
+          }
+        ]
+      })
+      const todo2 = new Todo({
+        id: 'todo-2',
+        description: 'todo description',
+        item: [
+          {
+            id: 'item-3',
+            test: true
+          }, {
+            id: 'item-4',
+            test: true
+          }
+        ]
+      })
+
+      assert(todo1, 'todo1 is an instance')
+      assert(todo2, 'todo2 is an instance')
+
+      const storedTodo1 = store.state.todos.keyedById['todo-1']
+      const storedTodo2 = store.state.todos.keyedById['todo-2']
+      const storedItem1 = store.state.items.keyedById['item-1']
+      const storedItem2 = store.state.items.keyedById['item-2']
+      const storedItem3 = store.state.items.keyedById['item-3']
+      const storedItem4 = store.state.items.keyedById['item-4']
+
+      assert(storedTodo1, 'should have todo 1')
+      assert(storedTodo2, 'should have todo 2')
+      assert(storedItem1, 'should have item 1')
+      assert(storedItem2, 'should have item 2')
+      assert(storedItem3, 'should have item 3')
+      assert(storedItem4, 'should have item 4')
+    })
   })
 
   describe('Setting Up', () => {
