@@ -159,7 +159,7 @@ describe('Service Module', () => {
     })
   })
 
-  describe.only('Models - Methods', function () {
+  describe('Models - Methods', function () {
     beforeEach(function () {
       this.store = new Vuex.Store({
         strict: true,
@@ -368,7 +368,7 @@ describe('Service Module', () => {
       assert(todo.item.todo, 'todo still nested in itself')
     })
 
-    it('updating related data', function () {
+    it('updates related data', function () {
       const { Todo, store } = this
 
       const todo = new Todo({
@@ -393,6 +393,35 @@ describe('Service Module', () => {
       assert.equal(todo.item.test, false, 'the nested todo.item.test should be false')
       assert.equal(storedTodo.item.test, false, 'the nested item.test should be false')
       assert.equal(storedItem.test, false, 'item.test should be false')
+    })
+
+    it(`allows creating more than once relational instance`, function () {
+      const { Todo, store } = this
+
+      const todo1 = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: {
+          id: 'item-2',
+          test: true
+        }
+      })
+      const todo2 = new Todo({
+        id: 'todo-2',
+        description: 'todo description',
+        item: {
+          id: 'item-3',
+          test: true
+        }
+      })
+
+      const storedTodo = store.state.todos.keyedById['todo-2']
+      const storedItem = store.state.items.keyedById['item-3']
+
+      assert.equal(todo1.item.test, true, 'the nested todo.item.test should be true')
+      assert.equal(todo2.item.test, true, 'the nested todo.item.test should be true')
+      assert.equal(storedTodo.item.test, true, 'the nested item.test should be true')
+      assert.equal(storedItem.test, true, 'item.test should be true')
     })
   })
 
