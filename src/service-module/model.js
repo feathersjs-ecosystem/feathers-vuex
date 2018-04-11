@@ -7,13 +7,14 @@ const defaults = {
 export default function (options) {
   options = Object.assign({}, defaults, options)
   const { idField, preferUpdate, instanceDefaults, globalModels } = options
+  let _instanceDefaults = Object.assign({}, instanceDefaults)
 
   class FeathersVuexModel {
     constructor (data = {}, options = {}) {
       const { store, namespace } = this.constructor
       const relationships = {}
 
-      Object.keys(instanceDefaults).forEach(key => {
+      Object.keys(_instanceDefaults).forEach(key => {
         const modelName = instanceDefaults[key]
 
         // If the default value for an instanceDefault matches a model name...
@@ -21,7 +22,7 @@ export default function (options) {
           // Store the relationship
           relationships[key] = globalModels[modelName]
           // Reset the instance default for this prop to null
-          instanceDefaults[key] = null
+          _instanceDefaults[key] = null
         }
       })
 
@@ -46,7 +47,7 @@ export default function (options) {
         }
       })
 
-      Object.assign(this, instanceDefaults, data)
+      Object.assign(this, _instanceDefaults, data)
 
       // If this record has an id, addOrUpdate the store
       if (data[idField] && !options.isClone) {
