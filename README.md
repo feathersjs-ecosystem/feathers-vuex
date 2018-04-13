@@ -91,7 +91,8 @@ const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
-  enableEvents: true // Set to false to explicitly disable socket event handlers.
+  enableEvents: true, // Set to false to explicitly disable socket event handlers.
+  upsert: false // add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
 }
 ```
 
@@ -117,6 +118,7 @@ Each service comes loaded with the following default state:
     idField: 'id',
     servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
+    upsert: false, // Indicates that this service will discard new records pushed by 'updated/patched' socketio events, instead of adding them to store.
     paginate: false, // Indicates if pagination is enabled on the Feathers service.
 
     isFindPending: false,
