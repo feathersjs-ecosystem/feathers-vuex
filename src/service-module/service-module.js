@@ -9,6 +9,7 @@ const defaults = {
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
+  upsert: false, // add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations

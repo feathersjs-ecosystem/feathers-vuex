@@ -103,22 +103,70 @@ describe('Service Module - Mutations', function () {
     assert(state.keyedById[2] === item2)
   })
 
-  it('updateItem', function () {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const items = [item1]
-    addItems(state, items)
+  describe('updateItem', function () {
+    it('updates existing item with upsert=true', function () {
+      const state = this.state
+      state.upsert = true
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const items = [item1]
+      addItems(state, items)
 
-    const item1updated = {
-      _id: 1,
-      test: false
-    }
-    updateItem(state, item1updated)
+      const item1updated = {
+        _id: 1,
+        test: false
+      }
+      updateItem(state, item1updated)
 
-    assert(state.keyedById[1].test === false)
+      assert(state.keyedById[1].test === false)
+    })
+
+    it('updates existing item with upsert=false', function () {
+      const state = this.state
+      state.upsert = false
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const item1updated = {
+        _id: 1,
+        test: false
+      }
+      updateItem(state, item1updated)
+
+      assert(state.keyedById[1].test === false)
+    })
+
+    it('adds non-existing item with upsert=true', function () {
+      const state = this.state
+      state.upsert = true
+
+      const item1updated = {
+        _id: 1,
+        test: false
+      }
+      updateItem(state, item1updated)
+
+      assert(state.keyedById[1].test === false)
+    })
+
+    it('discards non-existing item with upsert=false', function () {
+      const state = this.state
+      state.upsert = false
+
+      const item1updated = {
+        _id: 1,
+        test: false
+      }
+      updateItem(state, item1updated)
+
+      assert(state.keyedById[1] == null)
+    })
   })
 
   it('updateItems', function () {
