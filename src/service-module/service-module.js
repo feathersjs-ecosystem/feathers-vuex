@@ -10,6 +10,7 @@ const defaults = {
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
   upsert: false, // add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+  skipRequestIfExists: false,
   state: {},     // for custom state
   getters: {},   // for custom getters
   mutations: {}, // for custom mutations
@@ -29,7 +30,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     }
 
     options = Object.assign({}, globalOptions, options)
-    const { idField, autoRemove, nameStyle } = options
+    const { idField, autoRemove, nameStyle, upsert, skipRequestIfExists } = options
 
     if (typeof servicePath !== 'string') {
       throw new Error('The first argument to setup a feathers-vuex service must be a string')
@@ -41,7 +42,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}) {
     }
     const paginate = service.hasOwnProperty('paginate') && service.paginate.hasOwnProperty('default')
 
-    const defaultState = makeState(servicePath, { idField, autoRemove, paginate })
+    const defaultState = makeState(servicePath, { idField, autoRemove, paginate, upsert, skipRequestIfExists })
     const defaultGetters = makeGetters(servicePath)
     const defaultMutations = makeMutations(servicePath)
     const defaultActions = makeActions(service)
