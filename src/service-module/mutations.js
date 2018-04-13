@@ -20,9 +20,23 @@ export default function makeServiceMutations (servicePath) {
   }
 
   function updateItem (state, item) {
-    const { idField } = state
+    const { idField, upsert } = state
     let id = item[idField]
-    state.keyedById[id] = item
+
+    // Simply rewrite the record if the it's already in the `ids` list.
+    if (state.ids.includes(id)) {
+      state.keyedById[id] = item
+      return
+    }
+
+    // if upsert then add the record into the state, else discard it.
+    if (upsert) {
+      state.ids.push(id)
+      state.keyedById = {
+        ...state.keyedById,
+        [id]: item
+      }
+    }
   }
 
   return {

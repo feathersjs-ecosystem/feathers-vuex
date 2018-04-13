@@ -1,4 +1,7 @@
-export default function makeDefaultState (servicePath, { idField, autoRemove, paginate }) {
+export default function makeDefaultState(
+  servicePath,
+  { idField, autoRemove, paginate, upsert, skipRequestIfExists }
+) {
   const state = {
     ids: [],
     keyedById: {},
@@ -8,6 +11,8 @@ export default function makeDefaultState (servicePath, { idField, autoRemove, pa
     servicePath,
     autoRemove,
     pagination: {},
+    upsert,
+    skipRequestIfExists,
 
     isFindPending: false,
     isGetPending: false,
@@ -22,6 +27,6 @@ export default function makeDefaultState (servicePath, { idField, autoRemove, pa
     errorOnUpdate: null,
     errorOnPatch: null,
     errorOnRemove: null
-  }
-  return state
+  };
+  return state;
 }
