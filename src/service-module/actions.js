@@ -49,34 +49,53 @@ export default function makeServiceActions (service, { debug }) {
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    get ({ commit, dispatch, state }, args) {
+    get ({ state, getters, commit, dispatch }, args) {
       const { idField } = state
       let id
       let params
+      let skipRequestIfExists
 
       if (Array.isArray(args)) {
         id = args[0]
         params = args[1]
       } else {
         id = args
+        params = {}
       }
 
-      commit('setGetPending')
+      if ('skipRequestIfExists' in params) {
+        skipRequestIfExists = params.skipRequestIfExists
+        delete params.skipRequestIfExists
+      } else {
+        skipRequestIfExists = state.skipRequestIfExists
+      }
 
-      return service.get(id, params)
-        .then(item => {
-          const id = item[idField]
+      function getFromRemote () {
+        commit('setGetPending')
+        return service.get(id, params)
+          .then(item => {
+            const id = item[idField]
 
-          dispatch('addOrUpdate', item)
-          commit('setCurrent', item)
-          commit('unsetGetPending')
-          return state.keyedById[id]
-        })
-        .catch(error => {
-          commit('setGetError', error)
-          commit('unsetGetPending')
-          return Promise.reject(error)
-        })
+            dispatch('addOrUpdate', item)
+            commit('setCurrent', item)
+            commit('unsetGetPending')
+            return state.keyedById[id]
+          })
+          .catch(error => {
+            commit('setGetError', error)
+            commit('unsetGetPending')
+            return Promise.reject(error)
+          })
+      }
+
+      // If the records is already in store, return it
+      const existedItem = getters.get(id, params)
+      if (existedItem) {
+        commit('setCurrent', existedItem)
+        if (!skipRequestIfExists) getFromRemote()
+        return Promise.resolve(existedItem)
+      }
+      return getFromRemote()
     },
 
     create ({ commit, dispatch, state }, dataOrArray) {
