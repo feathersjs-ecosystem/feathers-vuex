@@ -314,7 +314,7 @@ And a user response looks like this:
 }
 ```
 
-A requirement is put on the `/todos` service to populate the `user` in the response.  (As a super handy side note, this task is pretty easy when using [Matt Chaffe's](https://github.com/mattchewone) magical, efficient [feathers-shallow-populate hook](https://www.npmjs.com/package/feathers-shallow-populate))  So now the todo response looks like this:
+Suppose a requirement is put on the `/todos` service to populate the `user` in the response.  (As a super handy side note, this task is pretty easy when using [Matt Chaffe's](https://github.com/mattchewone) magical, efficient [feathers-shallow-populate hook](https://www.npmjs.com/package/feathers-shallow-populate))  So now the todo response looks like this:
 
 ```js
 {
@@ -377,7 +377,41 @@ export default new Vuex.Store({
 })
 ```
 
-There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates.
+There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
+
+It's worth noting that this feature also supports arrays. Suppose you had `/users` and `/todos` services, and your `/users` service also returned a `todos` attribute on each record.  The setup would look like this:
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from './feathers-client'
+
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(FeathersVuex)
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('todos', {
+      instanceDefaults: {
+        description: '',
+        isComplete: false
+      }
+    }),
+    service('users', {
+      instanceDefaults: {
+        email: '',
+        name: '',
+        todos: 'Todo'
+      }
+    })
+  ]
+})
+```
+
+With the `instanceDefaults` shown above, any `todos` returned on the `users` service would be stored in the `/todos` service store and would always be Todo instances.
 
 
 ### Multiple Copies
