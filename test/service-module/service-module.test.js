@@ -142,6 +142,8 @@ describe('Service Module', () => {
         autoRemove: false,
         debug: false,
         enableEvents: true,
+        upsert: false,
+        skipRequestIfExists: false,
         getters: {},
         globalModels,
         idField: 'id',
@@ -265,7 +267,7 @@ describe('Service Module', () => {
           service('items', {
             instanceDefaults: {
               test: false,
-              todo: 'Todo',
+              todo: 'Todo'
             },
             mutations: {
               toggleTestBoolean (state, item) {
@@ -581,6 +583,8 @@ describe('Service Module', () => {
         isRemovePending: false,
         keyedById: {},
         modelPath: 'Todo',
+        upsert: false,
+        skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
         servicePath: 'todos'

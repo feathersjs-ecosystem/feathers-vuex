@@ -31,15 +31,26 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   }
 
   function updateItem (state, item) {
-    const { idField, replaceItems } = state
+    const { idField, replaceItems, upsert } = state
     let id = item[idField]
     const isIdOk = checkId(id, item, debug)
 
-    if (isIdOk) {
+    // Simply rewrite the record if the it's already in the `ids` list.
+    if (isIdOk && state.ids.includes(id)) {
       if (replaceItems) {
         state.keyedById[id] = item
       } else {
         _merge(state.keyedById[id], item)
+      }
+      return
+    }
+
+    // if upsert then add the record into the state, else discard it.
+    if (upsert) {
+      state.ids.push(id)
+      state.keyedById = {
+        ...state.keyedById,
+        [id]: item
       }
     }
   }

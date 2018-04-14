@@ -83,8 +83,10 @@ export default new Vuex.Store({
       idField: '_id', // The field in each record that will contain the id
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
       namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
-      autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
-      enableEvents: false, // turn off socket event listeners. It's true by default
+      autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
+      enableEvents: false, // Turn off socket event listeners. It's true by default
+      upsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
+      skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
       modelName: 'Task'
     })
 
@@ -117,9 +119,11 @@ The following default options are available for configuration:
 ```js
 const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
-  autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
+  autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
   enableEvents: true, // Set to false to explicitly disable socket event handlers.
+  upsert: false, // add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+  skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   preferUpdate: false, // When true, calling modelInstance.save() will do an update instead of a patch.
 }
 ```
@@ -146,6 +150,8 @@ Each service comes loaded with the following default state:
     idField: 'id',
     servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
+    upsert: false, // Indicates that this service will discard new records pushed by 'updated/patched' socketio events, instead of adding them to store.
+    skipRequestIfExists: false, // Indicates if get action skip the remote request when the record already exists in store
     paginate: false, // Indicates if pagination is enabled on the Feathers service.
 
     isFindPending: false,
