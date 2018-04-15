@@ -134,6 +134,19 @@ describe('Service Module', () => {
       assert.deepEqual(task, taskDefaults, 'the instance had the customized values')
     })
 
+    it('allows models to be customized with es5 getters', function () {
+      const { Task } = this
+      const task = new Task({
+        firstName: 'Marshall',
+        lastName: 'Thompson',
+        get fullName () {
+          return `${this.firstName} ${this.lastName}`
+        }
+      })
+
+      assert.equal(task.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
+    })
+
     it('keeps the options on the Model', function () {
       const { Task, taskDefaults } = this
       const options = {
