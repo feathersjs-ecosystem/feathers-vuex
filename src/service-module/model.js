@@ -7,7 +7,7 @@ const defaults = {
 export default function (options) {
   options = Object.assign({}, defaults, options)
   const { idField, preferUpdate, instanceDefaults, globalModels } = options
-  let _instanceDefaults = Object.assign({}, instanceDefaults)
+  let _instanceDefaults = cloneWithAccessors(instanceDefaults)
 
   class FeathersVuexModel {
     constructor (data = {}, options = {}) {
@@ -57,7 +57,15 @@ export default function (options) {
         }
       })
 
-      Object.assign(this, _instanceDefaults, data)
+      // Copy all instanceDefaults, including accessors
+      const props = Object.getOwnPropertyNames(_instanceDefaults)
+      props.forEach(key => {
+        var desc = Object.getOwnPropertyDescriptor(_instanceDefaults, key)
+        Object.defineProperty(this, key, desc)
+      })
+
+      // Copy over all instance data
+      Object.assign(this, data)
 
       // If this record has an id, addOrUpdate the store
       if (data[idField] && !options.isClone) {
@@ -158,4 +166,16 @@ function createRelatedInstance ({ item, Model, idField, store }) {
   const storedModel = store.state[model.constructor.namespace].keyedById[id]
 
   return { model, storedModel }
+}
+
+function cloneWithAccessors (obj) {
+  var clone = Object.create(Object.getPrototypeOf(obj))
+
+  var props = Object.getOwnPropertyNames(obj)
+  props.forEach(key => {
+    var desc = Object.getOwnPropertyDescriptor(obj, key)
+    Object.defineProperty(clone, key, desc)
+  })
+
+  return clone
 }
