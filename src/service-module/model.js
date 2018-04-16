@@ -74,8 +74,6 @@ export default function (options) {
       }
     }
 
-    _addItem () {}
-
     clone () {
       if (this.isClone) {
         throw new Error('You cannot clone a copy')
