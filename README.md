@@ -15,13 +15,14 @@
 - Fully powered by Vuex & Feathers
 - Realtime By Default
 - Actions With Reactive Data
+- Local Queries
 - Fall-Through Caching
 - Feathers Query Syntax
 - $FeathersVuex Vue Plugin
 - Live Queries
 - Per-Service Data Modeling
 - Clone & Commit
-- Vuex Strict Mode Compatible
+- Vuex Strict Mode
 - Per-Record Defaults
 - Data Level Computes
 - Relation Support
