@@ -7,6 +7,7 @@ const defaults = {
 export default function (options) {
   options = Object.assign({}, defaults, options)
   const { idField, preferUpdate, instanceDefaults, globalModels } = options
+  // Don't modify the original instanceDefaults. Clone it with accessors intact
   let _instanceDefaults = cloneWithAccessors(instanceDefaults)
 
   class FeathersVuexModel {
@@ -32,7 +33,7 @@ export default function (options) {
 
       Object.defineProperty(this, 'isFeathersVuexInstance', { value: true })
 
-      // Check the relationships to
+      // Check the relationships to instantiate.
       Object.keys(relationships).forEach(prop => {
         const Model = relationships[prop]
         const related = data[prop]
@@ -72,9 +73,6 @@ export default function (options) {
         store.dispatch(`${namespace}/addOrUpdate`, this)
       }
     }
-
-    // servicePath - the path of the service which this Model uses
-    // store - a reference to the store gets added by service-module.js
 
     _addItem () {}
 
