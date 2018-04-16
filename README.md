@@ -10,6 +10,22 @@
 
 `feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
 
+## Features
+
+- Fully powered by Vuex & Feathers
+- Realtime By Default
+- Actions With Reactive Data
+- Fall-Through Caching
+- Feathers Query Syntax
+- $FeathersVuex Vue Plugin
+- Live Queries
+- Per-Service Data Modeling
+- Clone & Commit
+- Vuex Strict Mode Compatible
+- Per-Record Defaults
+- Data Level Computes
+- Relation Support
+
 ## Installation
 
 ```
