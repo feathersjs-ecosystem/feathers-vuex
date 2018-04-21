@@ -1,4 +1,4 @@
-export default function makeAuthActions (feathersClient) {
+export default function makeAuthActions (feathersClient, globalModels) {
   return {
     authenticate (store, data) {
       const { commit, state, dispatch } = store
@@ -41,9 +41,8 @@ export default function makeAuthActions (feathersClient) {
         })
     },
 
-    populateUser ({ commit, state }, userId) {
-      return feathersClient.service(state.userService)
-        .get(userId)
+    populateUser ({ commit, state, rootState, dispatch }, userId) {
+      return dispatch(`${state.userService}/get`, userId, { root: true })
         .then(user => {
           commit('setUser', user)
           return user
