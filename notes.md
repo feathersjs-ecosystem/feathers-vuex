@@ -467,3 +467,27 @@ export default new Vuex.Store({
   ]
 })
 ```
+
+## Reactive User Data in Auth Store
+The `user` record in the auth store is now fully reactive and will automatically update with real-time events.  In fact, the record in the auth store is the record in the users store.  Please note that if you configure the `userService` option on the `auth` plugin, you must also use the `service` plugin for the `/users` service.  The paths must match:
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from './feathers-client'
+
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(FeathersVuex)
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('users'),
+    auth({
+      userService: 'users'
+    })
+  ]
+})
+```
