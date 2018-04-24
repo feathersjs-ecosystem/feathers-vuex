@@ -66,7 +66,11 @@ export default function (options) {
       })
 
       // Copy over all instance data
-      Object.assign(this, data)
+      const dataProps = Object.getOwnPropertyNames(data)
+      dataProps.forEach(key => {
+        var desc = Object.getOwnPropertyDescriptor(data, key)
+        Object.defineProperty(this, key, desc)
+      })
 
       // If this record has an id, addOrUpdate the store
       if (data[idField] && !options.isClone) {
