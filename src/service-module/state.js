@@ -1,5 +1,5 @@
 export default function makeDefaultState (servicePath, options) {
-  const { idField, autoRemove, paginate, enableEvents, preferUpdate } = options
+  const { idField, autoRemove, paginate, enableEvents, preferUpdate, replaceItems } = options
   const state = {
     ids: [],
     keyedById: {},
@@ -11,7 +11,7 @@ export default function makeDefaultState (servicePath, options) {
     autoRemove,
     enableEvents,
     preferUpdate,
-    replaceItems: false,
+    replaceItems,
 
     isFindPending: false,
     isGetPending: false,
