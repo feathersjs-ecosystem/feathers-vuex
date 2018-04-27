@@ -31,7 +31,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   }
 
   function updateItem (state, item) {
-    const { idField, replaceItems, upsert } = state
+    const { idField, replaceItems, addOnUpsert } = state
     let id = item[idField]
     const isIdOk = checkId(id, item, debug)
 
@@ -45,8 +45,8 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       return
     }
 
-    // if upsert then add the record into the state, else discard it.
-    if (upsert) {
+    // if addOnUpsert then add the record into the state, else discard it.
+    if (addOnUpsert) {
       state.ids.push(id)
       state.keyedById = {
         ...state.keyedById,

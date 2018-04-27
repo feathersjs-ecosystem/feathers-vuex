@@ -1,5 +1,5 @@
 export default function makeDefaultState (servicePath, options) {
-  const { idField, autoRemove, paginate, enableEvents, upsert, skipRequestIfExists, preferUpdate, replaceItems } = options
+  const { idField, autoRemove, paginate, enableEvents, addOnUpsert, skipRequestIfExists, preferUpdate, replaceItems } = options
   const state = {
     ids: [],
     keyedById: {},
@@ -10,7 +10,7 @@ export default function makeDefaultState (servicePath, options) {
     servicePath,
     autoRemove,
     enableEvents,
-    upsert,
+    addOnUpsert,
     skipRequestIfExists,
     preferUpdate,
     replaceItems,

@@ -104,9 +104,9 @@ describe('Service Module - Mutations', function () {
   })
 
   describe('updateItem', function () {
-    it('updates existing item when upsert=true', function () {
+    it('updates existing item when addOnUpsert=true', function () {
       const state = this.state
-      state.upsert = true
+      state.addOnUpsert = true
       const item1 = {
         _id: 1,
         test: true
@@ -123,9 +123,9 @@ describe('Service Module - Mutations', function () {
       assert(state.keyedById[1].test === false)
     })
 
-    it('updates existing item when upsert=false', function () {
+    it('updates existing item when addOnUpsert=false', function () {
       const state = this.state
-      state.upsert = false
+      state.addOnUpsert = false
       const item1 = {
         _id: 1,
         test: true
@@ -142,9 +142,9 @@ describe('Service Module - Mutations', function () {
       assert(state.keyedById[1].test === false)
     })
 
-    it('adds non-existing item when upsert=true', function () {
+    it('adds non-existing item when addOnUpsert=true', function () {
       const state = this.state
-      state.upsert = true
+      state.addOnUpsert = true
 
       const item1updated = {
         _id: 1,
@@ -152,13 +152,13 @@ describe('Service Module - Mutations', function () {
       }
       updateItem(state, item1updated)
 
-      assert.deepEqual([state.upsert, state.ids, state.keyedById], [true, [1], {1: {_id: 1, test: false}}])
+      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], {1: {_id: 1, test: false}}])
       // assert(state.keyedById[1].test === false)
     })
 
-    it('discards non-existing item when upsert=false', function () {
+    it('discards non-existing item when addOnUpsert=false', function () {
       const state = this.state
-      state.upsert = false
+      state.addOnUpsert = false
 
       const item1updated = {
         _id: 1,
