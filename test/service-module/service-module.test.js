@@ -93,6 +93,15 @@ describe('Service Module', () => {
       this.store = new Vuex.Store({
         plugins: [
           service('todos'),
+          service('people', {
+            instanceDefaults: {
+              firstName: '',
+              lastName: '',
+              get fullName () {
+                return `${this.firstName} ${this.lastName}`
+              }
+            }
+          }),
           service('tasks', {
             keepCopiesInStore: true,
             instanceDefaults: taskDefaults
@@ -101,6 +110,7 @@ describe('Service Module', () => {
       })
       this.Todo = globalModels.Todo
       this.Task = globalModels.Task
+      this.Person = globalModels.Person
     })
 
     // store.commit('todos/addItem', data)
@@ -132,6 +142,16 @@ describe('Service Module', () => {
       const task = new Task()
 
       assert.deepEqual(task, taskDefaults, 'the instance had the customized values')
+    })
+
+    it('allows model classes to be customized with es5 getters', function () {
+      const { Person } = this
+      const person = new Person({
+        firstName: 'Marshall',
+        lastName: 'Thompson'
+      })
+
+      assert.equal(person.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
     })
 
     it('keeps the options on the Model', function () {

@@ -314,7 +314,7 @@ And a user response looks like this:
 }
 ```
 
-A requirement is put on the `/todos` service to populate the `user` in the response.  (As a super handy side note, this task is pretty easy when using [Matt Chaffe's](https://github.com/mattchewone) magical, efficient [feathers-shallow-populate hook](https://www.npmjs.com/package/feathers-shallow-populate))  So now the todo response looks like this:
+Suppose a requirement is put on the `/todos` service to populate the `user` in the response.  (As a super handy side note, this task is pretty easy when using [Matt Chaffe's](https://github.com/mattchewone) magical, efficient [feathers-shallow-populate hook](https://www.npmjs.com/package/feathers-shallow-populate))  So now the todo response looks like this:
 
 ```js
 {
@@ -377,10 +377,44 @@ export default new Vuex.Store({
 })
 ```
 
-There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates.
+There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
+
+It's worth noting that this feature also supports arrays. Suppose you had `/users` and `/todos` services, and your `/users` service also returned a `todos` attribute on each record.  The setup would look like this:
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from './feathers-client'
+
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(FeathersVuex)
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('todos', {
+      instanceDefaults: {
+        description: '',
+        isComplete: false
+      }
+    }),
+    service('users', {
+      instanceDefaults: {
+        email: '',
+        name: '',
+        todos: 'Todo'
+      }
+    })
+  ]
+})
+```
+
+With the `instanceDefaults` shown above, any `todos` returned on the `users` service would be stored in the `/todos` service store and would always be Todo instances.
 
 
-### Multiple Copies
+## Multiple Copies
 
 The previous version of `feathers-vuex` was hard-coded to allow for a single `current` record and one copy.  It was pretty easy to hit that limit.  This new release allows for keeping many more copies, one copy per stored record.  To make it easier to comply with Vuex's `strict` mode, copies are not kept in the store by default, but are instead kept on `Model.copiesById`.  You can make changes to the copies without having to make custom mutations, then you can commit them back into the store:
 
@@ -429,6 +463,30 @@ export default new Vuex.Store({
         description: '',
         complete: false
       }
+    })
+  ]
+})
+```
+
+## Reactive User Data in Auth Store
+The `user` record in the auth store is now fully reactive and will automatically update with real-time events.  In fact, the record in the auth store is the record in the users store.  Please note that if you configure the `userService` option on the `auth` plugin, you must also use the `service` plugin for the `/users` service.  The paths must match:
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import feathersVuex from 'feathers-vuex'
+import feathersClient from './feathers-client'
+
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+
+Vue.use(FeathersVuex)
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  plugins: [
+    service('users'),
+    auth({
+      userService: 'users'
     })
   ]
 })
