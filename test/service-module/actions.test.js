@@ -355,7 +355,7 @@ describe('Service Module - Actions', () => {
       assert.deepEqual(todoState.keyedById, {})
     })
 
-    it('does not make remote call when skipRequestIfExists=1', (done) => {
+    it('does not make remote call when skipRequestIfExists=true', (done) => {
       const store = new Vuex.Store({
         plugins: [service('todos')]
       })
@@ -392,7 +392,7 @@ describe('Service Module - Actions', () => {
                 0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
                 1: { id: 1, description: 'Do the second' }
               }
-              actions.get.call({$store: store}, [0, { skipRequestIfExists: 1 }])
+              actions.get.call({$store: store}, [0, { skipRequestIfExists: true }])
                 .then(response3 => {
                   expectedKeyedById = {
                     0: { id: 0, description: 'Do the FIRST' },

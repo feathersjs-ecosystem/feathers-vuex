@@ -143,7 +143,7 @@ const defaultOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
   enableEvents: true, // Set to false to explicitly disable socket event handlers.
-  addOnUpsert: false, // add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+  addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   preferUpdate: false, // When true, calling modelInstance.save() will do an update instead of a patch.
 }
