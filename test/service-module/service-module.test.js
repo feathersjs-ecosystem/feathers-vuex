@@ -162,6 +162,8 @@ describe('Service Module', () => {
         autoRemove: false,
         debug: false,
         enableEvents: true,
+        addOnUpsert: false,
+        skipRequestIfExists: false,
         getters: {},
         globalModels,
         idField: 'id',
@@ -601,6 +603,8 @@ describe('Service Module', () => {
         isRemovePending: false,
         keyedById: {},
         modelPath: 'Todo',
+        addOnUpsert: false,
+        skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
         servicePath: 'todos'
