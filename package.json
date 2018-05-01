@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "1.2.0-pre.23",
+  "version": "1.2.0",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
   "keywords": [
@@ -14,9 +14,9 @@
     "url": "git://github.com/feathersjs/feathers-vuex.git"
   },
   "author": {
-    "name": "Feathers contributors",
-    "email": "hello@feathersjs.com",
-    "url": "https://feathersjs.com"
+    "name": "Marshall Thompson",
+    "email": "marshall@creativeideal.net",
+    "url": "https://feathers-plus.github.io/v1/feathers-vuex"
   },
   "contributors": [],
   "bugs": {
