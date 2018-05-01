@@ -1,8 +1,9 @@
-export default function makeServiceActions (service) {
-  const serviceActions = {
-    find ({ commit, dispatch, getters }, params = {}) {
-      commit('setFindPending')
+import { checkId } from '../utils'
 
+export default function makeServiceActions (service, { debug }) {
+  const serviceActions = {
+    find ({ commit, dispatch, getters, state }, params = {}) {
+      const { idField } = state
       const handleResponse = response => {
         const { qid = 'default', query } = params
 
@@ -12,6 +13,17 @@ export default function makeServiceActions (service) {
         // The pagination data will be under `pagination.default` or whatever qid is passed.
         if (response.data) {
           commit('updatePaginationForQuery', { qid, response, query })
+          response.data = response.data.map(item => {
+            const id = item[idField]
+
+            return state.keyedById[id]
+          })
+        } else {
+          response = response.map(item => {
+            const id = item[idField]
+
+            return state.keyedById[id]
+          })
         }
 
         return response
@@ -21,8 +33,9 @@ export default function makeServiceActions (service) {
         commit('unsetFindPending')
         return Promise.reject(error)
       }
-
       const request = service.find(params)
+
+      commit('setFindPending')
 
       if (service.rx) {
         Object.getPrototypeOf(request).catch(handleError)
@@ -36,7 +49,8 @@ export default function makeServiceActions (service) {
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    get ({ commit, dispatch }, args) {
+    get ({ commit, dispatch, state }, args) {
+      const { idField } = state
       let id
       let params
 
@@ -51,10 +65,12 @@ export default function makeServiceActions (service) {
 
       return service.get(id, params)
         .then(item => {
+          const id = item[idField]
+
           dispatch('addOrUpdate', item)
           commit('setCurrent', item)
           commit('unsetGetPending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setGetError', error)
@@ -63,15 +79,38 @@ export default function makeServiceActions (service) {
         })
     },
 
-    create ({ commit, dispatch }, data) {
+    create ({ commit, dispatch, state }, dataOrArray) {
+      const { idField } = state
+      let data
+      let params
+
+      if (Array.isArray(dataOrArray)) {
+        data = dataOrArray[0]
+        params = dataOrArray[1]
+      } else {
+        data = dataOrArray
+      }
+
       commit('setCreatePending')
 
-      return service.create(data)
-        .then(item => {
-          dispatch('addOrUpdate', item)
-          commit('setCurrent', item)
+      return service.create(data, params)
+        .then(response => {
+          if (Array.isArray(response)) {
+            dispatch('addOrUpdateList', response)
+            response = response.map(item => {
+              const id = item[idField]
+
+              return state.keyedById[id]
+            })
+          } else {
+            const id = response[idField]
+
+            dispatch('addOrUpdate', response)
+            commit('setCurrent', response)
+            response = state.keyedById[id]
+          }
           commit('unsetCreatePending')
-          return item
+          return response
         })
         .catch(error => {
           commit('setCreateError', error)
@@ -80,14 +119,17 @@ export default function makeServiceActions (service) {
         })
     },
 
-    update ({ commit, dispatch }, [id, data, params]) {
+    update ({ commit, dispatch, state }, [id, data, params]) {
+      const { idField } = state
+
       commit('setUpdatePending')
 
       return service.update(id, data, params)
         .then(item => {
+          const id = item[idField]
           dispatch('addOrUpdate', item)
           commit('unsetUpdatePending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setUpdateError', error)
@@ -96,14 +138,18 @@ export default function makeServiceActions (service) {
         })
     },
 
-    patch ({ commit, dispatch }, [id, data, params]) {
+    patch ({ commit, dispatch, state }, [id, data, params]) {
+      const { idField } = state
+
       commit('setPatchPending')
 
       return service.patch(id, data, params)
         .then(item => {
+          const id = item[idField]
+
           dispatch('addOrUpdate', item)
           commit('unsetPatchPending')
-          return item
+          return state.keyedById[id]
         })
         .catch(error => {
           commit('setPatchError', error)
@@ -112,10 +158,20 @@ export default function makeServiceActions (service) {
         })
     },
 
-    remove ({ commit, dispatch }, id) {
+    remove ({ commit, dispatch }, idOrArray) {
+      let id
+      let params
+
+      if (Array.isArray(idOrArray)) {
+        id = idOrArray[0]
+        params = idOrArray[1]
+      } else {
+        id = idOrArray
+      }
+
       commit('setRemovePending')
 
-      return service.remove(id)
+      return service.remove(id, params)
         .then(item => {
           commit('removeItem', id)
           commit('unsetRemovePending')
@@ -129,12 +185,6 @@ export default function makeServiceActions (service) {
     }
   }
 
-  function checkId (id, item) {
-    if (id === undefined) {
-      throw new Error('No id found for item. Do you need to customize the `idField`?', item)
-    }
-  }
-
   const actions = {
     addOrUpdateList ({ state, commit }, response) {
       const list = response.data || response
@@ -144,13 +194,16 @@ export default function makeServiceActions (service) {
       const toRemove = []
       const { idField, autoRemove } = state
 
-      list.forEach(item => {
+
+      list.forEach((item, index) => {
         let id = item[idField]
         let existingItem = state.keyedById[id]
 
-        checkId(id, item)
+        const isIdOk = checkId(id, item, debug)
 
-        existingItem ? toUpdate.push(item) : toAdd.push(item)
+        if (isIdOk) {
+          existingItem ? toUpdate.push(item) : toAdd.push(item)
+        }
       })
 
       if (!isPaginated && autoRemove) {
@@ -163,6 +216,12 @@ export default function makeServiceActions (service) {
         commit('removeItems', toRemove) // commit removal
       }
 
+      if (service.Model) {
+        toAdd.forEach((item, index) => {
+          toAdd[index] = new service.Model(item)
+        })
+      }
+
       commit('addItems', toAdd)
       commit('updateItems', toUpdate)
     },
@@ -171,9 +230,15 @@ export default function makeServiceActions (service) {
       let id = item[idField]
       let existingItem = state.keyedById[id]
 
-      checkId(id, item)
+      const isIdOk = checkId(id, item, debug)
 
-      existingItem ? commit('updateItem', item) : commit('addItem', item)
+      if (service.Model && !existingItem && !item.isFeathersVuexInstance) {
+        item = new service.Model(item)
+      }
+
+      if (isIdOk) {
+        existingItem ? commit('updateItem', item) : commit('addItem', item)
+      }
     }
   }
   Object.keys(serviceActions).map(method => {

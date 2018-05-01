@@ -1,15 +1,21 @@
 import assert from 'chai/chai'
 import setupVuexAuth from '~/src/auth-module/auth-module'
+import setupVuexService from '~/src/service-module/service-module'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 
-const auth = setupVuexAuth(feathersClient)
+const options = {}
+const globalModels = {}
+
+const auth = setupVuexAuth(feathersClient, options, globalModels)
+const service = setupVuexService(feathersClient, options, globalModels)
 
 describe('Auth Module', () => {
   describe('Configuration', () => {
     it('has default auth namespace', () => {
       const store = new Vuex.Store({
         plugins: [
+          service('users'),
           auth()
         ]
       })

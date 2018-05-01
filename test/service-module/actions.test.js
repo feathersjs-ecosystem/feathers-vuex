@@ -81,6 +81,9 @@ describe('Service Module - Actions', () => {
             assert(todoState.isFindPending === false, 'isFindPending is false')
             let expectedKeyedById = makeStore()
             assert.deepEqual(todoState.keyedById, expectedKeyedById, 'keyedById matches')
+
+            assert(typeof todoState.keyedById[1].save === 'function', 'added FeathersVuexModel class methods to the data')
+
             done()
           })
 
@@ -507,6 +510,9 @@ describe('Service Module - Actions', () => {
             assert(todoState.isRemovePending === false)
             assert.deepEqual(todoState.keyedById, {})
             done()
+          })
+          .catch(error => {
+            console.log(error)
           })
 
           // Make sure proper state changes occurred before response

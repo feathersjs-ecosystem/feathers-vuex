@@ -5,8 +5,12 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 
-const auth = setupVuexAuth(feathersClient)
-const service = setupVuexService(feathersClient)
+const options = {}
+const globalModels = {}
+
+const auth = setupVuexAuth(feathersClient, options, globalModels)
+const service = setupVuexService(feathersClient, options, globalModels)
+
 const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjAsImV4cCI6OTk5OTk5OTk5OTk5OX0.zmvEm8w142xGI7CbUsnvVGZk_hrVE1KEjzDt80LSW50'
 
 describe('Auth Module - Actions', () => {
@@ -85,18 +89,18 @@ describe('Auth Module - Actions', () => {
   })
 
   it('Authenticate with userService config option', (done) => {
-    const store = new Vuex.Store({
-      plugins: [
-        auth({ userService: 'users' }),
-        service('users')
-      ]
-    })
     feathersClient.service('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
     })
     feathersClient.service('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
+    const store = new Vuex.Store({
+      plugins: [
+        auth({ userService: 'users' }),
+        service('users')
+      ]
+    })
 
     const authState = store.state.auth
     const actions = mapActions('auth', ['authenticate'])

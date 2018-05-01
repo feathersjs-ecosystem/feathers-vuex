@@ -4,7 +4,28 @@
 [![Dependency Status](https://img.shields.io/david/feathers-plus/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
+![feathers-vuex service logo](./service-logo.png)
+
 > Integrate the Feathers Client into Vuex
+
+`feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
+
+## Features
+
+- Fully powered by Vuex & Feathers
+- Realtime By Default
+- Actions With Reactive Data
+- Local Queries
+- Fall-Through Caching
+- Feathers Query Syntax
+- $FeathersVuex Vue Plugin
+- Live Queries
+- Per-Service Data Modeling
+- Clone & Commit
+- Vuex Strict Mode
+- Per-Record Defaults
+- Data Level Computes
+- Relation Support
 
 ## Installation
 
@@ -16,7 +37,7 @@ npm install feathers-vuex --save
 The current version of `feathers-vuex` no longer requires (nor does it support) using `feathers-reactive` (0.5.x). `feathers-vuex` now takes full advantage of Vue's built-in reactivity.  If you still need to use `feathers-vuex` with `feathers-reactive`, install `feathers-vuex@0.4.x`.
 
 ## Use
-`feathers-vuex` is a set of two utilities for integrating the Feathers Client into your Vuex store.  It allows you to eliminate boilerplate and easily customize the store.  To get it working, we first need a Feathers Client.  Note: as of version 1.0.0 `feathers-reactive` is no longer required to get socket updates.
+To setup `feathers-vuex`, we first need to setup a Feathers Client.  Here's an example using the latest `@feathersjs` npm packages.
 
 **feathers-client.js:**
 ```js
@@ -43,12 +64,39 @@ import Vuex from 'vuex'
 import feathersVuex from 'feathers-vuex'
 import feathersClient from '../feathers-client'
 
-const { service, auth } = feathersVuex(feathersClient, { idField: '_id' })
+const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+const { serviceModule, serviceModel, servicePlugin } = service
+
+
+const api1Client = feathersVuex(feathersClient, { idField: '_id', apiPrefix: 'api1' })
+const api2Client = feathersVuex(feathersClient2, { idField: '_id' })
+
+
+Vue.use(FeathersVuex)
+
+const todoModule = serviceModule('todos')
+
+// const Model = serviceModel(todoModule) // TodoModel is an extensible class
+const Model = serviceModel()
+class TodoModel = extends Model {}
+const todoPlugin = servicePlugin(todoModule, TodoModel)
+
+const TaskModel extends Model {}
+
+export { TaskModel }
+
+
+created () {
+  this.todo = new this.$FeathersVuex.api1.Todo(data)
+}
 
 Vue.use(Vuex)
+Vue.use(FeathersVuex)
 
 export default new Vuex.Store({
   plugins: [
+    servicePlugin('/tasks', TaskModel), // With our potentially customized TodoModel
+
     service('todos'),
 
     // Specify custom options per service
@@ -57,7 +105,8 @@ export default new Vuex.Store({
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
       namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
       autoRemove: true, // automatically remove records missing from responses (only use with feathers-rest)
-      enableEvents: false // turn off socket event listeners. It's true by default
+      enableEvents: false, // turn off socket event listeners. It's true by default
+      modelName: 'Task'
     })
 
     // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
@@ -91,7 +140,8 @@ const defaultOptions = {
   idField: 'id', // The field in each record that will contain the id
   autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
-  enableEvents: true // Set to false to explicitly disable socket event handlers.
+  enableEvents: true, // Set to false to explicitly disable socket event handlers.
+  preferUpdate: false, // When true, calling modelInstance.save() will do an update instead of a patch.
 }
 ```
 

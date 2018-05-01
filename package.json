@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "1.1.4",
+  "version": "1.2.0-pre.23",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
   "keywords": [
@@ -28,7 +28,7 @@
   "scripts": {
     "prepare": "npm run compile",
     "prepublish": "npm run compile",
-    "publish": "git push origin --tags && npm run changelog && git push origin",
+    "publish": "git push origin --tags && git push origin",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
@@ -70,6 +70,7 @@
     "feathers-commons": "^0.8.7",
     "feathers-errors": "^2.9.2",
     "feathers-query-filters": "^2.1.2",
+    "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isobject": "^3.0.2",
@@ -104,7 +105,7 @@
     "standard": "^10.0.3",
     "steal": "^1.5.15",
     "steal-mocha": "^1.0.0",
-    "testee": "^0.4.1",
+    "testee": "^0.7.0",
     "vue": "^2.4.4",
     "vuex": "^2.4.1"
   }

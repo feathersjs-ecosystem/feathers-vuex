@@ -2,27 +2,46 @@ import _merge from 'lodash.merge'
 import _cloneDeep from 'lodash.clonedeep'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
+import { checkId } from '../utils'
 
-export default function makeServiceMutations (servicePath) {
+export default function makeServiceMutations (servicePath, { debug, globalModels }) {
+  globalModels = globalModels || { byServicePath: {} }
+
   function addItem (state, item) {
     const { idField } = state
+    const Model = globalModels.byServicePath[servicePath]
     let id = item[idField]
+    const isIdOk = checkId(id, item, debug)
 
-    // Only add the id if it's not already in the `ids` list.
-    if (!state.ids.includes(id)) {
-      state.ids.push(id)
-    }
+    if (isIdOk) {
+      if (Model && !item.isFeathersVuexInstance) {
+        item = new Model(item)
+      }
 
-    state.keyedById = {
-      ...state.keyedById,
-      [id]: item
+      // Only add the id if it's not already in the `ids` list.
+      if (!state.ids.includes(id)) {
+        state.ids.push(id)
+      }
+
+      state.keyedById = {
+        ...state.keyedById,
+        [id]: item
+      }
     }
   }
 
   function updateItem (state, item) {
-    const { idField } = state
+    const { idField, replaceItems } = state
     let id = item[idField]
-    state.keyedById[id] = item
+    const isIdOk = checkId(id, item, debug)
+
+    if (isIdOk) {
+      if (replaceItems) {
+        state.keyedById[id] = item
+      } else {
+        _merge(state.keyedById[id], item)
+      }
+    }
   }
 
   return {
@@ -47,21 +66,24 @@ export default function makeServiceMutations (servicePath) {
       const idToBeRemoved = isObject(item) ? item[idField] : item
       const keyedById = {}
       const { currentId } = state
+      const isIdOk = checkId(idToBeRemoved, item, debug)
 
-      state.ids = state.ids.filter(id => {
-        if (id === idToBeRemoved) {
-          return false
-        } else {
-          keyedById[id] = state.keyedById[id]
-          return true
+      if (isIdOk) {
+        state.ids = state.ids.filter(id => {
+          if (id === idToBeRemoved) {
+            return false
+          } else {
+            keyedById[id] = state.keyedById[id]
+            return true
+          }
+        })
+
+        state.keyedById = keyedById
+
+        if (currentId === idToBeRemoved) {
+          state.currentId = null
+          state.copy = null
         }
-      })
-
-      state.keyedById = keyedById
-
-      if (currentId === idToBeRemoved) {
-        state.currentId = null
-        state.copy = null
       }
     },
 
@@ -147,16 +169,57 @@ export default function makeServiceMutations (servicePath) {
       state.copy = null
     },
 
-    // Deep assigns current to copy
-    rejectCopy (state) {
-      let current = state.keyedById[state.currentId]
-      _merge(state.copy, current)
+    // Removes the copy from copiesById
+    clearCopy (state, id) {
+      const newCopiesById = Object.assign({}, state.copiesById)
+      delete newCopiesById[id]
+      state.copiesById = newCopiesById
     },
 
-    // Deep assigns copy to current
-    commitCopy (state) {
-      let current = state.keyedById[state.currentId]
-      _merge(current, state.copy)
+    // Creates a copy of the record with the passed-in id, stores it in copiesById
+    createCopy (state, id) {
+      const current = state.keyedById[id]
+      const Model = globalModels.byServicePath[servicePath]
+      const copyData = _merge({}, current)
+      const copy = new Model(copyData, { isClone: true })
+
+      if (state.keepCopiesInStore) {
+        state.copiesById[id] = copy
+      } else {
+        Model.copiesById[id] = copy
+      }
+    },
+
+    // Resets the copy to match the original record, locally
+    rejectCopy (state, id) {
+      const isIdOk = checkId(id, undefined, debug)
+      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const Model = globalModels.byServicePath[servicePath]
+      let copy
+
+      if (state.keepCopiesInStore || !Model) {
+        copy = isIdOk ? state.copiesById[id] : state.copy
+      } else {
+        copy = Model.copiesById[id]
+      }
+
+      _merge(copy, current)
+    },
+
+    // Deep assigns copy to original record, locally
+    commitCopy (state, id) {
+      const isIdOk = checkId(id, undefined, debug)
+      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const Model = globalModels.byServicePath[servicePath]
+      let copy
+
+      if (state.keepCopiesInStore || !Model) {
+        copy = isIdOk ? state.copiesById[id] : state.copy
+      } else {
+        copy = Model.copiesById[id]
+      }
+
+      _merge(current, copy)
     },
 
     // Stores pagination data on state.pagination based on the query identifier (qid)

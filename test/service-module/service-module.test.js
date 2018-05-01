@@ -6,15 +6,491 @@ import memory from 'feathers-memory'
 import makeTodos from '../fixtures/todos'
 import Vuex from 'vuex'
 
-const service = setupVuexService(feathersClient)
+const globalModels = {}
+const service = setupVuexService(feathersClient, {}, globalModels)
 
 describe('Service Module', () => {
-  it('registers a vuex plugin for the service', () => {
+  it('registers a vuex plugin and Model for the service', () => {
     const serviceName = 'todos'
     const store = new Vuex.Store({
       plugins: [service(serviceName)]
     })
+    assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+
+    const todo = new globalModels.Todo({
+      description: 'Do the dishes',
+      isComplete: false
+    })
+    assert(todo instanceof globalModels.Todo, 'Model can be instantiated.')
+
     assert(store.state[serviceName])
+  })
+
+  describe('Models', function () {
+    beforeEach(function () {
+      const serviceName = 'todos'
+      const store = new Vuex.Store({
+        plugins: [service(serviceName)]
+      })
+      assert(store)
+      assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+
+      const data = {
+        id: 1,
+        description: 'Do the dishes',
+        isComplete: false
+      }
+      store.commit('todos/addItem', data)
+
+      const todo = store.state.todos.keyedById[1]
+
+      this.todo = todo
+      this.todoClone = todo.clone()
+    })
+
+    it('allows creating model clones', function () {
+      const { todoClone } = this
+
+      assert(todoClone.isClone, 'created a todo clone with isClone attribute')
+      assert(todoClone instanceof globalModels.Todo, 'the copy is an instance of the same class')
+    })
+
+    it('allows modifying clones without affecting the original', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+
+      assert(todo.description === 'Do the dishes', 'the original todo remained intact')
+    })
+
+    it('allows commiting changes back to the original in the store', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+      todoClone.commit()
+
+      assert(todo.description === 'Do something else', 'the original todo was updated')
+    })
+
+    it('allows reseting copy changes back to match the original', function () {
+      const { todo, todoClone } = this
+
+      todoClone.description = 'Do something else'
+      todoClone.reset()
+
+      assert(todo.description === 'Do the dishes', 'the original todo was untouched')
+      assert(todoClone.description === 'Do the dishes', 'the clone was reset to match the original')
+    })
+  })
+
+  describe('Models - Default Values', function () {
+    beforeEach(function () {
+      const taskDefaults = this.taskDefaults = {
+        id: null,
+        description: '',
+        isComplete: false
+      }
+      this.store = new Vuex.Store({
+        plugins: [
+          service('todos'),
+          service('people', {
+            instanceDefaults: {
+              firstName: '',
+              lastName: '',
+              get fullName () {
+                return `${this.firstName} ${this.lastName}`
+              }
+            }
+          }),
+          service('tasks', {
+            keepCopiesInStore: true,
+            instanceDefaults: taskDefaults
+          })
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+      this.Person = globalModels.Person
+    })
+
+    // store.commit('todos/addItem', data)
+
+    it('models default to an empty object', function () {
+      const { Todo } = this
+      const todo = new Todo()
+
+      assert.deepEqual(todo, {}, 'default model is an empty object')
+    })
+
+    it('stores clones in Model.copiesById by default', function () {
+      const { Todo } = this
+      const todo = new Todo({ id: 1, description: 'Do something' })
+
+      assert.deepEqual(Todo.copiesById, {}, 'Model.copiesById should start out empty')
+
+      const todoClone = todo.clone()
+      assert(Todo.copiesById[1], 'should have a copy stored on Model.copiesById')
+
+      todoClone.description = 'Do something else'
+      todoClone.commit()
+
+      assert.equal(todo.description, 'Do something else', 'the original should have been updated')
+    })
+
+    it('allows customizing the default values for a model', function () {
+      const { Task, taskDefaults } = this
+      const task = new Task()
+
+      assert.deepEqual(task, taskDefaults, 'the instance had the customized values')
+    })
+
+    it('allows model classes to be customized with es5 getters', function () {
+      const { Person } = this
+      const person = new Person({
+        firstName: 'Marshall',
+        lastName: 'Thompson'
+      })
+
+      assert.equal(person.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
+    })
+
+    it('keeps the options on the Model', function () {
+      const { Task, taskDefaults } = this
+      const options = {
+        actions: {},
+        apiPrefix: '',
+        autoRemove: false,
+        debug: false,
+        enableEvents: true,
+        getters: {},
+        globalModels,
+        idField: 'id',
+        instanceDefaults: taskDefaults,
+        keepCopiesInStore: true,
+        modelPath: '',
+        mutations: {},
+        nameStyle: 'short',
+        preferUpdate: false,
+        replaceItems: false,
+        state: {}
+      }
+
+      assert.deepEqual(Task.options, options, 'The Model.options object should be in place')
+    })
+  })
+
+  describe('Models - Methods', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        strict: true,
+        plugins: [
+          service('tasks', {
+            preferUpdate: true
+          }),
+          service('todos'),
+          service('items')
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+    })
+
+    it('save calls create with correct arguments', function () {
+      const { Todo } = this
+      const todo = new Todo({ test: true })
+
+      Object.defineProperty(todo, 'create', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params === undefined, 'no params should have been passed this time')
+        }
+      })
+
+      todo.save()
+    })
+
+    it('save passes params to create', function () {
+      const { Todo } = this
+      const todo = new Todo({ test: true })
+      let called = false
+
+      Object.defineProperty(todo, 'create', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      todo.save({ test: true })
+      assert(called, 'create should have been called')
+    })
+
+    it('save passes params to patch', function () {
+      const { Todo } = this
+      const todo = new Todo({ id: 1, test: true })
+      let called = false
+
+      Object.defineProperty(todo, 'patch', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      todo.save({ test: true })
+      assert(called, 'patch should have been called')
+    })
+
+    it('save passes params to update', function () {
+      const { Task } = this
+      const task = new Task({ id: 1, test: true })
+      let called = false
+
+      Object.defineProperty(task, 'update', {
+        value (params) {
+          assert(arguments.length === 1, 'should have only called with params')
+          assert(params.test, 'should have received params')
+          called = true
+        }
+      })
+
+      task.save({ test: true })
+      assert(called, 'update should have been called')
+    })
+  })
+
+  describe('Models - Relationships', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        strict: true,
+        plugins: [
+          service('tasks', {
+            instanceDefaults: {
+              id: null,
+              description: '',
+              isComplete: false
+            }
+          }),
+          service('todos', {
+            instanceDefaults: {
+              id: null,
+              description: '',
+              isComplete: false,
+              task: 'Task',
+              item: 'Item'
+            }
+          }),
+          service('items', {
+            instanceDefaults: {
+              test: false,
+              todo: 'Todo'
+            },
+            mutations: {
+              toggleTestBoolean (state, item) {
+                item.test = !item.test
+              }
+            }
+          })
+        ]
+      })
+      this.Todo = globalModels.Todo
+      this.Task = globalModels.Task
+    })
+
+    it('converts keys that match Model names into Model instances', function () {
+      const { Todo, store } = this
+      const todo = new Todo({
+        task: {
+          description: 'test',
+          isComplete: true
+        }
+      })
+
+      assert(todo.task.constructor.name === 'Task', 'task is an instance of Task')
+      assert.deepEqual(store.state.tasks.keyedById, {}, 'nothing was added to the store')
+    })
+
+    it('adds model instances containing an id to the store', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        }
+      })
+
+      assert.deepEqual(store.state.tasks.keyedById[1], todo.task, 'task was added to the store')
+    })
+
+    it('works with multiple keys that match Model names', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        },
+        item: {
+          id: 2,
+          test: true
+        }
+      })
+
+      assert.deepEqual(store.state.tasks.keyedById[1], todo.task, 'task was added to the store')
+      assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
+    })
+
+    it('handles nested relationships', function () {
+      const { Todo } = this
+
+      const todo = new Todo({
+        task: {
+          id: 1,
+          description: 'test',
+          isComplete: true
+        },
+        item: {
+          id: 2,
+          test: true,
+          todo: {
+            description: 'nested todo under item'
+          }
+        }
+      })
+
+      assert(todo.item.todo.constructor.name === 'Todo', 'the nested todo is an instance of Todo')
+    })
+
+    it('handles recursive nested relationships', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        id: 1,
+        description: 'todo description',
+        item: {
+          id: 2,
+          test: true,
+          todo: {
+            id: 1,
+            description: 'todo description'
+          }
+        }
+      })
+
+      assert.deepEqual(store.state.todos.keyedById[1], todo, 'todo was added to the store')
+      assert.deepEqual(store.state.items.keyedById[2], todo.item, 'item was added to the store')
+      assert(todo.item, 'todo still has an item')
+      assert(todo.item.todo, 'todo still nested in itself')
+    })
+
+    it('updates related data', function () {
+      const { Todo, store } = this
+
+      const todo = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: {
+          id: 'item-2',
+          test: true,
+          todo: {
+            id: 'todo-1',
+            description: 'todo description'
+          }
+        }
+      })
+
+      const storedTodo = store.state.todos.keyedById['todo-1']
+      const storedItem = store.state.items.keyedById['item-2']
+
+      store.commit('items/toggleTestBoolean', storedItem)
+      // todo.item.test = false
+
+      assert.equal(todo.item.test, false, 'the nested todo.item.test should be false')
+      assert.equal(storedTodo.item.test, false, 'the nested item.test should be false')
+      assert.equal(storedItem.test, false, 'item.test should be false')
+    })
+
+    it(`allows creating more than once relational instance`, function () {
+      const { Todo, store } = this
+
+      const todo1 = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: {
+          id: 'item-2',
+          test: true
+        }
+      })
+      const todo2 = new Todo({
+        id: 'todo-2',
+        description: 'todo description',
+        item: {
+          id: 'item-3',
+          test: true
+        }
+      })
+
+      const storedTodo = store.state.todos.keyedById['todo-2']
+      const storedItem = store.state.items.keyedById['item-3']
+
+      assert.equal(todo1.item.test, true, 'the nested todo.item.test should be true')
+      assert.equal(todo2.item.test, true, 'the nested todo.item.test should be true')
+      assert.equal(storedTodo.item.test, true, 'the nested item.test should be true')
+      assert.equal(storedItem.test, true, 'item.test should be true')
+    })
+
+    it(`handles arrays of related data`, function () {
+      const { Todo, store } = this
+
+      const todo1 = new Todo({
+        id: 'todo-1',
+        description: 'todo description',
+        item: [
+          {
+            id: 'item-1',
+            test: true
+          }, {
+            id: 'item-2',
+            test: true
+          }
+        ]
+      })
+      const todo2 = new Todo({
+        id: 'todo-2',
+        description: 'todo description',
+        item: [
+          {
+            id: 'item-3',
+            test: true
+          }, {
+            id: 'item-4',
+            test: true
+          }
+        ]
+      })
+
+      assert(todo1, 'todo1 is an instance')
+      assert(todo2, 'todo2 is an instance')
+
+      const storedTodo1 = store.state.todos.keyedById['todo-1']
+      const storedTodo2 = store.state.todos.keyedById['todo-2']
+      const storedItem1 = store.state.items.keyedById['item-1']
+      const storedItem2 = store.state.items.keyedById['item-2']
+      const storedItem3 = store.state.items.keyedById['item-3']
+      const storedItem4 = store.state.items.keyedById['item-4']
+
+      assert(storedTodo1, 'should have todo 1')
+      assert(storedTodo2, 'should have todo 2')
+      assert(storedItem1, 'should have item 1')
+      assert(storedItem2, 'should have item 2')
+      assert(storedItem3, 'should have item 3')
+      assert(storedItem4, 'should have item 4')
+    })
   })
 
   describe('Setting Up', () => {
@@ -105,8 +581,10 @@ describe('Service Module', () => {
       const todoState = store.state.todos
       const expectedState = {
         autoRemove: false,
+        copiesById: {},
         copy: null,
         currentId: null,
+        enableEvents: true,
         errorOnCreate: null,
         errorOnGet: null,
         errorOnPatch: null,
@@ -122,7 +600,9 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
-        pagination: {},
+        modelPath: 'Todo',
+        preferUpdate: false,
+        replaceItems: false,
         servicePath: 'todos'
       }
 
@@ -355,7 +835,7 @@ describe('Service Module', () => {
     })
   })
 
-  describe('Updates the Store on Events', function () {
+  describe.skip('Updates the Store on Events', function () {
     const socketService = setupVuexService(feathersSocketioClient)
 
     it('created', function (done) {
