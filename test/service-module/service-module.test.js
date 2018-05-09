@@ -263,6 +263,39 @@ describe('Service Module', () => {
     })
   })
 
+  describe('Models - Dates', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        strict: true,
+        plugins: [
+          service('todos', {
+            instanceDefaults: {
+              id: null,
+              description: '',
+              isComplete: false,
+              createdAt: Date
+            }
+          })
+        ]
+      })
+      this.Todo = globalModels.Todo
+    })
+
+    it('converts keys that contain the Date constructor into date instances', function () {
+      const { Todo } = this
+      const createdAt = '2018-05-01T04:42:24.136Z'
+      const todo = new Todo({
+        description: 'Go on a date.',
+        isComplete: true,
+        createdAt
+      })
+
+      assert(typeof todo.createdAt === 'object', 'todo.createdAt is an instance of object')
+      assert(todo.createdAt.constructor.name === 'Date', 'todo.createdAt is an instance of date')
+      assert(todo.createdAt.toString() === new Date(createdAt).toString(), 'the correct date was used')
+    })
+  })
+
   describe('Models - Relationships', function () {
     beforeEach(function () {
       this.store = new Vuex.Store({
