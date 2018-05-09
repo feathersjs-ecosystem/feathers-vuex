@@ -25,6 +25,15 @@ export default function (options) {
           // Reset the instance default for this prop to null
           _instanceDefaults[key] = null
         }
+
+        // Or if the value is a Date
+        if (modelName === Date) {
+          // Store the relationships
+          relationships[key] = Date
+
+          // Reset the instance default for this prop to null
+          _instanceDefaults[key] = null
+        }
       })
 
       if (options.isClone) {
@@ -42,18 +51,26 @@ export default function (options) {
           // Handle arrays
           if (Array.isArray(related)) {
             related.forEach((item, index) => {
-              const { model, storedModel } = createRelatedInstance({ item, Model, idField, store })
+              if (Model === Date) {
+                related[index] = new Date(item)
+              } else {
+                const { model, storedModel } = createRelatedInstance({ item, Model, idField, store })
 
-              // Replace the original array value with a reference to the model
-              related[index] = storedModel || model
+                // Replace the original array index with a reference to the model
+                related[index] = storedModel || model
+              }
             })
 
           // Handle objects
           } else {
-            const { model, storedModel } = createRelatedInstance({ item: related, Model, idField, store })
+            if (Model === Date) {
+              data[prop] = new Date(data[prop])
+            } else {
+              const { model, storedModel } = createRelatedInstance({ item: related, Model, idField, store })
 
-            // Replace the data's prop value with a reference to the model
-            data[prop] = storedModel || model
+              // Replace the data's prop value with a reference to the model
+              data[prop] = storedModel || model
+            }
           }
         }
       })
