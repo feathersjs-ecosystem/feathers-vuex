@@ -281,7 +281,7 @@ describe('Service Module', () => {
       this.Todo = globalModels.Todo
     })
 
-    it.only('converts keys that contain the Date constructor into date instances', function () {
+    it('converts keys that contain the Date constructor into date instances', function () {
       const { Todo } = this
       const createdAt = '2018-05-01T04:42:24.136Z'
       const todo = new Todo({
