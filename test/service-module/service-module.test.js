@@ -263,7 +263,7 @@ describe('Service Module', () => {
     })
   })
 
-  describe('Models - Methods', function () {
+  describe('Models - modelName', function () {
     beforeEach(function () {
       this.store = new Vuex.Store({
         strict: true,
