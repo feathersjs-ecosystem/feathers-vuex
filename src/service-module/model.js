@@ -6,7 +6,7 @@ const defaults = {
 
 export default function (options) {
   options = Object.assign({}, defaults, options)
-  const { idField, preferUpdate, instanceDefaults, globalModels } = options
+  const { idField, preferUpdate, instanceDefaults, globalModels, modelName } = options
   // Don't modify the original instanceDefaults. Clone it with accessors intact
   let _instanceDefaults = cloneWithAccessors(instanceDefaults)
 
@@ -170,7 +170,8 @@ export default function (options) {
 
   Object.assign(FeathersVuexModel, {
     options,
-    copiesById: {} // For cloned data
+    copiesById: {}, // For cloned data
+    modelName
   })
 
   return FeathersVuexModel
