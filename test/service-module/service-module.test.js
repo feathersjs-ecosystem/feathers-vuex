@@ -169,7 +169,7 @@ describe('Service Module', () => {
         idField: 'id',
         instanceDefaults: taskDefaults,
         keepCopiesInStore: true,
-        modelPath: '',
+        modelName: '',
         mutations: {},
         nameStyle: 'short',
         preferUpdate: false,
@@ -260,6 +260,27 @@ describe('Service Module', () => {
 
       task.save({ test: true })
       assert(called, 'update should have been called')
+    })
+  })
+
+  describe('Models - modelName', function () {
+    beforeEach(function () {
+      this.store = new Vuex.Store({
+        strict: true,
+        plugins: [
+          service('media'),
+          service('hotspot-media', {
+            modelName: 'HotspotMedia'
+          })
+        ]
+      })
+      this.Medium = globalModels.Medium
+      this.HotspotMedia = globalModels.HotspotMedia
+    })
+
+    it('allows passing a custom Model name', function () {
+      assert(!this.HotspotMedium, `the model wasn't in the default location`)
+      assert(this.HotspotMedia, 'the model is named correctly.')
     })
   })
 
@@ -635,7 +656,7 @@ describe('Service Module', () => {
         isPatchPending: false,
         isRemovePending: false,
         keyedById: {},
-        modelPath: 'Todo',
+        modelName: 'Todo',
         addOnUpsert: false,
         skipRequestIfExists: false,
         preferUpdate: false,
