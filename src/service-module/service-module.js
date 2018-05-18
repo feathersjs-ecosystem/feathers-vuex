@@ -123,6 +123,8 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
         _commit: {
           value (id) {
             store.commit(`${namespace}/commitCopy`, id)
+
+            return this._clone(id)
           }
         },
         _reset: {

@@ -118,7 +118,7 @@ export default function (options) {
     commit () {
       if (this.isClone) {
         const id = this[idField]
-        this._commit(id)
+        return this._commit(id)
       } else {
         throw new Error('You cannnot call commit on a non-copy')
       }
