@@ -110,7 +110,7 @@ describe('Service Module', () => {
       todoClone = todoClone.commit()
       todoClone.owners[0].name = 'Ted'
 
-      assert.deepEqual(todo.owners[0].name, 'Marshall', 'nested object in original todo was changed')
+      assert.deepEqual(todo.owners[0].name, 'Marshall', 'nested object in original todo was NOT changed')
     })
 
     it('allows reseting copy changes back to match the original', function () {
