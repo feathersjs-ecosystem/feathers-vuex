@@ -1,5 +1,5 @@
 import _merge from 'lodash.merge'
-import _cloneDeep from 'lodash.clonedeep'
+import deepCopy from 'fast-copy'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId } from '../utils'
@@ -172,7 +172,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         item = state.keyedById[id]
       }
       state.currentId = id
-      state.copy = _cloneDeep(item)
+      state.copy = deepCopy(item)
     },
 
     clearCurrent (state) {
@@ -230,7 +230,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         copy = Model.copiesById[id]
       }
 
-      _merge(current, copy)
+      Object.assign(current, copy)
     },
 
     // Stores pagination data on state.pagination based on the query identifier (qid)

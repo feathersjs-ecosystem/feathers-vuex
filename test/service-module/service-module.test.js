@@ -34,11 +34,16 @@ describe('Service Module', () => {
       })
       assert(store)
       assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
-
+      const owners = this.owners = [
+        { id: 1, name: 'Marshall' },
+        { id: 2, name: 'Mariah' },
+        { id: 3, name: 'Leah' }
+      ]
       const data = {
         id: 1,
         description: 'Do the dishes',
-        isComplete: false
+        isComplete: false,
+        owners
       }
       store.commit('todos/addItem', data)
 
@@ -70,6 +75,42 @@ describe('Service Module', () => {
       todoClone.commit()
 
       assert(todo.description === 'Do something else', 'the original todo was updated')
+    })
+
+    it('performs a shallow merge when commiting back to the original record', function () {
+      const { todo, todoClone, owners } = this
+
+      todoClone.owners = [
+        { id: 1, name: 'Marshall' },
+        { id: 2, name: 'Mariah' }
+      ]
+      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
+
+      todoClone.commit()
+
+      assert.deepEqual(todo.owners, [ owners[0], owners[1] ], 'ownerIds were updated properly')
+    })
+
+    it(`changes the original record if you don't use the return value of commit()`, function () {
+      const { todo, todoClone, owners } = this
+
+      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
+
+      todoClone.commit()
+      todoClone.owners[0].name = 'Ted'
+
+      assert.deepEqual(todo.owners[0].name, 'Ted', 'nested object in original todo was changed')
+    })
+
+    it(`doesn't change the original record if you use modify return value of a commit`, function () {
+      let { todo, todoClone, owners } = this
+
+      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
+
+      todoClone = todoClone.commit()
+      todoClone.owners[0].name = 'Ted'
+
+      assert.deepEqual(todo.owners[0].name, 'Marshall', 'nested object in original todo was changed')
     })
 
     it('allows reseting copy changes back to match the original', function () {
