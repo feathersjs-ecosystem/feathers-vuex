@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import _merge from 'lodash.merge'
 import deepCopy from 'fast-copy'
 import serializeError from 'serialize-error'
@@ -241,7 +242,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const ids = data.map(item => {
         return item[idField]
       })
-      state.pagination = { ...state.pagination, [qid]: { limit, skip, total, ids, query } }
+      Vue.set(state, 'pagination', { ...state.pagination, [qid]: { limit, skip, total, ids, query } })
     },
 
     setFindPending (state) {
