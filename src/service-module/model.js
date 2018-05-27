@@ -1,3 +1,5 @@
+import fastCopy from 'fast-copy'
+
 const defaults = {
   idField: 'id',
   preferUpdate: false,
@@ -8,12 +10,12 @@ export default function (options) {
   options = Object.assign({}, defaults, options)
   const { idField, preferUpdate, instanceDefaults, globalModels, modelName } = options
   // Don't modify the original instanceDefaults. Clone it with accessors intact
-  let _instanceDefaults = cloneWithAccessors(instanceDefaults)
 
   class FeathersVuexModel {
     constructor (data = {}, options = {}) {
       const { store, namespace } = this.constructor
       const relationships = {}
+      const _instanceDefaults = cloneWithAccessors(instanceDefaults)
 
       Object.keys(_instanceDefaults).forEach(key => {
         const modelName = instanceDefaults[key]
@@ -187,12 +189,16 @@ function createRelatedInstance ({ item, Model, idField, store }) {
 }
 
 function cloneWithAccessors (obj) {
-  var clone = Object.create(Object.getPrototypeOf(obj))
+  const clone = fastCopy(obj)
 
   var props = Object.getOwnPropertyNames(obj)
   props.forEach(key => {
     var desc = Object.getOwnPropertyDescriptor(obj, key)
-    Object.defineProperty(clone, key, desc)
+
+    // Copy over accessors
+    if (desc.get || desc.set) {
+      Object.defineProperty(clone, key, desc)
+    }
   })
 
   return clone

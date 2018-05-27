@@ -138,6 +138,9 @@ describe('Service Module', () => {
             instanceDefaults: {
               firstName: '',
               lastName: '',
+              location: {
+                coordinates: [ -111.549668, 39.014 ]
+              },
               get fullName () {
                 return `${this.firstName} ${this.lastName}`
               }
@@ -193,6 +196,16 @@ describe('Service Module', () => {
       })
 
       assert.equal(person.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
+    })
+
+    it('does not allow sharing of deeply nested objects between instances', function () {
+      const { Person } = this
+      const person1 = new Person({ firstName: 'Marshall', lastName: 'Thompson' })
+      const person2 = new Person({ firstName: 'Austin', lastName: 'Thompson' })
+
+      person1.location.coordinates[0] = 5
+
+      assert.equal(person2.location.coordinates[0], -111.549668, 'the value was not shared')
     })
 
     it('keeps the options on the Model', function () {
