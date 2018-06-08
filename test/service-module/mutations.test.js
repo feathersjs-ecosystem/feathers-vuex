@@ -1,11 +1,33 @@
 import assert from 'chai/chai'
 import makeServiceMutations from '~/src/service-module/mutations'
 import makeServiceState from '~/src/service-module/state'
+import makeServiceModuleMaker from '~/src/service-module/service-module'
+import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import errors from 'feathers-errors'
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const makeServiceModule = makeServiceModuleMaker(feathersClient)
+const { serviceModel } = makeServiceModule
+const todoModel = serviceModel({})
+// const store = new Vuex.Store({
+//   plugins: [
+//     todoModule
+//   ]
+// })
+// store.test = true
 
 const options = {
   idField: '_id',
-  autoRemove: false
+  autoRemove: false,
+  globalModels: {
+    Todo: todoModel,
+    byServicePath: {
+      'todos': todoModel
+    }
+  }
 }
 
 const {
@@ -51,6 +73,7 @@ const {
 describe('Service Module - Mutations', function () {
   beforeEach(function () {
     this.state = makeServiceState('todos', options)
+    this.state.keepCopiesInStore = true
   })
 
   it('addItem', function () {
@@ -67,21 +90,21 @@ describe('Service Module - Mutations', function () {
     addItem(state, item1)
     assert(state.ids.length === 1)
     assert(state.ids[0] === 1)
-    assert(state.keyedById[1] === item1)
+    assert(state.keyedById[1].test)
 
     // Add item 2
     addItem(state, item2)
     assert(state.ids.length === 2)
     assert(state.ids[1] === 2)
-    assert(state.keyedById[2] === item2)
+    assert(state.keyedById[2].test)
 
     // Re-add item 1
     addItem(state, item1)
     assert(state.ids.length === 2, 'still only two items in the ids array')
     assert(state.ids[0] === 1)
-    assert(state.keyedById[1] === item1)
+    assert(state.keyedById[1].test)
     assert(state.ids[1] === 2)
-    assert(state.keyedById[2] === item2)
+    assert(state.keyedById[2].test)
   })
 
   it('addItems', function () {
@@ -98,9 +121,9 @@ describe('Service Module - Mutations', function () {
     addItems(state, items)
     assert(state.ids.length === 2, 'still only two items in the ids array')
     assert(state.ids[0] === 1)
-    assert(state.keyedById[1] === item1)
+    assert(state.keyedById[1].test)
     assert(state.ids[1] === 2)
-    assert(state.keyedById[2] === item2)
+    assert(state.keyedById[2].test)
   })
 
   describe('updateItem', function () {
@@ -271,6 +294,7 @@ describe('Service Module - Mutations', function () {
       _id: 2,
       test: true
     }
+
     const items = [item1, item2]
     addItems(state, items)
     setCurrent(state, item2)
@@ -279,7 +303,7 @@ describe('Service Module - Mutations', function () {
     assert(state.ids.length === 1, 'only one id was left in the list')
     assert(state.ids[0] === 2, 'the remaining id is for the current item')
     assert(state.keyedById[1] === undefined, 'item1 is removed from keyedById')
-    assert(state.keyedById[2] === item2, 'the item is still in keyedById')
+    assert(state.keyedById[2].test, 'the item is still in keyedById')
   })
 
   it('setCurrent', function () {
@@ -345,11 +369,14 @@ describe('Service Module - Mutations', function () {
     }
     addItem(state, item1)
     setCurrent(state, item1)
+    const original = state.keyedById[1]
+    const copy = state.copy
+
     state.copy.test = false
-    assert(item1.test === true, `the original item didn't change when copy was changed`)
+    assert(original.test === true, `the original item didn't change when copy was changed`)
 
     rejectCopy(state)
-    assert(state.copy.test === true, 'the copy was reset')
+    assert(copy.test === true, 'the copy was reset')
   })
 
   it('commitCopy', function () {
@@ -360,11 +387,14 @@ describe('Service Module - Mutations', function () {
     }
     addItem(state, item1)
     setCurrent(state, item1)
-    state.copy.test = false
+    const original = state.keyedById[1]
+    const copy = state.copy
+
+    copy.test = false
 
     commitCopy(state)
-    assert(state.copy.test === false, `the copy wasn't changed after commitCopy`)
-    assert(item1.test === false, 'the original item was updated after commitCopy')
+    assert(copy.test === false, `the copy wasn't changed after commitCopy`)
+    assert(original.test === false, 'the original item was updated after commitCopy')
   })
 
   it('updatePaginationForQuery', function () {

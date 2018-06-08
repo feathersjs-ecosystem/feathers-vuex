@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import _merge from 'lodash.merge'
-import deepCopy from 'fast-copy'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId } from '../utils'
@@ -10,8 +9,8 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
 
   function addItem (state, item) {
     const { idField } = state
-    const Model = globalModels.byServicePath[servicePath]
     let id = item[idField]
+    const Model = globalModels.byServicePath[servicePath]
     const isIdOk = checkId(id, item, debug)
 
     if (isIdOk) {
@@ -163,8 +162,10 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
 
     setCurrent (state, itemOrId) {
       const { idField } = state
+      const Model = globalModels.byServicePath[servicePath]
       let id
       let item
+
       if (isObject(itemOrId)) {
         id = itemOrId[idField]
         item = itemOrId
@@ -173,7 +174,8 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         item = state.keyedById[id]
       }
       state.currentId = id
-      state.copy = deepCopy(item)
+
+      state.copy = new Model(item, { isClone: true })
     },
 
     clearCurrent (state) {
