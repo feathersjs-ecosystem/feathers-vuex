@@ -18,7 +18,7 @@ describe('Auth Module - Actions', () => {
     const store = new Vuex.Store({
       plugins: [auth()]
     })
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
@@ -36,19 +36,19 @@ describe('Auth Module - Actions', () => {
 
     const request = {strategy: 'local', email: 'test', password: 'test'}
     actions.authenticate.call({$store: store}, request)
-    .then(response => {
-      assert(authState.accessToken === response.accessToken)
-      assert(authState.errorOnAuthenticate === null)
-      assert(authState.errorOnLogout === null)
-      assert(authState.isAuthenticatePending === false)
-      assert(authState.isLogoutPending === false)
-      let expectedPayload = {
-        userId: 0,
-        exp: 9999999999999
-      }
-      assert.deepEqual(authState.payload, expectedPayload)
-      done()
-    })
+      .then(response => {
+        assert(authState.accessToken === response.accessToken)
+        assert(authState.errorOnAuthenticate === null)
+        assert(authState.errorOnLogout === null)
+        assert(authState.isAuthenticatePending === false)
+        assert(authState.isLogoutPending === false)
+        let expectedPayload = {
+          userId: 0,
+          exp: 9999999999999
+        }
+        assert.deepEqual(authState.payload, expectedPayload)
+        done()
+      })
 
     // Make sure proper state changes occurred before response
     assert(authState.accessToken === null)
@@ -63,7 +63,7 @@ describe('Auth Module - Actions', () => {
     const store = new Vuex.Store({
       plugins: [auth()]
     })
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
@@ -74,27 +74,27 @@ describe('Auth Module - Actions', () => {
     const request = {strategy: 'local', email: 'test', password: 'test'}
 
     actions.authenticate.call({$store: store}, request)
-    .then(authResponse => {
-      actions.logout.call({$store: store})
-      .then(response => {
-        assert(authState.accessToken === null)
-        assert(authState.errorOnAuthenticate === null)
-        assert(authState.errorOnLogout === null)
-        assert(authState.isAuthenticatePending === false)
-        assert(authState.isLogoutPending === false)
-        assert(authState.payload === null)
-        done()
+      .then(authResponse => {
+        actions.logout.call({$store: store})
+          .then(response => {
+            assert(authState.accessToken === null)
+            assert(authState.errorOnAuthenticate === null)
+            assert(authState.errorOnLogout === null)
+            assert(authState.isAuthenticatePending === false)
+            assert(authState.isLogoutPending === false)
+            assert(authState.payload === null)
+            done()
+          })
       })
-    })
   })
 
   it('Authenticate with userService config option', (done) => {
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
     })
-    feathersClient.service('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
+    feathersClient.use('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
     const store = new Vuex.Store({
       plugins: [
         auth({ userService: 'users' }),
@@ -109,17 +109,17 @@ describe('Auth Module - Actions', () => {
 
     const request = {strategy: 'local', email: 'test', password: 'test'}
     actions.authenticate.call({$store: store}, request)
-    .then(response => {
-      let expectedUser = {
-        id: 0,
-        email: 'test@test.com'
-      }
-      assert.deepEqual(authState.user, expectedUser)
-      done()
-    })
-    .catch(error => {
-      assert(!error, error)
-      done()
-    })
+      .then(response => {
+        let expectedUser = {
+          id: 0,
+          email: 'test@test.com'
+        }
+        assert.deepEqual(authState.user, expectedUser)
+        done()
+      })
+      .catch(error => {
+        assert(!error, error)
+        done()
+      })
   })
 })

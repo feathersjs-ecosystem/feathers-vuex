@@ -22,7 +22,7 @@ const app = feathers()
   }))
   .configure(jwt())
 
-app.service('/errors').hooks({
+app.use('/errors').hooks({
   before: {
     all: [hook => {
       throw new Error(`${hook.method} Denied!`)

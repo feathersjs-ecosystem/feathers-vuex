@@ -14,15 +14,15 @@ const defaults = {
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
   apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
-  debug: false,  // Set to true to enable logging messages.
+  debug: false, // Set to true to enable logging messages.
   modelName: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
   replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
   keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
-  state: {},     // for custom state
-  getters: {},   // for custom getters
+  state: {}, // for custom state
+  getters: {}, // for custom getters
   mutations: {}, // for custom mutations
-  actions: {}    // for custom actions
+  actions: {} // for custom actions
 }
 
 export default function servicePluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
