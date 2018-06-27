@@ -690,7 +690,7 @@ describe('Service Module', () => {
   describe('Basics', () => {
     beforeEach(function () {
       this.feathersClient = makeFeathersRestClient()
-      this.feathersClient.service('todos', memory({store: makeTodos()}))
+      this.feathersClient.use('todos', memory({store: makeTodos()}))
       this.service = setupVuexService(this.feathersClient)
     })
 
@@ -771,10 +771,10 @@ describe('Service Module', () => {
     describe('Auto-remove items', function () {
       beforeEach(function () {
         this.feathersClient = makeFeathersRestClient()
-        this.feathersClient.service('todos', memory({
+        this.feathersClient.use('todos', memory({
           store: makeTodos()
         }))
-        this.feathersClient.service('tasks', memory({
+        this.feathersClient.use('tasks', memory({
           store: makeTodos(),
           paginate: {
             default: 10,
@@ -799,7 +799,7 @@ describe('Service Module', () => {
         store.dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('todos').store[3]
+            delete this.feathersClient.use('todos').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(todoState.ids.length === 3, 'there are still three items in the store')
 

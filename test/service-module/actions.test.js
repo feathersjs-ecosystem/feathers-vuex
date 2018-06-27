@@ -37,11 +37,11 @@ const assertRejected = (promise, done, callback) => {
 
 describe('Service Module - Actions', () => {
   beforeEach(function () {
-    this.todoService = feathersClient.service('todos', memory({
+    this.todoService = feathersClient.use('todos', memory({
       store: makeStore()
     }))
 
-    this.taskService = feathersClient.service('tasks', memory({
+    this.taskService = feathersClient.use('tasks', memory({
       store: makeStore(),
       paginate: {
         default: 10,
@@ -49,7 +49,7 @@ describe('Service Module - Actions', () => {
       }
     }))
 
-    this.brokenService = feathersClient.service('broken', {
+    this.brokenService = feathersClient.use('broken', {
       find (params) { return Promise.reject(new Error('find error')) },
       get (id, params) { return Promise.reject(new Error('get error')) },
       create (data, params) { return Promise.reject(new Error('create error')) },
@@ -101,11 +101,11 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('todos', ['find'])
 
         actions.find.call({$store: store}, { query: { $limit: 1 } })
-        .then(response => {
-          assert(response.length === 1, 'only one record was returned')
-          assert.deepEqual(response[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
-          done()
-        })
+          .then(response => {
+            assert(response.length === 1, 'only one record was returned')
+            assert.deepEqual(response[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
+            done()
+          })
       })
 
       it('find with skip', (done) => {
@@ -115,11 +115,11 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('todos', ['find'])
 
         actions.find.call({$store: store}, { query: { $skip: 9 } })
-        .then(response => {
-          assert(response.length === 1, 'one record was returned')
-          assert.deepEqual(response[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
-          done()
-        })
+          .then(response => {
+            assert(response.length === 1, 'one record was returned')
+            assert.deepEqual(response[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
+            done()
+          })
       })
 
       it('Find with limit and skip', (done) => {
@@ -129,11 +129,11 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('todos', ['find'])
 
         actions.find.call({$store: store}, { query: { $limit: 1, $skip: 8 } })
-        .then(response => {
-          assert(response.length === 1, 'one record was returned')
-          assert.deepEqual(response[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
-          done()
-        })
+          .then(response => {
+            assert(response.length === 1, 'one record was returned')
+            assert.deepEqual(response[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
+            done()
+          })
       })
     })
 
@@ -145,14 +145,14 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
 
         actions.find.call({$store: store}, { query: { $limit: 1 } })
-        .then(response => {
-          assert(response.data.length === 1, 'only one record was returned')
-          assert.deepEqual(response.data[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
-          assert(response.limit === 1, 'limit was correct')
-          assert(response.skip === 0, 'skip was correct')
-          assert(response.total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            assert(response.data.length === 1, 'only one record was returned')
+            assert.deepEqual(response.data[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
+            assert(response.limit === 1, 'limit was correct')
+            assert(response.skip === 0, 'skip was correct')
+            assert(response.total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('find with skip', (done) => {
@@ -162,14 +162,14 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
 
         actions.find.call({$store: store}, { query: { $skip: 9 } })
-        .then(response => {
-          assert(response.data.length === 1, 'only one record was returned')
-          assert.deepEqual(response.data[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
-          assert(response.limit === 10, 'limit was correct')
-          assert(response.skip === 9, 'skip was correct')
-          assert(response.total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            assert(response.data.length === 1, 'only one record was returned')
+            assert.deepEqual(response.data[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
+            assert(response.limit === 10, 'limit was correct')
+            assert(response.skip === 9, 'skip was correct')
+            assert(response.total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('find with limit and skip', (done) => {
@@ -179,14 +179,14 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
 
         actions.find.call({$store: store}, { query: { $limit: 1, $skip: 8 } })
-        .then(response => {
-          assert(response.data.length === 1, 'only one record was returned')
-          assert.deepEqual(response.data[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
-          assert(response.limit === 1, 'limit was correct')
-          assert(response.skip === 8, 'skip was correct')
-          assert(response.total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            assert(response.data.length === 1, 'only one record was returned')
+            assert.deepEqual(response.data[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
+            assert(response.limit === 1, 'limit was correct')
+            assert(response.skip === 8, 'skip was correct')
+            assert(response.total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('adds default pagination data to the store', (done) => {
@@ -196,14 +196,14 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
 
         actions.find.call({$store: store}, { query: {} })
-        .then(response => {
-          const { ids, limit, skip, total } = store.state.tasks.pagination.default
-          assert(ids.length === 10, 'ten ids were returned in this page')
-          assert(limit === 10, 'limit matches the default pagination limit on the server')
-          assert(skip === 0, 'skip was correct')
-          assert(total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            const { ids, limit, skip, total } = store.state.tasks.pagination.default
+            assert(ids.length === 10, 'ten ids were returned in this page')
+            assert(limit === 10, 'limit matches the default pagination limit on the server')
+            assert(skip === 0, 'skip was correct')
+            assert(total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('can provide a query identifier to store pagination', (done) => {
@@ -214,14 +214,14 @@ describe('Service Module - Actions', () => {
         const qid = 'component-name'
 
         actions.find.call({$store: store}, { query: {}, qid })
-        .then(response => {
-          const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
-          assert(ids.length === 10, 'ten ids were returned in this page')
-          assert(limit === 10, 'limit matches the default pagination limit on the server')
-          assert(skip === 0, 'skip was correct')
-          assert(total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
+            assert(ids.length === 10, 'ten ids were returned in this page')
+            assert(limit === 10, 'limit matches the default pagination limit on the server')
+            assert(skip === 0, 'skip was correct')
+            assert(total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('updates properly with limit and skip', (done) => {
@@ -232,14 +232,14 @@ describe('Service Module - Actions', () => {
         const qid = 'component-name'
 
         actions.find.call({$store: store}, { query: { $limit: 5, $skip: 2 }, qid })
-        .then(response => {
-          const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
-          assert(ids.length === 5, 'ten ids were returned in this page')
-          assert(limit === 5, 'limit matches the default pagination limit on the server')
-          assert(skip === 2, 'skip was correct')
-          assert(total === 10, 'total was correct')
-          done()
-        })
+          .then(response => {
+            const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
+            assert(ids.length === 5, 'ten ids were returned in this page')
+            assert(limit === 5, 'limit matches the default pagination limit on the server')
+            assert(skip === 2, 'skip was correct')
+            assert(total === 10, 'total was correct')
+            done()
+          })
       })
 
       it('works with multiple queries and identifiers', (done) => {
@@ -253,18 +253,18 @@ describe('Service Module - Actions', () => {
         ]
 
         actions.find.call({$store: store}, { query: {}, qid: qids[0] })
-        .then(response => actions.find.call({$store: store}, { query: {}, qid: qids[1] }))
-        .then(response => {
-          qids.forEach(qid => {
-            const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
-            assert(ids.length === 10, 'ten ids were returned in this page')
-            assert(limit === 10, 'limit matches the default pagination limit on the server')
-            assert(skip === 0, 'skip was correct')
-            assert(total === 10, 'total was correct')
-          })
+          .then(response => actions.find.call({$store: store}, { query: {}, qid: qids[1] }))
+          .then(response => {
+            qids.forEach(qid => {
+              const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
+              assert(ids.length === 10, 'ten ids were returned in this page')
+              assert(limit === 10, 'limit matches the default pagination limit on the server')
+              assert(skip === 0, 'skip was correct')
+              assert(total === 10, 'total was correct')
+            })
 
-          done()
-        })
+            done()
+          })
       })
     })
 
@@ -497,13 +497,13 @@ describe('Service Module - Actions', () => {
       actions.create.call({$store: store}, {description: 'Do the second'})
         .then(response => {
           actions.update.call({$store: store}, [0, {id: 0, description: 'Do da dishuz'}])
-          .then(responseFromUpdate => {
-            assert(todoState.ids.length === 1)
-            assert(todoState.errorOnUpdate === null)
-            assert(todoState.isUpdatePending === false)
-            assert.deepEqual(todoState.keyedById[responseFromUpdate.id], responseFromUpdate)
-            done()
-          })
+            .then(responseFromUpdate => {
+              assert(todoState.ids.length === 1)
+              assert(todoState.errorOnUpdate === null)
+              assert(todoState.isUpdatePending === false)
+              assert.deepEqual(todoState.keyedById[responseFromUpdate.id], responseFromUpdate)
+              done()
+            })
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
@@ -547,13 +547,13 @@ describe('Service Module - Actions', () => {
       actions.create.call({$store: store}, {description: 'Do the second'})
         .then(response => {
           actions.patch.call({$store: store}, [0, {description: 'Write a Vue app'}])
-          .then(responseFromPatch => {
-            assert(todoState.ids.length === 1)
-            assert(todoState.errorOnPatch === null)
-            assert(todoState.isPatchPending === false)
-            assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
-            done()
-          })
+            .then(responseFromPatch => {
+              assert(todoState.ids.length === 1)
+              assert(todoState.errorOnPatch === null)
+              assert(todoState.isPatchPending === false)
+              assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
+              done()
+            })
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
@@ -594,16 +594,16 @@ describe('Service Module - Actions', () => {
       actions.create.call({$store: store}, {description: 'Do the second'})
         .then(response => {
           actions.remove.call({$store: store}, 0)
-          .then(responseFromRemove => {
-            assert(todoState.ids.length === 0)
-            assert(todoState.errorOnRemove === null)
-            assert(todoState.isRemovePending === false)
-            assert.deepEqual(todoState.keyedById, {})
-            done()
-          })
-          .catch(error => {
-            console.log(error)
-          })
+            .then(responseFromRemove => {
+              assert(todoState.ids.length === 0)
+              assert(todoState.errorOnRemove === null)
+              assert(todoState.isRemovePending === false)
+              assert.deepEqual(todoState.keyedById, {})
+              done()
+            })
+            .catch(error => {
+              console.log(error)
+            })
 
           // Make sure proper state changes occurred before response
           assert(todoState.ids.length === 1)
