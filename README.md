@@ -27,7 +27,9 @@
 - Data Level Computes
 - Relation Support
 
-## Documentation
+## Demo & Documentation
+[Demo](https://codesandbox.io/s/xk52mqm7o)
+
 See [https://feathers-plus.github.io/v1/feathers-vuex/index.html](https://feathers-plus.github.io/v1/feathers-vuex/index.html) for full documentation.
 
 ## Installation
