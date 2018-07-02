@@ -1,6 +1,8 @@
 import getFilter from 'feathers-query-filters'
 import sift from 'sift'
-import { sorter, select, _ } from 'feathers-commons'
+import commons from '@feathersjs/commons'
+
+const { sorter, select, _ } = commons
 
 export default function makeServiceGetters (servicePath) {
   return {
