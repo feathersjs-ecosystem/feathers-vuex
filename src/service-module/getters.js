@@ -27,7 +27,7 @@ export default function makeServiceGetters (servicePath) {
       }
 
       if (filters.$select) {
-        values = values.map(value => _.pick(value, ...filters.$select))
+        values = values.map(value => _.pick(value, filters.$select.slice()))
       }
 
       return {

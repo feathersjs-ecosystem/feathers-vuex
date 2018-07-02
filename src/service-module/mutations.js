@@ -23,10 +23,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         state.ids.push(id)
       }
 
-      state.keyedById = {
-        ...state.keyedById,
-        [id]: item
-      }
+      Vue.set(state.keyedById, id, item)
     }
   }
 
@@ -48,10 +45,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     // if addOnUpsert then add the record into the state, else discard it.
     if (addOnUpsert) {
       state.ids.push(id)
-      state.keyedById = {
-        ...state.keyedById,
-        [id]: item
-      }
+      Vue.set(state.keyedById, id, item)
     }
   }
 
@@ -244,7 +238,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const ids = data.map(item => {
         return item[idField]
       })
-      Vue.set(state, 'pagination', { ...state.pagination, [qid]: { limit, skip, total, ids, query } })
+      Vue.set(state.pagination, qid, { limit, skip, total, ids, query })
     },
 
     setFindPending (state) {
