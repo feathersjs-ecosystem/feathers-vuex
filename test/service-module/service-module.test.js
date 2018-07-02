@@ -727,7 +727,8 @@ describe('Service Module', () => {
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
-        servicePath: 'todos'
+        servicePath: 'todos',
+        pagination: {}
       }
 
       assert.deepEqual(todoState, expectedState, 'the expected state was returned')
