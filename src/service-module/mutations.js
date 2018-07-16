@@ -23,7 +23,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         state.ids.push(id)
       }
 
-      Vue.set(state.keyedById, id, item)
+      state.keyedById = Object.assign({}, state.keyedById, { [id]: item })
     }
   }
 
@@ -45,7 +45,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     // if addOnUpsert then add the record into the state, else discard it.
     if (addOnUpsert) {
       state.ids.push(id)
-      Vue.set(state.keyedById, id, item)
+      state.keyedById = Object.assign({}, state.keyedById, { [id]: item })
     }
   }
 
