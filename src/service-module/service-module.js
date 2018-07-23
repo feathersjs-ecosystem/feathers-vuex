@@ -103,7 +103,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
       // Add Model to the globalModels object, so it's available in the Vue plugin
       const modelInfo = registerModel(Model, globalModels, apiPrefix, servicePath)
 
-      Object.defineProperty(Model, 'name', { value: modelInfo.name })
+      Object.defineProperty(Model, 'className', { value: modelInfo.name })
       module.state.modelName = modelInfo.path
       store.registerModule(namespace, module)
 

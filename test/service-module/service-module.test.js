@@ -430,7 +430,7 @@ describe('Service Module', () => {
         }
       })
 
-      assert(todo.task.constructor.name === 'Task', 'task is an instance of Task')
+      assert(todo.task.constructor.className === 'Task', 'task is an instance of Task')
       assert.deepEqual(store.state.tasks.keyedById, {}, 'nothing was added to the store')
     })
 
@@ -485,7 +485,7 @@ describe('Service Module', () => {
         }
       })
 
-      assert(todo.item.todo.constructor.name === 'Todo', 'the nested todo is an instance of Todo')
+      assert(todo.item.todo.constructor.className === 'Todo', 'the nested todo is an instance of Todo')
     })
 
     it('handles recursive nested relationships', function () {
