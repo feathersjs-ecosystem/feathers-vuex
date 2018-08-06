@@ -113,7 +113,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
           value (id) {
             store.commit(`${namespace}/createCopy`, id)
 
-            if (store.state[Model.servicePath].keepCopiesInStore) {
+            if (store.state[namespace].keepCopiesInStore) {
               return store.getters[`${namespace}/getCopyById`](id)
             } else {
               return Model.copiesById[id]
