@@ -1,6 +1,7 @@
 import _trim from 'lodash.trim'
 import decode from 'jwt-decode'
 import inflection from 'inflection'
+import { diff } from 'deep-diff'
 
 export function stripSlashes (location) {
   return Array.isArray(location) ? location.map(l => _trim(l, '/')) : _trim(location, '/')
@@ -165,4 +166,8 @@ export function setByDot (obj, path, value, ifDelete) {
     },
     obj
   )
+}
+
+export function diffFunctions () {
+  return diff
 }
