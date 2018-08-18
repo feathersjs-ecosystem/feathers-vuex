@@ -544,9 +544,9 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'patch'])
 
-      actions.create.call({$store: store}, {description: 'Do the second'})
+      actions.create.call({$store: store}, {description: 'Do the second', completed: true})
         .then(response => {
-          actions.patch.call({$store: store}, [0, {description: 'Write a Vue app'}])
+          actions.patch.call({$store: store}, [0, {description: 'Write a Vue app', completed: false}])
           .then(responseFromPatch => {
             assert(todoState.ids.length === 1)
             assert(todoState.errorOnPatch === null)

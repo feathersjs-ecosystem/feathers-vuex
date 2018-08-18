@@ -171,3 +171,7 @@ export function setByDot (obj, path, value, ifDelete) {
 export function diffFunctions () {
   return diff
 }
+
+export function diffFunctions () {
+  return diff
+}

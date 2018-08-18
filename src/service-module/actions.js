@@ -1,4 +1,4 @@
-import { checkId } from '../utils'
+import { checkId, diffFunctions } from '../utils'
 
 export default function makeServiceActions (service, { debug }) {
   const serviceActions = {
@@ -158,9 +158,21 @@ export default function makeServiceActions (service, { debug }) {
     },
 
     patch ({ commit, dispatch, state }, [id, data, params]) {
-      const { idField } = state
+      const { idField, diffOnPatch } = state
 
       commit('setPatchPending')
+
+      if (diffOnPatch) {
+        const { observableDiff, applyChange } = diffFunctions()
+        let diff = {}
+
+        observableDiff(state.copy, data, function (d) {
+          // Apply all changes except to the id property...
+          if (d.path[d.path.length - 1] !== idField) {
+            applyChange(diff, data, d)
+          }
+        })
+      }
 
       return service.patch(id, data, params)
         .then(item => {
