@@ -11,6 +11,7 @@ const defaults = {
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+  diffOnPatch: true, // Only send changed data on patch
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
   apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
