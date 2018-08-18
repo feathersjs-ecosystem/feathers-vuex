@@ -167,11 +167,15 @@ export default function makeServiceActions (service, { debug }) {
         let diff = {}
 
         observableDiff(state.copy, data, function (d) {
-          // Apply all changes except to the id property...
-          if (d.path[d.path.length - 1] !== idField) {
-            applyChange(diff, data, d)
+          if (d.path && d.path.length) {
+            // Apply all changes except to the id property...
+            if (d.path[d.path.length - 1] !== idField) {
+              applyChange(diff, data, d)
+            }
           }
         })
+
+        data = diff
       }
 
       return service.patch(id, data, params)
