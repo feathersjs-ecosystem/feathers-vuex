@@ -544,9 +544,12 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'patch'])
 
-      actions.create.call({$store: store}, {description: 'Do the second', unchanged: true, deep: {changed: false, unchanged: true}})
+      const dataUnchanged = {unchanged: true, deep: {changed: false, unchanged: true}}
+      const dataChanged = {unchanged: true, deep: {changed: true, unchanged: true}}
+
+      actions.create.call({$store: store}, Object.assign({description: 'Do the second'}, dataUnchanged))
         .then(response => {
-          actions.patch.call({$store: store}, [0, {description: 'Write a Vue app', unchanged: true, deep: {changed: true, unchanged: true}}])
+          actions.patch.call({$store: store}, [0, Object.assign({description: 'Write a Vue app'}, dataChanged)])
             .then(responseFromPatch => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
