@@ -112,7 +112,7 @@ export default function makeServiceActions (service, { debug }) {
 
       commit('setCreatePending')
 
-      return service.create(data, params)
+      return service.create(data, params = {})
         .then(response => {
           if (Array.isArray(response)) {
             dispatch('addOrUpdateList', response)
