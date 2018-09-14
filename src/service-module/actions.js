@@ -109,6 +109,8 @@ export default function makeServiceActions (service, { debug }) {
       } else {
         data = dataOrArray
       }
+      
+      params = params || {}
 
       commit('setCreatePending')
 
