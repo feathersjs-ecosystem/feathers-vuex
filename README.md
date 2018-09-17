@@ -118,7 +118,7 @@ export default new Vuex.Store({
 
 ## Contributing
 
-`feathers-vuex` was built using StealJS, which is a 100% browser-based bundler. 
+`feathers-vuex` tests run using StealJS, which is a 100% browser-based bundler.
 
 Once you’ve installed all of the npm packages, start an `http-server` in the root folder:
 
@@ -126,7 +126,7 @@ Once you’ve installed all of the npm packages, start an `http-server` in the r
 
 `npm i -g http-server`
 
-`http-server` 
+`http-server`
 
 Then open the resulting page in your browser and navigate to the test folder to run the tests.
 
