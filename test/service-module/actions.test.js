@@ -537,6 +537,35 @@ describe('Service Module - Actions', () => {
   })
 
   describe('Patch', () => {
+    it('updates only the changed properties', (done) => {
+      const store = new Vuex.Store({
+        plugins: [service('todos')]
+      })
+      const todoState = store.state.todos
+      const actions = mapActions('todos', ['create', 'patch'])
+
+      const dataUnchanged = {unchanged: true, deep: {changed: false, unchanged: true}}
+      const dataChanged = {unchanged: true, deep: {changed: true, unchanged: true}}
+
+      actions.create.call({$store: store}, Object.assign({description: 'Do the second'}, dataUnchanged))
+        .then(response => {
+          actions.patch.call({$store: store}, [0, Object.assign({description: 'Write a Vue app'}, dataChanged)])
+            .then(responseFromPatch => {
+              assert(todoState.ids.length === 1)
+              assert(todoState.errorOnPatch === null)
+              assert(todoState.isPatchPending === false)
+              assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
+              done()
+            })
+
+          // Make sure proper state changes occurred before response
+          assert(todoState.ids.length === 1)
+          assert(todoState.errorOnPatch === null)
+          assert(todoState.isPatchPending === true)
+          assert(todoState.idField === 'id')
+        })
+    })
+
     it('updates store state on service success', (done) => {
       const store = new Vuex.Store({
         plugins: [service('todos')]
