@@ -30,11 +30,16 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   function updateItem (state, item) {
     const { idField, replaceItems, addOnUpsert } = state
     let id = item[idField]
+    const Model = globalModels.byServicePath[servicePath]
     const isIdOk = checkId(id, item, debug)
 
     // Simply rewrite the record if the it's already in the `ids` list.
     if (isIdOk && state.ids.includes(id)) {
       if (replaceItems) {
+        if (Model && !item.isFeathersVuexInstance) {
+          item = new Model(item)
+        }
+
         state.keyedById[id] = item
       } else {
         _merge(state.keyedById[id], item)

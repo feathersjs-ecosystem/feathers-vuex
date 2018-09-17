@@ -109,6 +109,8 @@ export default function makeServiceActions (service, { debug }) {
       } else {
         data = dataOrArray
       }
+      
+      params = params || {}
 
       commit('setCreatePending')
 
@@ -204,6 +206,8 @@ export default function makeServiceActions (service, { debug }) {
         id = idOrArray
       }
 
+      params = params || {}
+      
       commit('setRemovePending')
 
       return service.remove(id, params)
