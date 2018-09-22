@@ -1,7 +1,9 @@
 import _trim from 'lodash.trim'
 import decode from 'jwt-decode'
 import inflection from 'inflection'
-import { diff } from 'deep-diff'
+import deepDiff from 'deep-diff'
+
+const { diff } = deepDiff
 
 export function stripSlashes (location) {
   return Array.isArray(location) ? location.map(l => _trim(l, '/')) : _trim(location, '/')
