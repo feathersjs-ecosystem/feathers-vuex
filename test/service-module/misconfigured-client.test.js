@@ -1,11 +1,9 @@
 import assert from 'chai/chai'
 import feathersVuex from '~/src/service-module/service-module'
-import feathers from 'feathers/client'
-import hooks from 'feathers-hooks'
-import auth from 'feathers-authentication-client'
+import feathers from '@feathersjs/client'
+import auth from '@feathersjs/authentication-client'
 
 const feathersClient = feathers()
-  .configure(hooks())
   .configure(auth())
 
 describe('Service Module - Bad Client Setup', () => {
