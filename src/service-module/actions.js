@@ -256,7 +256,7 @@ export default function makeServiceActions (service, { debug }) {
 
       if (service.Model) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.Model(item)
+          toAdd[index] = new service.Model(item, {skipCommit: true})
         })
       }
 
