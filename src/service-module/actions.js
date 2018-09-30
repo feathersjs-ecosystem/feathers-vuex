@@ -57,7 +57,7 @@ export default function makeServiceActions (service, { debug }) {
 
       if (Array.isArray(args)) {
         id = args[0]
-        params = args[1]
+        params = args[1] || {}
       } else {
         id = args
         params = {}
