@@ -18,7 +18,7 @@ describe('Auth Module - Actions', () => {
     const store = new Vuex.Store({
       plugins: [auth()]
     })
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
@@ -63,7 +63,7 @@ describe('Auth Module - Actions', () => {
     const store = new Vuex.Store({
       plugins: [auth()]
     })
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
@@ -89,12 +89,12 @@ describe('Auth Module - Actions', () => {
   })
 
   it('Authenticate with userService config option', (done) => {
-    feathersClient.service('authentication', {
+    feathersClient.use('authentication', {
       create (data) {
         return Promise.resolve({ accessToken })
       }
     })
-    feathersClient.service('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
+    feathersClient.use('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
     const store = new Vuex.Store({
       plugins: [
         auth({ userService: 'users' }),

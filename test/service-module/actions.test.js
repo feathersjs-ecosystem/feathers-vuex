@@ -37,11 +37,11 @@ const assertRejected = (promise, done, callback) => {
 
 describe('Service Module - Actions', () => {
   beforeEach(function () {
-    this.todoService = feathersClient.service('todos', memory({
+    this.todoService = feathersClient.use('todos', memory({
       store: makeStore()
     }))
 
-    this.taskService = feathersClient.service('tasks', memory({
+    this.taskService = feathersClient.use('tasks', memory({
       store: makeStore(),
       paginate: {
         default: 10,
@@ -49,7 +49,7 @@ describe('Service Module - Actions', () => {
       }
     }))
 
-    this.brokenService = feathersClient.service('broken', {
+    this.brokenService = feathersClient.use('broken', {
       find (params) { return Promise.reject(new Error('find error')) },
       get (id, params) { return Promise.reject(new Error('get error')) },
       create (data, params) { return Promise.reject(new Error('create error')) },

@@ -21,7 +21,7 @@ export default function authPluginInit (feathersClient, globalOptions = {}, glob
     options = Object.assign({}, defaults, options)
 
     if (!feathersClient.authenticate) {
-      throw new Error('You must register the feathers-authentication-client plugin before using the feathers-vuex auth module')
+      throw new Error('You must register the @feathersjs/authentication-client plugin before using the feathers-vuex auth module')
     }
 
     const defaultState = setupState(options)

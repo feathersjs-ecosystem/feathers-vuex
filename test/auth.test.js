@@ -17,7 +17,7 @@ describe('feathers-vuex:auth', () => {
     var app = {}
     var store = {}
     var plugin = feathersVuexAuth(store).bind(app)
-    assert.throws(plugin, 'You must first register the feathers-authentication-client plugin')
+    assert.throws(plugin, 'You must first register the @feathersjs/authentication-client plugin')
   })
 
   it('returns the app, is chainable', () => {
