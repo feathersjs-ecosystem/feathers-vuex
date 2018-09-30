@@ -691,7 +691,7 @@ describe('Service Module', () => {
   describe('Basics', () => {
     beforeEach(function () {
       this.feathersClient = makeFeathersRestClient()
-      this.feathersClient.service('todos', memory({store: makeTodos()}))
+      this.feathersClient.use('todos', memory({store: makeTodos()}))
       this.service = setupVuexService(this.feathersClient)
     })
 
@@ -774,10 +774,10 @@ describe('Service Module', () => {
     describe('Auto-remove items', function () {
       beforeEach(function () {
         this.feathersClient = makeFeathersRestClient()
-        this.feathersClient.service('todos', memory({
+        this.feathersClient.use('todos', memory({
           store: makeTodos()
         }))
-        this.feathersClient.service('tasks', memory({
+        this.feathersClient.use('tasks', memory({
           store: makeTodos(),
           paginate: {
             default: 10,

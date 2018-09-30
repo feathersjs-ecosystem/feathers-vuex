@@ -3,7 +3,7 @@ import makeServiceMutations from '~/src/service-module/mutations'
 import makeServiceState from '~/src/service-module/state'
 import makeServiceModuleMaker from '~/src/service-module/service-module'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
-import errors from 'feathers-errors'
+import errors from '@feathersjs/errors'
 import Vue from 'vue'
 import Vuex from 'vuex'
 

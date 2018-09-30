@@ -92,7 +92,7 @@ export default function (options) {
       })
 
       // If this record has an id, addOrUpdate the store
-      if (data[idField] && !options.isClone) {
+      if (data[idField] && !options.isClone && !options.skipCommit) {
         store.dispatch(`${namespace}/addOrUpdate`, this)
       }
     }

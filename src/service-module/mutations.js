@@ -7,68 +7,82 @@ import { checkId } from '../utils'
 export default function makeServiceMutations (servicePath, { debug, globalModels }) {
   globalModels = globalModels || { byServicePath: {} }
 
-  function addItem (state, item) {
+  function addItems (state, items) {
     const { idField } = state
-    let id = item[idField]
     const Model = globalModels.byServicePath[servicePath]
-    const isIdOk = checkId(id, item, debug)
 
-    if (isIdOk) {
-      if (Model && !item.isFeathersVuexInstance) {
-        item = new Model(item)
-      }
+    let newKeyedById = {...state.keyedById}
 
-      // Only add the id if it's not already in the `ids` list.
-      if (!state.ids.includes(id)) {
-        state.ids.push(id)
-      }
+    for (let item of items) {
+      let id = item[idField]
+      const isIdOk = checkId(id, item, debug)
 
-      state.keyedById = Object.assign({}, state.keyedById, { [id]: item })
-    }
-  }
-
-  function updateItem (state, item) {
-    const { idField, replaceItems, addOnUpsert } = state
-    let id = item[idField]
-    const Model = globalModels.byServicePath[servicePath]
-    const isIdOk = checkId(id, item, debug)
-
-    // Simply rewrite the record if the it's already in the `ids` list.
-    if (isIdOk && state.ids.includes(id)) {
-      if (replaceItems) {
+      if (isIdOk) {
         if (Model && !item.isFeathersVuexInstance) {
           item = new Model(item)
         }
 
-        state.keyedById[id] = item
-      } else {
-        _merge(state.keyedById[id], item)
+        // Only add the id if it's not already in the `ids` list.
+        if (!state.ids.includes(id)) {
+          state.ids.push(id)
+        }
+
+        newKeyedById[id] = item
       }
-      return
     }
 
-    // if addOnUpsert then add the record into the state, else discard it.
-    if (addOnUpsert) {
-      state.ids.push(id)
-      state.keyedById = Object.assign({}, state.keyedById, { [id]: item })
+    state.keyedById = newKeyedById
+  }
+
+  function updateItems (state, items) {
+    const { idField, replaceItems, addOnUpsert } = state
+    const Model = globalModels.byServicePath[servicePath]
+
+    let newKeyedById = {...state.keyedById}
+
+    for (let item of items) {
+      let id = item[idField]
+      const isIdOk = checkId(id, item, debug)
+
+      // Simply rewrite the record if the it's already in the `ids` list.
+      if (isIdOk && state.ids.includes(id)) {
+        if (replaceItems) {
+          if (Model && !item.isFeathersVuexInstance) {
+            item = new Model(item)
+          }
+
+          newKeyedById[id] = item
+        } else {
+          _merge(newKeyedById[id], item)
+        }
+        continue
+      }
+
+      // if addOnUpsert then add the record into the state, else discard it.
+      if (addOnUpsert) {
+        state.ids.push(id)
+        newKeyedById[id] = item
+      }
     }
+
+    state.keyedById = newKeyedById
   }
 
   return {
     addItem (state, item) {
-      addItem(state, item)
+      addItems(state, [item])
     },
     addItems (state, items) {
-      items.forEach(item => addItem(state, item))
+      addItems(state, items)
     },
     updateItem (state, item) {
-      updateItem(state, item)
+      updateItems(state, [item])
     },
     updateItems (state, items) {
       if (!Array.isArray(items)) {
-        throw new Error('You must provide an array to the `removeItems` mutation.')
+        throw new Error('You must provide an array to the `updateItems` mutation.')
       }
-      items.forEach(item => updateItem(state, item))
+      updateItems(state, items)
     },
 
     removeItem (state, item) {
