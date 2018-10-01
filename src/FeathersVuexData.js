@@ -10,6 +10,10 @@ export default {
     query: {
       type: Object
     },
+    queryWhen: {
+      type: [ Boolean, Function ],
+      default: true
+    },
     // For get requests
     id: {
       type: [ Number, String ]
@@ -39,7 +43,7 @@ export default {
       return this.$store.getters[`${this.service}/find`]({ query: this.query }).data
     },
     getItem () {
-      const getArgs = this.getArgs()
+      const getArgs = this.getArgs(this.query)
 
       return this.$store.getters[`${this.service}/get`](getArgs.length === 1 ? this.id : getArgs)
     },
@@ -56,8 +60,8 @@ export default {
     }
   },
   methods: {
-    getArgs () {
-      const query = this.fetchQuery || this.query
+    getArgs (queryToUse) {
+      const query = queryToUse || this.fetchQuery || this.query
       const getArgs = [this.id]
 
       if (query) {
@@ -69,12 +73,16 @@ export default {
     findData () {
       const query = this.fetchQuery || this.query
 
-      return this.$store.dispatch(`${this.service}/find`, { query })
+      if (typeof this.queryWhen === 'function' ? this.queryWhen(this.query) : this.queryWhen) {
+        return this.$store.dispatch(`${this.service}/find`, { query })
+      }
     },
     getData () {
       const getArgs = this.getArgs()
 
-      return this.$store.dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
+      if (typeof this.queryWhen === 'function' ? this.queryWhen(...getArgs) : this.queryWhen) {
+        return this.$store.dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
+      }
     },
     fetchData () {
       if (!this.local) {
