@@ -36,6 +36,12 @@ export default {
     local: {
       type: Boolean,
       default: false
+    },
+    editScope: {
+      type: Function,
+      default (scope) {
+        return scope
+      }
     }
   },
   computed: {
@@ -128,8 +134,9 @@ export default {
     }
   },
   render () {
-    return this.$scopedSlots.default({
-      items: this.items
-    })
+    const defaultScope = { items: this.items }
+    const scope = this.editScope(defaultScope)
+
+    return this.$scopedSlots.default(scope || defaultScope)
   }
 }
