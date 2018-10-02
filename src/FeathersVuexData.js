@@ -44,6 +44,10 @@ export default {
       }
     }
   },
+  data: () => ({
+    isFindPending: false,
+    isGetPending: false
+  }),
   computed: {
     findItems () {
       return this.$store.getters[`${this.service}/find`]({ query: this.query }).data
@@ -80,14 +84,24 @@ export default {
       const query = this.fetchQuery || this.query
 
       if (typeof this.queryWhen === 'function' ? this.queryWhen(this.query) : this.queryWhen) {
+        this.isFindPending = true
+
         return this.$store.dispatch(`${this.service}/find`, { query })
+          .then(() => {
+            this.isFindPending = false
+          })
       }
     },
     getData () {
       const getArgs = this.getArgs()
 
       if (typeof this.queryWhen === 'function' ? this.queryWhen(...getArgs) : this.queryWhen) {
+        this.isGetPending = true
+
         return this.$store.dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
+          .then(() => {
+            this.isGetPending = false
+          })
       }
     },
     fetchData () {
@@ -134,7 +148,8 @@ export default {
     }
   },
   render () {
-    const defaultScope = { items: this.items }
+    const { items, isFindPending, isGetPending } = this
+    const defaultScope = { items, isFindPending, isGetPending }
     const scope = this.editScope(defaultScope)
 
     return this.$scopedSlots.default(scope || defaultScope)
