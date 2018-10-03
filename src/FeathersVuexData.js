@@ -4,11 +4,14 @@ export default {
       type: String,
       required: true
     },
+    query: {
+      type: Object,
+      default () {
+        return {}
+      }
+    },
     method: {
       type: String
-    },
-    query: {
-      type: Object
     },
     queryWhen: {
       type: [ Boolean, Function ],
@@ -29,10 +32,6 @@ export default {
         return []
       }
     },
-    immediate: {
-      type: Boolean,
-      default: true
-    },
     local: {
       type: Boolean,
       default: false
@@ -41,6 +40,12 @@ export default {
       type: Function,
       default (scope) {
         return scope
+      }
+    },
+    qid: {
+      type: String,
+      default () {
+        return randomString(10)
       }
     }
   },
@@ -67,6 +72,9 @@ export default {
       } else {
         return this.findItems
       }
+    },
+    pagination () {
+      return this.$store.state[this.service].pagination[this.qid]
     }
   },
   methods: {
@@ -144,16 +152,25 @@ export default {
         this.$watch(prop, this.fetchData)
       })
 
-      if (this.immediate) {
-        this.fetchData()
-      }
+      this.fetchData()
     }
   },
   render () {
-    const { items, isFindPending, isGetPending } = this
-    const defaultScope = { items, isFindPending, isGetPending }
+    const { items, isFindPending, isGetPending, pagination } = this
+    const defaultScope = { items, isFindPending, isGetPending, pagination }
     const scope = this.editScope(defaultScope)
 
     return this.$scopedSlots.default(scope || defaultScope)
   }
+}
+
+function randomString (length) {
+  let text = ''
+  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+  }
+
+  return text
 }
