@@ -24,7 +24,7 @@ export default {
       type: Object
     },
     watch: {
-      type: Array,
+      type: [ String, Array ],
       default () {
         return []
       }
@@ -129,8 +129,10 @@ export default {
       throw new Error(`The '${this.service}' plugin cannot be found. Did you register the service with feathers-vuex?`)
     }
 
+    const watch = Array.isArray(this.watch) ? this.watch : [ this.watch ]
+
     if (this.fetchQuery || this.query || (this.id !== null && this.id !== undefined)) {
-      this.watch.forEach(prop => {
+      watch.forEach(prop => {
         if (typeof prop !== 'string') {
           throw new Error(`Values in the 'watch' array must be strings.`)
         }
