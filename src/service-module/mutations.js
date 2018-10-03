@@ -257,7 +257,8 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       const ids = data.map(item => {
         return item[idField]
       })
-      Vue.set(state.pagination, qid, { limit, skip, total, ids, query })
+      const queriedAt = new Date().getTime()
+      Vue.set(state.pagination, qid, { limit, skip, total, ids, query, queriedAt })
     },
 
     setFindPending (state) {
