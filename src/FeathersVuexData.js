@@ -75,6 +75,11 @@ export default {
     },
     pagination () {
       return this.$store.state[this.service].pagination[this.qid]
+    },
+    scope () {
+      const { items, isFindPending, isGetPending, pagination } = this
+      const defaultScope = { items, isFindPending, isGetPending, pagination }
+      return this.editScope(defaultScope) || defaultScope
     }
   },
   methods: {
@@ -156,11 +161,7 @@ export default {
     }
   },
   render () {
-    const { items, isFindPending, isGetPending, pagination } = this
-    const defaultScope = { items, isFindPending, isGetPending, pagination }
-    const scope = this.editScope(defaultScope)
-
-    return this.$scopedSlots.default(scope || defaultScope)
+    return this.$scopedSlots.default(this.scope)
   }
 }
 
