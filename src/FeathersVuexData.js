@@ -60,7 +60,11 @@ export default {
     getItem () {
       const getArgs = this.getArgs(this.query)
 
-      return this.$store.getters[`${this.service}/get`](getArgs.length === 1 ? this.id : getArgs)
+      if (this.id) {
+        return this.$store.getters[`${this.service}/get`](getArgs.length === 1 ? this.id : getArgs) || null
+      } else {
+        return null
+      }
     },
     items () {
       if (this.method === 'find') {
