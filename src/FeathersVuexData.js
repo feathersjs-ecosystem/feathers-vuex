@@ -122,10 +122,12 @@ export default {
       if (typeof this.queryWhen === 'function' ? this.queryWhen(...getArgs) : this.queryWhen) {
         this.isGetPending = true
 
-        return this.$store.dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
-          .then(() => {
-            this.isGetPending = false
-          })
+        if (this.id) {
+          return this.$store.dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
+            .then(() => {
+              this.isGetPending = false
+            })
+        }
       }
     },
     fetchData () {
