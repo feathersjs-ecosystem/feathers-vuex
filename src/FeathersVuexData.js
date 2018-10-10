@@ -78,7 +78,14 @@ export default {
     },
     scope () {
       const { items, isFindPending, isGetPending, pagination } = this
-      const defaultScope = { items, isFindPending, isGetPending, pagination }
+      const defaultScope = { isFindPending, isGetPending, pagination }
+
+      if (Array.isArray(items)) {
+        Object.assign(defaultScope, items)
+      } else {
+        Object.assign(defaultScope, { item: items })
+      }
+
       return this.editScope(defaultScope) || defaultScope
     }
   },
@@ -87,7 +94,7 @@ export default {
       const query = queryToUse || this.fetchQuery || this.query
       const getArgs = [this.id]
 
-      if (query) {
+      if (query && Object.keys(query).length > 0) {
         getArgs.push({ query })
       }
 
