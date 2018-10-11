@@ -6,9 +6,7 @@ export default {
     },
     query: {
       type: Object,
-      default () {
-        return {}
-      }
+      default: null
     },
     method: {
       type: String
@@ -19,7 +17,8 @@ export default {
     },
     // For get requests
     id: {
-      type: [ Number, String ]
+      type: [ Number, String ],
+      default: null
     },
     // If a separate query is desired to fetch data, use fetchQuery
     // The watchers will automatically be updated, so you don't have to write 'fetchQuery.propName'
@@ -55,7 +54,13 @@ export default {
   }),
   computed: {
     findItems () {
-      return this.$store.getters[`${this.service}/find`]({ query: this.query }).data
+      const { query } = this
+
+      if (query) {
+        return this.$store.getters[`${this.service}/find`]({ query }).data
+      } else {
+        return []
+      }
     },
     getItem () {
       const getArgs = this.getArgs(this.query)
@@ -71,7 +76,7 @@ export default {
         return this.findItems
       } else if (this.method === 'get') {
         return this.getItem
-      } else if (this.id !== undefined && this.id !== null) {
+      } else if (this.id !== null) {
         return this.getItem
       } else {
         return this.findItems
@@ -110,10 +115,12 @@ export default {
       if (typeof this.queryWhen === 'function' ? this.queryWhen(this.query) : this.queryWhen) {
         this.isFindPending = true
 
-        return this.$store.dispatch(`${this.service}/find`, { query })
-          .then(() => {
-            this.isFindPending = false
-          })
+        if (query) {
+          return this.$store.dispatch(`${this.service}/find`, { query })
+            .then(() => {
+              this.isFindPending = false
+            })
+        }
       }
     },
     getData () {
@@ -136,7 +143,7 @@ export default {
           return this.findData()
         } else if (this.method === 'get') {
           return this.getData()
-        } else if (this.id !== undefined && this.id !== null) {
+        } else if (this.id !== null) {
           return this.getData()
         } else {
           return this.findData()
