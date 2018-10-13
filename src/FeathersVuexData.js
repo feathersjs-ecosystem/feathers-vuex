@@ -90,7 +90,7 @@ export default {
       const defaultScope = { isFindPending, isGetPending, pagination }
 
       if (Array.isArray(items)) {
-        Object.assign(defaultScope, items)
+        Object.assign(defaultScope, { items })
       } else {
         Object.assign(defaultScope, { item: items })
       }
