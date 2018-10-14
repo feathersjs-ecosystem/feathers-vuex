@@ -143,10 +143,12 @@ export default {
           return this.findData()
         } else if (this.method === 'get') {
           return this.getData()
-        } else if (this.id !== null) {
+        } else if (this.query) {
+          return this.findData()
+        } else if (this.id !== null && this.id !== undefined) {
           return this.getData()
         } else {
-          return this.findData()
+          console.log(`No query and no id provided, so no data will be fetched.`)
         }
       }
     }
