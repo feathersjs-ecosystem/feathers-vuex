@@ -76,10 +76,12 @@ export default {
         return this.findItems
       } else if (this.method === 'get') {
         return this.getItem
-      } else if (this.id !== null) {
+      } else if (this.query) {
+        return this.findItems
+      } else if (this.id !== undefined && this.id !== null){
         return this.getItem
       } else {
-        return this.findItems
+        return []
       }
     },
     pagination () {
