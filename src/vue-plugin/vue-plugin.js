@@ -1,4 +1,5 @@
-import FeathersVuexData from '../FeathersVuexData'
+import FeathersVuexFind from '../FeathersVuexFind'
+import FeathersVuexGet from '../FeathersVuexGet'
 
 export default function setupVuePlugin (globalModels) {
   return {
@@ -9,7 +10,8 @@ export default function setupVuePlugin (globalModels) {
       Vue.prototype.$FeathersVuex = globalModels
 
       if (shouldSetupComponents) {
-        Vue.component('feathers-vuex-data', FeathersVuexData)
+        Vue.component('feathers-vuex-find', FeathersVuexFind)
+        Vue.component('feathers-vuex-get', FeathersVuexGet)
       }
     }
   }
