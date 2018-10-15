@@ -1,7 +1,7 @@
 import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
-  const { service, name, query, fetchQuery, queryWhen = true, local } = options
+  const { service, name, query, fetchQuery, queryWhen = true, local = false } = options
   let { watch = [] } = options
   if (typeof watch === 'string') {
     watch = [watch]
@@ -30,12 +30,12 @@ export default function makeFindMixin (options) {
     computed: {
       [QUERY]: typeof query === 'string'
         ? function () {
-            // If the specified computed prop wasn't found, display an error.
-            if (!Object.getPrototypeOf(this).hasOwnProperty(query)) {
-              throw new Error(`Query was not found at ${query}.`)
-            }
-            return this[query]
+          // If the specified computed prop wasn't found, display an error.
+          if (!Object.getPrototypeOf(this).hasOwnProperty(query)) {
+            throw new Error(`Query was not found at ${query}.`)
           }
+          return this[query]
+        }
         : query,
       [ITEMS] () {
         return this[QUERY] ? this.$store.getters[`${service}/find`]({ query: this[QUERY] }).data : []
@@ -45,7 +45,7 @@ export default function makeFindMixin (options) {
       [FIND_ACTION] () {
         const queryToUse = this[FETCH_QUERY] || this[QUERY]
 
-        if (!local) {
+        if (!this[LOCAL]) {
           if (typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](queryToUse) : this[QUERY_WHEN]) {
             this[IS_FIND_PENDING] = true
 
@@ -90,6 +90,14 @@ export default function makeFindMixin (options) {
     mixin.computed[QUERY_WHEN] = typeof queryWhen === 'string'
       ? function () { return this[queryWhen] }
       : function () { return queryWhen }
+  }
+
+  if (typeof local === 'boolean') {
+    mixin.data[LOCAL] = !!local
+  }
+  // TODO: make sure this works
+  if (typeof local === 'function') {
+    mixin.data[LOCAL] = local
   }
 
   return mixin
