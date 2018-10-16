@@ -25,6 +25,8 @@ export default function (feathersClient, globalOptions = {}) {
   return {
     service: setupServiceModule(feathersClient, globalOptions, globalModels),
     auth: setupAuthModule(feathersClient, globalOptions, globalModels),
-    FeathersVuex: setupVuePlugin(globalModels)
+    FeathersVuex: setupVuePlugin(globalModels),
+    FeathersVuexFind,
+    FeathersVuexGet
   }
 }
