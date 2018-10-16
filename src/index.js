@@ -3,6 +3,8 @@ import setupAuthModule from './auth-module/auth-module'
 import setupVuePlugin from './vue-plugin/vue-plugin'
 import FeathersVuexFind from './FeathersVuexFind'
 import FeathersVuexGet from './FeathersVuexGet'
+import makeFindMixin from './make-find-mixin'
+import makeGetMixin from './make-get-mixin'
 import { initAuth } from './utils'
 
 const globalDefaults = {
@@ -25,6 +27,8 @@ export default function (feathersClient, globalOptions = {}) {
     auth: setupAuthModule(feathersClient, globalOptions, globalModels),
     FeathersVuex: setupVuePlugin(globalModels),
     FeathersVuexFind,
-    FeathersVuexGet
+    FeathersVuexGet,
+    makeFindMixin,
+    makeGetMixin
   }
 }
