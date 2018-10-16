@@ -1,7 +1,7 @@
 import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
-  const { service, name, query, fetchQuery, queryWhen = true, local = false, qid = 'default' } = options
+  const { service, name, query, fetchQuery, queryWhen = true, local = false, qid = 'default', items } = options
   let { watch = [] } = options
   if (typeof watch === 'string') {
     watch = [watch]
@@ -9,14 +9,14 @@ export default function makeFindMixin (options) {
     watch = ['query']
   }
 
-  if (!service || typeof service !== 'string' || typeof service !== 'function') {
+  if (!service || (typeof service !== 'string' && typeof service !== 'function')) {
     throw new Error(`The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`)
   }
   const nameToUse = name || service
   const prefix = inflection.camelize(nameToUse, true)
   const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1)
   const SERVICE_NAME = `${prefix}ServiceName`
-  const ITEMS = prefix
+  const ITEMS = items || prefix
   const IS_FIND_PENDING = `isFind${capitalized}Pending`
   const QUERY = `${prefix}Query`
   const FETCH_QUERY = `${prefix}FetchQuery`
@@ -38,7 +38,7 @@ export default function makeFindMixin (options) {
     },
     computed: {
       [ITEMS] () {
-        return this[QUERY] ? this.$store.getters[`${service}/find`]({ query: this[QUERY] }).data : []
+        return this[QUERY] ? this.$store.getters[`${this[SERVICE_NAME]}/find`]({ query: this[QUERY] }).data : []
       }
     },
     methods: {
@@ -56,7 +56,7 @@ export default function makeFindMixin (options) {
                 params.qid = qid
               }
 
-              return this.$store.dispatch(`${service}/find`, params)
+              return this.$store.dispatch(`${this[SERVICE_NAME]}/find`, params)
                 .then(() => {
                   this[IS_FIND_PENDING] = false
                 })
@@ -88,17 +88,17 @@ export default function makeFindMixin (options) {
 
   if (qid) {
     mixin.computed[PAGINATION] = function () {
-      return this.$store.state[service].pagination[qid]
+      return this.$store.state[this[SERVICE_NAME]].pagination[qid]
     }
   }
 
-  setupAttribute(SERVICE_NAME, service)
+  setupAttribute(SERVICE_NAME, service, 'computed', true)
   setupAttribute(QUERY, query)
   setupAttribute(FETCH_QUERY, fetchQuery)
   setupAttribute(QUERY_WHEN, queryWhen, 'method')
   setupAttribute(LOCAL, local)
 
-  function setupAttribute (NAME, value, computedOrMethod = 'computed') {
+  function setupAttribute (NAME, value, computedOrMethod = 'computed', returnTheValue = false) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
@@ -107,7 +107,7 @@ export default function makeFindMixin (options) {
         if (!Object.getPrototypeOf(this).hasOwnProperty(value)) {
           throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
         }
-        return this[value]
+        return returnTheValue ? value : this[value]
       }
     } else if (typeof value === 'function') {
       mixin[computedOrMethod][NAME] = value
