@@ -17,7 +17,7 @@ const globalModels = {
   byServicePath: {}
 }
 
-export { initAuth }
+export { initAuth, FeathersVuexFind, FeathersVuexGet, makeFindMixin, makeGetMixin }
 
 export default function (feathersClient, globalOptions = {}) {
   globalOptions = Object.assign({}, globalDefaults, globalOptions)
@@ -25,10 +25,6 @@ export default function (feathersClient, globalOptions = {}) {
   return {
     service: setupServiceModule(feathersClient, globalOptions, globalModels),
     auth: setupAuthModule(feathersClient, globalOptions, globalModels),
-    FeathersVuex: setupVuePlugin(globalModels),
-    FeathersVuexFind,
-    FeathersVuexGet,
-    makeFindMixin,
-    makeGetMixin
+    FeathersVuex: setupVuePlugin(globalModels)
   }
 }
