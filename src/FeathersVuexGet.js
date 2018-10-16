@@ -97,7 +97,7 @@ export default {
   },
   created () {
     if (!this.$FeathersVuex) {
-      throw new Error(`You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-data' component.`)
+      throw new Error(`You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-get' component.`)
     }
     if (!this.$store.state[this.service]) {
       throw new Error(`The '${this.service}' plugin cannot be found. Did you register the service with feathers-vuex?`)
