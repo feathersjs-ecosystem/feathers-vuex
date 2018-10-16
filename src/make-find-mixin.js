@@ -9,12 +9,13 @@ export default function makeFindMixin (options) {
     watch = ['query']
   }
 
-  if (!service || typeof service !== 'string') {
+  if (!service || typeof service !== 'string' || typeof service !== 'function') {
     throw new Error(`The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`)
   }
   const nameToUse = name || service
   const prefix = inflection.camelize(nameToUse, true)
   const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1)
+  const SERVICE_NAME = `${prefix}ServiceName`
   const ITEMS = prefix
   const IS_FIND_PENDING = `isFind${capitalized}Pending`
   const QUERY = `${prefix}Query`
@@ -90,6 +91,8 @@ export default function makeFindMixin (options) {
       return this.$store.state[service].pagination[qid]
     }
   }
+
+  setupAttribute(SERVICE_NAME, service)
   setupAttribute(QUERY, query)
   setupAttribute(FETCH_QUERY, fetchQuery)
   setupAttribute(QUERY_WHEN, queryWhen, 'method')
