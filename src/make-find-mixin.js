@@ -1,8 +1,9 @@
 import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
-  const { service, name, query, fetchQuery, queryWhen = true, local = false, qid = 'default', items } = options
-  let { watch = [] } = options
+  const { service, query, fetchQuery, queryWhen = true, local = false, qid = 'default', items } = options
+
+  let { name, watch = [] } = options
   if (typeof watch === 'string') {
     watch = [watch]
   } else if (typeof watch === 'boolean' && watch) {
@@ -12,11 +13,17 @@ export default function makeFindMixin (options) {
   if (!service || (typeof service !== 'string' && typeof service !== 'function')) {
     throw new Error(`The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`)
   }
-  const nameToUse = name || service
+  if (typeof service === 'function' && !name) {
+    name = 'service'
+  }
+  const nameToUse = (name || service).replace('-', '_')
   const prefix = inflection.camelize(nameToUse, true)
   const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1)
   const SERVICE_NAME = `${prefix}ServiceName`
-  const ITEMS = items || prefix
+  let ITEMS = items || prefix
+  if (typeof service === 'function' && name === 'service' && !items) {
+    ITEMS = 'items'
+  }
   const IS_FIND_PENDING = `isFind${capitalized}Pending`
   const QUERY = `${prefix}Query`
   const FETCH_QUERY = `${prefix}FetchQuery`
