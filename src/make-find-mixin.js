@@ -2,8 +2,8 @@ import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
   const { service, query, fetchQuery, queryWhen = true, local = false, qid = 'default', items } = options
-
   let { name, watch = [] } = options
+
   if (typeof watch === 'string') {
     watch = [watch]
   } else if (typeof watch === 'boolean' && watch) {
@@ -16,6 +16,7 @@ export default function makeFindMixin (options) {
   if (typeof service === 'function' && !name) {
     name = 'service'
   }
+
   const nameToUse = (name || service).replace('-', '_')
   const prefix = inflection.camelize(nameToUse, true)
   const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1)
