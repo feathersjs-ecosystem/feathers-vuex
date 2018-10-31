@@ -729,6 +729,7 @@ describe('Service Module', () => {
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
+        customMerge: undefined,
         servicePath: 'todos',
         pagination: {}
       }

@@ -329,10 +329,10 @@ describe('Service Module - Actions', () => {
               actions.get.call({$store: store}, [0, {}])
                 .then(response3 => {
                   expectedKeyedById = {
-                    0: { id: 0, description: 'Do the FIRST' },
+                    0: { id: 0, description: 'Do the first' },
                     1: { id: 1, description: 'Do the second' }
                   }
-                  assert(response3.description === 'Do the FIRST')
+                  assert(response3.description === 'Do the first')
                   assert.deepEqual(todoState.keyedById, expectedKeyedById)
 
                   // Wait for the remote data to arriive
