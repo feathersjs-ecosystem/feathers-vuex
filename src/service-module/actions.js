@@ -92,8 +92,7 @@ export default function makeServiceActions (service, { debug }) {
       const existedItem = getters.get(id, params)
       if (existedItem) {
         commit('setCurrent', existedItem)
-        if (!skipRequestIfExists) getFromRemote()
-        return Promise.resolve(existedItem)
+        if (skipRequestIfExists) return Promise.resolve(existedItem)
       }
       return getFromRemote()
     },

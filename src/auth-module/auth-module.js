@@ -2,6 +2,7 @@ import setupState from './state'
 import setupGetters from './getters'
 import setupMutations from './mutations'
 import setupActions from './actions'
+import { sharedContext } from '../utils'
 
 const defaults = {
   namespace: 'auth',
@@ -28,13 +29,14 @@ export default function authPluginInit (feathersClient, globalOptions = {}, glob
     const defaultGetters = setupGetters()
     const defaultMutations = setupMutations(feathersClient)
     const defaultActions = setupActions(feathersClient, globalModels)
+    const state = sharedContext.authState = Object.assign({}, defaultState, options.state)
 
     return function setupStore (store) {
       const { namespace } = options
 
       store.registerModule(namespace, {
         namespaced: true,
-        state: Object.assign({}, defaultState, options.state),
+        state,
         getters: Object.assign({}, defaultGetters, options.getters),
         mutations: Object.assign({}, defaultMutations, options.mutations),
         actions: Object.assign({}, defaultActions, options.actions)

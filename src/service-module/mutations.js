@@ -2,7 +2,7 @@ import Vue from 'vue'
 import _merge from 'lodash.merge'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
-import { checkId } from '../utils'
+import { checkId, sharedContext } from '../utils'
 
 export default function makeServiceMutations (servicePath, { debug, globalModels }) {
   globalModels = globalModels || { byServicePath: {} }
@@ -35,10 +35,19 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   }
 
   function updateItems (state, items) {
-    const { idField, replaceItems, addOnUpsert } = state
+    const { idField, replaceItems, addOnUpsert, customMerge } = state
     const Model = globalModels.byServicePath[servicePath]
+    const { authState } = sharedContext
 
     let newKeyedById = {...state.keyedById}
+    let userId = null
+    if (
+      authState &&
+      authState.payload &&
+      (authState.payload.userId || authState.payload.userId === 0)
+    ) {
+      userId = authState.payload.userId
+    }
 
     for (let item of items) {
       let id = item[idField]
@@ -51,7 +60,13 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
             item = new Model(item)
           }
 
+          if (userId === id) {
+            authState.user = item
+          }
+
           newKeyedById[id] = item
+        } else if (customMerge) {
+          customMerge(newKeyedById[id], item)
         } else {
           _merge(newKeyedById[id], item)
         }
