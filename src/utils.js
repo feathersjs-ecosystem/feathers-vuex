@@ -133,6 +133,24 @@ export function getModelName (Model) {
   return name
 }
 
+export function getServicePrefix (servicePath) {
+  const parts = servicePath.split('/')
+  let name = parts[parts.length - 1]
+  // name = inflection.underscore(name)
+  name = name.replace('-', '_')
+  name = inflection.camelize(name, true)
+  return name
+}
+
+export function getServiceCapitalization (servicePath) {
+  const parts = servicePath.split('/')
+  let name = parts[parts.length - 1]
+  // name = inflection.underscore(name)
+  name = name.replace('-', '_')
+  name = inflection.camelize(name)
+  return name
+}
+
 //  From feathers-plus/feathers-hooks-common
 export function setByDot (obj, path, value, ifDelete) {
   if (ifDelete) {
