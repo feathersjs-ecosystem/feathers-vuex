@@ -95,10 +95,10 @@ export default function makeFindMixin (options) {
   setupAttribute(ID, id)
   setupAttribute(QUERY, query)
   setupAttribute(FETCH_QUERY, fetchQuery)
-  setupAttribute(QUERY_WHEN, queryWhen, 'method')
+  setupAttribute(QUERY_WHEN, queryWhen, 'methods')
   setupAttribute(LOCAL, local)
 
-  function setupAttribute (NAME, value, computedOrMethod = 'computed', returnTheValue = false) {
+  function setupAttribute (NAME, value, computedOrMethods = 'computed', returnTheValue = false) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
@@ -110,7 +110,7 @@ export default function makeFindMixin (options) {
         return returnTheValue ? value : this[value]
       }
     } else if (typeof value === 'function') {
-      mixin[computedOrMethod][NAME] = value
+      mixin[computedOrMethods][NAME] = value
     }
   }
 
