@@ -1,7 +1,7 @@
 import { getServicePrefix, getServiceCapitalization } from './utils'
 
 export default function makeFindMixin (options) {
-  const { service, params, fetchQuery, queryWhen = true, local = false, qid = 'default', items } = options
+  const { service, params, fetchQuery, queryWhen = () => true, local = false, qid = 'default', items, debug } = options
   let { name, watch = [] } = options
 
   if (typeof watch === 'string') {
@@ -74,6 +74,7 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
+      debug && console.log(`running 'created' hook for ${service} with name ${nameToUse}`)
       if (this[PARAMS] || this[FETCH_PARAMS]) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
@@ -90,6 +91,12 @@ export default function makeFindMixin (options) {
         })
 
         return this[FIND_ACTION]()
+      } else {
+        if (!local) {
+          // TODO: Add this message to the logging:
+          //       "Pass { local: true } to disable this warning and only do local queries."
+          console.log(`No params were found for the "${service}" service with name "${nameToUse}".  No queries will be made.`)
+        }
       }
     }
   }
