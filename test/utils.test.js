@@ -10,7 +10,7 @@ Vue.use(Vuex)
 const { service, auth } = feathersNuxt(feathersClient)
 
 describe('Utils', function () {
-  it('properly populates auth', function (done) {
+  it('properly populates auth', function () {
     const store = new Vuex.Store({
       plugins: [
         service('todos'),
@@ -23,7 +23,7 @@ describe('Utils', function () {
         cookie: 'feathers-jwt=' + accessToken
       }
     }
-    initAuth({
+    return initAuth({
       commit: store.commit,
       req,
       moduleName: 'auth',
@@ -32,8 +32,11 @@ describe('Utils', function () {
       .then(payload => {
         assert(store.state.auth.accessToken === accessToken, 'the token was in place')
         assert(store.state.auth.payload, 'the payload was set')
-        done()
-      })
+      return feathersClient.passport.getJWT()
+    })
+    .then((token) => {
+      assert.isDefined(token, 'the feathers client storage was set')
+     })
   })
 
   describe('Inflections', function () {
