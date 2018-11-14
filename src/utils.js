@@ -40,7 +40,7 @@ const authDefaults = {
 }
 
 export const initAuth = function initAuth (options) {
-  const { commit, req, moduleName, cookieName } = Object.assign({}, authDefaults, options)
+  const { commit, req, moduleName, cookieName, feathersClient } = Object.assign({}, authDefaults, options)
 
   if (typeof commit !== 'function') {
     throw new Error('You must pass the `commit` function in the `initAuth` function options.')
@@ -55,6 +55,9 @@ export const initAuth = function initAuth (options) {
   if (payload) {
     commit(`${moduleName}/setAccessToken`, accessToken)
     commit(`${moduleName}/setPayload`, payload)
+    if (feathersClient) {
+      return feathersClient.passport.setJWT(accessToken).then(() => payload)
+    }
   }
   return Promise.resolve(payload)
 }
