@@ -168,6 +168,10 @@ export default function (options) {
       return this._remove(this[idField], params)
     }
     _remove () {}
+
+    toJSON () {
+      return fastCopy(this)
+    }
   }
 
   Object.assign(FeathersVuexModel, {
