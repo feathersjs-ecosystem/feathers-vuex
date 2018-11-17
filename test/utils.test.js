@@ -36,7 +36,7 @@ describe('Utils', function () {
     })
   })
 
-  describe.only('Inflections', function () {
+  describe('Inflections', function () {
     it('properly inflects the service prefix', function () {
       const decisionTable = [
         ['todos', 'todos'],
