@@ -1,7 +1,7 @@
 import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
-  const { service, query, fetchQuery, id, queryWhen = true, local = false, qid = 'default', item } = options
+  const { service, params, fetchParams, queryWhen, id, local = false, qid = 'default', item } = options
   let { name, watch = [] } = options
 
   if (typeof watch === 'string') {
@@ -27,8 +27,8 @@ export default function makeFindMixin (options) {
     ITEM = 'item'
   }
   const IS_GET_PENDING = `isGet${capitalized}Pending`
-  const QUERY = `${prefix}Query`
-  const FETCH_QUERY = `${prefix}FetchQuery`
+  const PARAMS = `${prefix}Params`
+  const FETCH_PARAMS = `${prefix}FetchParams`
   const WATCH = `${prefix}Watch`
   const QUERY_WHEN = `${prefix}QueryWhen`
   const GET_ACTION = `get${capitalized}`
@@ -47,21 +47,23 @@ export default function makeFindMixin (options) {
     },
     computed: {
       [ITEM] () {
-        return this[QUERY] ? this.$store.getters[`${SERVICE_NAME}/find`]({ query: this[QUERY] }).data : []
+        return this[PARAMS] ? this.$store.getters[`${this.SERVICE_NAME}/get`]([ this[ID], this[PARAMS] ]).data : null
+      },
+      [QUERY_WHEN] () {
+        return true
       }
     },
     methods: {
-      [GET_ACTION] () {
-        const queryToUse = this[FETCH_QUERY] || this[QUERY]
+      [GET_ACTION] (id, params) {
+        const paramsToUse = params || this[FETCH_PARAMS] || this[PARAMS]
+        const idToUse = id || this[ID]
 
         if (!this[LOCAL]) {
-          if (typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](queryToUse) : this[QUERY_WHEN]) {
+          if (this[QUERY_WHEN]) {
             this[IS_GET_PENDING] = true
 
-            if (this[ID]) {
-              const params = { query: queryToUse }
-
-              return this.$store.dispatch(`${SERVICE_NAME}/get`, params)
+            if (idToUse) {
+              return this.$store.dispatch(`${this[SERVICE_NAME]}/get`, [ idToUse, paramsToUse ])
                 .then(() => {
                   this[IS_GET_PENDING] = false
                 })
@@ -71,16 +73,16 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
-      if (this[ID] || this[QUERY] || this[FETCH_QUERY]) {
+      if (this[ID] || this[PARAMS] || this[FETCH_PARAMS]) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
           }
-          prop = prop.replace('query', QUERY)
+          prop = prop.replace('query', PARAMS)
 
-          if (this[FETCH_QUERY]) {
-            if (prop.startsWith(QUERY)) {
-              prop.replace(QUERY, FETCH_QUERY)
+          if (this[FETCH_PARAMS]) {
+            if (prop.startsWith(PARAMS)) {
+              prop.replace(PARAMS, FETCH_PARAMS)
             }
           }
           this.$watch(prop, this[GET_ACTION])
@@ -93,9 +95,9 @@ export default function makeFindMixin (options) {
 
   setupAttribute(SERVICE_NAME, service, 'computed', true)
   setupAttribute(ID, id)
-  setupAttribute(QUERY, query)
-  setupAttribute(FETCH_QUERY, fetchQuery)
-  setupAttribute(QUERY_WHEN, queryWhen, 'methods')
+  setupAttribute(PARAMS, params)
+  setupAttribute(FETCH_PARAMS, fetchParams)
+  setupAttribute(QUERY_WHEN, queryWhen, 'computed')
   setupAttribute(LOCAL, local)
 
   function setupAttribute (NAME, value, computedOrMethods = 'computed', returnTheValue = false) {
@@ -104,14 +106,24 @@ export default function makeFindMixin (options) {
     } else if (typeof value === 'string') {
       mixin.computed[NAME] = function () {
         // If the specified computed prop wasn't found, display an error.
-        if (!Object.getPrototypeOf(this).hasOwnProperty(value) && !Object.getPrototypeOf(this).hasOwnProperty(NAME)) {
-          throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
+        if (returnTheValue) {
+
+        } else {
+          if (!hasSomeAttribute(this, value, NAME)) {
+            throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
+          }
         }
         return returnTheValue ? value : this[value]
       }
     } else if (typeof value === 'function') {
       mixin[computedOrMethods][NAME] = value
     }
+  }
+
+  function hasSomeAttribute (vm, ...attributes) {
+    return attributes.some(a => {
+      return vm.hasOwnProperty(a) || Object.getPrototypeOf(vm).hasOwnProperty(a)
+    })
   }
 
   return mixin
