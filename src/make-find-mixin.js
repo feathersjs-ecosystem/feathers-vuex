@@ -50,8 +50,8 @@ export default function makeFindMixin (options) {
       }
     },
     methods: {
-      [FIND_ACTION] () {
-        const paramsToUse = this[FETCH_PARAMS] || this[PARAMS]
+      [FIND_ACTION] (params) {
+        const paramsToUse = params || this[FETCH_PARAMS] || this[PARAMS]
 
         if (!this[LOCAL]) {
           if (typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](paramsToUse) : this[QUERY_WHEN]) {
