@@ -38,34 +38,30 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     const { idField, replaceItems, addOnUpsert } = state
     const Model = globalModels.byServicePath[servicePath]
 
-    let newKeyedById = {...state.keyedById}
-
     for (let item of items) {
       let id = item[idField]
       const isIdOk = checkId(id, item, debug)
 
       // Simply rewrite the record if the it's already in the `ids` list.
-      if (isIdOk && state.ids.includes(id)) {
-        if (replaceItems) {
-          if (Model && !item.isFeathersVuexInstance) {
-            item = new Model(item)
+      if (isIdOk) {
+        if (state.ids.includes(id)) {
+          if (replaceItems) {
+            if (Model && !item.isFeathersVuexInstance) {
+              item = new Model(item)
+            }
+            Vue.set(state.keyedById, id, item)
+          } else {
+            _merge(state.keyedById[id], item)
           }
 
-          newKeyedById[id] = item
-        } else {
-          _merge(newKeyedById[id], item)
+        // if addOnUpsert then add the record into the state, else discard it.
+        } else if (addOnUpsert) {
+          state.ids.push(id)
+          Vue.set(state.keyedById, id, item)
         }
         continue
       }
-
-      // if addOnUpsert then add the record into the state, else discard it.
-      if (addOnUpsert) {
-        state.ids.push(id)
-        newKeyedById[id] = item
-      }
     }
-
-    state.keyedById = newKeyedById
   }
 
   return {
@@ -88,21 +84,13 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     removeItem (state, item) {
       const { idField } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
-      const keyedById = {}
       const { currentId } = state
       const isIdOk = checkId(idToBeRemoved, item, debug)
+      const index = state.ids.findIndex(i => i === idToBeRemoved)
 
-      if (isIdOk) {
-        state.ids = state.ids.filter(id => {
-          if (id === idToBeRemoved) {
-            return false
-          } else {
-            keyedById[id] = state.keyedById[id]
-            return true
-          }
-        })
-
-        state.keyedById = keyedById
+      if (isIdOk && index !== null && index !== undefined) {
+        Vue.delete(state.ids, index)
+        Vue.delete(state.keyedById, idToBeRemoved)
 
         if (currentId === idToBeRemoved) {
           state.currentId = null
@@ -112,38 +100,42 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     },
 
     removeItems (state, items) {
-      const { idField } = state
+      const { idField, currentId } = state
 
       if (!Array.isArray(items)) {
         throw new Error('You must provide an array to the `removeItems` mutation.')
       }
+      // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && isObject(items[0])
-      const keyedById = {}
-      const currentId = state.currentId
-      let idsToRemove = items
-      const mapOfIdsToRemove = {}
-
-      // If the array contains objects, create an array of ids. Assume all are the same.
-      if (containsObjects) {
-        idsToRemove = items.map(item => item[idField])
-      }
-
-      // Make a hash map of the idsToRemove, so we don't have to iterate inside a loop
-      idsToRemove.forEach(idToRemove => {
-        mapOfIdsToRemove[idToRemove] = idToRemove
+      const idsToRemove = containsObjects ? items.map(item => item[idField]) : items
+      const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
+        map[id] = true
+        return map
+      }, {})
+      idsToRemove.forEach(id => {
+        Vue.delete(state.keyedById, id)
       })
 
-      // Filter the ids to be those we're keeping. Also create new keyedById.
-      state.ids = state.ids.filter(id => {
+      // Get indexes to remove from the ids array.
+      const mapOfIndexesToRemove = state.ids.reduce((map, id, index) => {
         if (mapOfIdsToRemove[id]) {
-          return false
+          map[index] = true
+        }
+        return map
+      }, {})
+      // Remove highest indexes first, so the indexes don't change
+      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort((a, b) => {
+        if (a < b) {
+          return 1
+        } else if (a > b) {
+          return -1
         } else {
-          keyedById[id] = state.keyedById[id]
-          return true
+          return 0
         }
       })
-
-      state.keyedById = keyedById
+      indexesInReverseOrder.forEach(indexInIdsArray => {
+        Vue.delete(state.ids, indexInIdsArray)
+      })
 
       if (currentId && mapOfIdsToRemove[currentId]) {
         state.currentId = null
