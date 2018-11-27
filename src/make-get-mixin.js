@@ -47,7 +47,7 @@ export default function makeFindMixin (options) {
     },
     computed: {
       [ITEM] () {
-        return this[ID] ? this.$store.getters[`${this.SERVICE_NAME}/get`](this[ID]) : null
+        return this[ID] ? this.$store.getters[`${this[SERVICE_NAME]}/get`](this[ID]) : null
       },
       [QUERY_WHEN] () {
         return true
