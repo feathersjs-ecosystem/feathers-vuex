@@ -1,4 +1,4 @@
-import { getServicePrefix, getServiceCapitalization } from './utils'
+import { getServicePrefix, getServiceCapitalization, capitalizeFirst } from './utils'
 
 export default function makeFindMixin (options) {
   const { service, params, fetchQuery, queryWhen = () => true, local = false, qid = 'default', items, debug } = options
@@ -25,6 +25,7 @@ export default function makeFindMixin (options) {
   if (typeof service === 'function' && name === 'service' && !items) {
     ITEMS = 'items'
   }
+  const ITEMS_FETCHED = `${ITEMS}Fetched`
   const IS_FIND_PENDING = `isFind${capitalized}Pending`
   const PARAMS = `${prefix}Params`
   const FETCH_PARAMS = `${prefix}FetchParams`
@@ -47,6 +48,13 @@ export default function makeFindMixin (options) {
     computed: {
       [ITEMS] () {
         return this[PARAMS] ? this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data : []
+      },
+      [ITEMS_FETCHED] () {
+        if (this[FETCH_PARAMS]) {
+          return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[FETCH_PARAMS]).data
+        } else {
+          return this[ITEMS]
+        }
       }
     },
     methods: {
