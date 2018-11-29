@@ -87,7 +87,7 @@ export default function makeFindMixin (options) {
           }
           prop = prop.replace('params', PARAMS)
 
-          if (this[FETCH_PARAMS]) {
+          if (pType.hasOwnProperty(FETCH_PARAMS)) {
             if (prop.startsWith(PARAMS)) {
               prop.replace(PARAMS, FETCH_PARAMS)
             }
