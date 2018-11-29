@@ -1,7 +1,7 @@
 import inflection from 'inflection'
 
 export default function makeFindMixin (options) {
-  const { service, params, fetchParams, queryWhen, id, local = false, qid = 'default', item } = options
+  const { service, params, fetchParams, queryWhen, id, local = false, qid = 'default', item, debug } = options
   let { name, watch = [] } = options
 
   if (typeof watch === 'string') {
@@ -73,7 +73,14 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
-      if (this.hasOwnProperty(ID) || this.hasOwnProperty(PARAMS) || this.hasOwnProperty(FETCH_PARAMS)) {
+      debug && console.log(`running 'created' hook in makeGetMixin for service "${service}" (using name ${nameToUse}")`)
+      debug && console.log(ID, this[ID])
+      debug && console.log(PARAMS, this[PARAMS])
+      debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
+
+      const pType = Object.getPrototypeOf(this)
+
+      if (pType.hasOwnProperty(ID) || pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)

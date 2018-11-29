@@ -74,8 +74,13 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
-      debug && console.log(`running 'created' hook for ${service} with name ${nameToUse}`)
-      if (this.hasOwnProperty(PARAMS) || this.hasOwnProperty(FETCH_PARAMS)) {
+      debug && console.log(`running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`)
+      debug && console.log(PARAMS, this[PARAMS])
+      debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
+
+      const pType = Object.getPrototypeOf(this)
+
+      if (pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
