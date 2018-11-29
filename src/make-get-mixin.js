@@ -81,6 +81,10 @@ export default function makeFindMixin (options) {
       const pType = Object.getPrototypeOf(this)
 
       if (pType.hasOwnProperty(ID) || pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
+        if (!watch.includes(ID)) {
+          watch.push(ID)
+        }
+
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
