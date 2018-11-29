@@ -89,7 +89,7 @@ export default function makeFindMixin (options) {
 
           if (pType.hasOwnProperty(FETCH_PARAMS)) {
             if (prop.startsWith(PARAMS)) {
-              prop.replace(PARAMS, FETCH_PARAMS)
+              prop = prop.replace(PARAMS, FETCH_PARAMS)
             }
           }
           this.$watch(prop, this[FIND_ACTION])
