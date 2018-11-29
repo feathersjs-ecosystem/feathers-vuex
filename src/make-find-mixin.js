@@ -75,7 +75,7 @@ export default function makeFindMixin (options) {
     },
     created () {
       debug && console.log(`running 'created' hook for ${service} with name ${nameToUse}`)
-      if (this[PARAMS] || this[FETCH_PARAMS]) {
+      if (this.hasOwnProperty(PARAMS) || this.hasOwnProperty(FETCH_PARAMS)) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
@@ -95,7 +95,7 @@ export default function makeFindMixin (options) {
         if (!local) {
           // TODO: Add this message to the logging:
           //       "Pass { local: true } to disable this warning and only do local queries."
-          console.log(`No params were found for the "${service}" service with name "${nameToUse}".  No queries will be made.`)
+          console.log(`No "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeFindMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`)
         }
       }
     }

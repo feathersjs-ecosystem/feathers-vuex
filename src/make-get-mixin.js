@@ -73,7 +73,7 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
-      if (this[ID] || this[PARAMS] || this[FETCH_PARAMS]) {
+      if (this.hasOwnProperty(ID) || this.hasOwnProperty(PARAMS) || this.hasOwnProperty(FETCH_PARAMS)) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
@@ -89,6 +89,8 @@ export default function makeFindMixin (options) {
         })
 
         return this[GET_ACTION]()
+      } else {
+        console.log(`No "${ID}", "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeGetMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`)
       }
     }
   }
