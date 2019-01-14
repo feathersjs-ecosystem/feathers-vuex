@@ -1,4 +1,4 @@
-import { getServicePrefix, getServiceCapitalization, capitalizeFirst } from './utils'
+import { getServicePrefix, getServiceCapitalization } from './utils'
 
 export default function makeFindMixin (options) {
   const { service, params, fetchQuery, queryWhen = () => true, local = false, qid = 'default', items, debug } = options
