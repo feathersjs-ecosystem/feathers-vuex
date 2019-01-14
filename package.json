@@ -74,6 +74,7 @@
     "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
     "lodash.isobject": "^3.0.2",
+    "lodash.isplainobject": "^4.0.6",
     "lodash.merge": "^4.6.1",
     "lodash.trim": "^4.5.1",
     "serialize-error": "^2.1.0",
@@ -102,8 +103,8 @@
     "shx": "^0.2.2",
     "socket.io-client": "^1.7.4",
     "standard": "^10.0.3",
-    "steal": "^1.12.5",
-    "steal-mocha": "^1.0.0",
+    "steal": "^2.1.13",
+    "steal-mocha": "^2.0.1",
     "testee": "^0.7.0",
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
