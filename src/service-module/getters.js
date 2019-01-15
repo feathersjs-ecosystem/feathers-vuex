@@ -1,7 +1,9 @@
 import sift from 'sift'
 import commons from '@feathersjs/commons'
+import dbCommons from '@feathersjs/adapter-commons'
 
-const { filterQuery, sorter, select, _ } = commons
+const { sorter, select, _ } = commons
+const { filterQuery } = dbCommons
 
 export default function makeServiceGetters (servicePath) {
   return {
