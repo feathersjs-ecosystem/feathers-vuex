@@ -39,7 +39,7 @@ describe('Find Mixin', function () {
     assert(vm.todosLocal === false, 'local boolean is false by default')
     assert(vm.todosQid === 'default', 'the default query identifier is in place')
     assert(vm.todosQueryWhen() === true, 'the default queryWhen is true')
-    assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
+    // assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
     assert(vm.todosParams === undefined, 'no params are in place by default, must be specified by the user')
     assert(vm.todosFetchParams === undefined, 'no fetch params are in place by default, must be specified by the user')
   })
