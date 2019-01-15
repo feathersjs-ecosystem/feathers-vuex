@@ -193,6 +193,40 @@ describe('Service Module - Mutations', function () {
     })
   })
 
+  describe('Vue event bindings', function () {
+    it('correctly emits events for array properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true,
+        users: [ 'Marshall', 'Mariah' ]
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.users' (val) {
+            assert(this.item.users.length === 3)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        test: false,
+        users: [ 'Marshall', 'Mariah', 'Scooby Doo' ]
+      }
+      updateItem(state, updatedItem)
+    })
+  })
+
   it('updateItems', function () {
     const state = this.state
     const item1 = {

@@ -51,7 +51,10 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
             }
             Vue.set(state.keyedById, id, item)
           } else {
-            _merge(state.keyedById[id], item)
+            // Correctly handle first-level arrays
+            Object.keys(item).forEach(key => {
+              Vue.set(state.keyedById[id], key, item[key])
+            })
           }
 
         // if addOnUpsert then add the record into the state, else discard it.
