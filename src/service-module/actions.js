@@ -10,20 +10,18 @@ export default function makeServiceActions (service, { debug }) {
         dispatch('addOrUpdateList', response)
         commit('unsetFindPending')
 
+        const mapItemFromState = item => {
+          const id = item[idField]
+
+          return state.keyedById[id]
+        }
+
         // The pagination data will be under `pagination.default` or whatever qid is passed.
         if (response.data) {
           commit('updatePaginationForQuery', { qid, response, query })
-          response.data = response.data.map(item => {
-            const id = item[idField]
-
-            return state.keyedById[id]
-          })
+          response.data = response.data.map(mapItemFromState)
         } else {
-          response = response.map(item => {
-            const id = item[idField]
-
-            return state.keyedById[id]
-          })
+          response = response.map(mapItemFromState)
         }
 
         return response
