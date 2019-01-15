@@ -11,7 +11,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     const { idField } = state
     const Model = globalModels.byServicePath[servicePath]
 
-    let newKeyedById = {...state.keyedById}
+    let newKeyedById = { ...state.keyedById }
 
     for (let item of items) {
       let id = item[idField]

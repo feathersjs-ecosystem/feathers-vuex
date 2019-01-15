@@ -82,7 +82,7 @@ describe('Service Module - Actions', () => {
         assert(todoState.isFindPending === false, 'isFindPending is false')
         assert(todoState.idField === 'id', 'idField is `id`')
 
-        actions.find.call({$store: store}, {})
+        actions.find.call({ $store: store }, {})
           .then(response => {
             assert(todoState.ids.length === 10, 'three ids populated')
             assert(todoState.errorOnFind === null, 'errorOnFind still null')
@@ -108,7 +108,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('todos', ['find'])
 
-        actions.find.call({$store: store}, { query: { $limit: 1 } })
+        actions.find.call({ $store: store }, { query: { $limit: 1 } })
           .then(response => {
             assert(response.length === 1, 'only one record was returned')
             assert.deepEqual(response[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
@@ -122,7 +122,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('todos', ['find'])
 
-        actions.find.call({$store: store}, { query: { $skip: 9 } })
+        actions.find.call({ $store: store }, { query: { $skip: 9 } })
           .then(response => {
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(response[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
@@ -136,7 +136,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('todos', ['find'])
 
-        actions.find.call({$store: store}, { query: { $limit: 1, $skip: 8 } })
+        actions.find.call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
           .then(response => {
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(response[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
@@ -152,7 +152,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('tasks', ['find'])
 
-        actions.find.call({$store: store}, { query: { $limit: 1 } })
+        actions.find.call({ $store: store }, { query: { $limit: 1 } })
           .then(response => {
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(response.data[0], { id: 0, description: 'Do the first' }, 'the first record was returned')
@@ -169,7 +169,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('tasks', ['find'])
 
-        actions.find.call({$store: store}, { query: { $skip: 9 } })
+        actions.find.call({ $store: store }, { query: { $skip: 9 } })
           .then(response => {
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(response.data[0], { id: 9, description: 'Do the tenth' }, 'the tenth record was returned')
@@ -186,7 +186,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('tasks', ['find'])
 
-        actions.find.call({$store: store}, { query: { $limit: 1, $skip: 8 } })
+        actions.find.call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
           .then(response => {
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(response.data[0], { id: 8, description: 'Do the ninth' }, 'the ninth record was returned')
@@ -203,7 +203,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('tasks', ['find'])
 
-        actions.find.call({$store: store}, { query: {} })
+        actions.find.call({ $store: store }, { query: {} })
           .then(response => {
             const { ids, limit, skip, total } = store.state.tasks.pagination.default
             assert(ids.length === 10, 'ten ids were returned in this page')
@@ -221,7 +221,7 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
         const qid = 'component-name'
 
-        actions.find.call({$store: store}, { query: {}, qid })
+        actions.find.call({ $store: store }, { query: {}, qid })
           .then(response => {
             const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
             assert(ids.length === 10, 'ten ids were returned in this page')
@@ -239,7 +239,7 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('tasks', ['find'])
         const qid = 'component-name'
 
-        actions.find.call({$store: store}, { query: { $limit: 5, $skip: 2 }, qid })
+        actions.find.call({ $store: store }, { query: { $limit: 5, $skip: 2 }, qid })
           .then(response => {
             const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
             assert(ids.length === 5, 'ten ids were returned in this page')
@@ -260,8 +260,8 @@ describe('Service Module - Actions', () => {
           'component-query-one'
         ]
 
-        actions.find.call({$store: store}, { query: {}, qid: qids[0] })
-          .then(response => actions.find.call({$store: store}, { query: {}, qid: qids[1] }))
+        actions.find.call({ $store: store }, { query: {}, qid: qids[0] })
+          .then(response => actions.find.call({ $store: store }, { query: {}, qid: qids[1] }))
           .then(response => {
             qids.forEach(qid => {
               const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
@@ -285,7 +285,7 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('no-ids', ['find'])
 
-        actions.find.call({$store: store}, { query: {} })
+        actions.find.call({ $store: store }, { query: {} })
           .then(response => {
             assert(response.data.length === 10, 'records were still returned')
             assert(store.state['no-ids'].ids.length === 0, 'no records were stored in the state')
@@ -302,7 +302,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['find'])
 
-      assertRejected(actions.find.call({$store: store}, {}), done, () => {
+      assertRejected(actions.find.call({ $store: store }, {}), done, () => {
         assert(brokenState.errorOnFind.message === 'find error', 'errorOnFind was set')
         assert(brokenState.isFindPending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
@@ -328,7 +328,7 @@ describe('Service Module - Actions', () => {
       assert(todoState.isGetPending === false)
       assert(todoState.idField === 'id')
 
-      actions.get.call({$store: store}, 0)
+      actions.get.call({ $store: store }, 0)
         .then(response => {
           assert(todoState.ids.length === 1, 'only one item is in the store')
           assert(todoState.errorOnGet === null, 'there was no errorOnGet')
@@ -339,7 +339,7 @@ describe('Service Module - Actions', () => {
           assert.deepEqual(todoState.keyedById, expectedKeyedById)
 
           // Make a request with the array syntax that allows passing params
-          actions.get.call({$store: store}, [1, {}])
+          actions.get.call({ $store: store }, [1, {}])
             .then(response2 => {
               expectedKeyedById = {
                 0: { id: 0, description: 'Do the first' },
@@ -353,7 +353,7 @@ describe('Service Module - Actions', () => {
                 0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
                 1: { id: 1, description: 'Do the second' }
               }
-              actions.get.call({$store: store}, [0, {}])
+              actions.get.call({ $store: store }, [0, {}])
                 .then(response3 => {
                   expectedKeyedById = {
                     0: { id: 0, description: 'Do the FIRST' },
@@ -394,7 +394,7 @@ describe('Service Module - Actions', () => {
       assert(todoState.isGetPending === false)
       assert(todoState.idField === 'id')
 
-      actions.get.call({$store: store}, 0)
+      actions.get.call({ $store: store }, 0)
         .then(response => {
           assert(todoState.ids.length === 1, 'only one item is in the store')
           assert(todoState.errorOnGet === null, 'there was no errorOnGet')
@@ -405,7 +405,7 @@ describe('Service Module - Actions', () => {
           assert.deepEqual(todoState.keyedById, expectedKeyedById)
 
           // Make a request with the array syntax that allows passing params
-          actions.get.call({$store: store}, [1, {}])
+          actions.get.call({ $store: store }, [1, {}])
             .then(response2 => {
               expectedKeyedById = {
                 0: { id: 0, description: 'Do the first' },
@@ -419,7 +419,7 @@ describe('Service Module - Actions', () => {
                 0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
                 1: { id: 1, description: 'Do the second' }
               }
-              actions.get.call({$store: store}, [0, { skipRequestIfExists: true }])
+              actions.get.call({ $store: store }, [0, { skipRequestIfExists: true }])
                 .then(response3 => {
                   expectedKeyedById = {
                     0: { id: 0, description: 'Do the FIRST' },
@@ -455,7 +455,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['get'])
 
-      assertRejected(actions.get.call({$store: store}, {}), done, () => {
+      assertRejected(actions.get.call({ $store: store }, {}), done, () => {
         assert(brokenState.errorOnGet.message === 'get error', 'errorOnGet was set')
         assert(brokenState.isGetPending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
@@ -476,7 +476,7 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create'])
 
-      actions.create.call({$store: store}, {description: 'Do the second'})
+      actions.create.call({ $store: store }, { description: 'Do the second' })
         .then(response => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnCreate === null)
@@ -500,7 +500,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['create'])
 
-      assertRejected(actions.create.call({$store: store}, {}), done, () => {
+      assertRejected(actions.create.call({ $store: store }, {}), done, () => {
         assert(brokenState.errorOnCreate.message === 'create error', 'errorOnCreate was set')
         assert(brokenState.isCreatePending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
@@ -521,9 +521,9 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'update'])
 
-      actions.create.call({$store: store}, {description: 'Do the second'})
+      actions.create.call({ $store: store }, { description: 'Do the second' })
         .then(response => {
-          actions.update.call({$store: store}, [0, {id: 0, description: 'Do da dishuz'}])
+          actions.update.call({ $store: store }, [0, { id: 0, description: 'Do da dishuz' }])
             .then(responseFromUpdate => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnUpdate === null)
@@ -550,7 +550,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['update'])
 
-      assertRejected(actions.update.call({$store: store}, [0, { id: 0 }]), done, () => {
+      assertRejected(actions.update.call({ $store: store }, [0, { id: 0 }]), done, () => {
         assert(brokenState.errorOnUpdate.message === 'update error', 'errorOnUpdate was set')
         assert(brokenState.isUpdatePending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
@@ -571,12 +571,12 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'patch'])
 
-      const dataUnchanged = {unchanged: true, deep: {changed: false, unchanged: true}}
-      const dataChanged = {unchanged: true, deep: {changed: true, unchanged: true}}
+      const dataUnchanged = { unchanged: true, deep: { changed: false, unchanged: true } }
+      const dataChanged = { unchanged: true, deep: { changed: true, unchanged: true } }
 
-      actions.create.call({$store: store}, Object.assign({description: 'Do the second'}, dataUnchanged))
+      actions.create.call({ $store: store }, Object.assign({ description: 'Do the second' }, dataUnchanged))
         .then(response => {
-          actions.patch.call({$store: store}, [0, Object.assign({description: 'Write a Vue app'}, dataChanged)])
+          actions.patch.call({ $store: store }, [0, Object.assign({ description: 'Write a Vue app' }, dataChanged)])
             .then(responseFromPatch => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
@@ -600,9 +600,9 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'patch'])
 
-      actions.create.call({$store: store}, {description: 'Do the second'})
+      actions.create.call({ $store: store }, { description: 'Do the second' })
         .then(response => {
-          actions.patch.call({$store: store}, [0, {description: 'Write a Vue app'}])
+          actions.patch.call({ $store: store }, [0, { description: 'Write a Vue app' }])
             .then(responseFromPatch => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
@@ -626,7 +626,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['patch'])
 
-      assertRejected(actions.patch.call({$store: store}, [0, { id: 0 }]), done, () => {
+      assertRejected(actions.patch.call({ $store: store }, [0, { id: 0 }]), done, () => {
         assert(brokenState.errorOnPatch.message === 'patch error', 'errorOnPatch was set')
         assert(brokenState.isPatchPending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
@@ -647,9 +647,9 @@ describe('Service Module - Actions', () => {
       const todoState = store.state.todos
       const actions = mapActions('todos', ['create', 'remove'])
 
-      actions.create.call({$store: store}, {description: 'Do the second'})
+      actions.create.call({ $store: store }, { description: 'Do the second' })
         .then(response => {
-          actions.remove.call({$store: store}, 0)
+          actions.remove.call({ $store: store }, 0)
             .then(responseFromRemove => {
               assert(todoState.ids.length === 0)
               assert(todoState.errorOnRemove === null)
@@ -676,7 +676,7 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['remove'])
 
-      assertRejected(actions.remove.call({$store: store}, 0), done, () => {
+      assertRejected(actions.remove.call({ $store: store }, 0), done, () => {
         assert(brokenState.errorOnRemove.message === 'remove error', 'errorOnRemove was set')
         assert(brokenState.isRemovePending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)

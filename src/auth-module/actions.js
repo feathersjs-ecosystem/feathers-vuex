@@ -49,7 +49,7 @@ export default function makeAuthActions (feathersClient, globalModels) {
         })
     },
 
-    logout ({commit}) {
+    logout ({ commit }) {
       commit('setLogoutPending')
       return feathersClient.logout()
         .then(response => {

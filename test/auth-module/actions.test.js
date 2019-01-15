@@ -34,8 +34,8 @@ describe('Auth Module - Actions', () => {
     assert(authState.isLogoutPending === false)
     assert(authState.payload === null)
 
-    const request = {strategy: 'local', email: 'test', password: 'test'}
-    actions.authenticate.call({$store: store}, request)
+    const request = { strategy: 'local', email: 'test', password: 'test' }
+    actions.authenticate.call({ $store: store }, request)
       .then(response => {
         assert(authState.accessToken === response.accessToken)
         assert(authState.errorOnAuthenticate === null)
@@ -71,11 +71,11 @@ describe('Auth Module - Actions', () => {
 
     const authState = store.state.auth
     const actions = mapActions('auth', ['authenticate', 'logout'])
-    const request = {strategy: 'local', email: 'test', password: 'test'}
+    const request = { strategy: 'local', email: 'test', password: 'test' }
 
-    actions.authenticate.call({$store: store}, request)
+    actions.authenticate.call({ $store: store }, request)
       .then(authResponse => {
-        actions.logout.call({$store: store})
+        actions.logout.call({ $store: store })
           .then(response => {
             assert(authState.accessToken === null)
             assert(authState.errorOnAuthenticate === null)
@@ -94,7 +94,7 @@ describe('Auth Module - Actions', () => {
         return Promise.resolve({ accessToken })
       }
     })
-    feathersClient.use('users', memory({store: {0: {id: 0, email: 'test@test.com'}}}))
+    feathersClient.use('users', memory({ store: { 0: { id: 0, email: 'test@test.com' } } }))
     const store = new Vuex.Store({
       plugins: [
         auth({ userService: 'users' }),
@@ -107,8 +107,8 @@ describe('Auth Module - Actions', () => {
 
     assert(authState.user === null)
 
-    const request = {strategy: 'local', email: 'test', password: 'test'}
-    actions.authenticate.call({$store: store}, request)
+    const request = { strategy: 'local', email: 'test', password: 'test' }
+    actions.authenticate.call({ $store: store }, request)
       .then(response => {
         let expectedUser = {
           id: 0,

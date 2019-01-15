@@ -25,7 +25,7 @@ mockServer.on('things::update', function (id, data) {
   mockServer.emit('things updated', data)
 })
 mockServer.on('things::remove', function (id, data) {
-  mockServer.emit('things removed', {id, test: true})
+  mockServer.emit('things removed', { id, test: true })
 })
 
 export function makeFeathersSocketClient () {

@@ -175,7 +175,7 @@ describe('Service Module - Mutations', function () {
       }
       updateItem(state, item1updated)
 
-      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], {1: {_id: 1, test: false}}])
+      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], { 1: { _id: 1, test: false } }])
       // assert(state.keyedById[1].test === false)
     })
 
@@ -224,7 +224,7 @@ describe('Service Module - Mutations', function () {
   it('removeItem', function () {
     const state = this.state
 
-    addItem(state, {_id: 1, test: true})
+    addItem(state, { _id: 1, test: true })
     removeItem(state, 1)
 
     assert(state.ids.length === 0)
@@ -234,10 +234,10 @@ describe('Service Module - Mutations', function () {
   it('removeItems with array of ids', function () {
     const state = this.state
     const items = [
-      {_id: 1, test: true},
-      {_id: 2, test: true},
-      {_id: 3, test: true},
-      {_id: 4, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true },
+      { _id: 3, test: true },
+      { _id: 4, test: true }
     ]
     addItems(state, items)
     const itemsToRemove = [1, 2]
@@ -250,15 +250,15 @@ describe('Service Module - Mutations', function () {
   it('removeItems with array of items', function () {
     const state = this.state
     const items = [
-      {_id: 1, test: true},
-      {_id: 2, test: true},
-      {_id: 3, test: true},
-      {_id: 4, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true },
+      { _id: 3, test: true },
+      { _id: 4, test: true }
     ]
     addItems(state, items)
     const itemsToRemove = [
-      {_id: 1, test: true},
-      {_id: 2, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true }
     ]
     removeItems(state, itemsToRemove)
 

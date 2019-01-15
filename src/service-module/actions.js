@@ -256,7 +256,7 @@ export default function makeServiceActions (service, { debug }) {
 
       if (service.FeathersVuexModel) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.FeathersVuexModel(item, {skipCommit: true})
+          toAdd[index] = new service.FeathersVuexModel(item, { skipCommit: true })
         })
       }
 

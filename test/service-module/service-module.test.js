@@ -779,7 +779,7 @@ describe('Service Module', () => {
   describe('Basics', () => {
     beforeEach(function () {
       this.feathersClient = makeFeathersRestClient()
-      this.feathersClient.use('todos', memory({store: makeTodos()}))
+      this.feathersClient.use('todos', memory({ store: makeTodos() }))
       this.service = setupVuexService(this.feathersClient)
     })
 
