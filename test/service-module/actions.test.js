@@ -333,6 +333,78 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1, 'only one item is in the store')
           assert(todoState.errorOnGet === null, 'there was no errorOnGet')
           assert(todoState.isGetPending === false, 'isGetPending is set to false')
+          assert(todoState.currentId === 0, 'the currentId was set')
+
+          let expectedKeyedById = {
+            0: { id: 0, description: 'Do the first' }
+          }
+          assert.deepEqual(todoState.keyedById, expectedKeyedById)
+
+          // Make a request with the array syntax that allows passing params
+          actions.get.call({ $store: store }, [1, {}])
+            .then(response2 => {
+              expectedKeyedById = {
+                0: { id: 0, description: 'Do the first' },
+                1: { id: 1, description: 'Do the second' }
+              }
+              assert(response2.description === 'Do the second')
+              assert.deepEqual(todoState.keyedById, expectedKeyedById)
+
+              // Make a request to an existing record and return the existing data first, then update `keyedById`
+              todoState.keyedById = {
+                0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
+                1: { id: 1, description: 'Do the second' }
+              }
+              actions.get.call({ $store: store }, [0, {}])
+                .then(response3 => {
+                  expectedKeyedById = {
+                    0: { id: 0, description: 'Do the FIRST' },
+                    1: { id: 1, description: 'Do the second' }
+                  }
+                  assert(response3.description === 'Do the FIRST')
+                  assert.deepEqual(todoState.keyedById, expectedKeyedById)
+
+                  // Wait for the remote data to arriive
+                  setTimeout(() => {
+                    expectedKeyedById = {
+                      0: { id: 0, description: 'Do the first' },
+                      1: { id: 1, description: 'Do the second' }
+                    }
+                    assert.deepEqual(todoState.keyedById, expectedKeyedById)
+                    done()
+                  }, 100)
+                })
+            })
+        })
+
+      // Make sure proper state changes occurred before response
+      assert(todoState.ids.length === 0)
+      assert(todoState.errorOnCreate === null)
+      assert(todoState.isGetPending === true)
+      assert.deepEqual(todoState.keyedById, {})
+    })
+
+    it('does not set currentId when setCurrentOnGet is false', (done) => {
+      const store = new Vuex.Store({
+        plugins: [service('todos')]
+      })
+      const todoState = store.state.todos
+      const actions = mapActions('todos', ['get'])
+
+      todoState.setCurrentOnGet = false
+
+      assert(todoState.ids.length === 0)
+      assert(todoState.errorOnGet === null)
+      assert(todoState.isGetPending === false)
+      assert(todoState.idField === 'id')
+
+      actions.get.call({ $store: store }, 0)
+        .then(response => {
+          assert(todoState.ids.length === 1, 'only one item is in the store')
+          assert(todoState.errorOnGet === null, 'there was no errorOnGet')
+          assert(todoState.isGetPending === false, 'isGetPending is set to false')
+          assert(todoState.currentId === null, 'the currentId was set')
+
           let expectedKeyedById = {
             0: { id: 0, description: 'Do the first' }
           }

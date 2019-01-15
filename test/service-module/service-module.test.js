@@ -814,6 +814,8 @@ describe('Service Module', () => {
         modelName: 'Todo',
         addOnUpsert: false,
         diffOnPatch: false,
+        setCurrentOnGet: true,
+        setCurrentOnCreate: true,
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,

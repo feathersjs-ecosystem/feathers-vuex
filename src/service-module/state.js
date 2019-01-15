@@ -6,6 +6,8 @@ export default function makeDefaultState (servicePath, options) {
     copiesById: {},
     currentId: null,
     copy: null,
+    setCurrentOnGet: true,
+    setCurrentOnCreate: true,
     idField,
     servicePath,
     autoRemove,
