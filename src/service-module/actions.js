@@ -33,17 +33,10 @@ export default function makeServiceActions (service, { debug }) {
         commit('unsetFindPending')
         return Promise.reject(error)
       }
-      const request = service.find(params)
 
       commit('setFindPending')
 
-      if (service.rx) {
-        Object.getPrototypeOf(request).catch(handleError)
-      } else {
-        request.catch(handleError)
-      }
-
-      return request.subscribe ? request.subscribe(handleResponse) : request.then(handleResponse)
+      return service.find(params).then(handleResponse).catch(handleError)
     },
 
     // Two query syntaxes are supported, since actions only receive one argument.
