@@ -13,7 +13,7 @@ const service = setupVuexService(feathersClient, {}, globalModels)
 Vue.use(Vuex)
 Vue.use(vuePlugin)
 
-describe.only('Find Mixin', function () {
+describe('Find Mixin', function () {
   const serviceName = 'todos'
   const store = new Vuex.Store({
     plugins: [service(serviceName)]
@@ -38,8 +38,8 @@ describe.only('Find Mixin', function () {
     assert(typeof vm.findTodos === 'function', 'the find action is in place')
     assert(vm.todosLocal === false, 'local boolean is false by default')
     assert(vm.todosQid === 'default', 'the default query identifier is in place')
-    assert(vm.todosQueryWhen === true, 'the default queryWhen is true')
-    assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
+    assert(vm.todosQueryWhen() === true, 'the default queryWhen is true')
+    // assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
     assert(vm.todosParams === undefined, 'no params are in place by default, must be specified by the user')
     assert(vm.todosFetchParams === undefined, 'no fetch params are in place by default, must be specified by the user')
   })

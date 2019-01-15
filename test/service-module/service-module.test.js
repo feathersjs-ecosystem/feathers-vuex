@@ -3,7 +3,7 @@ import setupVuexService from '~/src/service-module/service-module'
 import { makeFeathersRestClient, feathersRestClient as feathersClient, feathersSocketioClient } from '../fixtures/feathers-client'
 import { stripSlashes } from '../../src/utils'
 import memory from 'feathers-memory'
-import makeTodos from '../fixtures/todos'
+import { makeTodos } from '../fixtures/todos'
 import Vuex from 'vuex'
 
 const globalModels = {}
@@ -143,18 +143,32 @@ describe('Service Module', () => {
               },
               get fullName () {
                 return `${this.firstName} ${this.lastName}`
+              },
+              todos ({ store }) {
+                console.log(Object.keys(store))
               }
             }
           }),
           service('tasks', {
             keepCopiesInStore: true,
             instanceDefaults: taskDefaults
+          }),
+          service('groups', {
+            instanceDefaults (data, { store, Model, Models }) {
+              return {
+                name: '',
+                get todos () {
+                  return Models.Todo.findInStore({ query: {} }).data
+                }
+              }
+            }
           })
         ]
       })
       this.Todo = globalModels.Todo
       this.Task = globalModels.Task
       this.Person = globalModels.Person
+      this.Group = globalModels.Group
     })
 
     // store.commit('todos/addItem', data)
@@ -208,6 +222,15 @@ describe('Service Module', () => {
       })
 
       assert.equal(person.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
+    })
+
+    it('instanceDefaults can be a function that receives the store', function () {
+      const { Group } = this
+      const group = new Group({
+        name: 'test'
+      })
+
+      assert(Array.isArray(group.todos), 'instanceDefaults correctly assigned as function')
     })
 
     it('does not allow sharing of deeply nested objects between instances', function () {
@@ -264,7 +287,31 @@ describe('Service Module', () => {
       this.Task = globalModels.Task
     })
 
-    it('save calls create with correct arguments', function () {
+    it('Model.find', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.find === 'function')
+    })
+
+    it('Model.findInStore', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.findInStore === 'function')
+    })
+
+    it('Model.get', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.get === 'function')
+    })
+
+    it('Model.getFromStore', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.getFromStore === 'function')
+    })
+
+    it('instance.save calls create with correct arguments', function () {
       const { Todo } = this
       const todo = new Todo({ test: true })
 
@@ -278,7 +325,7 @@ describe('Service Module', () => {
       todo.save()
     })
 
-    it('save passes params to create', function () {
+    it('instance.save passes params to create', function () {
       const { Todo } = this
       const todo = new Todo({ test: true })
       let called = false
@@ -295,7 +342,7 @@ describe('Service Module', () => {
       assert(called, 'create should have been called')
     })
 
-    it('save passes params to patch', function () {
+    it('instance.save passes params to patch', function () {
       const { Todo } = this
       const todo = new Todo({ id: 1, test: true })
       let called = false
@@ -312,7 +359,7 @@ describe('Service Module', () => {
       assert(called, 'patch should have been called')
     })
 
-    it('save passes params to update', function () {
+    it('instance.save passes params to update', function () {
       const { Task } = this
       const task = new Task({ id: 1, test: true })
       let called = false
@@ -397,18 +444,33 @@ describe('Service Module', () => {
             }
           }),
           service('todos', {
-            instanceDefaults: {
-              id: null,
-              description: '',
-              isComplete: false,
-              task: 'Task',
-              item: 'Item'
+            instanceDefaults (data) {
+              const priority = data.priority || 'normal'
+              const defaultsByPriority = {
+                normal: {
+                  description: '',
+                  isComplete: false,
+                  task: 'Task',
+                  item: 'Item',
+                  priority: ''
+                },
+                high: {
+                  isHighPriority: true,
+                  priority: ''
+                }
+              }
+              return defaultsByPriority[priority]
             }
           }),
           service('items', {
-            instanceDefaults: {
-              test: false,
-              todo: 'Todo'
+            instanceDefaults (data, { store, Model, Models }) {
+              return {
+                test: false,
+                todo: 'Todo',
+                get todos () {
+                  return Models.Todo.findInStore({ query: {} }).data
+                }
+              }
             },
             mutations: {
               toggleTestBoolean (state, item) {
@@ -420,6 +482,30 @@ describe('Service Module', () => {
       })
       this.Todo = globalModels.Todo
       this.Task = globalModels.Task
+      this.Item = globalModels.Item
+    })
+
+    it('can setup relationships through es5 getters in instanceDefaults', function () {
+      const { Item, Todo } = this
+      const todo = new Todo({ id: 5, description: 'hey' })
+      const item = new Item({})
+
+      assert(Array.isArray(item.todos), 'Received an array of todos')
+      assert(item.todos[0] === todo, 'The todo was returned through the getter')
+    })
+
+    it('can have different instanceDefaults based on new instance data', function () {
+      const { Todo } = this
+      const normalTodo = new Todo({
+        description: 'Normal'
+      })
+      const highPriorityTodo = new Todo({
+        description: 'High Priority',
+        priority: 'high'
+      })
+
+      assert(!normalTodo.hasOwnProperty('isHighPriority'), 'Normal todos do not have an isHighPriority default attribute')
+      assert(highPriorityTodo.isHighPriority, 'High priority todos have a unique attribute')
     })
 
     it('converts keys that match Model names into Model instances', function () {

@@ -29,14 +29,14 @@ describe('Utils', function () {
       moduleName: 'auth',
       cookieName: 'feathers-jwt'
     })
-    .then(payload => {
-      assert(store.state.auth.accessToken === accessToken, 'the token was in place')
-      assert(store.state.auth.payload, 'the payload was set')
-      done()
-    })
+      .then(payload => {
+        assert(store.state.auth.accessToken === accessToken, 'the token was in place')
+        assert(store.state.auth.payload, 'the payload was set')
+        done()
+      })
   })
 
-  describe.only('Inflections', function () {
+  describe('Inflections', function () {
     it('properly inflects the service prefix', function () {
       const decisionTable = [
         ['todos', 'todos'],

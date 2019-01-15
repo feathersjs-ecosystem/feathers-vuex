@@ -25,6 +25,7 @@ export default function makeFindMixin (options) {
   if (typeof service === 'function' && name === 'service' && !items) {
     ITEMS = 'items'
   }
+  const ITEMS_FETCHED = `${ITEMS}Fetched`
   const IS_FIND_PENDING = `isFind${capitalized}Pending`
   const PARAMS = `${prefix}Params`
   const FETCH_PARAMS = `${prefix}FetchParams`
@@ -47,11 +48,18 @@ export default function makeFindMixin (options) {
     computed: {
       [ITEMS] () {
         return this[PARAMS] ? this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data : []
+      },
+      [ITEMS_FETCHED] () {
+        if (this[FETCH_PARAMS]) {
+          return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[FETCH_PARAMS]).data
+        } else {
+          return this[ITEMS]
+        }
       }
     },
     methods: {
-      [FIND_ACTION] () {
-        const paramsToUse = this[FETCH_PARAMS] || this[PARAMS]
+      [FIND_ACTION] (params) {
+        const paramsToUse = params || this[FETCH_PARAMS] || this[PARAMS]
 
         if (!this[LOCAL]) {
           if (typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](paramsToUse) : this[QUERY_WHEN]) {
@@ -74,17 +82,22 @@ export default function makeFindMixin (options) {
       }
     },
     created () {
-      debug && console.log(`running 'created' hook for ${service} with name ${nameToUse}`)
-      if (this[PARAMS] || this[FETCH_PARAMS]) {
+      debug && console.log(`running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`)
+      debug && console.log(PARAMS, this[PARAMS])
+      debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
+
+      const pType = Object.getPrototypeOf(this)
+
+      if (pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
         watch.forEach(prop => {
           if (typeof prop !== 'string') {
             throw new Error(`Values in the 'watch' array must be strings.`)
           }
           prop = prop.replace('params', PARAMS)
 
-          if (this[FETCH_PARAMS]) {
+          if (pType.hasOwnProperty(FETCH_PARAMS)) {
             if (prop.startsWith(PARAMS)) {
-              prop.replace(PARAMS, FETCH_PARAMS)
+              prop = prop.replace(PARAMS, FETCH_PARAMS)
             }
           }
           this.$watch(prop, this[FIND_ACTION])
@@ -95,7 +108,7 @@ export default function makeFindMixin (options) {
         if (!local) {
           // TODO: Add this message to the logging:
           //       "Pass { local: true } to disable this warning and only do local queries."
-          console.log(`No params were found for the "${service}" service with name "${nameToUse}".  No queries will be made.`)
+          console.log(`No "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeFindMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`)
         }
       }
     }

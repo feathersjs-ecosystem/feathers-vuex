@@ -17,7 +17,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-describe.only('feathers-vuex', () => {
+describe('feathers-vuex', () => {
   it('is CommonJS compatible', () => {
     assert(typeof feathersVuex === 'function')
   })
