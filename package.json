@@ -79,7 +79,7 @@
     "lodash.merge": "^4.6.1",
     "lodash.trim": "^4.5.1",
     "serialize-error": "^2.1.0",
-    "sift": "^6.0.0"
+    "sift": "^7.0.1"
   },
   "devDependencies": {
     "@feathersjs/authentication-client": "^1.0.10",
