@@ -101,7 +101,7 @@
     "feathers-memory": "^2.2.0",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.5.3",
-    "shx": "^0.2.2",
+    "shx": "^0.3.2",
     "socket.io-client": "^1.7.4",
     "standard": "^10.0.3",
     "steal": "^2.1.13",
