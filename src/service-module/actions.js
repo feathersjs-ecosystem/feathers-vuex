@@ -247,9 +247,9 @@ export default function makeServiceActions (service, { debug }) {
         commit('removeItems', toRemove) // commit removal
       }
 
-      if (service.Model) {
+      if (service.FeathersVuexModel) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.Model(item, {skipCommit: true})
+          toAdd[index] = new service.FeathersVuexModel(item, {skipCommit: true})
         })
       }
 
@@ -263,8 +263,8 @@ export default function makeServiceActions (service, { debug }) {
 
       const isIdOk = checkId(id, item, debug)
 
-      if (service.Model && !existingItem && !item.isFeathersVuexInstance) {
-        item = new service.Model(item)
+      if (service.FeathersVuexModel && !existingItem && !item.isFeathersVuexInstance) {
+        item = new service.FeathersVuexModel(item)
       }
 
       if (isIdOk) {

@@ -87,7 +87,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     let namespace = options.namespace || nameStyles[nameStyle](servicePath)
 
     return function setupStore (store) {
-      service.Model = Model
+      service.FeathersVuexModel = Model
       // Add servicePath to Model so it can be accessed
       Object.defineProperties(Model, {
         servicePath: {

@@ -12,10 +12,12 @@ const service = setupVuexService(feathersClient, {}, globalModels)
 describe('Service Module', () => {
   it('registers a vuex plugin and Model for the service', () => {
     const serviceName = 'todos'
+    const feathersService = feathersClient.service(serviceName)
     const store = new Vuex.Store({
       plugins: [service(serviceName)]
     })
     assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+    assert(feathersService.FeathersVuexModel === globalModels.Todo, 'the Model is also found at service.FeathersVuexModel')
 
     const todo = new globalModels.Todo({
       description: 'Do the dishes',
