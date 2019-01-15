@@ -49,6 +49,14 @@ describe('Service Module - Actions', () => {
       }
     }))
 
+    this.noIdService = feathersClient.use('no-ids', memory({
+      store: makeStore(),
+      paginate: {
+        default: 10,
+        max: 50
+      }
+    }))
+
     this.brokenService = feathersClient.use('broken', {
       find (params) { return Promise.reject(new Error('find error')) },
       get (id, params) { return Promise.reject(new Error('get error')) },
@@ -262,6 +270,25 @@ describe('Service Module - Actions', () => {
               assert(skip === 0, 'skip was correct')
               assert(total === 10, 'total was correct')
             })
+
+            done()
+          })
+      })
+
+      it(`allows non-id'd data to pass through`, (done) => {
+        const store = new Vuex.Store({
+          plugins: [
+            service('no-ids', {
+              idField: '_id'
+            })
+          ]
+        })
+        const actions = mapActions('no-ids', ['find'])
+
+        actions.find.call({$store: store}, { query: {} })
+          .then(response => {
+            assert(response.data.length === 10, 'records were still returned')
+            assert(store.state['no-ids'].ids.length === 0, 'no records were stored in the state')
 
             done()
           })

@@ -19,9 +19,18 @@ export default function makeServiceActions (service, { debug }) {
         // The pagination data will be under `pagination.default` or whatever qid is passed.
         if (response.data) {
           commit('updatePaginationForQuery', { qid, response, query })
-          response.data = response.data.map(mapItemFromState)
+
+          const mappedFromState = response.data.map(mapItemFromState)
+
+          if (mappedFromState[0] !== undefined) {
+            response.data = mappedFromState
+          }
         } else {
-          response = response.map(mapItemFromState)
+          const mappedFromState = response.map(mapItemFromState)
+
+          if (mappedFromState[0] !== undefined) {
+            response = mappedFromState
+          }
         }
 
         return response
