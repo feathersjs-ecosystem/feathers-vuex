@@ -29,11 +29,11 @@ describe('Utils', function () {
       moduleName: 'auth',
       cookieName: 'feathers-jwt'
     })
-    .then(payload => {
-      assert(store.state.auth.accessToken === accessToken, 'the token was in place')
-      assert(store.state.auth.payload, 'the payload was set')
-      done()
-    })
+      .then(payload => {
+        assert(store.state.auth.accessToken === accessToken, 'the token was in place')
+        assert(store.state.auth.payload, 'the payload was set')
+        done()
+      })
   })
 
   describe('Inflections', function () {
