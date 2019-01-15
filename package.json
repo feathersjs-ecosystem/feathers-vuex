@@ -98,7 +98,7 @@
     "body-parser": "^1.18.3",
     "can-fixture-socket": "^0.7.2",
     "chai": "^3.5.0",
-    "feathers-memory": "^2.2.0",
+    "feathers-memory": "^3.0.1",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.5.3",
     "shx": "^0.3.2",
