@@ -1,6 +1,5 @@
-
-import { Application } from "@feathersjs/feathers";
-import { StoreOptions, Plugin, Commit, Dispatch } from "vuex";
+import { Application, Query, Params } from "@feathersjs/feathers";
+import { StoreOptions, Plugin, Commit, Dispatch, Store } from "vuex";
 import Vue, { PluginObject, ComponentOptions } from "vue";
 import { Request } from "request";
 import { PropsDefinition } from "vue/types/options";
@@ -72,20 +71,26 @@ interface FeathersVuexOptions<Store = any> extends FeathersVuexStoreOptions<Stor
 /**
  * Service Model
  */
-export interface FeathersVuexModel<ModelType = any> {
+type GetParams = Exclude<Params, 'paginate'>;
+type FindParams = Params;
+
+interface FeathersVuexModelClass<ModelType = any> {
   namespace: string;
   className: string;
   modelName: string;
+  store: Store<any>; // todo: Type the VuexStore so we can include it here
   options: FeathersVuexOptions;
-  new(data?: Partial<ModelType>, options?: FeathersVuexModelOptions)
-  reset: () => Promise<FeathersVuexModel<ModelType>>
-  clone: () => Promise<FeathersVuexModel<ModelType>>
-  create: (params: Partial<ModelType>) => Promise<FeathersVuexModel<ModelType>>
-  patch: (params: Partial<ModelType>) => Promise<FeathersVuexModel<ModelType>>
-  remove: (params: Partial<ModelType>) => Promise<FeathersVuexModel<ModelType>>
-  save: (params: Partial<ModelType>) => Promise<FeathersVuexModel<ModelType>>
-  update: (params: Partial<ModelType>) => Promise<FeathersVuexModel<ModelType>>
+  new(data?: Partial<ModelType>, options?: FeathersVuexModelOptions): FeathersVuexModel<ModelType>;
+  create: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
+  save: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
+  patch: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
+  update: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
+  clone: () => Promise<FeathersVuexModel<ModelType>>;
+  reset: () => Promise<FeathersVuexModel<ModelType>>;
+  remove: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
 }
+
+export type FeathersVuexModel<T> = FeathersVuexModelClass<T> & T;
 
 interface FeathersVuexModelOptions {
   isClone?: boolean;
@@ -96,8 +101,24 @@ interface FeathersVuexModelOptions {
  * Vue Plugin
  */
 type FeathersVuexGlobalModelsIndex<T> = {
-  [P in keyof T]: FeathersVuexModel<T[P]> | FeathersVuexGlobalModels;
+  [P in keyof T]: {
+    new(data?: Partial<T[P]>, options?: FeathersVuexModelOptions): FeathersVuexModel<T[P]>;
+    find: (params?: FindParams) => FeathersVuexModel<T[P]>[];
+    findInStore: (params?: FindParams) => FeathersVuexModel<T[P]>[];
+    get: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
+    getFromStore: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
+  };
 }
+
+/**
+ * $FeathersVuex: FeathersVuexGlobalModelsIndex<Services> = {users: WrapFeathersVuexModel()}
+ * ->
+ * $FeathersVuex = {
+ *   users: typeof FeathersVuexModel<T['users']>
+ * }
+ *
+ * new $FeathersVuex.users()
+ */
 
 // This doesn't work because merging this into a string signature isn't a valid type
 // Leaving it here so that hopefully someone can figure it out in the future
@@ -154,7 +175,7 @@ interface FeathersVuexPluginType extends FeathersVuexGlobalModels { }
 
 declare module "vue/types/vue" {
   interface Vue {
-    $FeathersVuex: FeathersVuexPluginType;
+    // $FeathersVuex: FeathersVuexPluginType;
   }
 }
 
@@ -284,11 +305,11 @@ interface DataComponentOptions {
    * Service name, either service or name are required
    */
   name?: string;
-  params?: any;
+  params?: Params;
   /**
    * @default () => true
    */
-  queryWhen?: boolean | ((params: any) => boolean);
+  queryWhen?: boolean | ((params: Params) => boolean);
   /**
    * @default false
    */
@@ -303,7 +324,7 @@ interface MakeFindMixinOptions extends DataComponentOptions {
   items?: any[];
 }
 interface MakeGetMixinOptions extends DataComponentOptions {
-  fetchParams?: any;
+  fetchParams?: Params;
   id?: any;
   item?: any;
 }
@@ -321,5 +342,3 @@ interface InitAuthOptions {
   feathersClient: Application;
 }
 export function initAuth(options: InitAuthOptions): Promise<object>;
-
-
