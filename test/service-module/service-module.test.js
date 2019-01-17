@@ -124,6 +124,50 @@ describe('Service Module', () => {
       assert(todo.description === 'Do the dishes', 'the original todo was untouched')
       assert(todoClone.description === 'Do the dishes', 'the clone was reset to match the original')
     })
+
+    it('adds additional properties to model instances when more data arrives for the same id', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        description: 'Do the dishes',
+        isComplete: false,
+        owners,
+        test: true
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(newTodo.test === true, 'the new attribute was added')
+      assert(todo.test === true, 'the new attribute was also added to the original')
+    })
+
+    it('ignores when new data with matching id has fewer props than current record', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        owners
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(todo.description === 'Do the dishes', 'the existing attributes remained in place')
+      assert(todo.isComplete === false, 'the existing attributes remained in place')
+    })
+
+    it('updates the new record when non-null, non-undefined values do not match', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        description: 'Do the mopping',
+        isComplete: true,
+        owners
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(todo.description === 'Do the mopping', 'non-matching string was updated')
+      assert(todo.isComplete === true, 'non-matching boolean was updated')
+    })
   })
 
   describe('Models - Default Values', function () {
