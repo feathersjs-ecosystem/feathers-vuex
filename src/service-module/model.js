@@ -1,5 +1,6 @@
 import fastCopy from 'fast-copy'
 import isPlainObject from 'lodash.isplainobject'
+import Vue from 'vue'
 
 const defaults = {
   idField: 'id',
@@ -15,8 +16,22 @@ export default function (options) {
   class FeathersVuexModel {
     constructor (data = {}, options = {}) {
       const { store, namespace } = this.constructor
+      const existingItem = data[idField] && FeathersVuexModel.getFromStore(data[idField])
       const _relationships = {}
       let fnDefaults
+
+      if (options.isClone) {
+        Object.defineProperty(this, 'isClone', { value: true })
+      }
+
+      Object.defineProperty(this, 'isFeathersVuexInstance', { value: true })
+
+      if (existingItem && !options.isClone) {
+        if (!data.isFeathersVuexInstance) {
+          updateOriginal(data, existingItem)
+        }
+        return existingItem
+      }
 
       // Don't modify the original instanceDefaults. Clone it with accessors intact
       if (typeof instanceDefaults === 'function') {
@@ -49,12 +64,6 @@ export default function (options) {
           _instanceDefaults[key] = null
         }
       })
-
-      if (options.isClone) {
-        Object.defineProperty(this, 'isClone', { value: true })
-      }
-
-      Object.defineProperty(this, 'isFeathersVuexInstance', { value: true })
 
       // Check the relationships to instantiate.
       Object.keys(_relationships).forEach(prop => {
@@ -220,4 +229,30 @@ function cloneWithAccessors (obj) {
   })
 
   return clone
+}
+
+function updateOriginal (newData, existingItem) {
+  Object.keys(newData).forEach(key => {
+    const newProp = newData[key]
+    const oldProp = existingItem[key]
+    let shouldCopyProp = false
+
+    if (newProp === oldProp) {
+      return
+    }
+
+    if (!existingItem.hasOwnProperty(key)) {
+      shouldCopyProp = true
+    } else if ((oldProp === null || oldProp === undefined) && (newProp !== null && newProp !== undefined)) {
+      shouldCopyProp = true
+    } else if (Array.isArray(oldProp) && Array.isArray(newProp) && oldProp.length < newProp.length) {
+      shouldCopyProp = true
+    } else if (oldProp !== newProp && !Array.isArray(oldProp) && !Array.isArray(newProp)) {
+      shouldCopyProp = true
+    }
+
+    if (shouldCopyProp) {
+      Vue.set(existingItem, key, newProp)
+    }
+  })
 }

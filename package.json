@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "1.7.0-pre.45",
+  "version": "1.7.0-pre.47",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
   "types": "index.d.ts",
