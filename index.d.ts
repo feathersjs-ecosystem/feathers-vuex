@@ -71,8 +71,6 @@ interface FeathersVuexOptions<Store = any> extends FeathersVuexStoreOptions<Stor
 /**
  * Service Model
  */
-type GetParams = Exclude<Params, 'paginate'>;
-type FindParams = Params;
 
 interface FeathersVuexModelClass<ModelType = any> {
   namespace: string;
@@ -92,6 +90,9 @@ interface FeathersVuexModelClass<ModelType = any> {
 
 export type FeathersVuexModel<T> = FeathersVuexModelClass<T> & T;
 
+type GetParams = Exclude<Params, 'paginate'>;
+type FindParams = Params;
+
 interface FeathersVuexModelOptions {
   isClone?: boolean;
   skipCommit?: boolean;
@@ -110,23 +111,12 @@ type FeathersVuexGlobalModelsIndex<T> = {
   };
 }
 
-/**
- * $FeathersVuex: FeathersVuexGlobalModelsIndex<Services> = {users: WrapFeathersVuexModel()}
- * ->
- * $FeathersVuex = {
- *   users: typeof FeathersVuexModel<T['users']>
- * }
- *
- * new $FeathersVuex.users()
- */
 
 // This doesn't work because merging this into a string signature isn't a valid type
 // Leaving it here so that hopefully someone can figure it out in the future
 // type FeathersVuexGlobalModelsByPath<T> = {
 //   byServicePath: FeathersVuexGlobalModelsIndex<T>
 // }
-
-type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<T> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
 
 /**
  * @description The type for the $FeathersVuex vue plugin. To type this stronger include the
@@ -153,29 +143,18 @@ type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<
  *   rating: number;
  *   //...
  * }
- * @description
- * The second generic is for the "byServicePath" property, and can be used in a similar way, just make a
- * ServicesByPath interface, where the key for the service is the path, not the name
- *
- * @example
- * interface Services {
- *   usersPath: User
- *   //...
- * }
- *
- * declare module "vue/types/vue" {
- *   import { FeathersVuexGlobalModels } from "feathers-vuex";
- *   interface Vue {
- *     $FeathersVuex: FeathersVuexGlobalModels<Services, ServicesByPath>;
- *   }
- * }
  *
  */
-interface FeathersVuexPluginType extends FeathersVuexGlobalModels { }
+type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<T> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
 
+/**
+ * Add FeathersVuex to the Vue prototype
+ */
 declare module "vue/types/vue" {
+  interface FeathersVuexPluginType extends FeathersVuexGlobalModels { }
+
   interface Vue {
-    // $FeathersVuex: FeathersVuexPluginType;
+    $FeathersVuex: FeathersVuexPluginType;
   }
 }
 
@@ -227,6 +206,7 @@ interface FeathersVuexServiceState<ModelType = any, IDType = string> extends Fea
 /**
  * Data Components
  */
+// todo: use generic FeathersVuex*Computed
 export const FeathersVuexFind: ComponentOptions<
   Vue,
   FeathersVuexFindData,
@@ -234,6 +214,7 @@ export const FeathersVuexFind: ComponentOptions<
   FeathersVuexFindComputed,
   PropsDefinition<FeathersVuexFindProps>,
   FeathersVuexFindProps>;
+
 export const FeathersVuexGet: ComponentOptions<
   Vue,
   FeathersVuexGetData,
@@ -251,8 +232,8 @@ interface FeathersVuexGetMethods {
   fetchData(): Promise<void>;
 }
 
-interface FeathersVuexFindComputed {
-  items: any[];
+interface FeathersVuexFindComputed<T = any> {
+  items: T[];
   scope: { [key: string]: any }
   pagination: { [key: string]: any }
 }
@@ -264,8 +245,14 @@ interface FeathersVuexDataComponentProps {
   fetchQuery: any;
   watch?: string | string[];
   local?: boolean;
-  editScope?: ({ item: any, isGetPending: boolean }) => { [key: string]: any };
+  editScope?: (params: FeathersVuexEditScopeArgs) => { [key: string]: any };
 }
+
+interface FeathersVuexEditScopeArgs {
+  item: any;
+  isGetPending: boolean
+}
+
 interface FeathersVuexFindProps extends FeathersVuexDataComponentProps {
   qid?: string;
 }
@@ -275,23 +262,26 @@ interface FeathersVuexGetData {
   isGetPending: boolean;
 }
 interface FeathersVuexFindMethods {
-  getArgs(queryToUse?: any): any[];
+  getArgs(queryToUse?: Query): any[];
   getData(): Promise<void>;
   fetchData(): Promise<void>;
 }
-interface FeathersVuexGetComputed {
-  item: any | null;
+interface FeathersVuexGetComputed<T = any> {
+  item: T | null;
   scope: { [key: string]: any }
 }
-// todo: generic type for scope type, expand edit scope and queryWhen
+
 interface FeathersVuexGetProps extends FeathersVuexDataComponentProps {
   id?: number | string;
 }
+
+
 /**
  * Utilities
  */
-export function makeFindMixin(options: MakeFindMixinOptions): (ComponentOptions<Vue> | typeof Vue);
-export function makeGetMixin(options: MakeGetMixinOptions): (ComponentOptions<Vue> | typeof Vue);
+// todo: these mixins could probably have much better return types to make use of the generic
+export function makeFindMixin<T = any>(options: MakeFindMixinOptions<T>): (ComponentOptions<Vue> | typeof Vue);
+export function makeGetMixin<T = any>(options: MakeGetMixinOptions<T>): (ComponentOptions<Vue> | typeof Vue);
 
 interface DataComponentOptions {
   /**
@@ -319,14 +309,14 @@ interface DataComponentOptions {
   watch: string | boolean | string[];
 }
 
-interface MakeFindMixinOptions extends DataComponentOptions {
-  fetchQuery?: any;
-  items?: any[];
+interface MakeFindMixinOptions<T = any> extends DataComponentOptions {
+  fetchQuery?: Query;
+  items?: T[];
 }
-interface MakeGetMixinOptions extends DataComponentOptions {
+interface MakeGetMixinOptions<T = any> extends DataComponentOptions {
   fetchParams?: Params;
   id?: any;
-  item?: any;
+  item?: T;
 }
 
 
