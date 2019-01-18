@@ -4,6 +4,7 @@
   "version": "1.7.0-pre.45",
   "homepage": "https://github.com/feathersjs/feathers-vuex",
   "main": "lib/",
+  "types": "index.d.ts",
   "keywords": [
     "feathers",
     "feathers-plugin"
