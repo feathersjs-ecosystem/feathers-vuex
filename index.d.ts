@@ -90,7 +90,7 @@ interface FeathersVuexModelClass<ModelType = any> {
   remove: (params?: GetParams) => Promise<FeathersVuexModel<ModelType>>;
 }
 
-export type FeathersVuexModel<T> = FeathersVuexModelClass<T> & T;
+export type FeathersVuexModel<ModelType> = FeathersVuexModelClass<ModelType> & ModelType;
 
 type GetParams = Exclude<Params, 'paginate'>;
 type FindParams = Params;
@@ -103,14 +103,14 @@ interface FeathersVuexModelOptions {
 /**
  * Vue Plugin
  */
-type FeathersVuexGlobalModelsIndex<T> = {
+type FeathersVuexGlobalModelsIndex<Services> = {
   // this is a bit weird, but we need static members as well as make it new-able and return a FeathersVuexModel
-  [P in keyof T]: {
-    new(data?: Partial<T[P]>, options?: FeathersVuexModelOptions): FeathersVuexModel<T[P]>;
-    find: (params?: FindParams) => FeathersVuexModel<T[P]>[];
-    findInStore: (params?: FindParams) => FeathersVuexModel<T[P]>[];
-    get: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
-    getFromStore: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
+  [P in keyof Services]: {
+    new(data?: Partial<Services[P]>, options?: FeathersVuexModelOptions): FeathersVuexModel<Services[P]>;
+    find: (params?: FindParams) => FeathersVuexModel<Services[P]>[];
+    findInStore: (params?: FindParams) => FeathersVuexModel<Services[P]>[];
+    get: (id: any, params?: GetParams) => FeathersVuexModel<Services[P]>[];
+    getFromStore: (id: any, params?: GetParams) => FeathersVuexModel<Services[P]>[];
   }
 }
 
@@ -148,7 +148,7 @@ type FeathersVuexGlobalModelsIndex<T> = {
  * }
  *
  */
-export type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<T> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
+export type FeathersVuexGlobalModels<Services = any> = FeathersVuexGlobalModelsIndex<Services> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
 
 /**
  * Add FeathersVuex to the Vue prototype
