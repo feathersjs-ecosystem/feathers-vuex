@@ -72,6 +72,8 @@ interface FeathersVuexOptions<Store = any> extends FeathersVuexStoreOptions<Stor
  * Service Model
  */
 
+// This is an interface because it needs to return FeathersVuexModelClass & T
+// from the constructor, which isn't allowed with classes
 interface FeathersVuexModelClass<ModelType = any> {
   namespace: string;
   className: string;
@@ -102,13 +104,14 @@ interface FeathersVuexModelOptions {
  * Vue Plugin
  */
 type FeathersVuexGlobalModelsIndex<T> = {
+  // this is a bit weird, but we need static members as well as make it new-able and return a FeathersVuexModel
   [P in keyof T]: {
     new(data?: Partial<T[P]>, options?: FeathersVuexModelOptions): FeathersVuexModel<T[P]>;
     find: (params?: FindParams) => FeathersVuexModel<T[P]>[];
     findInStore: (params?: FindParams) => FeathersVuexModel<T[P]>[];
     get: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
     getFromStore: (id: any, params?: GetParams) => FeathersVuexModel<T[P]>[];
-  };
+  }
 }
 
 
@@ -124,33 +127,61 @@ type FeathersVuexGlobalModelsIndex<T> = {
  *
  *
  * @example
+ * import { Services } from "../store";
+ * import { FeathersVuexGlobalModels } from "feathers-vuex";
+ *
  * declare module "vue/types/vue" {
- *   import { FeathersVuexGlobalModels } from "feathers-vuex";
- *   interface Vue {
- *     $FeathersVuex: FeathersVuexGlobalModels<Services>;
- *   }
+ *  interface FeathersVuexPluginType extends FeathersVuexGlobalModels<Services> { }
  * }
  *
  * @description Where services is something like this
  * @example
  * interface Services {
  *   users: User
- *   //...
+ *   ...
  * }
  *
  * interface User {
  *   name: string;
- *   rating: number;
- *   //...
+ *   age: number;
+ *   ...
  * }
  *
  */
-type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<T> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
+export type FeathersVuexGlobalModels<T = any, P = any> = FeathersVuexGlobalModelsIndex<T> // & FeathersVuexGlobalModelsByPath<P>; // See comment above
 
 /**
  * Add FeathersVuex to the Vue prototype
  */
 declare module "vue/types/vue" {
+  /**
+  * To extend this use declaration merging in a local .d.ts file like this
+  *
+  * @example
+  * import { FeathersVuexGlobalModels } from "feathers-vuex";
+  *
+  *  interface Services {
+  *    users: User
+  *  }
+  *
+  *  interface User {
+  *    name: string;
+  *    age: number;
+  *  }
+  *
+  * declare module "vue/types/vue" {
+  *   interface FeathersVuexPluginType extends FeathersVuexGlobalModels<IServices> { }
+  * }
+  *
+  * Then you can use it like this
+  *
+  * mounted () {
+  *   const user = this.$FeathersVuex.users();
+  *   user.name = "Joe";
+  *   user.save()
+  * }
+  *
+  */
   interface FeathersVuexPluginType extends FeathersVuexGlobalModels { }
 
   interface Vue {
