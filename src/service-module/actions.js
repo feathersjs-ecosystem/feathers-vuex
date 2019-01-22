@@ -33,6 +33,8 @@ export default function makeServiceActions (service, { debug }) {
           }
         }
 
+        dispatch('afterFind', response)
+
         return response
       }
       const handleError = error => {
@@ -234,6 +236,7 @@ export default function makeServiceActions (service, { debug }) {
   }
 
   const actions = {
+    afterFind ({ commit, dispatch, getters, state }, response) {},
     addOrUpdateList ({ state, commit }, response) {
       const list = response.data || response
       const isPaginated = response.hasOwnProperty('total')

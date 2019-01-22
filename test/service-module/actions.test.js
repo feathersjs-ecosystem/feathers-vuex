@@ -293,6 +293,27 @@ describe('Service Module - Actions', () => {
             done()
           })
       })
+
+      it(`runs the afterFind action`, (done) => {
+        const store = new Vuex.Store({
+          plugins: [
+            service('no-ids', {
+              idField: '_id',
+              actions: {
+                afterFind ({ commit, dispatch, getters, state }, response) {
+                  assert(response.data.length === 10, 'records were still returned')
+                  assert(store.state['no-ids'].ids.length === 0, 'no records were stored in the state')
+
+                  done()
+                }
+              }
+            })
+          ]
+        })
+        const actions = mapActions('no-ids', ['find'])
+
+        actions.find.call({ $store: store }, { query: {} })
+      })
     })
 
     it('updates errorOnFind state on service failure', (done) => {
