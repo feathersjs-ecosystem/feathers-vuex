@@ -193,7 +193,7 @@ describe('Service Module - Mutations', function () {
     })
   })
 
-  describe.only('Vue event bindings', function () {
+  describe('Vue event bindings', function () {
     it('does not break when attempting to overwrite a getter', function (done) {
       const state = this.state
       const item1 = {
