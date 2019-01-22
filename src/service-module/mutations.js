@@ -2,7 +2,7 @@ import Vue from 'vue'
 import _merge from 'lodash.merge'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
-import { checkId } from '../utils'
+import { checkId, updateOriginal } from '../utils'
 
 export default function makeServiceMutations (servicePath, { debug, globalModels }) {
   globalModels = globalModels || { byServicePath: {} }
@@ -42,19 +42,18 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       let id = item[idField]
       const isIdOk = checkId(id, item, debug)
 
-      // Simply rewrite the record if the it's already in the `ids` list.
+      // Update the record
       if (isIdOk) {
         if (state.ids.includes(id)) {
+          // Completely replace the item
           if (replaceItems) {
             if (Model && !item.isFeathersVuexInstance) {
               item = new Model(item)
             }
             Vue.set(state.keyedById, id, item)
+          // Merge in changes
           } else {
-            // Correctly handle first-level arrays
-            Object.keys(item).forEach(key => {
-              Vue.set(state.keyedById[id], key, item[key])
-            })
+            updateOriginal(item, state.keyedById[id])
           }
 
         // if addOnUpsert then add the record into the state, else discard it.
@@ -241,7 +240,9 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         copy = Model.copiesById[id]
       }
 
-      Object.assign(current, copy)
+      updateOriginal(copy, current)
+
+      // Object.assign(current, copy)
     },
 
     // Stores pagination data on state.pagination based on the query identifier (qid)

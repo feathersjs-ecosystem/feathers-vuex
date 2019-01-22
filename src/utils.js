@@ -2,6 +2,8 @@ import _trim from 'lodash.trim'
 import decode from 'jwt-decode'
 import inflection from 'inflection'
 import deepDiff from 'deep-diff'
+import Vue from 'vue'
+import isObject from 'lodash.isobject'
 
 const { diff } = deepDiff
 
@@ -193,4 +195,39 @@ export function setByDot (obj, path, value, ifDelete) {
 
 export function diffFunctions () {
   return diff
+}
+
+export function updateOriginal (newData, existingItem) {
+  Object.keys(newData).forEach(key => {
+    const newProp = newData[key]
+    const oldProp = existingItem[key]
+    let shouldCopyProp = false
+
+    if (newProp === oldProp) {
+      return
+    }
+
+    // If the old item doesn't already have this property, update it
+    if (!existingItem.hasOwnProperty(key)) {
+      shouldCopyProp = true
+    // If the old prop is null or undefined, and the new prop is neither
+    } else if ((oldProp === null || oldProp === undefined) && (newProp !== null && newProp !== undefined)) {
+      shouldCopyProp = true
+    // If both old and new are arrays
+    } else if (Array.isArray(oldProp) && Array.isArray(newProp)) {
+      shouldCopyProp = true
+    } else if (isObject(oldProp)) {
+      shouldCopyProp = true
+    } else if (oldProp !== newProp && !Array.isArray(oldProp) && !Array.isArray(newProp)) {
+      shouldCopyProp = true
+    }
+
+    if (shouldCopyProp) {
+      if (existingItem.hasOwnProperty(key)) {
+        existingItem[key] = newProp
+      } else {
+        Vue.set(existingItem, key, newProp)
+      }
+    }
+  })
 }

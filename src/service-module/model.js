@@ -1,6 +1,7 @@
 import fastCopy from 'fast-copy'
 import isPlainObject from 'lodash.isplainobject'
 import Vue from 'vue'
+import { updateOriginal } from '../utils'
 
 const defaults = {
   idField: 'id',
@@ -229,30 +230,4 @@ function cloneWithAccessors (obj) {
   })
 
   return clone
-}
-
-function updateOriginal (newData, existingItem) {
-  Object.keys(newData).forEach(key => {
-    const newProp = newData[key]
-    const oldProp = existingItem[key]
-    let shouldCopyProp = false
-
-    if (newProp === oldProp) {
-      return
-    }
-
-    if (!existingItem.hasOwnProperty(key)) {
-      shouldCopyProp = true
-    } else if ((oldProp === null || oldProp === undefined) && (newProp !== null && newProp !== undefined)) {
-      shouldCopyProp = true
-    } else if (Array.isArray(oldProp) && Array.isArray(newProp) && oldProp.length < newProp.length) {
-      shouldCopyProp = true
-    } else if (oldProp !== newProp && !Array.isArray(oldProp) && !Array.isArray(newProp)) {
-      shouldCopyProp = true
-    }
-
-    if (shouldCopyProp) {
-      Vue.set(existingItem, key, newProp)
-    }
-  })
 }
