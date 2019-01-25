@@ -15,7 +15,8 @@ export default function makeServiceGetters (servicePath) {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => (params = {}) => {
-      const q = omit(params.query || {}, OPERATORS)
+      const { excludeFromGetterQuery } = state
+      const q = omit(params.query || {}, excludeFromGetterQuery)
       const customOperators = Object.keys(q).filter(k => k[0] === '$' && !defaultOps.includes(k))
       const cleanQuery = omit(q, customOperators)
       const { query, filters } = filterQuery(cleanQuery)

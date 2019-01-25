@@ -20,6 +20,7 @@ const defaults = {
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
   replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
   keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
+  excludeFromGetterQuery: [],
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
