@@ -7,7 +7,8 @@ const { _ } = commons
 const { filterQuery, sorter, select } = dbCommons
 const FILTERS = [ '$sort', '$limit', '$skip', '$select' ]
 const OPERATORS = [ '$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or' ]
-const defaultOps = FILTERS.concat(OPERATORS)
+const additionalOperators = [ '$elemMatch' ]
+const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
 export default function makeServiceGetters (servicePath) {
   return {
@@ -19,7 +20,8 @@ export default function makeServiceGetters (servicePath) {
       const q = omit(params.query || {}, excludeFromGetterQuery)
       const customOperators = Object.keys(q).filter(k => k[0] === '$' && !defaultOps.includes(k))
       const cleanQuery = omit(q, customOperators)
-      const { query, filters } = filterQuery(cleanQuery)
+
+      const { query, filters } = filterQuery(cleanQuery, { operators: additionalOperators })
       let values = _.values(state.keyedById)
       values = sift(query, values)
 
