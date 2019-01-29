@@ -423,6 +423,23 @@ describe('Service Module', () => {
       task.save({ test: true })
       assert(called, 'update should have been called')
     })
+
+    it('instance.toJSON', function () {
+      const { Task } = this
+      const task = new Task({ id: 1, test: true })
+
+      Object.defineProperty(task, 'getter', {
+        get () {
+          return `got'er`
+        }
+      })
+
+      assert.equal(task.getter, `got'er`)
+
+      const json = task.toJSON()
+
+      assert(json, 'got json')
+    })
   })
 
   describe('Models - modelName', function () {
