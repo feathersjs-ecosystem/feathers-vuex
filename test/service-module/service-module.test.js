@@ -310,7 +310,8 @@ describe('Service Module', () => {
         nameStyle: 'short',
         preferUpdate: false,
         replaceItems: false,
-        excludeFromGetterQuery: [],
+        paramsForServer: [],
+        whitelist: [],
         state: {}
       }
 
@@ -866,7 +867,8 @@ describe('Service Module', () => {
         replaceItems: false,
         servicePath: 'todos',
         pagination: {},
-        excludeFromGetterQuery: []
+        paramsForServer: [],
+        whitelist: []
       }
 
       assert.deepEqual(todoState, expectedState, 'the expected state was returned')

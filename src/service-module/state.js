@@ -8,7 +8,8 @@ export default function makeDefaultState (servicePath, options) {
     skipRequestIfExists,
     preferUpdate,
     replaceItems,
-    excludeFromGetterQuery
+    paramsForServer,
+    whitelist
   } = options
 
   const state = {
@@ -29,7 +30,8 @@ export default function makeDefaultState (servicePath, options) {
     preferUpdate,
     replaceItems,
     pagination: {},
-    excludeFromGetterQuery,
+    paramsForServer,
+    whitelist,
 
     isFindPending: false,
     isGetPending: false,
