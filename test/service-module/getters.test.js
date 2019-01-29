@@ -11,7 +11,7 @@ const options = {
 const { find, list } = makeServiceGetters('todos', options)
 const { addItems } = makeServiceMutations('todos', options)
 
-describe.only('Service Module - Getters', function () {
+describe('Service Module - Getters', function () {
   beforeEach(function () {
     const state = makeServiceState('todos', options)
     this.items = [
