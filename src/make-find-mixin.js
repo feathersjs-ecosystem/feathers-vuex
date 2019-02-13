@@ -73,8 +73,9 @@ export default function makeFindMixin (options) {
               }
 
               return this.$store.dispatch(`${this[SERVICE_NAME]}/find`, paramsToUse)
-                .then(() => {
+                .then(response => {
                   this[IS_FIND_PENDING] = false
+                  return response
                 })
             }
           }
