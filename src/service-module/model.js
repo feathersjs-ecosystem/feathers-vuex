@@ -1,4 +1,5 @@
 import fastCopy from 'fast-copy'
+import _merge from 'lodash.merge'
 
 const defaults = {
   idField: 'id',
@@ -170,7 +171,7 @@ export default function (options) {
     _remove () {}
 
     toJSON () {
-      return fastCopy(this)
+      return _merge({}, this)
     }
   }
 
