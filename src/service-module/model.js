@@ -1,6 +1,6 @@
 import fastCopy from 'fast-copy'
 import isPlainObject from 'lodash.isplainobject'
-import Vue from 'vue'
+import merge from 'lodash.merge'
 import { updateOriginal } from '../utils'
 
 const defaults = {
@@ -192,7 +192,7 @@ export default function (options) {
     _remove () {}
 
     toJSON () {
-      return fastCopy(this)
+      return merge({}, this)
     }
   }
 
