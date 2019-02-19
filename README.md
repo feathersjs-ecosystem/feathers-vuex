@@ -28,20 +28,23 @@
 - Relation Support
 
 ## Demo & Documentation
+
 [Demo](https://codesandbox.io/s/xk52mqm7o)
 
-See [https://feathers-plus.github.io./index.html](https://feathers-plus.github.io./index.html) for full documentation.
+See [https://feathers-vuex.feathers-plus./index.html](https://feathers-vuex.feathers-plus.com./index.html) for full documentation.
 
 ## Installation
 
-```
+```console
 npm install feathers-vuex --save
 ```
 
 ## Basic Examples
+
 To setup `feathers-vuex`, we first need to setup a Feathers Client.  Here's an example using the latest `@feathersjs` npm packages.
 
 **feathers-client.js:**
+
 ```js
 import feathers from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio-client'
@@ -60,6 +63,7 @@ export default feathersClient
 And here's how you would integrate the Feathers Client into the Vuex store:
 
 **store/index.js:**
+
 ```js
 import Vue from 'vue'
 import Vuex from 'vuex'
