@@ -156,7 +156,7 @@ makeFindMixin({ service: 'videos', name: 'myVideos' }) = {
 
 It's possible to change the service name on the fly.  To do this, pass a function (which becomes a computed property) that returns another string property from the viewModel.  Below is an example of how to set that up.  The `serviceName` attribute is set to `"videos"`, initially.  The `setTimeout` in the `created` method changes the value to `"users"` after three seconds.  When the serviceName changes, the users service is queried automatically.  The `items` property will then update to be the newly fetched users instead of the video records that it contained before.  The `items` option is used to rename the items to something more generic.
 
-```
+```html
 <template>
   <div>
     {{items}}
