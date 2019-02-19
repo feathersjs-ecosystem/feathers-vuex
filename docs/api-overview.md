@@ -1,10 +1,13 @@
-# feathers-vuex
+---
+title: API Overview
+---
 
+<!--- Usage ------------------------------------------------------------------------------------ -->
 [![Build Status](https://travis-ci.org/feathers-plus/feathers-vuex.png?branch=master)](https://travis-ci.org/feathers-plus/feathers-vuex)
 [![Dependency Status](https://img.shields.io/david/feathers-plus/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
-![feathers-vuex service logo](./service-logo.png)
+![feathers-vuex service logo](https://github.com/feathers-plus/feathers-vuex/raw/master/service-logo.png)
 
 > Integrate the Feathers Client into Vuex
 
@@ -14,31 +17,29 @@
 
 - Fully powered by Vuex & Feathers
 - Realtime By Default
-- Actions With Reactive Data
+- Actions With Reactive Data *
 - Local Queries
-- Fall-Through Caching
+- Fall-Through Caching *
 - Feathers Query Syntax
-- $FeathersVuex Vue Plugin
+- `$FeathersVuex` [Vue Plugin](./vue-plugin.md) *
 - Live Queries
-- Per-Service Data Modeling
-- Clone & Commit
-- Vuex Strict Mode
-- Per-Record Defaults
-- Data Level Computes
-- Relation Support
+- [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults) *
+- Clone & Commit *
+- Simplified Auth
+- Vuex Strict Mode *
+- Per-Record Defaults *
+- Data Level Computes *
+- Relation Support *
 
-## Demo & Documentation
-[Demo](https://codesandbox.io/s/xk52mqm7o)
-
-See [https://feathers-plus.github.io./index.html](https://feathers-plus.github.io./index.html) for full documentation.
+`* New in v1.2.0`
 
 ## Installation
 
-```
+```console
 npm install feathers-vuex --save
 ```
 
-## Basic Examples
+## Use
 To setup `feathers-vuex`, we first need to setup a Feathers Client.  Here's an example using the latest `@feathersjs` npm packages.
 
 **feathers-client.js:**
@@ -80,9 +81,11 @@ export default new Vuex.Store({
       idField: '_id', // The field in each record that will contain the id
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
       namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
+      debug: true, // Enable some logging for debugging
       autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
       enableEvents: false, // Turn off socket event listeners. It's true by default
       addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
+      replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
       skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
       modelName: 'OldTask' // Default modelName would have been 'Task'
     })
@@ -116,19 +119,36 @@ export default new Vuex.Store({
 })
 ```
 
-## Contributing
+The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
 
-`feathers-vuex` tests run using StealJS, which is a 100% browser-based bundler.
+To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathers-plus/feathers-chat-vuex).
 
-Once you’ve installed all of the npm packages, start an `http-server` in the root folder:
 
-`cd feathers-vuex`
+## Note about feathers-reactive
+Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required or supported.
 
-`npm i -g http-server`
+## Global Configuration
 
-`http-server`
+The following default options are available for configuration:
 
-Then open the resulting page in your browser and navigate to the test folder to run the tests.
+```js
+const defaultOptions = {
+  idField: 'id', // The field in each record that will contain the id
+  autoRemove: false, // automatically remove records missing from responses (only use with feathers-rest)
+  nameStyle: 'short', // Determines the source of the module name. 'short' or 'path'
+  enableEvents: true, // Set to false to explicitly disable socket event handlers.
+  preferUpdate: false, // When true, calling modelInstance.save() will do an update instead of a patch.
+}
+```
+
+Each service module can also be individually configured.
+
+## The Vuex modules
+
+There are two modules included:
+1. The [Service module](./service-module.md) adds a Vuex store for new services.
+2. The [Auth module](./auth-module.md) sets up the Vuex store for authentication / logout.
+
 
 ## License
 

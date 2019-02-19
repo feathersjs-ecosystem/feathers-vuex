@@ -16,7 +16,7 @@
   "author": {
     "name": "Marshall Thompson",
     "email": "marshall@creativeideal.net",
-    "url": "https://feathers-plus.github.io/v1/feathers-vuex"
+    "url": "https://feathers-plus.github.io."
   },
   "contributors": [],
   "bugs": {
@@ -40,7 +40,9 @@
     "test": "npm run lint && npm run test-node && npm run testee",
     "test-node": "mocha --opts mocha.opts",
     "testee": "testee test/index.html --browsers firefox",
-    "start": "npm run compile && node example/app"
+    "start": "npm run compile && node example/app",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "standard": {
     "sourceType": "module",
@@ -109,6 +111,7 @@
     "steal-mocha": "^2.0.1",
     "testee": "^0.8.1",
     "vue": "^2.5.22",
+    "vuepress": "^0.14.9",
     "vuex": "^3.0.1"
   }
 }
