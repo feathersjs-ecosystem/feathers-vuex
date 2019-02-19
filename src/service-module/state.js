@@ -1,11 +1,25 @@
 export default function makeDefaultState (servicePath, options) {
-  const { idField, autoRemove, enableEvents, addOnUpsert, diffOnPatch, skipRequestIfExists, preferUpdate, replaceItems } = options
+  const {
+    idField,
+    autoRemove,
+    enableEvents,
+    addOnUpsert,
+    diffOnPatch,
+    skipRequestIfExists,
+    preferUpdate,
+    replaceItems,
+    paramsForServer,
+    whitelist
+  } = options
+
   const state = {
     ids: [],
     keyedById: {},
     copiesById: {},
     currentId: null,
     copy: null,
+    setCurrentOnGet: true,
+    setCurrentOnCreate: true,
     idField,
     servicePath,
     autoRemove,
@@ -16,6 +30,8 @@ export default function makeDefaultState (servicePath, options) {
     preferUpdate,
     replaceItems,
     pagination: {},
+    paramsForServer,
+    whitelist,
 
     isFindPending: false,
     isGetPending: false,

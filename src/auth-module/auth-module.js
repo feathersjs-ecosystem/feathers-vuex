@@ -6,10 +6,10 @@ import setupActions from './actions'
 const defaults = {
   namespace: 'auth',
   userService: '', // Set this to automatically populate the user (using an additional request) on login success.
-  state: {},     // for custom state
-  getters: {},   // for custom getters
+  state: {}, // for custom state
+  getters: {}, // for custom getters
   mutations: {}, // for custom mutations
-  actions: {}    // for custom actions
+  actions: {} // for custom actions
 }
 
 export default function authPluginInit (feathersClient, globalOptions = {}, globalModels = {}) {

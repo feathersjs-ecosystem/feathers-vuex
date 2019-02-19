@@ -175,7 +175,7 @@ describe('Service Module - Mutations', function () {
       }
       updateItem(state, item1updated)
 
-      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], {1: {_id: 1, test: false}}])
+      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], { 1: { _id: 1, test: false } }])
       // assert(state.keyedById[1].test === false)
     })
 
@@ -190,6 +190,401 @@ describe('Service Module - Mutations', function () {
       updateItem(state, item1updated)
 
       assert(state.keyedById[1] == null)
+    })
+  })
+
+  describe('Vue event bindings', function () {
+    it('does not break when attempting to overwrite a getter', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        get getter () {
+          return 'Release the flying monkies!'
+        }
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.getter' (val) {
+            throw new Error('this should never happen')
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        getter: true
+      }
+      updateItem(state, updatedItem)
+
+      assert(state.keyedById[1].getter === 'Release the flying monkies!')
+      done()
+    })
+
+    it('correctly emits events for existing array properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true,
+        users: [ 'Marshall', 'Mariah' ]
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.users' (val) {
+            assert(this.item.users.length === 3)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        test: false,
+        users: [ 'Marshall', 'Mariah', 'Scooby Doo' ]
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for new array properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.users' (val) {
+            assert(this.item.users.length === 3)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        test: false,
+        users: [ 'Marshall', 'Mariah', 'Scooby Doo' ]
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for existing object properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        obj: { test: true }
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.obj' (val) {
+            assert(this.item.obj.test === false)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        obj: { test: false }
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for new object properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.obj' (val) {
+            assert(this.item.obj.test === false)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        obj: { test: false }
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for existing boolean properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        isValid: true
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.isValid' (val) {
+            assert(this.item.isValid === false)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        isValid: false
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for new boolean properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.isValid' (val) {
+            assert(this.item.isValid === false)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        isValid: false
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for existing string properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        name: 'Marshall'
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.name' (val) {
+            assert(this.item.name === 'Xavier')
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        name: 'Xavier'
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for new string properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.name' (val) {
+            assert(this.item.name === 'Xavier')
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        name: 'Xavier'
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for existing null properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        name: null
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.name' (val) {
+            assert(this.item.name === 'Xavier')
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        name: 'Xavier'
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for properties set to null', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        name: 'Marshall'
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.name' (val) {
+            assert(this.item.name === null)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        name: null
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for existing number properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        age: 45
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.age' (val) {
+            assert(this.item.age === 50)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        age: 50
+      }
+      updateItem(state, updatedItem)
+    })
+
+    it('correctly emits events for new number properties', function (done) {
+      const state = this.state
+      const item1 = {
+        _id: 1
+      }
+      const items = [item1]
+      addItems(state, items)
+
+      const vm = new Vue({
+        data: {
+          item: state.keyedById[1]
+        },
+        watch: {
+          'item.age' (val) {
+            assert(this.item.age === 50)
+            done()
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+
+      const updatedItem = {
+        _id: 1,
+        age: 50
+      }
+      updateItem(state, updatedItem)
     })
   })
 
@@ -224,7 +619,7 @@ describe('Service Module - Mutations', function () {
   it('removeItem', function () {
     const state = this.state
 
-    addItem(state, {_id: 1, test: true})
+    addItem(state, { _id: 1, test: true })
     removeItem(state, 1)
 
     assert(state.ids.length === 0)
@@ -234,10 +629,10 @@ describe('Service Module - Mutations', function () {
   it('removeItems with array of ids', function () {
     const state = this.state
     const items = [
-      {_id: 1, test: true},
-      {_id: 2, test: true},
-      {_id: 3, test: true},
-      {_id: 4, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true },
+      { _id: 3, test: true },
+      { _id: 4, test: true }
     ]
     addItems(state, items)
     const itemsToRemove = [1, 2]
@@ -250,15 +645,15 @@ describe('Service Module - Mutations', function () {
   it('removeItems with array of items', function () {
     const state = this.state
     const items = [
-      {_id: 1, test: true},
-      {_id: 2, test: true},
-      {_id: 3, test: true},
-      {_id: 4, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true },
+      { _id: 3, test: true },
+      { _id: 4, test: true }
     ]
     addItems(state, items)
     const itemsToRemove = [
-      {_id: 1, test: true},
-      {_id: 2, test: true}
+      { _id: 1, test: true },
+      { _id: 2, test: true }
     ]
     removeItems(state, itemsToRemove)
 

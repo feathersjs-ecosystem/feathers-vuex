@@ -2,6 +2,7 @@ export default function setupAuthState ({ userService }) {
   const state = {
     accessToken: null, // The JWT
     payload: null, // The JWT payload
+    entityIdField: 'userId',
 
     isAuthenticatePending: false,
     isLogoutPending: false,

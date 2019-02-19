@@ -1,6 +1,10 @@
 import setupServiceModule from './service-module/service-module'
 import setupAuthModule from './auth-module/auth-module'
 import setupVuePlugin from './vue-plugin/vue-plugin'
+import FeathersVuexFind from './FeathersVuexFind'
+import FeathersVuexGet from './FeathersVuexGet'
+import makeFindMixin from './make-find-mixin'
+import makeGetMixin from './make-get-mixin'
 import { initAuth } from './utils'
 
 const globalDefaults = {
@@ -13,7 +17,7 @@ const globalModels = {
   byServicePath: {}
 }
 
-export { initAuth }
+export { initAuth, FeathersVuexFind, FeathersVuexGet, makeFindMixin, makeGetMixin }
 
 export default function (feathersClient, globalOptions = {}) {
   globalOptions = Object.assign({}, globalDefaults, globalOptions)
@@ -21,6 +25,8 @@ export default function (feathersClient, globalOptions = {}) {
   return {
     service: setupServiceModule(feathersClient, globalOptions, globalModels),
     auth: setupAuthModule(feathersClient, globalOptions, globalModels),
-    FeathersVuex: setupVuePlugin(globalModels)
+    FeathersVuex: setupVuePlugin(globalModels),
+    FeathersVuexFind,
+    FeathersVuexGet
   }
 }

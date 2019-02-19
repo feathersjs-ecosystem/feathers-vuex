@@ -1,7 +1,14 @@
 import sift from 'sift'
 import commons from '@feathersjs/commons'
+import dbCommons from '@feathersjs/adapter-commons'
+import omit from 'lodash.omit'
 
-const { filterQuery, sorter, select, _ } = commons
+const { _ } = commons
+const { filterQuery, sorter, select } = dbCommons
+const FILTERS = [ '$sort', '$limit', '$skip', '$select' ]
+const OPERATORS = [ '$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or' ]
+const additionalOperators = [ '$elemMatch' ]
+const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
 export default function makeServiceGetters (servicePath) {
   return {
@@ -9,7 +16,14 @@ export default function makeServiceGetters (servicePath) {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => (params = {}) => {
-      const { query, filters } = filterQuery(params.query || {})
+      const { paramsForServer, whitelist } = state
+      const q = omit(params.query || {}, paramsForServer)
+      const customOperators = Object.keys(q).filter(k => k[0] === '$' && !defaultOps.includes(k))
+      const cleanQuery = omit(q, customOperators)
+
+      const { query, filters } = filterQuery(cleanQuery, {
+        operators: additionalOperators.concat(whitelist)
+      })
       let values = _.values(state.keyedById)
       values = sift(query, values)
 

@@ -3,7 +3,7 @@ import setupVuexService from '~/src/service-module/service-module'
 import { makeFeathersRestClient, feathersRestClient as feathersClient, feathersSocketioClient } from '../fixtures/feathers-client'
 import { stripSlashes } from '../../src/utils'
 import memory from 'feathers-memory'
-import makeTodos from '../fixtures/todos'
+import { makeTodos } from '../fixtures/todos'
 import Vuex from 'vuex'
 
 const globalModels = {}
@@ -12,10 +12,12 @@ const service = setupVuexService(feathersClient, {}, globalModels)
 describe('Service Module', () => {
   it('registers a vuex plugin and Model for the service', () => {
     const serviceName = 'todos'
+    const feathersService = feathersClient.service(serviceName)
     const store = new Vuex.Store({
       plugins: [service(serviceName)]
     })
     assert(globalModels.hasOwnProperty('Todo'), 'the Model was added to the globalModels')
+    assert(feathersService.FeathersVuexModel === globalModels.Todo, 'the Model is also found at service.FeathersVuexModel')
 
     const todo = new globalModels.Todo({
       description: 'Do the dishes',
@@ -122,6 +124,50 @@ describe('Service Module', () => {
       assert(todo.description === 'Do the dishes', 'the original todo was untouched')
       assert(todoClone.description === 'Do the dishes', 'the clone was reset to match the original')
     })
+
+    it('adds additional properties to model instances when more data arrives for the same id', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        description: 'Do the dishes',
+        isComplete: false,
+        owners,
+        test: true
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(newTodo.test === true, 'the new attribute was added')
+      assert(todo.test === true, 'the new attribute was also added to the original')
+    })
+
+    it('ignores when new data with matching id has fewer props than current record', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        owners
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(todo.description === 'Do the dishes', 'the existing attributes remained in place')
+      assert(todo.isComplete === false, 'the existing attributes remained in place')
+    })
+
+    it('updates the new record when non-null, non-undefined values do not match', function () {
+      const { todo, owners } = this
+      const newData = {
+        id: 1,
+        description: 'Do the mopping',
+        isComplete: true,
+        owners
+      }
+      const newTodo = new todo.constructor(newData)
+
+      assert(newTodo === todo, 'the records are the same')
+      assert(todo.description === 'Do the mopping', 'non-matching string was updated')
+      assert(todo.isComplete === true, 'non-matching boolean was updated')
+    })
   })
 
   describe('Models - Default Values', function () {
@@ -143,18 +189,32 @@ describe('Service Module', () => {
               },
               get fullName () {
                 return `${this.firstName} ${this.lastName}`
+              },
+              todos ({ store }) {
+                console.log(Object.keys(store))
               }
             }
           }),
           service('tasks', {
             keepCopiesInStore: true,
             instanceDefaults: taskDefaults
+          }),
+          service('groups', {
+            instanceDefaults (data, { store, Model, Models }) {
+              return {
+                name: '',
+                get todos () {
+                  return Models.Todo.findInStore({ query: {} }).data
+                }
+              }
+            }
           })
         ]
       })
       this.Todo = globalModels.Todo
       this.Task = globalModels.Task
       this.Person = globalModels.Person
+      this.Group = globalModels.Group
     })
 
     // store.commit('todos/addItem', data)
@@ -210,6 +270,15 @@ describe('Service Module', () => {
       assert.equal(person.fullName, `Marshall Thompson`, 'the es5 getter returned the correct value')
     })
 
+    it('instanceDefaults can be a function that receives the store', function () {
+      const { Group } = this
+      const group = new Group({
+        name: 'test'
+      })
+
+      assert(Array.isArray(group.todos), 'instanceDefaults correctly assigned as function')
+    })
+
     it('does not allow sharing of deeply nested objects between instances', function () {
       const { Person } = this
       const person1 = new Person({ firstName: 'Marshall', lastName: 'Thompson' })
@@ -241,6 +310,8 @@ describe('Service Module', () => {
         nameStyle: 'short',
         preferUpdate: false,
         replaceItems: false,
+        paramsForServer: [],
+        whitelist: [],
         state: {}
       }
 
@@ -264,7 +335,31 @@ describe('Service Module', () => {
       this.Task = globalModels.Task
     })
 
-    it('save calls create with correct arguments', function () {
+    it('Model.find', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.find === 'function')
+    })
+
+    it('Model.findInStore', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.findInStore === 'function')
+    })
+
+    it('Model.get', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.get === 'function')
+    })
+
+    it('Model.getFromStore', function () {
+      const { Todo } = this
+
+      assert(typeof Todo.getFromStore === 'function')
+    })
+
+    it('instance.save calls create with correct arguments', function () {
       const { Todo } = this
       const todo = new Todo({ test: true })
 
@@ -278,7 +373,7 @@ describe('Service Module', () => {
       todo.save()
     })
 
-    it('save passes params to create', function () {
+    it('instance.save passes params to create', function () {
       const { Todo } = this
       const todo = new Todo({ test: true })
       let called = false
@@ -295,7 +390,7 @@ describe('Service Module', () => {
       assert(called, 'create should have been called')
     })
 
-    it('save passes params to patch', function () {
+    it('instance.save passes params to patch', function () {
       const { Todo } = this
       const todo = new Todo({ id: 1, test: true })
       let called = false
@@ -312,7 +407,7 @@ describe('Service Module', () => {
       assert(called, 'patch should have been called')
     })
 
-    it('save passes params to update', function () {
+    it('instance.save passes params to update', function () {
       const { Task } = this
       const task = new Task({ id: 1, test: true })
       let called = false
@@ -327,6 +422,23 @@ describe('Service Module', () => {
 
       task.save({ test: true })
       assert(called, 'update should have been called')
+    })
+
+    it('instance.toJSON', function () {
+      const { Task } = this
+      const task = new Task({ id: 1, test: true })
+
+      Object.defineProperty(task, 'getter', {
+        get () {
+          return `got'er`
+        }
+      })
+
+      assert.equal(task.getter, `got'er`)
+
+      const json = task.toJSON()
+
+      assert(json, 'got json')
     })
   })
 
@@ -397,18 +509,33 @@ describe('Service Module', () => {
             }
           }),
           service('todos', {
-            instanceDefaults: {
-              id: null,
-              description: '',
-              isComplete: false,
-              task: 'Task',
-              item: 'Item'
+            instanceDefaults (data) {
+              const priority = data.priority || 'normal'
+              const defaultsByPriority = {
+                normal: {
+                  description: '',
+                  isComplete: false,
+                  task: 'Task',
+                  item: 'Item',
+                  priority: ''
+                },
+                high: {
+                  isHighPriority: true,
+                  priority: ''
+                }
+              }
+              return defaultsByPriority[priority]
             }
           }),
           service('items', {
-            instanceDefaults: {
-              test: false,
-              todo: 'Todo'
+            instanceDefaults (data, { store, Model, Models }) {
+              return {
+                test: false,
+                todo: 'Todo',
+                get todos () {
+                  return Models.Todo.findInStore({ query: {} }).data
+                }
+              }
             },
             mutations: {
               toggleTestBoolean (state, item) {
@@ -420,6 +547,30 @@ describe('Service Module', () => {
       })
       this.Todo = globalModels.Todo
       this.Task = globalModels.Task
+      this.Item = globalModels.Item
+    })
+
+    it('can setup relationships through es5 getters in instanceDefaults', function () {
+      const { Item, Todo } = this
+      const todo = new Todo({ id: 5, description: 'hey' })
+      const item = new Item({})
+
+      assert(Array.isArray(item.todos), 'Received an array of todos')
+      assert(item.todos[0] === todo, 'The todo was returned through the getter')
+    })
+
+    it('can have different instanceDefaults based on new instance data', function () {
+      const { Todo } = this
+      const normalTodo = new Todo({
+        description: 'Normal'
+      })
+      const highPriorityTodo = new Todo({
+        description: 'High Priority',
+        priority: 'high'
+      })
+
+      assert(!normalTodo.hasOwnProperty('isHighPriority'), 'Normal todos do not have an isHighPriority default attribute')
+      assert(highPriorityTodo.isHighPriority, 'High priority todos have a unique attribute')
     })
 
     it('converts keys that match Model names into Model instances', function () {
@@ -691,7 +842,7 @@ describe('Service Module', () => {
   describe('Basics', () => {
     beforeEach(function () {
       this.feathersClient = makeFeathersRestClient()
-      this.feathersClient.use('todos', memory({store: makeTodos()}))
+      this.feathersClient.use('todos', memory({ store: makeTodos() }))
       this.service = setupVuexService(this.feathersClient)
     })
 
@@ -726,11 +877,15 @@ describe('Service Module', () => {
         modelName: 'Todo',
         addOnUpsert: false,
         diffOnPatch: false,
+        setCurrentOnGet: true,
+        setCurrentOnCreate: true,
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
         servicePath: 'todos',
-        pagination: {}
+        pagination: {},
+        paramsForServer: [],
+        whitelist: []
       }
 
       assert.deepEqual(todoState, expectedState, 'the expected state was returned')

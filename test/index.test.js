@@ -5,16 +5,17 @@ import './service-module/getters.test.js'
 import './service-module/mutations.test.js'
 import './auth-module/auth-module.test.js'
 import './auth-module/actions.test.js'
+import './make-find-mixin.test.js'
 import './utils.test.js'
 
 import assert from 'chai/chai'
 import 'steal-mocha'
 import feathersVuex from '../src/index'
 import { feathersSocketioClient as feathersClient } from './fixtures/feathers-client'
-import vue from 'vue'
+import Vue from 'vue'
 import Vuex from 'vuex'
 
-vue.use(Vuex)
+Vue.use(Vuex)
 
 describe('feathers-vuex', () => {
   it('is CommonJS compatible', () => {
@@ -34,9 +35,13 @@ describe('feathers-vuex', () => {
   })
 
   it('includes the service and auth plugins', function () {
-    const { service, auth } = feathersVuex(feathersClient)
+    const { service, auth, FeathersVuex, FeathersVuexFind, FeathersVuexGet } = feathersVuex(feathersClient)
+
     assert(typeof service === 'function', 'service util in place')
     assert(typeof auth === 'function', 'auth util in place')
+    assert(typeof FeathersVuex.install === 'function', 'vue plugin is in place')
+    assert(typeof FeathersVuexFind === 'object', 'FeathersVuexFind component is in place')
+    assert(typeof FeathersVuexGet === 'object', 'FeathersVuexGet component is in place')
   })
 
   it('can globally set the options', () => {

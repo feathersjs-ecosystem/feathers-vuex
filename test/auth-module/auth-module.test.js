@@ -27,6 +27,7 @@ describe('Auth Module', () => {
         isAuthenticatePending: false,
         isLogoutPending: false,
         payload: null,
+        entityIdField: 'userId',
         user: null
       }
 

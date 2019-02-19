@@ -18,8 +18,8 @@ export default function makeAuthActions (feathersClient, globalModels) {
                 commit('setPayload', payload)
 
                 // Populate the user if the userService was provided
-                if (state.userService && payload.hasOwnProperty('userId')) {
-                  return dispatch('populateUser', payload.userId)
+                if (state.userService && payload.hasOwnProperty(state.entityIdField)) {
+                  return dispatch('populateUser', payload[state.entityIdField])
                     .then(() => {
                       commit('unsetAuthenticatePending')
                       return response
@@ -49,7 +49,7 @@ export default function makeAuthActions (feathersClient, globalModels) {
         })
     },
 
-    logout ({commit}) {
+    logout ({ commit }) {
       commit('setLogoutPending')
       return feathersClient.logout()
         .then(response => {

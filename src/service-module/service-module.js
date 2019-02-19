@@ -20,10 +20,12 @@ const defaults = {
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
   replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
   keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
-  state: {},     // for custom state
-  getters: {},   // for custom getters
+  paramsForServer: [], // Custom query operators that are ignored in the find getter, but will pass through to the server.
+  whitelist: [], // Custom query operators that will be allowed in the find getter.
+  state: {}, // for custom state
+  getters: {}, // for custom getters
   mutations: {}, // for custom mutations
-  actions: {}    // for custom actions
+  actions: {} // for custom actions
 }
 
 export default function servicePluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
@@ -87,7 +89,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     let namespace = options.namespace || nameStyles[nameStyle](servicePath)
 
     return function setupStore (store) {
-      service.Model = Model
+      service.FeathersVuexModel = Model
       // Add servicePath to Model so it can be accessed
       Object.defineProperties(Model, {
         servicePath: {
@@ -104,9 +106,42 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
       // Add Model to the globalModels object, so it's available in the Vue plugin
       const modelInfo = registerModel(Model, globalModels, apiPrefix, servicePath)
 
-      Object.defineProperty(Model, 'className', { value: modelInfo.name })
       module.state.modelName = modelInfo.path
       store.registerModule(namespace, module)
+
+      Object.defineProperties(Model, {
+        className: {
+          value: modelInfo.name
+        },
+        find: {
+          value (params) {
+            return store.dispatch(`${namespace}/find`, params)
+          }
+        },
+        findInStore: {
+          value (params) {
+            return store.getters[`${namespace}/find`](params)
+          }
+        },
+        get: {
+          value (id, params) {
+            if (params) {
+              return store.dispatch(`${namespace}/get`, [id, params])
+            } else {
+              return store.dispatch(`${namespace}/get`, id)
+            }
+          }
+        },
+        getFromStore: {
+          value (id, params) {
+            if (params) {
+              return store.getters[`${namespace}/get`]([ id, params ])
+            } else {
+              return store.getters[`${namespace}/get`](id)
+            }
+          }
+        }
+      })
 
       // Upgrade the Model's API methods to use the store.actions
       Object.defineProperties(Model.prototype, {
