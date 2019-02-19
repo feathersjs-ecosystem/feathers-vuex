@@ -70,7 +70,7 @@ export default {
           const params = { query }
 
           if (this.qid) {
-            params.qid = this.qid
+            params.qid = params.qid || this.qid
           }
           return this.$store.dispatch(`${this.service}/find`, params)
             .then(() => {
