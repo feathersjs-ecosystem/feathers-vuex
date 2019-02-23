@@ -31,7 +31,7 @@
 
 [Demo](https://codesandbox.io/s/xk52mqm7o)
 
-See [https://feathers-vuex.feathers-plus./index.html](https://feathers-vuex.feathers-plus.com./index.html) for full documentation.
+See [https://feathers-vuex.feathers-plus.com/index.html](https://feathers-vuex.feathers-plus.com/index.html) for full documentation.
 
 ## Installation
 
