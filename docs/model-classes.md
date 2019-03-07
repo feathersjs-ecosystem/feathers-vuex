@@ -58,7 +58,7 @@ Model classes have a `getFromStore` method, which is a proxy to the [`get` gette
 // In your Vue component
 created () {
   const { Todo } = this.$FeathersVuex
-  const todo = Todo.findInStore(this.id)
+  const todo = Todo.getFromStore(this.id)
 }
 ```
 
