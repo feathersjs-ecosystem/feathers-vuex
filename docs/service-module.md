@@ -116,7 +116,7 @@ The following state attribute will be populated with any request error, serializ
 ## Service Getters
 Service modules include the following getters:
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
-- `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common.md) and [Query API](https://docs.feathersjs.com/api/databases/querying.md) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
+- `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common) and [Query API](https://docs.feathersjs.com/api/databases/querying) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
   - `params {Object}` - an object with a `query` object and an optional `paginate` boolean property. The `query` is in the FeathersJS query format.  You can set `params.paginate` to `false` to disable pagination for a single request.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
@@ -203,7 +203,7 @@ The following mutations are called automatically by the service actions, and wil
 ## Service Actions
 An action is included for each of the Feathers service interface methods.  These actions will affect changes in both the Feathers API server and the Vuex store.
 
-All of the [Feathers Service Methods](https://docs.feathersjs.com/api/databases/common.md#service-methods) are supported.  Because Vuex only supports providing a single argument to actions, there is a slight change in syntax that works well.  If you need to pass multiple arguments to a service method, pass an array to the action with the order of the array elements matching the order of the arguments.  See each method for examples.
+All of the [Feathers Service Methods](https://docs.feathersjs.com/api/databases/common#service-methods) are supported.  Because Vuex only supports providing a single argument to actions, there is a slight change in syntax that works well.  If you need to pass multiple arguments to a service method, pass an array to the action with the order of the array elements matching the order of the arguments.  See each method for examples.
 
 > Note: If you use the Feathers service methods, directly, the store will not change. Only the actions will cause store changes.
 
