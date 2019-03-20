@@ -43,7 +43,7 @@ export default function (options) {
       Object.keys(_instanceDefaults).forEach(key => {
         // Prevent getters and setters from firing before the instance is constructed
         const desc = Object.getOwnPropertyDescriptor(_instanceDefaults, key)
-        if (desc.get || desc.set) {
+        if (desc.get || desc.set || typeof desc.value === 'function') {
           return
         }
 
@@ -109,7 +109,12 @@ export default function (options) {
       // Copy over all instance data
       const dataProps = Object.getOwnPropertyNames(data)
       dataProps.forEach(key => {
-        var desc = Object.getOwnPropertyDescriptor(data, key)
+        const desc = Object.getOwnPropertyDescriptor(data, key);
+        const propertyExists = _this.hasOwnProperty(key);
+        const isComputed = desc.get || desc.set || typeof desc.value === 'function';
+        if (propertyExists && isComputed) {
+          return;
+        }
         Object.defineProperty(this, key, desc)
       })
 
