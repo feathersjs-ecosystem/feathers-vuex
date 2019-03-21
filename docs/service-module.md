@@ -52,11 +52,17 @@ Each service comes loaded with the following default state:
 {
     ids: [],
     keyedById: {}, // A hash map, keyed by id of each item
+    copiesById: {}, // objects cloned with Model.clone()
     currentId: undefined, // The id of the item marked as current
     copy: undefined, // A deep copy of the current item
     idField: 'id',
     servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
+    enableEvents: true, // Listens to socket.io events when available
+    addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+    diffOnPatch: false, // Only send changed data on patch
+    skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
+    preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
     replaceItems: false, // When set to true, updates and patches will replace the record in the store instead of merging changes
     paginate: false, // Indicates if pagination is enabled on the Feathers service.
 
@@ -86,11 +92,17 @@ The following attributes are available in each service module's state:
 
 - `ids {Array}` - an array of plain ids representing the ids that belong to each object in the `keyedById` map.
 - `keyedById {Object}` - a hash map keyed by the id of each item.
+- `copiesById {Object}` - objects cloned with Model.clone()
 - `currentId {Number|String}` - the id of the item marked as current.
 - `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `rejectCopy` to revert `copy` to once again match `current`.  You may prefer to use the new [clone API]() for [managing multiple copies with model instances](./common-patterns.md#Multiple-Copies).
 - `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `modelName {String}` - the key in the $FeathersVuex plugin where the model will be found.
-- `autoRemove {Boolean` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
+- `autoRemove {Boolean}` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
+- `enableEvents {Boolean}` - Listens to socket.io events when available
+- `addOnUpsert {Boolean}` -  Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
+- `diffOnPatch {Boolean}` - Only send changed data on patch
+- `skipRequestIfExists {Boolean}` - For get action, if the record already exists in store, skip the remote request
+- `preferUpdate {Boolean}`, // When true, calling model.save() will do an update instead of a patch.
 - `replaceItems {Boolean}` - When set to true, updates and patches will replace the record in the store instead of merging changes.  Default is false
 - `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
 - `paginate {Boolean}` - Indicates if the service has pagination turned on.
