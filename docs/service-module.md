@@ -164,14 +164,20 @@ Removes a single item.  `item` can be
 Removes the passed in items or ids from the store.
 - `items {Array}` - An array of ids or of objects with ids that will be removed from the data store.
 
-### `setCurrent(state, item)`
+### `setCurrent(state, itemOrId)`
 - `item {Number|String|Object}` - the object with id to be set as the current item, or the id of the object in the store that should become the `current` item.  Setting the `current` item or id also create the deep-cloned `copy`.
 
-### `commitCopy(state)`
+### `createCopy(state, id)`
+Creates a copy of the record with the passed-in id, stores it in copiesById
+
+### `commitCopy(state, id)`
 Saves changes from the `copy` to the `current` item.
 
-### `rejectCopy(state)`
+### `rejectCopy(state, id)`
 Re-copies the data from `current` to `copy`, restoring the original copy.
+
+### `clearCopy(state, id)`
+Removes the copy from copiesById
 
 ### `clearCurrent(state)`
 Clears the `current` item, which also clears the copy.
@@ -181,6 +187,10 @@ Clears the `list`, excepting the `current` item.
 
 ### `clearAll(state)`
 Clears all data from `ids`, `keyedById`, and `currentId`
+
+### `updatePaginationForQuery(state, { qid, response, query })`
+Stores pagination data on state.pagination based on the query identifier (qid)
+The qid must be manually assigned to `params.qid`
 
 ### Mutations for Managing Pending State
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
