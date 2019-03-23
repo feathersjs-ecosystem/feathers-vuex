@@ -109,11 +109,11 @@ export default function (options) {
       // Copy over all instance data
       const dataProps = Object.getOwnPropertyNames(data)
       dataProps.forEach(key => {
-        const desc = Object.getOwnPropertyDescriptor(data, key);
-        const propertyExists = _this.hasOwnProperty(key);
-        const isComputed = desc.get || desc.set || typeof desc.value === 'function';
+        const desc = Object.getOwnPropertyDescriptor(data, key)
+        const propertyExists = this.hasOwnProperty(key)
+        const isComputed = desc.get || desc.set || typeof desc.value === 'function'
         if (propertyExists && isComputed) {
-          return;
+          return
         }
         Object.defineProperty(this, key, desc)
       })
