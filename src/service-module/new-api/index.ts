@@ -29,7 +29,7 @@ const defaultOptions: FeathersVuexOptions = {
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {
     throw new Error(
-      'You must provide a service path or object to create a feathers-vuex service module'
+      'The first argument to feathersVuex must be a feathers client.'
     )
   }
   options = Object.assign({}, defaultOptions, options)
