@@ -9,9 +9,12 @@ import makeModel from './make-model'
 import { prepareAddModel } from './add-model'
 import models from './global-models'
 
-const defaultOptions = {
+const defaultOptions: FeathersVuexOptions = {
   idField: 'id',
-  nameStyle: 'short'
+  debug: false,
+  nameStyle: 'short',
+  preferUpdate: false,
+  serverAlias: ''
 }
 
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {

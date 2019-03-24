@@ -8,6 +8,15 @@ import makeServiceModule from './make-service-module'
 import { prepareAddModel } from './add-model'
 import { makeNamespace, getServicePath } from '../../utils'
 
+const defaults = {
+  namespace: '',
+  servicePath: '',
+  state: {},
+  getters: {},
+  mutations: {},
+  actions: {}
+}
+
 /**
  * prepare only wraps the makeServicePlugin to provide the globalOptions.
  * @param globalOptions
@@ -21,7 +30,7 @@ export default function prepareMakeServicePlugin(
    * (2) Attach the vuex store to the Model.
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
-    const options = Object.assign({}, globalOptions, config)
+    const options = Object.assign({}, defaults, globalOptions, config)
     const { Model, service, namespace, nameStyle } = options
 
     // Make sure we get a service path from either the service or the options
