@@ -39,6 +39,7 @@ describe('makeServicePlugin', function() {
       debug: false,
       getters: {},
       idField: 'id',
+      modelName: 'Todo',
       mutations: {},
       nameStyle: 'short',
       namespace: 'todos',

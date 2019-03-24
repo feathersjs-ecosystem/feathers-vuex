@@ -97,23 +97,7 @@ export default function servicePluginInit(
   const servicePlugin = function servicePlugin(module, Model, options = {}) {
     options = Object.assign({}, globalOptions, options)
     const { servicePath } = module.state
-    const { nameStyle, apiPrefix } = options
-    const service = feathersClient.service(servicePath)
 
-    const nameStyles = {
-      short: getShortName,
-      path: getNameFromPath
-    }
-    let namespace = options.namespace || nameStyles[nameStyle](servicePath)
-
-    return function setupStore(store) {
-      // Add Model to the globalModels object, so it's available in the Vue plugin
-      const modelInfo = registerModel(
-        Model,
-        globalModels,
-        apiPrefix,
-        servicePath
-      )
 
       module.state.modelName = modelInfo.path
       store.registerModule(namespace, module)

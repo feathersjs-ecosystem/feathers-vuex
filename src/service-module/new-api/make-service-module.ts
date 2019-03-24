@@ -7,6 +7,11 @@ import omit from 'lodash.omit'
 
 export default function makeServiceModule(service, options) {
   const stateOptions = omit(options, ['Model', 'service'])
+
+  Object.assign(stateOptions, {
+    modelName: options.Model.name
+  })
+
   return {
     namespaced: true,
     state: {
