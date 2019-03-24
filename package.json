@@ -38,17 +38,47 @@
     "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
     "test": "npm run lint && npm run test-node && npm run testee",
+    "test-ts": "mocha --require ts-node/register src/**/*.test.ts",
     "test-node": "mocha --opts mocha.opts",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
-  "standard": {
-    "sourceType": "module",
-    "env": [
-      "mocha"
-    ]
+  "prettier": {
+    "fix": true,
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "none",
+    "tabWidth": 2
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "warn",
+        {
+          "fix": true,
+          "singleQuote": true,
+          "semi": false,
+          "trailingComma": "none"
+        }
+      ]
+    },
+    "parserOptions": {
+      "parser": "@typescript-eslint/parser",
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+    }
   },
   "steal": {
     "map": {
@@ -82,7 +112,8 @@
     "lodash.omit": "^4.5.0",
     "lodash.trim": "^4.5.1",
     "serialize-error": "^3.0.0",
-    "sift": "^7.0.1"
+    "sift": "^7.0.1",
+    "steal-typescript": "^0.5.0"
   },
   "devDependencies": {
     "@feathersjs/authentication-client": "^1.0.10",
@@ -91,6 +122,12 @@
     "@feathersjs/feathers": "^3.3.1",
     "@feathersjs/rest-client": "^1.4.7",
     "@feathersjs/socketio-client": "^1.2.1",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@typescript-eslint/eslint-plugin": "^1.5.0",
+    "@typescript-eslint/parser": "^1.5.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "@vue/eslint-config-typescript": "^4.0.0",
     "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -101,17 +138,24 @@
     "body-parser": "^1.18.3",
     "can-fixture-socket": "^2.0.0",
     "chai": "^4.2.0",
+    "eslint": "^5.15.3",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-vue": "^5.2.2",
     "feathers-memory": "^3.0.1",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^5.2.0",
+    "prettier": "^1.16.4",
     "shx": "^0.3.2",
     "socket.io-client": "^2.2.0",
     "standard": "^12.0.1",
-    "steal": "^2.1.13",
+    "steal": "^2.2.0",
     "steal-mocha": "^2.0.1",
-    "testee": "^0.8.1",
+    "testee": "^0.9.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.4000",
     "vue": "^2.5.22",
-    "vuepress": "^0.14.9",
+    "vuepress": "^0.14.10",
     "vuex": "^3.0.1"
   }
 }
