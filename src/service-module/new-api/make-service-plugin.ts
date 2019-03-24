@@ -9,12 +9,13 @@ import { prepareAddModel } from './add-model'
 import { makeNamespace, getServicePath } from '../../utils'
 
 const defaults = {
-  namespace: '',
+  namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
+  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   servicePath: '',
-  state: {},
-  getters: {},
-  mutations: {},
-  actions: {}
+  state: {}, // for custom state
+  getters: {}, // for custom getters
+  mutations: {}, // for custom mutations
+  actions: {} // for custom actions
 }
 
 /**

@@ -4,25 +4,11 @@ import makeMutations from './mutations'
 import makeActions from './actions'
 import makeModel from './model'
 
-const defaults = {
-  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
-  enableEvents: true, // Listens to socket.io events when available
-  addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
-  diffOnPatch: false, // Only send changed data on patch
-  skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
-  preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
+const differencesToDocument = {
   apiPrefix: '', // Setting to 'api1/' will prefix the store moduleName, unless `namespace` is used, then this is ignored.
-  debug: false, // Set to true to enable logging messages.
-  modelName: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method
+  modelName: '', // The location of this service's Model in the Vue plugin (globalModels object). Added in the servicePlugin method : NOW DERIVED FROM Model.name
   instanceDefaults: {}, // The default values for the instance when `const instance =new Model()`
-  replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
-  keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
-  paramsForServer: [], // Custom query operators that are ignored in the find getter, but will pass through to the server.
-  whitelist: [], // Custom query operators that will be allowed in the find getter.
-  state: {}, // for custom state
-  getters: {}, // for custom getters
-  mutations: {}, // for custom mutations
-  actions: {} // for custom actions
+  diffOnPatch: true // This is now true by default
 }
 
 export default function servicePluginInit(
@@ -40,12 +26,6 @@ export default function servicePluginInit(
   globalOptions = Object.assign({}, defaults, globalOptions)
 
   const serviceModule = function serviceModule(servicePath, options = {}) {
-    if (!feathersClient || !feathersClient.service) {
-      throw new Error(
-        'You must provide a service path or object to create a feathers-vuex service module'
-      )
-    }
-
     options = Object.assign({}, globalOptions, options)
     const { debug, apiPrefix } = options
 

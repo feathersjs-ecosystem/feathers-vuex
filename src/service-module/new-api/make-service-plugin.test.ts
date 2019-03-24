@@ -35,15 +35,23 @@ describe('makeServicePlugin', function() {
     const keys = Object.keys(store.state.todos.options)
     const received = _pick(store.state.todos.options, keys)
     const expected = {
+      addOnUpsert: false,
       autoRemove: false,
       debug: false,
+      diffOnPatch: true,
+      enableEvents: true,
       idField: 'id',
+      keepCopiesInStore: false,
       modelName: 'Todo',
       nameStyle: 'short',
       namespace: 'todos',
+      paramsForServer: [],
       preferUpdate: false,
+      replaceItems: false,
       serverAlias: 'default',
-      servicePath: 'todos'
+      servicePath: 'todos',
+      skipRequestIfExists: false,
+      whitelist: []
     }
 
     assert.deepEqual(received, expected, 'The module was registered.')

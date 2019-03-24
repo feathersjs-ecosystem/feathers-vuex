@@ -4,18 +4,28 @@ eslint
 */
 export interface FeathersVuexOptions {
   serverAlias: string
+  addOnUpsert?: boolean
   autoRemove?: boolean
-  idField?: string
-  nameStyle?: string
-  preferUpdate?: boolean
   debug?: boolean
+  diffOnPatch?: boolean
+  enableEvents?: boolean
+  idField?: string
+  keepCopiesInStore?: boolean
+  nameStyle?: string
+  paramsForServer?: string[]
+  preferUpdate?: boolean
+  replaceItems?: boolean
+  skipRequestIfExists?: boolean
+  whitelist?: string[]
 }
 
 export interface MakeServicePluginOptions {
   Model: any
   service: any
-  namespace?: string
+  addOnUpsert?: boolean
+  diffOnPatch?: boolean
   enableEvents?: boolean
+  namespace?: string
   servicePath?: string
   state?: {}
   getters?: {}
