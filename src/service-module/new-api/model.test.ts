@@ -178,5 +178,16 @@ describe('makeModel / BaseModel', function() {
     assert(!models.theirApi.Todo, `Todo stayed out of the 'theirApi' namespace`)
     assert(models.theirApi.Task === Task)
     assert(!models.myApi.Task, `Task stayed out of the 'myApi' namespace`)
+
+    assert.equal(
+      models.myApi.byServicePath[Todo.servicePath],
+      Todo,
+      'also registered in models.byServicePath'
+    )
+    assert.equal(
+      models.theirApi.byServicePath[Task.servicePath],
+      Task,
+      'also registered in models.byServicePath'
+    )
   })
 })
