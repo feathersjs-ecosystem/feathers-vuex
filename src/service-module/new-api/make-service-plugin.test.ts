@@ -32,17 +32,20 @@ describe('makeServicePlugin', function() {
     }
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
-    const received = _pick(store.state.todos.options, [
-      'idField',
-      'nameStyle',
-      'serverAlias',
-      'servicePath'
-    ])
+    const keys = Object.keys(store.state.todos.options)
+    const received = _pick(store.state.todos.options, keys)
     const expected = {
+      actions: {},
+      debug: false,
+      getters: {},
       idField: 'id',
+      mutations: {},
       nameStyle: 'short',
+      namespace: 'todos',
+      preferUpdate: false,
       serverAlias: 'default',
-      servicePath: 'todos'
+      servicePath: 'todos',
+      state: {}
     }
 
     assert.deepEqual(received, expected, 'The module was registered.')

@@ -45,12 +45,12 @@ export default function prepareMakeServicePlugin(
 
     return store => {
       // (1^) Create and register the Vuex module
-      const vuexNamespace = makeNamespace(namespace, servicePath, nameStyle)
+      options.namespace = makeNamespace(namespace, servicePath, nameStyle)
       const module = makeServiceModule(service, options)
-      store.registerModule(vuexNamespace, module)
+      store.registerModule(options.namespace, module)
 
       // (2^) Monkey patch the Model and add to globalModels
-      Object.assign(Model, { store, namespace: vuexNamespace, servicePath })
+      Object.assign(Model, { store, namespace: options.namespace, servicePath })
       addModel(Model)
 
       // (3^) Setup real-time events
