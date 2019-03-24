@@ -6,10 +6,12 @@ eslint
 import fastCopy from 'fast-copy'
 import isPlainObject from 'lodash.isplainobject'
 import merge from 'lodash.merge'
+import { getShortName, getNameFromPath } from '../../utils'
 // import { updateOriginal } from '../../utils'
 
 const defaults = {
   idField: 'id',
+  nameStyle: 'short',
   preferUpdate: false,
   instanceDefaults: {}
 }
@@ -18,12 +20,20 @@ interface FeathersVuexModelOptions {
   idField?: string
   preferUpdate?: boolean
   nameStyle?: string
+  namespace?: string
   store: any
 }
 
 function makeModel(options: FeathersVuexModelOptions) {
   options = Object.assign({}, defaults, options)
-  const { idField, preferUpdate } = options
+  const { idField, preferUpdate, nameStyle, store } = options
+  let { namespace } = options
+  const nameStyles = {
+    short: getShortName,
+    path: getNameFromPath
+  }
+  const servicePath = 'test'
+  namespace = namespace || nameStyles[nameStyle](servicePath)
 
   return class FeathersVuexModel {
     protected isClone: boolean
@@ -31,14 +41,15 @@ function makeModel(options: FeathersVuexModelOptions) {
     // static copiesById: Object
     public static idField: string = idField
     // static instanceDefaults: Object
-    private static globalModels: Record<string, any>
-    public static modelName: string
-    public static namespace: string
-    public static options: FeathersVuexModelOptions
+    // public static modelName: string
+    // public static options: FeathersVuexModelOptions
     public static preferUpdate: boolean = preferUpdate
-    public static store: Record<string, any>
+    private static globalModels: Record<string, any>
+    protected static nameStyle = nameStyle
+    public static namespace: string = namespace
+    public static store: any = store
 
-    public static getFromStore(id: string) {}
+    // public static getFromStore(id: string) {}
     public static getId(record: Record<string, any>): string {
       return record[FeathersVuexModel.idField]
     }
