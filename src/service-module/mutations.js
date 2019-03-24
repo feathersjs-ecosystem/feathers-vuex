@@ -145,28 +145,6 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       }
     },
 
-    clearAll (state) {
-      state.ids = []
-      state.currentId = null
-      state.copy = null
-      state.keyedById = {}
-    },
-
-    clearList (state) {
-      let currentId = state.currentId
-      let current = state.keyedById[currentId]
-
-      if (currentId && current) {
-        state.keyedById = {
-          [currentId]: current
-        }
-        state.ids = [currentId]
-      } else {
-        state.keyedById = {}
-        state.ids = []
-      }
-    },
-
     setCurrent (state, itemOrId) {
       const { idField } = state
       const Model = globalModels.byServicePath[servicePath]
@@ -190,13 +168,6 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       state.copy = null
     },
 
-    // Removes the copy from copiesById
-    clearCopy (state, id) {
-      const newCopiesById = Object.assign({}, state.copiesById)
-      delete newCopiesById[id]
-      state.copiesById = newCopiesById
-    },
-
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy (state, id) {
       const current = state.keyedById[id]
@@ -209,22 +180,6 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       } else {
         Model.copiesById[id] = copy
       }
-    },
-
-    // Resets the copy to match the original record, locally
-    rejectCopy (state, id) {
-      const isIdOk = checkId(id, undefined, debug)
-      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
-      const Model = globalModels.byServicePath[servicePath]
-      let copy
-
-      if (state.keepCopiesInStore || !Model) {
-        copy = isIdOk ? state.copiesById[id] : state.copy
-      } else {
-        copy = Model.copiesById[id]
-      }
-
-      _merge(copy, current)
     },
 
     // Deep assigns copy to original record, locally
@@ -243,6 +198,51 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       updateOriginal(copy, current)
 
       // Object.assign(current, copy)
+    },
+    
+    // Resets the copy to match the original record, locally
+    rejectCopy (state, id) {
+      const isIdOk = checkId(id, undefined, debug)
+      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const Model = globalModels.byServicePath[servicePath]
+      let copy
+
+      if (state.keepCopiesInStore || !Model) {
+        copy = isIdOk ? state.copiesById[id] : state.copy
+      } else {
+        copy = Model.copiesById[id]
+      }
+
+      _merge(copy, current)
+    },
+
+    // Removes the copy from copiesById
+    clearCopy (state, id) {
+      const newCopiesById = Object.assign({}, state.copiesById)
+      delete newCopiesById[id]
+      state.copiesById = newCopiesById
+    },
+    
+    clearAll (state) {
+      state.ids = []
+      state.currentId = null
+      state.copy = null
+      state.keyedById = {}
+    },
+
+    clearList (state) {
+      let currentId = state.currentId
+      let current = state.keyedById[currentId]
+
+      if (currentId && current) {
+        state.keyedById = {
+          [currentId]: current
+        }
+        state.ids = [currentId]
+      } else {
+        state.keyedById = {}
+        state.ids = []
+      }
     },
 
     // Stores pagination data on state.pagination based on the query identifier (qid)

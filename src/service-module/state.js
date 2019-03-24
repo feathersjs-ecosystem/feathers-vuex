@@ -18,8 +18,6 @@ export default function makeDefaultState (servicePath, options) {
     copiesById: {},
     currentId: null,
     copy: null,
-    setCurrentOnGet: true,
-    setCurrentOnCreate: true,
     idField,
     servicePath,
     autoRemove,
@@ -32,6 +30,9 @@ export default function makeDefaultState (servicePath, options) {
     pagination: {},
     paramsForServer,
     whitelist,
+    
+    setCurrentOnGet: true,
+    setCurrentOnCreate: true,
 
     isFindPending: false,
     isGetPending: false,
