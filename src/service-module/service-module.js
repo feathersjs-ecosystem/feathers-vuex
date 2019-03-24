@@ -28,36 +28,54 @@ const defaults = {
   actions: {} // for custom actions
 }
 
-export default function servicePluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
+export default function servicePluginInit(
+  feathersClient,
+  globalOptions = {},
+  globalModels = {}
+) {
   globalModels.byServicePath = globalModels.byServicePath || {}
   if (!feathersClient || !feathersClient.service) {
-    throw new Error('You must provide a Feathers Client instance to feathers-vuex')
+    throw new Error(
+      'You must provide a Feathers Client instance to feathers-vuex'
+    )
   }
 
   globalOptions = Object.assign({}, defaults, globalOptions)
 
-  const serviceModule = function serviceModule (servicePath, options = {}) {
+  const serviceModule = function serviceModule(servicePath, options = {}) {
     if (!feathersClient || !feathersClient.service) {
-      throw new Error('You must provide a service path or object to create a feathers-vuex service module')
+      throw new Error(
+        'You must provide a service path or object to create a feathers-vuex service module'
+      )
     }
 
     options = Object.assign({}, globalOptions, options)
     const { debug, apiPrefix } = options
 
     if (typeof servicePath !== 'string') {
-      throw new Error('The first argument to setup a feathers-vuex service must be a string')
+      throw new Error(
+        'The first argument to setup a feathers-vuex service must be a string'
+      )
     }
 
     const service = feathersClient.service(servicePath)
     if (!service) {
-      throw new Error('No service was found. Please configure a transport plugin on the Feathers Client. Make sure you use the client version of the transport, like `feathers-socketio/client` or `feathers-rest/client`.')
+      throw new Error(
+        'No service was found. Please configure a transport plugin on the Feathers Client. Make sure you use the client version of the transport, like `feathers-socketio/client` or `feathers-rest/client`.'
+      )
     }
-    const paginate = service.hasOwnProperty('paginate') && service.paginate.hasOwnProperty('default')
+    const paginate =
+      service.hasOwnProperty('paginate') &&
+      service.paginate.hasOwnProperty('default')
     const stateOptions = Object.assign(options, { paginate })
 
     const defaultState = makeState(servicePath, stateOptions)
     const defaultGetters = makeGetters(servicePath)
-    const defaultMutations = makeMutations(servicePath, { debug, globalModels, apiPrefix })
+    const defaultMutations = makeMutations(servicePath, {
+      debug,
+      globalModels,
+      apiPrefix
+    })
     const defaultActions = makeActions(service, { debug })
     const module = {
       namespaced: true,
@@ -69,14 +87,14 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     return module
   }
 
-  const serviceModel = function serviceModel (options) {
+  const serviceModel = function serviceModel(options) {
     options = Object.assign({}, globalOptions, options, { globalModels })
     const Model = makeModel(options)
 
     return Model
   }
 
-  const servicePlugin = function servicePlugin (module, Model, options = {}) {
+  const servicePlugin = function servicePlugin(module, Model, options = {}) {
     options = Object.assign({}, globalOptions, options)
     const { servicePath } = module.state
     const { nameStyle, apiPrefix } = options
@@ -88,7 +106,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
     }
     let namespace = options.namespace || nameStyles[nameStyle](servicePath)
 
-    return function setupStore (store) {
+    return function setupStore(store) {
       service.FeathersVuexModel = Model
       // Add servicePath to Model so it can be accessed
       Object.defineProperties(Model, {
@@ -104,7 +122,12 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
       })
 
       // Add Model to the globalModels object, so it's available in the Vue plugin
-      const modelInfo = registerModel(Model, globalModels, apiPrefix, servicePath)
+      const modelInfo = registerModel(
+        Model,
+        globalModels,
+        apiPrefix,
+        servicePath
+      )
 
       module.state.modelName = modelInfo.path
       store.registerModule(namespace, module)
@@ -114,17 +137,17 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
           value: modelInfo.name
         },
         find: {
-          value (params) {
+          value(params) {
             return store.dispatch(`${namespace}/find`, params)
           }
         },
         findInStore: {
-          value (params) {
+          value(params) {
             return store.getters[`${namespace}/find`](params)
           }
         },
         get: {
-          value (id, params) {
+          value(id, params) {
             if (params) {
               return store.dispatch(`${namespace}/get`, [id, params])
             } else {
@@ -133,9 +156,9 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
           }
         },
         getFromStore: {
-          value (id, params) {
+          value(id, params) {
             if (params) {
-              return store.getters[`${namespace}/get`]([ id, params ])
+              return store.getters[`${namespace}/get`]([id, params])
             } else {
               return store.getters[`${namespace}/get`](id)
             }
@@ -146,7 +169,7 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
       // Upgrade the Model's API methods to use the store.actions
       Object.defineProperties(Model.prototype, {
         _clone: {
-          value (id) {
+          value(id) {
             store.commit(`${namespace}/createCopy`, id)
 
             if (store.state[namespace].keepCopiesInStore) {
@@ -157,34 +180,34 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
           }
         },
         _commit: {
-          value (id) {
+          value(id) {
             store.commit(`${namespace}/commitCopy`, id)
 
             return this._clone(id)
           }
         },
         _reset: {
-          value (id) {
+          value(id) {
             store.commit(`${namespace}/rejectCopy`, id)
           }
         },
         _create: {
-          value (data, params) {
+          value(data, params) {
             return store.dispatch(`${namespace}/create`, [data, params])
           }
         },
         _patch: {
-          value (id, data, params) {
+          value(id, data, params) {
             return store.dispatch(`${namespace}/patch`, [id, data, params])
           }
         },
         _update: {
-          value (id, data, params) {
+          value(id, data, params) {
             return store.dispatch(`${namespace}/update`, [id, data, params])
           }
         },
         _remove: {
-          value (id, params) {
+          value(id, params) {
             return store.dispatch(`${namespace}/remove`, [id, params])
           }
         }
@@ -192,15 +215,26 @@ export default function servicePluginInit (feathersClient, globalOptions = {}, g
 
       if (options.enableEvents) {
         // Listen to socket events when available.
-        service.on('created', item => store.commit(`${namespace}/addItem`, item))
-        service.on('updated', item => store.commit(`${namespace}/updateItem`, item))
-        service.on('patched', item => store.commit(`${namespace}/updateItem`, item))
-        service.on('removed', item => store.commit(`${namespace}/removeItem`, item))
+        service.on('created', item =>
+          store.commit(`${namespace}/addItem`, item)
+        )
+        service.on('updated', item =>
+          store.commit(`${namespace}/updateItem`, item)
+        )
+        service.on('patched', item =>
+          store.commit(`${namespace}/updateItem`, item)
+        )
+        service.on('removed', item =>
+          store.commit(`${namespace}/removeItem`, item)
+        )
       }
     }
   }
 
-  const createServicePlugin = function createServicePlugin (servicePath, options = {}) {
+  const createServicePlugin = function createServicePlugin(
+    servicePath,
+    options = {}
+  ) {
     const module = serviceModule(servicePath, options)
     const Model = serviceModel(options)
 
