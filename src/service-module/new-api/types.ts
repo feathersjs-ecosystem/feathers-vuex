@@ -14,6 +14,7 @@ export interface MakeServicePluginOptions {
   Model: any
   service: any
   namespace?: string
+  enableEvents?: boolean
   servicePath?: string
   state?: {}
   getters?: {}

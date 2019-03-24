@@ -131,22 +131,6 @@ export default function servicePluginInit(
 
       module.state.modelName = modelInfo.path
       store.registerModule(namespace, module)
-
-      if (options.enableEvents) {
-        // Listen to socket events when available.
-        service.on('created', item =>
-          store.commit(`${namespace}/addItem`, item)
-        )
-        service.on('updated', item =>
-          store.commit(`${namespace}/updateItem`, item)
-        )
-        service.on('patched', item =>
-          store.commit(`${namespace}/updateItem`, item)
-        )
-        service.on('removed', item =>
-          store.commit(`${namespace}/removeItem`, item)
-        )
-      }
     }
   }
 

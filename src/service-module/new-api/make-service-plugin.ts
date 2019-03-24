@@ -28,6 +28,7 @@ export default function prepareMakeServicePlugin(
   /**
    * (1) Make a Vuex plugin for the provided service.
    * (2) Attach the vuex store to the Model.
+   * (3) Setup real-time events
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
     const options = Object.assign({}, defaults, globalOptions, config)
@@ -49,6 +50,23 @@ export default function prepareMakeServicePlugin(
       // (2^) Monkey patch the Model and add to globalModels
       Object.assign(Model, { store, namespace: vuexNamespace, servicePath })
       addModel(Model)
+
+      // (3^) Setup real-time events
+      if (options.enableEvents) {
+        // Listen to socket events when available.
+        service.on('created', item =>
+          store.commit(`${namespace}/addItem`, item)
+        )
+        service.on('updated', item =>
+          store.commit(`${namespace}/updateItem`, item)
+        )
+        service.on('patched', item =>
+          store.commit(`${namespace}/updateItem`, item)
+        )
+        service.on('removed', item =>
+          store.commit(`${namespace}/removeItem`, item)
+        )
+      }
     }
   }
 }
