@@ -87,7 +87,7 @@ describe('makeModel / BaseModel', function() {
     assert(serverAlias === 'myApi', 'serverAlias was set')
   })
 
-  it('receives store after Vuex plugin is registered', function() {
+  it('receives store & other props after Vuex plugin is registered', function() {
     const { BaseModel, makeServicePlugin } = feathersVuex(feathers, {
       serverAlias: 'myApi'
     })
@@ -98,10 +98,11 @@ describe('makeModel / BaseModel', function() {
     new Vuex.Store({
       plugins: [plugin]
     })
-    const { store, namespace } = BaseModel
+    const { store, namespace, servicePath } = BaseModel
 
     assert(store, 'store is in place')
     assert.equal(namespace, 'todos', 'namespace is in place')
+    assert.equal(servicePath, 'todos', 'servicePath is in place')
   })
 
   it('allows access to other models after Vuex plugins are registered', function() {

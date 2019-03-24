@@ -107,20 +107,6 @@ export default function servicePluginInit(
     let namespace = options.namespace || nameStyles[nameStyle](servicePath)
 
     return function setupStore(store) {
-      service.FeathersVuexModel = Model
-      // Add servicePath to Model so it can be accessed
-      Object.defineProperties(Model, {
-        servicePath: {
-          value: servicePath
-        },
-        namespace: {
-          value: namespace
-        },
-        store: {
-          value: store
-        }
-      })
-
       // Add Model to the globalModels object, so it's available in the Vue plugin
       const modelInfo = registerModel(
         Model,
@@ -133,22 +119,6 @@ export default function servicePluginInit(
       store.registerModule(namespace, module)
     }
   }
-
-  const createServicePlugin = function createServicePlugin(
-    servicePath,
-    options = {}
-  ) {
-    const module = serviceModule(servicePath, options)
-    const Model = serviceModel(options)
-
-    return servicePlugin(module, Model, options)
-  }
-
-  Object.assign(createServicePlugin, {
-    serviceModule,
-    serviceModel,
-    servicePlugin
-  })
 
   return createServicePlugin
 }

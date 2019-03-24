@@ -48,23 +48,22 @@ describe('makeServicePlugin', function() {
     assert.deepEqual(received, expected, 'The module was registered.')
   })
 
-  it('sets up Model.store', function() {
+  it('sets up Model.store && service.FeathersVuexModel', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
     })
 
     const servicePath = 'todos'
+    const service = feathers.service(servicePath)
     class Todo extends BaseModel {
       public servicePath = servicePath
     }
-    const todosPlugin = makeServicePlugin({
-      Model: Todo,
-      service: feathers.service(servicePath)
-    })
+    const todosPlugin = makeServicePlugin({ Model: Todo, service })
     const store = new Vuex.Store({ plugins: [todosPlugin] })
 
     assert(Todo.store === store, 'the store is on the Model!')
+    assert.equal(service.FeathersVuexModel, Todo, 'Model accessible on service')
   })
 
   it('allows accessing other models', function() {

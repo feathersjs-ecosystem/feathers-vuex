@@ -41,6 +41,8 @@ export default function prepareMakeServicePlugin(
     }
     options.servicePath = servicePath
 
+    service.FeathersVuexModel = Model
+
     return store => {
       // (1^) Create and register the Vuex module
       const vuexNamespace = makeNamespace(namespace, servicePath, nameStyle)
