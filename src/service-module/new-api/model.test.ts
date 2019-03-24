@@ -14,7 +14,7 @@ import feathersVuex from './index'
 
 Vue.use(Vuex)
 
-describe.only('makeModel', function() {
+describe('makeModel / BaseModel', function() {
   it('properly sets up the BaseModel', function() {
     const alias = 'default'
     const { BaseModel } = feathersVuex(feathers, { serverAlias: alias })
@@ -139,7 +139,7 @@ describe.only('makeModel', function() {
     assert.equal(Task.models, models, 'models available at Model.models')
   })
 
-  it.only('works with multiple, independent Feathers servers', function() {
+  it('works with multiple, independent Feathers servers', function() {
     // Create a Todo Model & Plugin on myApi
     const feathersMyApi = makeFeathersRestClient('https://api.my-api.com')
     const myApi = feathersVuex(feathersMyApi, {

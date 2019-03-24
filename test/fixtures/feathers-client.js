@@ -24,7 +24,7 @@ mockServer.on('things::update', function(id, data) {
   Object.assign(data, { id, test: true })
   mockServer.emit('things updated', data)
 })
-mockServer.on('things::remove', function(id, data) {
+mockServer.on('things::remove', function(id) {
   mockServer.emit('things removed', { id, test: true })
 })
 

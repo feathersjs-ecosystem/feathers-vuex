@@ -15,7 +15,7 @@ export function prepareAddModel(options: FeathersVuexOptions) {
 
   return function addModel(Model) {
     globalModels[serverAlias] = globalModels[serverAlias] || {}
-    if (globalModels[serverAlias][Model.name]) {
+    if (globalModels[serverAlias][Model.name] && options.debug) {
       console.error(`Overwriting Model: models[${serverAlias}][${Model.name}].`)
     }
     globalModels[serverAlias][Model.name] = Model

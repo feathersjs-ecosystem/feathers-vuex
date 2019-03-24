@@ -7,6 +7,7 @@ export interface FeathersVuexOptions {
   idField?: string
   nameStyle?: string
   preferUpdate?: boolean
+  debug?: boolean
 }
 
 export interface MakeServicePluginOptions {

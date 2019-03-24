@@ -5,9 +5,10 @@ eslint
 */
 import { assert } from 'chai'
 import Vue from 'vue'
-import Vuex, { StoreOptions } from 'vuex'
+// import Vuex, { StoreOptions } from 'vuex'
 import { feathersRestClient as feathers } from '../../../test/fixtures/feathers-client'
 import feathersVuex from './index'
+import _pick from 'lodash.pick'
 
 Vue.use(Vuex)
 
@@ -31,18 +32,20 @@ describe('makeServicePlugin', function() {
     }
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
+    const received = _pick(store.state.todos.options, [
+      'idField',
+      'nameStyle',
+      'serverAlias',
+      'servicePath'
+    ])
     const expected = {
       idField: 'id',
-      namespace: 'todos',
       nameStyle: 'short',
-      serverAlias: 'default'
+      serverAlias: 'default',
+      servicePath: 'todos'
     }
 
-    assert.deepEqual(
-      store.state.todos.options,
-      expected,
-      'The module was registered.'
-    )
+    assert.deepEqual(received, expected, 'The module was registered.')
   })
 
   it('sets up Model.store', function() {
