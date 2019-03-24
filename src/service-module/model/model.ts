@@ -56,80 +56,80 @@ function makeModel(options: FeathersVuexModelOptions) {
 
     public constructor() {}
 
-    public clone() {
-      if (this.isClone) {
-        throw new Error('You cannot clone a copy')
-      }
-      const id = this[FeathersVuexModel.idField]
+    // public clone() {
+    //   if (this.isClone) {
+    //     throw new Error('You cannot clone a copy')
+    //   }
+    //   const id = this[FeathersVuexModel.idField]
 
-      return this._clone(id)
-    }
-    public _clone(id) {}
+    //   return this._clone(id)
+    // }
+    // public _clone(id) {}
 
-    public reset() {
-      if (this.isClone) {
-        const id = this[FeathersVuexModel.idField]
-        this._reset(id)
-      } else {
-        throw new Error('You cannot reset a non-copy')
-      }
-    }
-    public _reset(id: string) {}
+    // public reset() {
+    //   if (this.isClone) {
+    //     const id = this[FeathersVuexModel.idField]
+    //     this._reset(id)
+    //   } else {
+    //     throw new Error('You cannot reset a non-copy')
+    //   }
+    // }
+    // public _reset(id: string) {}
 
-    public commit() {
-      if (this.isClone) {
-        const id = this[FeathersVuexModel.idField]
-        return this._commit(id)
-      } else {
-        throw new Error('You cannnot call commit on a non-copy')
-      }
-    }
-    public _commit(id) {}
+    // public commit() {
+    //   if (this.isClone) {
+    //     const id = this[FeathersVuexModel.idField]
+    //     return this._commit(id)
+    //   } else {
+    //     throw new Error('You cannnot call commit on a non-copy')
+    //   }
+    // }
+    // public _commit(id) {}
 
-    public save(params) {
-      if (this[idField]) {
-        return preferUpdate ? this.update(params) : this.patch(params)
-      } else {
-        return this.create(params)
-      }
-    }
+    // public save(params) {
+    //   if (this[idField]) {
+    //     return preferUpdate ? this.update(params) : this.patch(params)
+    //   } else {
+    //     return this.create(params)
+    //   }
+    // }
 
-    public create(params) {
-      const data = Object.assign({}, this)
-      if (data[idField] === null) {
-        delete data[idField]
-      }
-      // return store.dispatch(`${namespace}/create`, [data, params])
-      // return this._create(data, params)
-    }
-    public _create(data, params) {}
+    // public create(params) {
+    //   const data = Object.assign({}, this)
+    //   if (data[idField] === null) {
+    //     delete data[idField]
+    //   }
+    //   // return store.dispatch(`${namespace}/create`, [data, params])
+    //   // return this._create(data, params)
+    // }
+    // public _create(data, params) {}
 
-    public patch(params) {
-      if (!this[idField]) {
-        const error = new Error(
-          `Missing ${idField} property. You must create the data before you can patch with this data`
-        )
-        return Promise.reject(error)
-      }
-      // return this._patch(this[idField], this, params)
-    }
-    public _patch(idField: string) {}
+    // public patch(params) {
+    //   if (!this[idField]) {
+    //     const error = new Error(
+    //       `Missing ${idField} property. You must create the data before you can patch with this data`
+    //     )
+    //     return Promise.reject(error)
+    //   }
+    //   // return this._patch(this[idField], this, params)
+    // }
+    // public _patch(idField: string) {}
 
-    public update(params) {
-      if (!this[idField]) {
-        const error = new Error(
-          `Missing ${idField} property. You must create the data before you can update with this data`
-        )
-        return Promise.reject(error)
-      }
-      // return this._update(this[idField], this, params)
-    }
-    public _update() {}
+    // public update(params) {
+    //   if (!this[idField]) {
+    //     const error = new Error(
+    //       `Missing ${idField} property. You must create the data before you can update with this data`
+    //     )
+    //     return Promise.reject(error)
+    //   }
+    //   // return this._update(this[idField], this, params)
+    // }
+    // public _update() {}
 
-    public remove(params) {
-      // return this._remove(this[idField], params)
-    }
-    public _remove() {}
+    // public remove(params) {
+    //   // return this._remove(this[idField], params)
+    // }
+    // public _remove() {}
 
     public toJSON() {
       return merge({}, this)

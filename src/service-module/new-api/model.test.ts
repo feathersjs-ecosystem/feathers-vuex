@@ -52,7 +52,10 @@ it('allows accessing other models', function() {
       super(data)
     }
   }
+
+  // TODO: move this into makeServicePlugin
   addModel(Todo)
+
   const todosPlugin = makeServicePlugin({
     servicePath,
     Model: Todo,

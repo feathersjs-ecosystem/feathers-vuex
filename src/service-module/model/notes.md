@@ -5,9 +5,9 @@ import feathers from './feathers-client'
 import Vuex from 'vuex'
 import feathersVuex from 'feathers-vuex'
 
-const { makeServicePlugin, BaseModel, addModel } = feathersVuex(feathers, {
+const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
   idField: '_id',
-  serverAlias: 'default'
+  serverAlias: 'myApiServer'
 })
 
 // @service('todos')
@@ -19,8 +19,6 @@ class Todo extends BaseModel {
     this.firstName = data.firstName
   }
 }
-
-addModel(Todo)
 
 const servicePath = 'todos'
 const todos = makeServicePlugin({
