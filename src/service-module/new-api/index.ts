@@ -10,7 +10,8 @@ import { prepareAddModel } from './add-model'
 import models from './global-models'
 
 const defaultOptions: FeathersVuexOptions = {
-  idField: 'id',
+  autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
+  idField: 'id', // The field in each record that will contain the id
   debug: false,
   nameStyle: 'short',
   preferUpdate: false,

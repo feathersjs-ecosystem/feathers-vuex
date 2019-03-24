@@ -1,4 +1,3 @@
-import { getShortName, getNameFromPath, registerModel } from '../utils'
 import makeState from './state'
 import makeGetters from './getters'
 import makeMutations from './mutations'
@@ -6,8 +5,6 @@ import makeActions from './actions'
 import makeModel from './model'
 
 const defaults = {
-  idField: 'id', // The field in each record that will contain the id
-  autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   enableEvents: true, // Listens to socket.io events when available
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
@@ -98,10 +95,8 @@ export default function servicePluginInit(
     options = Object.assign({}, globalOptions, options)
     const { servicePath } = module.state
 
-
-      module.state.modelName = modelInfo.path
-      store.registerModule(namespace, module)
-    }
+    module.state.modelName = modelInfo.path
+    store.registerModule(namespace, module)
   }
 
   return createServicePlugin

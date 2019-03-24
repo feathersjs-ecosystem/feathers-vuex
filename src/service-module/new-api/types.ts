@@ -4,6 +4,7 @@ eslint
 */
 export interface FeathersVuexOptions {
   serverAlias: string
+  autoRemove?: boolean
   idField?: string
   nameStyle?: string
   preferUpdate?: boolean
