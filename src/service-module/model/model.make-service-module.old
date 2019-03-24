@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 // import { Module } from 'vuex'
-import globalModels from './model.global-models'
+const globalModels = {}
 function makeState(servicePath, stateOptions) {}
 function makeGetters(servicePath) {}
 function makeMutations(servicePath, options) {}

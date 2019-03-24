@@ -257,11 +257,19 @@ export function updateOriginal(newData, existingItem) {
   })
 }
 
-export function makeNamespace(servicePath, options) {
-  const { namespace, nameStyle } = options
+export function makeNamespace(namespace, servicePath, nameStyle) {
   const nameStyles = {
     short: getShortName,
     path: getNameFromPath
   }
   return namespace || nameStyles[nameStyle](servicePath)
+}
+
+export function getServicePath(service: any, modelName: string) {
+  if (!service.name) {
+    throw new Error(
+      `Service for model named ${modelName} is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
+    )
+  }
+  return service.path || service.name
 }

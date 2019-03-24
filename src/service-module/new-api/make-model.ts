@@ -3,79 +3,76 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { GlobalOptions } from './types'
+import { FeathersVuexOptions } from './types'
 import globalModels from './global-models'
-import { getNamespace } from '../../utils'
 import Vue from 'vue'
 
 /**
  *
  * @param options
  */
-export default function makeModel(options: GlobalOptions) {
+export default function makeModel(options: FeathersVuexOptions) {
   abstract class FeathersVuexModel {
-    abstract servicePath: string
-
     // Monkey patched onto the Model class in `makeServicePlugin()`
-    public static namespace: string
     public static store: Record<string, any>
+    public static namespace: string
+    public static servicePath: string
 
     public static idField: string = options.idField
-    public static models = globalModels // Can access other Models here
-    public static copiesById = {}
+    public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
+
+    public static readonly models = globalModels // Can access other Models here
+    public static readonly copiesById = {}
+
     protected isClone: boolean
 
-    public _data: Record<string, any>
+    public data: Record<string, any>
     public constructor(data) {
-      this._data = Vue.observable(data)
+      Object.assign(this, data)
+      this.data = Vue.observable(data)
     }
 
     public static getId(record: Record<string, any>): string {
       return record[FeathersVuexModel.idField]
     }
 
-    public static getNamespace() {
-      // return (
-      //   FeathersVuexModel.namespace ||
-      //   getNamespace(FeathersVuexModel.servicePath, options.nameStyle)
-      // )
-    }
-
     public static find(params) {
       return FeathersVuexModel.store.dispatch(
-        `${options.namespace}/find`,
+        `${FeathersVuexModel.namespace}/find`,
         params
       )
     }
 
     public static findInStore(params) {
-      return FeathersVuexModel.store.getters[`${options.namespace}/find`](
-        params
-      )
+      return FeathersVuexModel.store.getters[
+        `${FeathersVuexModel.namespace}/find`
+      ](params)
     }
 
     public static get(id, params) {
       const { store } = FeathersVuexModel
       if (params) {
-        return store.dispatch(`${options.namespace}/get`, [id, params])
+        return store.dispatch(`${FeathersVuexModel.namespace}/get`, [
+          id,
+          params
+        ])
       } else {
-        return store.dispatch(`${options.namespace}/get`, id)
+        return store.dispatch(`${FeathersVuexModel.namespace}/get`, id)
       }
     }
 
     public static getFromStore(id, params) {
       const { store } = FeathersVuexModel
       if (params) {
-        return store.getters[`${options.namespace}/get`]([id, params])
+        return store.getters[`${FeathersVuexModel.namespace}/get`]([id, params])
       } else {
-        return store.getters[`${options.namespace}/get`](id)
+        return store.getters[`${FeathersVuexModel.namespace}/get`](id)
       }
     }
 
     /**
-     * Use the `createCopy` mutation to clone the current record. Return the
-     * clone
+     * clone the current record using the `createCopy` mutation
      */
     public clone() {
       if (this.isClone) {
@@ -84,12 +81,13 @@ export default function makeModel(options: GlobalOptions) {
       const id = this[FeathersVuexModel.idField]
       this._clone(id)
     }
+
     private _clone(id) {
       const { store, copiesById } = FeathersVuexModel
-      store.commit(`${options.namespace}/createCopy`, id)
+      store.commit(`${FeathersVuexModel.namespace}/createCopy`, id)
 
-      if (store.state[options.namespace].keepCopiesInStore) {
-        return store.getters[`${options.namespace}/getCopyById`](id)
+      if (store.state[FeathersVuexModel.namespace].keepCopiesInStore) {
+        return store.getters[`${FeathersVuexModel.namespace}/getCopyById`](id)
       } else {
         return copiesById[id]
       }
@@ -101,7 +99,10 @@ export default function makeModel(options: GlobalOptions) {
     public reset() {
       if (this.isClone) {
         const id = this[FeathersVuexModel.idField]
-        FeathersVuexModel.store.commit(`${options.namespace}/rejectCopy`, id)
+        FeathersVuexModel.store.commit(
+          `${FeathersVuexModel.namespace}/rejectCopy`,
+          id
+        )
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -113,7 +114,10 @@ export default function makeModel(options: GlobalOptions) {
     public commit() {
       if (this.isClone) {
         const id = this[FeathersVuexModel.idField]
-        FeathersVuexModel.store.commit(`${options.namespace}/commitCopy`, id)
+        FeathersVuexModel.store.commit(
+          `${FeathersVuexModel.namespace}/commitCopy`,
+          id
+        )
 
         return this._clone(id)
       } else {
@@ -142,7 +146,10 @@ export default function makeModel(options: GlobalOptions) {
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return store.dispatch(`${options.namespace}/create`, [data, params])
+      return store.dispatch(`${FeathersVuexModel.namespace}/create`, [
+        data,
+        params
+      ])
     }
 
     /**
@@ -158,11 +165,10 @@ export default function makeModel(options: GlobalOptions) {
         )
         return Promise.reject(error)
       }
-      return FeathersVuexModel.store.dispatch(`${options.namespace}/patch`, [
-        this[options.idField],
-        this,
-        params
-      ])
+      return FeathersVuexModel.store.dispatch(
+        `${FeathersVuexModel.namespace}/patch`,
+        [this[options.idField], this, params]
+      )
     }
 
     /**
@@ -178,11 +184,10 @@ export default function makeModel(options: GlobalOptions) {
         )
         return Promise.reject(error)
       }
-      return FeathersVuexModel.store.dispatch(`${options.namespace}/update`, [
-        this[options.idField],
-        this,
-        params
-      ])
+      return FeathersVuexModel.store.dispatch(
+        `${FeathersVuexModel.namespace}/update`,
+        [this[options.idField], this, params]
+      )
     }
 
     /**
@@ -190,10 +195,10 @@ export default function makeModel(options: GlobalOptions) {
      * @param params
      */
     public remove(params) {
-      return FeathersVuexModel.store.dispatch(`${options.namespace}/remove`, [
-        this[options.idField],
-        params
-      ])
+      return FeathersVuexModel.store.dispatch(
+        `${FeathersVuexModel.namespace}/remove`,
+        [this[options.idField], params]
+      )
     }
   }
   return FeathersVuexModel

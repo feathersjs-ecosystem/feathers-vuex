@@ -23,7 +23,6 @@ describe('makeServicePlugin', function() {
       public servicePath = servicePath
     }
     const todosPlugin = makeServicePlugin({
-      servicePath,
       Model: Todo,
       service: feathers.service(servicePath)
     })
@@ -57,7 +56,6 @@ describe('makeServicePlugin', function() {
       public servicePath = servicePath
     }
     const todosPlugin = makeServicePlugin({
-      servicePath,
       Model: Todo,
       service: feathers.service(servicePath)
     })
@@ -77,14 +75,9 @@ it('allows accessing other models', function() {
   const servicePath = 'todos'
   class Todo extends BaseModel {
     public servicePath = servicePath
-    public static store: Record<string, any>
-    public constructor(data) {
-      super(data)
-    }
   }
   addModel(Todo)
   const todosPlugin = makeServicePlugin({
-    servicePath,
     Model: Todo,
     service: feathers.service(servicePath)
   })

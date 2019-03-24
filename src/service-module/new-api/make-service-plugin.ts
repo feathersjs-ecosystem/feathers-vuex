@@ -3,28 +3,43 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { GlobalOptions, MakeServicePluginOptions } from './types'
+import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
-import { getNamespace } from '../../utils'
+import { prepareAddModel } from './add-model'
+import { makeNamespace, getServicePath } from '../../utils'
 
 /**
  * prepare only wraps the makeServicePlugin to provide the globalOptions.
  * @param globalOptions
  */
-export default function prepareMakeServicePlugin(globalOptions: GlobalOptions) {
+export default function prepareMakeServicePlugin(
+  globalOptions: FeathersVuexOptions
+) {
+  const addModel = prepareAddModel(globalOptions)
   /**
-   * Make a Vuex plugin for the provided service. It also attaches the vuex
-   * store to the provided Model instance.
+   * (1) Make a Vuex plugin for the provided service.
+   * (2) Attach the vuex store to the Model.
    */
-  return function makeServicePlugin(config) {
+  return function makeServicePlugin(config: MakeServicePluginOptions) {
     const options = Object.assign({}, globalOptions, config)
-    const { servicePath, Model, service, namespace, nameStyle } = options
+    const { Model, service, namespace, nameStyle } = options
+
+    // Make sure we get a service path from either the service or the options
+    let { servicePath } = options
+    if (!servicePath) {
+      servicePath = getServicePath(service, Model.name)
+    }
+    options.servicePath = servicePath
 
     return store => {
-      options.namespace = namespace || getNamespace(servicePath, nameStyle)
+      // (1^) Create and register the Vuex module
+      const vuexNamespace = makeNamespace(namespace, servicePath, nameStyle)
       const module = makeServiceModule(service, options)
-      store.registerModule(options.namespace, module)
-      Model.store = store
+      store.registerModule(vuexNamespace, module)
+
+      // (2^) Monkey patch the Model and add to globalModels
+      Object.assign(Model, { store, namespace: vuexNamespace, servicePath })
+      addModel(Model)
     }
   }
 }

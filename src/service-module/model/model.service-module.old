@@ -5,8 +5,8 @@ eslint
 */
 import { getShortName, getNameFromPath, registerModel } from '../../utils'
 import makeServiceModule from './model.make-service-module'
-import makeModel from './model'
 
+function makeModel(options) {}
 interface GlobalModels {
   byServicePath?: Record<string, any>
 }
