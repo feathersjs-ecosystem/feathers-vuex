@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import assert from 'chai/chai'
+import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex, { mapActions } from 'vuex'
@@ -151,15 +151,13 @@ describe('Service Module - Actions', () => {
 
   describe('Find', () => {
     describe('without pagination', () => {
-      it('Find without pagination', done => {
+      it.only('Find without pagination', done => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'todos',
               Model: Todo,
-              service: feathersClient.makeServicePlugin({
-                Model: Todo,
-                service: feathersClient.service('todos')
-              })
+              service: feathersClient.service('todos')
             })
           ]
         })
@@ -176,8 +174,11 @@ describe('Service Module - Actions', () => {
           assert(todoState.errorOnFind === null, 'errorOnFind still null')
           assert(todoState.isFindPending === false, 'isFindPending is false')
           let expectedKeyedById: NumberedList = makeStore()
+          const currentKeyedById = JSON.parse(
+            JSON.stringify(todoState.keyedById)
+          )
           assert.deepEqual(
-            todoState.keyedById,
+            currentKeyedById,
             expectedKeyedById,
             'keyedById matches'
           )
