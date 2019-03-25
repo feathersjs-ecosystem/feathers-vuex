@@ -53,7 +53,7 @@ export default function makeAuthActions(feathersClient) {
         })
     },
 
-    populateUser({ commit, state, rootState, dispatch }, userId) {
+    populateUser({ commit, state, dispatch }, userId) {
       return dispatch(`${state.userService}/get`, userId, { root: true }).then(
         user => {
           commit('setUser', user)
