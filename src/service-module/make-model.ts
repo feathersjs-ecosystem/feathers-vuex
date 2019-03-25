@@ -30,7 +30,9 @@ export default function makeModel(options: FeathersVuexOptions) {
     public data: Record<string, any>
     public constructor(data) {
       Object.assign(this, data)
-      this.data = Vue.observable(data)
+      Object.keys(this).forEach(key => {
+        this[key] = Vue.observable(this[key])
+      })
     }
 
     public static getId(record: Record<string, any>): string {
