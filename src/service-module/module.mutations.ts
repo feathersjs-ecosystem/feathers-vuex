@@ -1,13 +1,21 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import Vue from 'vue'
 import _merge from 'lodash.merge'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId, updateOriginal } from '../utils'
 
-export default function makeServiceMutations (servicePath, { debug, globalModels }) {
+export default function makeServiceMutations(
+  servicePath,
+  { debug, globalModels }
+) {
   globalModels = globalModels || { byServicePath: {} }
 
-  function addItems (state, items) {
+  function addItems(state, items) {
     const { idField } = state
     const Model = globalModels.byServicePath[servicePath]
 
@@ -34,7 +42,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     state.keyedById = newKeyedById
   }
 
-  function updateItems (state, items) {
+  function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert } = state
     const Model = globalModels.byServicePath[servicePath]
 
@@ -51,12 +59,12 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
               item = new Model(item)
             }
             Vue.set(state.keyedById, id, item)
-          // Merge in changes
+            // Merge in changes
           } else {
             updateOriginal(item, state.keyedById[id])
           }
 
-        // if addOnUpsert then add the record into the state, else discard it.
+          // if addOnUpsert then add the record into the state, else discard it.
         } else if (addOnUpsert) {
           state.ids.push(id)
           Vue.set(state.keyedById, id, item)
@@ -67,23 +75,25 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
   }
 
   return {
-    addItem (state, item) {
+    addItem(state, item) {
       addItems(state, [item])
     },
-    addItems (state, items) {
+    addItems(state, items) {
       addItems(state, items)
     },
-    updateItem (state, item) {
+    updateItem(state, item) {
       updateItems(state, [item])
     },
-    updateItems (state, items) {
+    updateItems(state, items) {
       if (!Array.isArray(items)) {
-        throw new Error('You must provide an array to the `updateItems` mutation.')
+        throw new Error(
+          'You must provide an array to the `updateItems` mutation.'
+        )
       }
       updateItems(state, items)
     },
 
-    removeItem (state, item) {
+    removeItem(state, item) {
       const { idField } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
       const { currentId } = state
@@ -101,15 +111,19 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       }
     },
 
-    removeItems (state, items) {
+    removeItems(state, items) {
       const { idField, currentId } = state
 
       if (!Array.isArray(items)) {
-        throw new Error('You must provide an array to the `removeItems` mutation.')
+        throw new Error(
+          'You must provide an array to the `removeItems` mutation.'
+        )
       }
       // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && isObject(items[0])
-      const idsToRemove = containsObjects ? items.map(item => item[idField]) : items
+      const idsToRemove = containsObjects
+        ? items.map(item => item[idField])
+        : items
       const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
         map[id] = true
         return map
@@ -126,15 +140,17 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
         return map
       }, {})
       // Remove highest indexes first, so the indexes don't change
-      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort((a, b) => {
-        if (a < b) {
-          return 1
-        } else if (a > b) {
-          return -1
-        } else {
-          return 0
+      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort(
+        (a, b) => {
+          if (a < b) {
+            return 1
+          } else if (a > b) {
+            return -1
+          } else {
+            return 0
+          }
         }
-      })
+      )
       indexesInReverseOrder.forEach(indexInIdsArray => {
         Vue.delete(state.ids, indexInIdsArray)
       })
@@ -145,14 +161,14 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       }
     },
 
-    clearAll (state) {
+    clearAll(state) {
       state.ids = []
       state.currentId = null
       state.copy = null
       state.keyedById = {}
     },
 
-    clearList (state) {
+    clearList(state) {
       let currentId = state.currentId
       let current = state.keyedById[currentId]
 
@@ -167,7 +183,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       }
     },
 
-    setCurrent (state, itemOrId) {
+    setCurrent(state, itemOrId) {
       const { idField } = state
       const Model = globalModels.byServicePath[servicePath]
       let id
@@ -185,20 +201,20 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       state.copy = new Model(item, { isClone: true })
     },
 
-    clearCurrent (state) {
+    clearCurrent(state) {
       state.currentId = null
       state.copy = null
     },
 
     // Removes the copy from copiesById
-    clearCopy (state, id) {
+    clearCopy(state, id) {
       const newCopiesById = Object.assign({}, state.copiesById)
       delete newCopiesById[id]
       state.copiesById = newCopiesById
     },
 
     // Creates a copy of the record with the passed-in id, stores it in copiesById
-    createCopy (state, id) {
+    createCopy(state, id) {
       const current = state.keyedById[id]
       const Model = globalModels.byServicePath[servicePath]
       const copyData = _merge({}, current)
@@ -212,9 +228,11 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     },
 
     // Resets the copy to match the original record, locally
-    rejectCopy (state, id) {
+    rejectCopy(state, id) {
       const isIdOk = checkId(id, undefined, debug)
-      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const current = isIdOk
+        ? state.keyedById[id]
+        : state.keyedById[state.currentId]
       const Model = globalModels.byServicePath[servicePath]
       let copy
 
@@ -228,9 +246,11 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
     },
 
     // Deep assigns copy to original record, locally
-    commitCopy (state, id) {
+    commitCopy(state, id) {
       const isIdOk = checkId(id, undefined, debug)
-      const current = isIdOk ? state.keyedById[id] : state.keyedById[state.currentId]
+      const current = isIdOk
+        ? state.keyedById[id]
+        : state.keyedById[state.currentId]
       const Model = globalModels.byServicePath[servicePath]
       let copy
 
@@ -247,87 +267,94 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
 
     // Stores pagination data on state.pagination based on the query identifier (qid)
     // The qid must be manually assigned to `params.qid`
-    updatePaginationForQuery (state, { qid, response, query }) {
+    updatePaginationForQuery(state, { qid, response, query }) {
       const { data, limit, skip, total } = response
       const { idField } = state
       const ids = data.map(item => {
         return item[idField]
       })
       const queriedAt = new Date().getTime()
-      Vue.set(state.pagination, qid, { limit, skip, total, ids, query, queriedAt })
+      Vue.set(state.pagination, qid, {
+        limit,
+        skip,
+        total,
+        ids,
+        query,
+        queriedAt
+      })
     },
 
-    setFindPending (state) {
+    setFindPending(state) {
       state.isFindPending = true
     },
-    unsetFindPending (state) {
+    unsetFindPending(state) {
       state.isFindPending = false
     },
-    setGetPending (state) {
+    setGetPending(state) {
       state.isGetPending = true
     },
-    unsetGetPending (state) {
+    unsetGetPending(state) {
       state.isGetPending = false
     },
-    setCreatePending (state) {
+    setCreatePending(state) {
       state.isCreatePending = true
     },
-    unsetCreatePending (state) {
+    unsetCreatePending(state) {
       state.isCreatePending = false
     },
-    setUpdatePending (state) {
+    setUpdatePending(state) {
       state.isUpdatePending = true
     },
-    unsetUpdatePending (state) {
+    unsetUpdatePending(state) {
       state.isUpdatePending = false
     },
-    setPatchPending (state) {
+    setPatchPending(state) {
       state.isPatchPending = true
     },
-    unsetPatchPending (state) {
+    unsetPatchPending(state) {
       state.isPatchPending = false
     },
-    setRemovePending (state) {
+    setRemovePending(state) {
       state.isRemovePending = true
     },
-    unsetRemovePending (state) {
+    unsetRemovePending(state) {
       state.isRemovePending = false
     },
 
-    setFindError (state, payload) {
+    setFindError(state, payload) {
       state.errorOnFind = Object.assign({}, serializeError(payload))
     },
-    clearFindError (state) {
+    clearFindError(state) {
       state.errorOnFind = null
     },
-    setGetError (state, payload) {
+    setGetError(state, payload) {
       state.errorOnGet = Object.assign({}, serializeError(payload))
     },
-    clearGetError (state) {
+    clearGetError(state) {
       state.errorOnGet = null
     },
-    setCreateError (state, payload) {
+    setCreateError(state, payload) {
       state.errorOnCreate = Object.assign({}, serializeError(payload))
     },
-    clearCreateError (state) {
+    clearCreateError(state) {
       state.errorOnCreate = null
     },
-    setUpdateError (state, payload) {
+    setUpdateError(state, payload) {
       state.errorOnUpdate = Object.assign({}, serializeError(payload))
     },
-    clearUpdateError (state) {
+    clearUpdateError(state) {
       state.errorOnUpdate = null
     },
-    setPatchError (state, payload) {
+    setPatchError(state, payload) {
       state.errorOnPatch = Object.assign({}, serializeError(payload))
     },
-    clearPatchError (state) {
+    clearPatchError(state) {
       state.errorOnPatch = null
     },
-    setRemoveError (state, payload) {
+    setRemoveError(state, payload) {
       state.errorOnRemove = Object.assign({}, serializeError(payload))
     },
-    clearRemoveError (state) {
+    clearRemoveError(state) {
       state.errorOnRemove = null
     }
   }

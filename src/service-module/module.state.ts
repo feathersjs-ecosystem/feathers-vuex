@@ -1,4 +1,9 @@
-export default function makeDefaultState (servicePath, options) {
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
+export default function makeDefaultState(servicePath, options) {
   const {
     idField,
     autoRemove,

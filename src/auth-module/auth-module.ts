@@ -1,7 +1,13 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import setupState from './state'
 import setupGetters from './getters'
 import setupMutations from './mutations'
 import setupActions from './actions'
+import { globalModels } from '../service-module/global-models'
 
 const defaults = {
   namespace: 'auth',
@@ -12,16 +18,18 @@ const defaults = {
   actions: {} // for custom actions
 }
 
-export default function authPluginInit (feathersClient, globalOptions = {}, globalModels = {}) {
+export default function authPluginInit(feathersClient) {
   if (!feathersClient || !feathersClient.service) {
     throw new Error('You must pass a Feathers Client instance to feathers-vuex')
   }
 
-  return function createAuthModule (options) {
+  return function createAuthModule(options) {
     options = Object.assign({}, defaults, options)
 
     if (!feathersClient.authenticate) {
-      throw new Error('You must register the @feathersjs/authentication-client plugin before using the feathers-vuex auth module')
+      throw new Error(
+        'You must register the @feathersjs/authentication-client plugin before using the feathers-vuex auth module'
+      )
     }
 
     const defaultState = setupState(options)
@@ -29,7 +37,7 @@ export default function authPluginInit (feathersClient, globalOptions = {}, glob
     const defaultMutations = setupMutations(feathersClient)
     const defaultActions = setupActions(feathersClient, globalModels)
 
-    return function setupStore (store) {
+    return function setupStore(store) {
       const { namespace } = options
 
       store.registerModule(namespace, {

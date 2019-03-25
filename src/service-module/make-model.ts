@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { FeathersVuexOptions } from './types'
-import globalModels from './global-models'
+import { globalModels } from './global-models'
 import Vue from 'vue'
 
 /**

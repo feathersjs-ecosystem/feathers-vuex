@@ -5,8 +5,8 @@ eslint
 */
 import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
-import { prepareAddModel } from './add-model'
-import { makeNamespace, getServicePath } from '../../utils'
+import { prepareAddModel } from './global-models'
+import { makeNamespace, getServicePath } from '../utils'
 
 const defaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.

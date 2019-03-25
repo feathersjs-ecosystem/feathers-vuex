@@ -1,3 +1,8 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import sift from 'sift'
 import commons from '@feathersjs/commons'
 import dbCommons from '@feathersjs/adapter-commons'
@@ -5,20 +10,23 @@ import omit from 'lodash.omit'
 
 const { _ } = commons
 const { filterQuery, sorter, select } = dbCommons
-const FILTERS = [ '$sort', '$limit', '$skip', '$select' ]
-const OPERATORS = [ '$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or' ]
-const additionalOperators = [ '$elemMatch' ]
+const FILTERS = ['$sort', '$limit', '$skip', '$select']
+const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
+const additionalOperators = ['$elemMatch']
 const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
-export default function makeServiceGetters (servicePath) {
+export default function makeServiceGetters() {
   return {
-    list (state) {
+    list(state) {
       return state.ids.map(id => state.keyedById[id])
     },
-    find: state => (params = {}) => {
+    find: state => params => {
+      params = params || {}
       const { paramsForServer, whitelist } = state
       const q = omit(params.query || {}, paramsForServer)
-      const customOperators = Object.keys(q).filter(k => k[0] === '$' && !defaultOps.includes(k))
+      const customOperators = Object.keys(q).filter(
+        k => k[0] === '$' && !defaultOps.includes(k)
+      )
       const cleanQuery = omit(q, customOperators)
 
       const { query, filters } = filterQuery(cleanQuery, {
@@ -55,10 +63,10 @@ export default function makeServiceGetters (servicePath) {
     get: ({ keyedById, idField }) => (id, params = {}) => {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
     },
-    current (state) {
+    current(state) {
       return state.currentId ? state.keyedById[state.currentId] : null
     },
-    getCopy (state) {
+    getCopy(state) {
       return state.copy ? state.copy : null
     },
     getCopyById: state => id => {

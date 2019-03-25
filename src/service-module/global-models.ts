@@ -4,7 +4,11 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { FeathersVuexOptions } from './types'
-import globalModels from './global-models'
+
+/**
+ * A global object that holds references to all Model Classes in the application.
+ */
+export const globalModels: { [k: string]: Record<string, any> } = {}
 
 /**
  * prepareAddModel wraps options in a closure around addModel

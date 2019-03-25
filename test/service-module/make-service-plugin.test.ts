@@ -6,8 +6,8 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex, { StoreOptions } from 'vuex'
-import { feathersRestClient as feathers } from '../../../test/fixtures/feathers-client'
-import feathersVuex from './index'
+import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
+import feathersVuex from '../../src/index'
 import _pick from 'lodash.pick'
 
 Vue.use(Vuex)
@@ -77,16 +77,15 @@ describe('makeServicePlugin', function() {
 
   it('allows accessing other models', function() {
     const serverAlias = 'default'
-    const { makeServicePlugin, BaseModel, addModel, models } = feathersVuex(
-      feathers,
-      { idField: '_id', serverAlias }
-    )
+    const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
+      idField: '_id',
+      serverAlias
+    })
 
     const servicePath = 'todos'
     class Todo extends BaseModel {
       public servicePath = servicePath
     }
-    addModel(Todo)
     const todosPlugin = makeServicePlugin({
       Model: Todo,
       service: feathers.service(servicePath)

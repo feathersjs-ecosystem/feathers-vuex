@@ -9,8 +9,8 @@ import Vuex from 'vuex'
 import {
   feathersRestClient as feathers,
   makeFeathersRestClient
-} from '../../../test/fixtures/feathers-client'
-import feathersVuex from './index'
+} from '../fixtures/feathers-client'
+import feathersVuex from '../../src/index'
 
 Vue.use(Vuex)
 

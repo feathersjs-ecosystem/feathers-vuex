@@ -1,8 +1,14 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import { checkId, diffFunctions } from '../utils'
 
-export default function makeServiceActions (service, { debug }) {
+export default function makeServiceActions(service, { debug }) {
   const serviceActions = {
-    find ({ commit, dispatch, getters, state }, params = {}) {
+    find({ commit, dispatch, state }, params) {
+      params = params || {}
       const { idField } = state
       const handleResponse = response => {
         const { qid = 'default', query } = params
@@ -45,13 +51,16 @@ export default function makeServiceActions (service, { debug }) {
 
       commit('setFindPending')
 
-      return service.find(params).then(handleResponse).catch(handleError)
+      return service
+        .find(params)
+        .then(handleResponse)
+        .catch(handleError)
     },
 
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    get ({ state, getters, commit, dispatch }, args) {
+    get({ state, getters, commit, dispatch }, args) {
       const { idField } = state
       let id
       let params
@@ -72,9 +81,10 @@ export default function makeServiceActions (service, { debug }) {
         skipRequestIfExists = state.skipRequestIfExists
       }
 
-      function getFromRemote () {
+      function getFromRemote() {
         commit('setGetPending')
-        return service.get(id, params)
+        return service
+          .get(id, params)
           .then(item => {
             const id = item[idField]
 
@@ -105,7 +115,7 @@ export default function makeServiceActions (service, { debug }) {
       return getFromRemote()
     },
 
-    create ({ commit, dispatch, state }, dataOrArray) {
+    create({ commit, dispatch, state }, dataOrArray) {
       const { idField } = state
       let data
       let params
@@ -121,7 +131,8 @@ export default function makeServiceActions (service, { debug }) {
 
       commit('setCreatePending')
 
-      return service.create(data, params)
+      return service
+        .create(data, params)
         .then(response => {
           if (Array.isArray(response)) {
             dispatch('addOrUpdateList', response)
@@ -151,12 +162,13 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    update ({ commit, dispatch, state }, [id, data, params]) {
+    update({ commit, dispatch, state }, [id, data, params]) {
       const { idField } = state
 
       commit('setUpdatePending')
 
-      return service.update(id, data, params)
+      return service
+        .update(id, data, params)
         .then(item => {
           const id = item[idField]
           dispatch('addOrUpdate', item)
@@ -170,7 +182,7 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    patch ({ commit, dispatch, state }, [id, data, params]) {
+    patch({ commit, dispatch, state }, [id, data, params]) {
       const { idField, diffOnPatch } = state
 
       commit('setPatchPending')
@@ -179,7 +191,7 @@ export default function makeServiceActions (service, { debug }) {
         const { observableDiff, applyChange } = diffFunctions()
         let diff = {}
 
-        observableDiff(state.copy, data, function (d) {
+        observableDiff(state.copy, data, function(d) {
           if (d.path && d.path.length) {
             // Apply all changes except to the id property...
             if (d.path[d.path.length - 1] !== idField) {
@@ -191,7 +203,8 @@ export default function makeServiceActions (service, { debug }) {
         data = diff
       }
 
-      return service.patch(id, data, params)
+      return service
+        .patch(id, data, params)
         .then(item => {
           const id = item[idField]
 
@@ -206,7 +219,7 @@ export default function makeServiceActions (service, { debug }) {
         })
     },
 
-    remove ({ commit, dispatch }, idOrArray) {
+    remove({ commit }, idOrArray) {
       let id
       let params
 
@@ -221,7 +234,8 @@ export default function makeServiceActions (service, { debug }) {
 
       commit('setRemovePending')
 
-      return service.remove(id, params)
+      return service
+        .remove(id, params)
         .then(item => {
           commit('removeItem', id)
           commit('unsetRemovePending')
@@ -236,8 +250,8 @@ export default function makeServiceActions (service, { debug }) {
   }
 
   const actions = {
-    afterFind ({ commit, dispatch, getters, state }, response) {},
-    addOrUpdateList ({ state, commit }, response) {
+    afterFind() {},
+    addOrUpdateList({ state, commit }, response) {
       const list = response.data || response
       const isPaginated = response.hasOwnProperty('total')
       const toAdd = []
@@ -245,7 +259,7 @@ export default function makeServiceActions (service, { debug }) {
       const toRemove = []
       const { idField, autoRemove } = state
 
-      list.forEach((item, index) => {
+      list.forEach(item => {
         let id = item[idField]
         let existingItem = state.keyedById[id]
 
@@ -259,7 +273,10 @@ export default function makeServiceActions (service, { debug }) {
       if (!isPaginated && autoRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
-          if (id !== state.currentId && !list.some(item => item[idField] === id)) {
+          if (
+            id !== state.currentId &&
+            !list.some(item => item[idField] === id)
+          ) {
             toRemove.push(state.keyedById[id])
           }
         })
@@ -268,21 +285,27 @@ export default function makeServiceActions (service, { debug }) {
 
       if (service.FeathersVuexModel) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.FeathersVuexModel(item, { skipCommit: true })
+          toAdd[index] = new service.FeathersVuexModel(item, {
+            skipCommit: true
+          })
         })
       }
 
       commit('addItems', toAdd)
       commit('updateItems', toUpdate)
     },
-    addOrUpdate ({ state, commit }, item) {
+    addOrUpdate({ state, commit }, item) {
       const { idField } = state
       let id = item[idField]
       let existingItem = state.keyedById[id]
 
       const isIdOk = checkId(id, item, debug)
 
-      if (service.FeathersVuexModel && !existingItem && !item.isFeathersVuexInstance) {
+      if (
+        service.FeathersVuexModel &&
+        !existingItem &&
+        !item.isFeathersVuexInstance
+      ) {
         item = new service.FeathersVuexModel(item)
       }
 

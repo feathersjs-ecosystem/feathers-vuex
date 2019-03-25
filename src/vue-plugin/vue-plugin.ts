@@ -1,9 +1,15 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import FeathersVuexFind from '../FeathersVuexFind'
 import FeathersVuexGet from '../FeathersVuexGet'
+import { globalModels } from '../service-module/global-models'
 
-export default function setupVuePlugin (globalModels) {
+export default function setupVuePlugin() {
   return {
-    install (Vue, options = {}) {
+    install(Vue, options = { components: true }) {
       const shouldSetupComponents = options.components !== false
 
       Vue.$FeathersVuex = globalModels

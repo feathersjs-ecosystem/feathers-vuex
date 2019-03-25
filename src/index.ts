@@ -3,11 +3,18 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions } from './types'
-import prepareMakeServicePlugin from './make-service-plugin'
-import makeModel from './make-model'
-import { prepareAddModel } from './add-model'
-import models from './global-models'
+import setupAuthModule from './auth-module/auth-module'
+import FeathersVuexFind from './FeathersVuexFind'
+import FeathersVuexGet from './FeathersVuexGet'
+import makeFindMixin from './make-find-mixin'
+import makeGetMixin from './make-get-mixin'
+import { globalModels } from './service-module/global-models'
+import makeModel from './service-module/make-model'
+import prepareMakeServicePlugin from './service-module/make-service-plugin'
+
+import { FeathersVuexOptions } from './service-module/types'
+import { initAuth } from './utils'
+import setupVuePlugin from './vue-plugin/vue-plugin'
 
 const defaultOptions: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
@@ -33,14 +40,29 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     )
   }
   options = Object.assign({}, defaultOptions, options)
+
+  if (!options.serverAlias) {
+    throw new Error(
+      `You must provide a 'serverAlias' in the options to feathersVuex`
+    )
+  }
+
   const BaseModel = makeModel(options)
   const makeServicePlugin = prepareMakeServicePlugin(options)
-  const addModel = prepareAddModel(options)
 
   return {
     makeServicePlugin,
     BaseModel,
-    addModel,
-    models
+    makeAuthPlugin: setupAuthModule(feathers),
+    FeathersVuex: setupVuePlugin(),
+    models: globalModels
   }
+}
+
+export {
+  initAuth,
+  FeathersVuexFind,
+  FeathersVuexGet,
+  makeFindMixin,
+  makeGetMixin
 }
