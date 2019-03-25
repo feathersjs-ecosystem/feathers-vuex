@@ -1,7 +1,21 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import { getServicePrefix, getServiceCapitalization } from './utils'
 
-export default function makeFindMixin (options) {
-  const { service, params, fetchQuery, queryWhen = () => true, local = false, qid = 'default', items, debug } = options
+export default function makeFindMixin(options) {
+  const {
+    service,
+    params,
+    fetchQuery,
+    queryWhen = () => true,
+    local = false,
+    qid = 'default',
+    items,
+    debug
+  } = options
   let { name, watch = [] } = options
 
   if (typeof watch === 'string') {
@@ -10,8 +24,13 @@ export default function makeFindMixin (options) {
     watch = ['params']
   }
 
-  if (!service || (typeof service !== 'string' && typeof service !== 'function')) {
-    throw new Error(`The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`)
+  if (
+    !service ||
+    (typeof service !== 'string' && typeof service !== 'function')
+  ) {
+    throw new Error(
+      `The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`
+    )
   }
   if (typeof service === 'function' && !name) {
     name = 'service'
@@ -42,23 +61,27 @@ export default function makeFindMixin (options) {
   }
 
   const mixin = {
-    data () {
+    data() {
       return data
     },
     computed: {
-      [ITEMS] () {
-        return this[PARAMS] ? this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data : []
+      [ITEMS]() {
+        return this[PARAMS]
+          ? this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
+          : []
       },
-      [ITEMS_FETCHED] () {
+      [ITEMS_FETCHED]() {
         if (this[FETCH_PARAMS]) {
-          return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[FETCH_PARAMS]).data
+          return this.$store.getters[`${this[SERVICE_NAME]}/find`](
+            this[FETCH_PARAMS]
+          ).data
         } else {
           return this[ITEMS]
         }
       }
     },
     methods: {
-      [FIND_ACTION] (params) {
+      [FIND_ACTION](params) {
         let paramsToUse
         if (params) {
           paramsToUse = params
@@ -69,7 +92,11 @@ export default function makeFindMixin (options) {
         }
 
         if (!this[LOCAL]) {
-          if (typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](paramsToUse) : this[QUERY_WHEN]) {
+          if (
+            typeof this[QUERY_WHEN] === 'function'
+              ? this[QUERY_WHEN](paramsToUse)
+              : this[QUERY_WHEN]
+          ) {
             this[IS_FIND_PENDING] = true
 
             if (paramsToUse) {
@@ -79,7 +106,8 @@ export default function makeFindMixin (options) {
                 paramsToUse.qid = qid
               }
 
-              return this.$store.dispatch(`${this[SERVICE_NAME]}/find`, paramsToUse)
+              return this.$store
+                .dispatch(`${this[SERVICE_NAME]}/find`, paramsToUse)
                 .then(response => {
                   this[IS_FIND_PENDING] = false
                   return response
@@ -89,8 +117,11 @@ export default function makeFindMixin (options) {
         }
       }
     },
-    created () {
-      debug && console.log(`running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`)
+    created() {
+      debug &&
+        console.log(
+          `running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`
+        )
       debug && console.log(PARAMS, this[PARAMS])
       debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
 
@@ -116,35 +147,43 @@ export default function makeFindMixin (options) {
         if (!local) {
           // TODO: Add this message to the logging:
           //       "Pass { local: true } to disable this warning and only do local queries."
-          console.log(`No "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeFindMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`)
+          console.log(
+            `No "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeFindMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`
+          )
         }
       }
     }
   }
 
   if (qid) {
-    mixin.computed[PAGINATION] = function () {
+    mixin.computed[PAGINATION] = function() {
       return this.$store.state[this[SERVICE_NAME]].pagination[qid]
     }
   }
 
-  setupAttribute(SERVICE_NAME, service, 'computed', true)
-  setupAttribute(PARAMS, params)
-  setupAttribute(FETCH_PARAMS, fetchQuery)
-  setupAttribute(QUERY_WHEN, queryWhen, 'methods')
-  setupAttribute(LOCAL, local)
+  function hasSomeAttribute(vm, ...attributes) {
+    return attributes.some(a => {
+      return vm.hasOwnProperty(a) || Object.getPrototypeOf(vm).hasOwnProperty(a)
+    })
+  }
 
-  function setupAttribute (NAME, value, computedOrMethods = 'computed', returnTheValue = false) {
+  function setupAttribute(
+    NAME,
+    value,
+    computedOrMethods = 'computed',
+    returnTheValue = false
+  ) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
-      mixin.computed[NAME] = function () {
+      mixin.computed[NAME] = function() {
         // If the specified computed prop wasn't found, display an error.
         if (returnTheValue) {
-
         } else {
           if (!hasSomeAttribute(this, value, NAME)) {
-            throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
+            throw new Error(
+              `Value for ${NAME} was not found on the component at '${value}'.`
+            )
           }
         }
         return returnTheValue ? value : this[value]
@@ -154,11 +193,11 @@ export default function makeFindMixin (options) {
     }
   }
 
-  function hasSomeAttribute (vm, ...attributes) {
-    return attributes.some(a => {
-      return vm.hasOwnProperty(a) || Object.getPrototypeOf(vm).hasOwnProperty(a)
-    })
-  }
+  setupAttribute(SERVICE_NAME, service, 'computed', true)
+  setupAttribute(PARAMS, params)
+  setupAttribute(FETCH_PARAMS, fetchQuery)
+  setupAttribute(QUERY_WHEN, queryWhen, 'methods')
+  setupAttribute(LOCAL, local)
 
   return mixin
 }
