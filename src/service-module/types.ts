@@ -25,6 +25,7 @@ export interface MakeServicePluginOptions {
   addOnUpsert?: boolean
   diffOnPatch?: boolean
   enableEvents?: boolean
+  idField?: string
   namespace?: string
   servicePath?: string
   state?: {}
