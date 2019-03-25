@@ -9,7 +9,7 @@ export default {
       default: null
     },
     queryWhen: {
-      type: [ Boolean, Function ],
+      type: [Boolean, Function],
       default: true
     },
     // If a separate query is desired to fetch data, use fetchQuery
@@ -18,8 +18,8 @@ export default {
       type: Object
     },
     watch: {
-      type: [ String, Array ],
-      default () {
+      type: [String, Array],
+      default() {
         return []
       }
     },
@@ -29,13 +29,13 @@ export default {
     },
     editScope: {
       type: Function,
-      default (scope) {
+      default(scope) {
         return scope
       }
     },
     qid: {
       type: String,
-      default () {
+      default() {
         return randomString(10)
       }
     }
@@ -44,15 +44,15 @@ export default {
     isFindPending: false
   }),
   computed: {
-    items () {
+    items() {
       const { query, service, $store } = this
 
       return query ? $store.getters[`${service}/find`]({ query }).data : []
     },
-    pagination () {
+    pagination() {
       return this.$store.state[this.service].pagination[this.qid]
     },
-    scope () {
+    scope() {
       const { items, isFindPending, pagination } = this
       const defaultScope = { isFindPending, pagination, items }
 
@@ -60,10 +60,14 @@ export default {
     }
   },
   methods: {
-    findData () {
+    findData() {
       const query = this.fetchQuery || this.query
 
-      if (typeof this.queryWhen === 'function' ? this.queryWhen(this.query) : this.queryWhen) {
+      if (
+        typeof this.queryWhen === 'function'
+          ? this.queryWhen(this.query)
+          : this.queryWhen
+      ) {
         this.isFindPending = true
 
         if (query) {
@@ -72,33 +76,42 @@ export default {
           if (this.qid) {
             params.qid = params.qid || this.qid
           }
-          return this.$store.dispatch(`${this.service}/find`, params)
+          return this.$store
+            .dispatch(`${this.service}/find`, params)
             .then(() => {
               this.isFindPending = false
             })
         }
       }
     },
-    fetchData () {
+    fetchData() {
       if (!this.local) {
         if (this.query) {
           return this.findData()
         } else {
           // TODO: access debug boolean from from the store config, somehow.
-          console.log(`No query and no id provided, so no data will be fetched.`)
+          console.log(
+            `No query and no id provided, so no data will be fetched.`
+          )
         }
       }
     }
   },
-  created () {
+  created() {
     if (!this.$FeathersVuex) {
-      throw new Error(`You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-find' component.`)
+      throw new Error(
+        `You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-find' component.`
+      )
     }
     if (!this.$store.state[this.service]) {
-      throw new Error(`The '${this.service}' plugin cannot be found. Did you register the service with feathers-vuex?`)
+      throw new Error(
+        `The '${
+          this.service
+        }' plugin cannot be found. Did you register the service with feathers-vuex?`
+      )
     }
 
-    const watch = Array.isArray(this.watch) ? this.watch : [ this.watch ]
+    const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
 
     if (this.fetchQuery || this.query) {
       watch.forEach(prop => {
@@ -116,14 +129,15 @@ export default {
       this.fetchData()
     }
   },
-  render () {
+  render() {
     return this.$scopedSlots.default(this.scope)
   }
 }
 
-function randomString (length) {
+function randomString(length) {
   let text = ''
-  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let possible =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
   for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length))

@@ -5,7 +5,7 @@ eslint
 */
 import { assert } from 'chai'
 import Vue from 'vue'
-import Vuex, { StoreOptions } from 'vuex'
+import Vuex from 'vuex'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 import _pick from 'lodash.pick'
