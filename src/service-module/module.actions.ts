@@ -90,9 +90,6 @@ export default function makeServiceActions(service, { debug }) {
 
             dispatch('addOrUpdate', item)
 
-            if (state.setCurrentOnGet) {
-              commit('setCurrent', item)
-            }
             commit('unsetGetPending')
             return state.keyedById[id]
           })
@@ -106,9 +103,6 @@ export default function makeServiceActions(service, { debug }) {
       // If the records is already in store, return it
       const existedItem = getters.get(id, params)
       if (existedItem) {
-        if (state.setCurrentOnGet) {
-          commit('setCurrent', existedItem)
-        }
         if (!skipRequestIfExists) getFromRemote()
         return Promise.resolve(existedItem)
       }
@@ -145,10 +139,6 @@ export default function makeServiceActions(service, { debug }) {
             const id = response[idField]
 
             dispatch('addOrUpdate', response)
-
-            if (state.setCurrentOnCreate) {
-              commit('setCurrent', response)
-            }
 
             response = state.keyedById[id]
           }

@@ -9,12 +9,15 @@ import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId, updateOriginal } from '../utils'
 import { globalModels } from './global-models'
+import { get } from 'lodash'
 
 export default function makeServiceMutations(servicePath, { debug }) {
   function addItems(state, items) {
     const { idField } = state
-    const Model =
-      globalModels[state.options.serverAlias].byServicePath[servicePath]
+    const Model = get(
+      globalModels,
+      `[${state.serverAlias}].byServicePath[${servicePath}]`
+    )
 
     let newKeyedById = { ...state.keyedById }
 
@@ -41,8 +44,10 @@ export default function makeServiceMutations(servicePath, { debug }) {
 
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert } = state
-    const Model =
-      globalModels[state.options.serverAlias].byServicePath[servicePath]
+    const Model = get(
+      globalModels,
+      `[${state.serverAlias}].byServicePath[${servicePath}]`
+    )
 
     for (let item of items) {
       let id = item[idField]
@@ -179,30 +184,6 @@ export default function makeServiceMutations(servicePath, { debug }) {
         state.keyedById = {}
         state.ids = []
       }
-    },
-
-    setCurrent(state, itemOrId) {
-      const { idField } = state
-      const Model =
-        globalModels[state.options.serverAlias].byServicePath[servicePath]
-      let id
-      let item
-
-      if (isObject(itemOrId)) {
-        id = itemOrId[idField]
-        item = itemOrId
-      } else {
-        id = itemOrId
-        item = state.keyedById[id]
-      }
-      state.currentId = id
-
-      state.copy = new Model(item, { isClone: true })
-    },
-
-    clearCurrent(state) {
-      state.currentId = null
-      state.copy = null
     },
 
     // Removes the copy from copiesById

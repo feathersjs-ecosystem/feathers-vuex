@@ -34,11 +34,7 @@ export default function makeServiceModule(service, options) {
 
   return {
     namespaced: true,
-    state: Object.assign(
-      { options: stateOptions },
-      defaultState,
-      nonStateOptions.state
-    ),
+    state: Object.assign(stateOptions, defaultState, nonStateOptions.state),
     getters: Object.assign({}, defaultGetters, options.getters),
     mutations: Object.assign({}, defaultMutations, options.mutations),
     actions: Object.assign({}, defaultActions, options.actions)

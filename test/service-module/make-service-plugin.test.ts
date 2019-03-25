@@ -13,7 +13,7 @@ import _pick from 'lodash.pick'
 Vue.use(Vuex)
 
 describe('makeServicePlugin', function() {
-  it('registers the vuex module with options', function() {
+  it.only('registers the vuex module with options', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
@@ -33,19 +33,35 @@ describe('makeServicePlugin', function() {
     }
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
-    const keys = Object.keys(store.state.todos.options)
-    const received = _pick(store.state.todos.options, keys)
+    const keys = Object.keys(store.state.todos)
+    const received = _pick(store.state.todos, keys)
     const expected = {
       addOnUpsert: false,
       autoRemove: false,
       debug: false,
+      copiesById: {},
       diffOnPatch: true,
       enableEvents: true,
+      errorOnCreate: null,
+      errorOnFind: null,
+      errorOnGet: null,
+      errorOnPatch: null,
+      errorOnRemove: null,
+      errorOnUpdate: null,
       idField: 'id',
+      ids: [],
+      isCreatePending: false,
+      isFindPending: false,
+      isGetPending: false,
+      isPatchPending: false,
+      isRemovePending: false,
+      isUpdatePending: false,
       keepCopiesInStore: false,
+      keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',
       namespace: 'todos',
+      pagination: {},
       paramsForServer: [],
       preferUpdate: false,
       replaceItems: false,

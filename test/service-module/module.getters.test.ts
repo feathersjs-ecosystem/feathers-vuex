@@ -1,18 +1,24 @@
-import assert from 'chai/chai'
-import makeServiceGetters from '~/src/service-module/getters'
-import makeServiceMutations from '~/src/service-module/mutations'
-import makeServiceState from '~/src/service-module/state'
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
+import { assert } from 'chai'
+import makeServiceGetters from '../../src/service-module/module.getters'
+import makeServiceMutations from '../../src/service-module/module.mutations'
+import makeServiceState from '../../src/service-module/module.state'
 
 const options = {
   idField: '_id',
-  autoRemove: false
+  autoRemove: false,
+  serverAlias: 'default'
 }
 
-const { find, list } = makeServiceGetters('todos', options)
-const { addItems } = makeServiceMutations('todos', options)
+const { find, list } = makeServiceGetters()
+const { addItems } = makeServiceMutations('todos', { debug: false })
 
-describe('Service Module - Getters', function () {
-  beforeEach(function () {
+describe('Service Module - Getters', function() {
+  beforeEach(function() {
     const state = makeServiceState('todos', options)
     this.items = [
       { _id: 1, otherField: true, test: true },
@@ -21,31 +27,27 @@ describe('Service Module - Getters', function () {
         name: 'Marshall',
         otherField: true,
         test: true,
-        movies: [
-          { actors: [ 'Jerry the Mouse' ] }
-        ]
+        movies: [{ actors: ['Jerry the Mouse'] }]
       },
       {
         _id: 3,
         otherField: true,
         test: false,
-        movies: [
-          { actors: [ 'Tom Hanks', 'Tom Cruise', 'Tomcat' ] }
-        ]
+        movies: [{ actors: ['Tom Hanks', 'Tom Cruise', 'Tomcat'] }]
       }
     ]
     addItems(state, this.items)
     this.state = state
   })
 
-  it('list', function () {
+  it('list', function() {
     const { state, items } = this
     const results = list(state)
 
     assert.deepEqual(results, items, 'the list was correct')
   })
 
-  it('find', function () {
+  it('find', function() {
     const { state, items } = this
     const params = { query: {} }
     const results = find(state)(params)
@@ -56,7 +58,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with query', function () {
+  it('find with query', function() {
     const { state } = this
     const params = { query: { test: false } }
     const results = find(state)(params)
@@ -68,7 +70,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with custom operator', function () {
+  it('find with custom operator', function() {
     const { state } = this
     const params = { query: { test: false, $populateQuery: 'test' } }
     const results = find(state)(params)
@@ -80,9 +82,9 @@ describe('Service Module - Getters', function () {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with paramsForServer option', function () {
+  it('find with paramsForServer option', function() {
     const { state } = this
-    state.paramsForServer = [ '_$client' ]
+    state.paramsForServer = ['_$client']
     const params = { query: { test: false, _$client: 'test' } }
     const results = find(state)(params)
 
@@ -93,28 +95,26 @@ describe('Service Module - Getters', function () {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with non-whitelisted custom operator fails', function () {
+  it('find with non-whitelisted custom operator fails', function() {
     const { state } = this
     const params = { query: { $client: 'test' } }
-    let results = []
     try {
-      results = find(state)(params)
+      var results = find(state)(params)
     } catch (error) {
       assert(error)
     }
-    assert(!results.length)
+    assert(!results[0])
   })
 
-  it('find with whitelisted custom operators', function () {
+  it('find with whitelisted custom operators', function() {
     const { state } = this
     state.whitelist = ['$regex', '$options']
     const query = {
       name: { $regex: 'marsh', $options: 'igm' }
     }
     const params = { query }
-    let results = []
     try {
-      results = find(state)(params)
+      var results = find(state)(params)
     } catch (error) {
       assert(!error, 'should not have failed with whitelisted custom operator')
     }
@@ -125,7 +125,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find works with $elemMatch', function () {
+  it('find works with $elemMatch', function() {
     const { state } = this
     const query = {
       movies: {
@@ -142,7 +142,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with limit', function () {
+  it('find with limit', function() {
     const { state } = this
     const params = { query: { $limit: 1 } }
     const results = find(state)(params)
@@ -154,7 +154,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with skip', function () {
+  it('find with skip', function() {
     const { state } = this
     const params = { query: { $skip: 1 } }
     const results = find(state)(params)
@@ -167,7 +167,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with limit and skip', function () {
+  it('find with limit and skip', function() {
     const { state } = this
     const params = { query: { $limit: 1, $skip: 1 } }
     const results = find(state)(params)
@@ -179,7 +179,7 @@ describe('Service Module - Getters', function () {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with select', function () {
+  it('find with select', function() {
     const { state } = this
     const params = { query: { $select: ['otherField'] } }
     const results = find(state)(params)
