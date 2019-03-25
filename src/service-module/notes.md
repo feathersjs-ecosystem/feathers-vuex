@@ -5,7 +5,10 @@ The biggest change in Feathers-Vuex 2.0 is that it has been refactored with Type
 > I will admit that I was less than excited to try out TypeScript.  It definitely introduces a bigger learning curve.  I'm not a fan of large barriers to entry, especially when it comes to software development.  I thought "It's hard enough already!".  And I still feel that's accurate, but it's not an excuse to stay away from TypeScript.  I see now that it's actually one of the reasons to use TypeScript.
 >
 > It only took me a couple of hours to learn some of the basics of TypeScript. Most of the time was spent configuring Visual Studio Code in a way that I liked.  For those interested in what I picked, check out [this article](https://www.robertcooper.me/using-eslint-and-prettier-in-a-typescript-project). Thank you, Robert Cooper for such a great setup.
-> As I started devloping with TypeScript, I really appreciated how it started to rewire how I thought about code organization.  The cdde is much cleaner, especially the service plugin.  Some huge benefits came from this refactor.
+>
+> As I started devloping with TypeScript, I really appreciated how it started to rewire how I thought about code organization.  The cdde is much cleaner, especially the service plugin.  When adding Model support in Feathers-Vuex 1.0, I ran into a difficult race condition.  The Models need the store to first be initialized.  But the store actions/mutations need the Models to first be initialized.  In version 1.0 this resulted in a 115-line monkey patch!  With TypeScript's assistance, I was able to see how to reduce it to a clean, two-line monkey patch.  Much better!
+>
+> Some huge benefits came from this refactor.
 >
 > 1. The FeathersVuex Model class is now fully extendable. This introduces a new level of flexibility.
 > 1. Test coverage has improved.  The newly-organized code is much easier to test in smaller units.
