@@ -151,7 +151,7 @@ describe('Service Module - Actions', () => {
 
   describe('Find', () => {
     describe('without pagination', () => {
-      it.only('Find without pagination', done => {
+      it('Find without pagination', done => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -202,6 +202,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'todos',
               Model: Todo,
               service: feathersClient.service('todos')
             })
@@ -212,9 +213,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $limit: 1 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
             assert(response.length === 1, 'only one record was returned')
             assert.deepEqual(
-              response[0],
+              returnedRecord,
               { id: 0, description: 'Do the first' },
               'the first record was returned'
             )
@@ -226,6 +228,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'todos',
               Model: Todo,
               service: feathersClient.service('todos')
             })
@@ -236,9 +239,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $skip: 9 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(
-              response[0],
+              returnedRecord,
               { id: 9, description: 'Do the tenth' },
               'the tenth record was returned'
             )
@@ -250,6 +254,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'todos',
               Model: Todo,
               service: feathersClient.service('todos')
             })
@@ -260,9 +265,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(
-              response[0],
+              returnedRecord,
               { id: 8, description: 'Do the ninth' },
               'the ninth record was returned'
             )
@@ -276,6 +282,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -286,9 +293,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $limit: 1 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(
-              response.data[0],
+              returnedRecord,
               { id: 0, description: 'Do the first' },
               'the first record was returned'
             )
@@ -303,6 +311,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -313,9 +322,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $skip: 9 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(
-              response.data[0],
+              returnedRecord,
               { id: 9, description: 'Do the tenth' },
               'the tenth record was returned'
             )
@@ -330,6 +340,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -340,9 +351,10 @@ describe('Service Module - Actions', () => {
         actions.find
           .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
           .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(
-              response.data[0],
+              returnedRecord,
               { id: 8, description: 'Do the ninth' },
               'the ninth record was returned'
             )
@@ -357,6 +369,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -386,6 +399,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -411,6 +425,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -440,6 +455,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'tasks',
               Model: Task,
               service: feathersClient.service('tasks')
             })
@@ -475,6 +491,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'no-ids',
               Model: NoId,
               service: feathersClient.service('no-ids'),
               idField: '_id'
@@ -498,6 +515,7 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
+              servicePath: 'no-ids',
               Model: NoId,
               service: feathersClient.service('no-ids'),
               idField: '_id',
@@ -528,6 +546,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })
@@ -557,6 +576,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -579,7 +599,10 @@ describe('Service Module - Actions', () => {
         let expectedKeyedById: NumberedList = {
           0: { id: 0, description: 'Do the first' }
         }
-        assert.deepEqual(todoState.keyedById, expectedKeyedById)
+        assert.deepEqual(
+          JSON.parse(JSON.stringify(todoState.keyedById)),
+          expectedKeyedById
+        )
 
         // Make a request with the array syntax that allows passing params
         actions.get.call({ $store: store }, [1, {}]).then(response2 => {
@@ -588,7 +611,10 @@ describe('Service Module - Actions', () => {
             1: { id: 1, description: 'Do the second' }
           }
           assert(response2.description === 'Do the second')
-          assert.deepEqual(todoState.keyedById, expectedKeyedById)
+          assert.deepEqual(
+            JSON.parse(JSON.stringify(todoState.keyedById)),
+            expectedKeyedById
+          )
 
           // Make a request to an existing record and return the existing data first, then update `keyedById`
           todoState.keyedById = {
@@ -601,7 +627,10 @@ describe('Service Module - Actions', () => {
               1: { id: 1, description: 'Do the second' }
             }
             assert(response3.description === 'Do the FIRST')
-            assert.deepEqual(todoState.keyedById, expectedKeyedById)
+            assert.deepEqual(
+              JSON.parse(JSON.stringify(todoState.keyedById)),
+              expectedKeyedById
+            )
 
             // Wait for the remote data to arriive
             setTimeout(() => {
@@ -609,7 +638,10 @@ describe('Service Module - Actions', () => {
                 0: { id: 0, description: 'Do the first' },
                 1: { id: 1, description: 'Do the second' }
               }
-              assert.deepEqual(todoState.keyedById, expectedKeyedById)
+              assert.deepEqual(
+                JSON.parse(JSON.stringify(todoState.keyedById)),
+                expectedKeyedById
+              )
               done()
             }, 100)
           })
@@ -627,6 +659,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -651,7 +684,10 @@ describe('Service Module - Actions', () => {
         let expectedKeyedById: NumberedList = {
           0: { id: 0, description: 'Do the first' }
         }
-        assert.deepEqual(todoState.keyedById, expectedKeyedById)
+        assert.deepEqual(
+          JSON.parse(JSON.stringify(todoState.keyedById)),
+          expectedKeyedById
+        )
 
         // Make a request with the array syntax that allows passing params
         actions.get.call({ $store: store }, [1, {}]).then(response2 => {
@@ -660,7 +696,10 @@ describe('Service Module - Actions', () => {
             1: { id: 1, description: 'Do the second' }
           }
           assert(response2.description === 'Do the second')
-          assert.deepEqual(todoState.keyedById, expectedKeyedById)
+          assert.deepEqual(
+            JSON.parse(JSON.stringify(todoState.keyedById)),
+            expectedKeyedById
+          )
 
           // Make a request to an existing record and return the existing data first, then update `keyedById`
           todoState.keyedById = {
@@ -673,7 +712,10 @@ describe('Service Module - Actions', () => {
               1: { id: 1, description: 'Do the second' }
             }
             assert(response3.description === 'Do the FIRST')
-            assert.deepEqual(todoState.keyedById, expectedKeyedById)
+            assert.deepEqual(
+              JSON.parse(JSON.stringify(todoState.keyedById)),
+              expectedKeyedById
+            )
 
             // Wait for the remote data to arriive
             setTimeout(() => {
@@ -681,7 +723,10 @@ describe('Service Module - Actions', () => {
                 0: { id: 0, description: 'Do the first' },
                 1: { id: 1, description: 'Do the second' }
               }
-              assert.deepEqual(todoState.keyedById, expectedKeyedById)
+              assert.deepEqual(
+                JSON.parse(JSON.stringify(todoState.keyedById)),
+                expectedKeyedById
+              )
               done()
             }, 100)
           })
@@ -692,13 +737,14 @@ describe('Service Module - Actions', () => {
       assert(todoState.ids.length === 0)
       assert(todoState.errorOnCreate === null)
       assert(todoState.isGetPending === true)
-      assert.deepEqual(todoState.keyedById, {})
+      assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), {})
     })
 
     it('does not make remote call when skipRequestIfExists=true', done => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -719,7 +765,10 @@ describe('Service Module - Actions', () => {
         let expectedKeyedById: NumberedList = {
           0: { id: 0, description: 'Do the first' }
         }
-        assert.deepEqual(todoState.keyedById, expectedKeyedById)
+        assert.deepEqual(
+          JSON.parse(JSON.stringify(todoState.keyedById)),
+          expectedKeyedById
+        )
 
         // Make a request with the array syntax that allows passing params
         actions.get.call({ $store: store }, [1, {}]).then(response2 => {
@@ -728,7 +777,10 @@ describe('Service Module - Actions', () => {
             1: { id: 1, description: 'Do the second' }
           }
           assert(response2.description === 'Do the second')
-          assert.deepEqual(todoState.keyedById, expectedKeyedById)
+          assert.deepEqual(
+            JSON.parse(JSON.stringify(todoState.keyedById)),
+            expectedKeyedById
+          )
 
           // Make a request to an existing record and return the existing data first, then update `keyedById`
           todoState.keyedById = {
@@ -743,7 +795,10 @@ describe('Service Module - Actions', () => {
                 1: { id: 1, description: 'Do the second' }
               }
               assert(response3.description === 'Do the FIRST')
-              assert.deepEqual(todoState.keyedById, expectedKeyedById)
+              assert.deepEqual(
+                JSON.parse(JSON.stringify(todoState.keyedById)),
+                expectedKeyedById
+              )
 
               // The remote data will never arriive
               setTimeout(() => {
@@ -751,7 +806,10 @@ describe('Service Module - Actions', () => {
                   0: { id: 0, description: 'Do the FIRST' },
                   1: { id: 1, description: 'Do the second' }
                 }
-                assert.deepEqual(todoState.keyedById, expectedKeyedById)
+                assert.deepEqual(
+                  JSON.parse(JSON.stringify(todoState.keyedById)),
+                  expectedKeyedById
+                )
                 done()
               }, 100)
             })
@@ -762,13 +820,14 @@ describe('Service Module - Actions', () => {
       assert(todoState.ids.length === 0)
       assert(todoState.errorOnCreate === null)
       assert(todoState.isGetPending === true)
-      assert.deepEqual(todoState.keyedById, {})
+      assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), {})
     })
 
     it('updates errorOnGet state on service failure', done => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })
@@ -798,6 +857,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -821,13 +881,14 @@ describe('Service Module - Actions', () => {
       assert(todoState.errorOnCreate === null)
       assert(todoState.isCreatePending === true)
       assert(todoState.idField === 'id')
-      assert.deepEqual(todoState.keyedById, {})
+      assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), {})
     })
 
     it('updates errorOnCreate state on service failure', done => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })
@@ -860,6 +921,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -902,6 +964,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })
@@ -938,6 +1001,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -989,6 +1053,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -1025,6 +1090,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })
@@ -1061,6 +1127,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'todos',
             Model: Todo,
             service: feathersClient.service('todos')
           })
@@ -1097,6 +1164,7 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
+            servicePath: 'broken',
             Model: Broken,
             service: feathersClient.service('broken')
           })

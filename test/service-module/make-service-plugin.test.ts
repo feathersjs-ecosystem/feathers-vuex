@@ -13,7 +13,7 @@ import _pick from 'lodash.pick'
 Vue.use(Vuex)
 
 describe('makeServicePlugin', function() {
-  it('regisers the vuex module with options', function() {
+  it('registers the vuex module with options', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
@@ -24,6 +24,7 @@ describe('makeServicePlugin', function() {
       public servicePath = servicePath
     }
     const todosPlugin = makeServicePlugin({
+      servicePath,
       Model: Todo,
       service: feathers.service(servicePath)
     })
@@ -68,7 +69,7 @@ describe('makeServicePlugin', function() {
     class Todo extends BaseModel {
       public servicePath = servicePath
     }
-    const todosPlugin = makeServicePlugin({ Model: Todo, service })
+    const todosPlugin = makeServicePlugin({ servicePath, Model: Todo, service })
     const store = new Vuex.Store({ plugins: [todosPlugin] })
 
     assert(Todo.store === store, 'the store is on the Model!')
@@ -87,6 +88,7 @@ describe('makeServicePlugin', function() {
       public servicePath = servicePath
     }
     const todosPlugin = makeServicePlugin({
+      servicePath,
       Model: Todo,
       service: feathers.service(servicePath)
     })

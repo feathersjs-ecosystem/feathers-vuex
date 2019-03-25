@@ -8,16 +8,13 @@ import _merge from 'lodash.merge'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId, updateOriginal } from '../utils'
+import { globalModels } from './global-models'
 
-export default function makeServiceMutations(
-  servicePath,
-  { debug, globalModels }
-) {
-  globalModels = globalModels || { byServicePath: {} }
-
+export default function makeServiceMutations(servicePath, { debug }) {
   function addItems(state, items) {
     const { idField } = state
-    const Model = globalModels.byServicePath[servicePath]
+    const Model =
+      globalModels[state.options.serverAlias].byServicePath[servicePath]
 
     let newKeyedById = { ...state.keyedById }
 
@@ -44,7 +41,8 @@ export default function makeServiceMutations(
 
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert } = state
-    const Model = globalModels.byServicePath[servicePath]
+    const Model =
+      globalModels[state.options.serverAlias].byServicePath[servicePath]
 
     for (let item of items) {
       let id = item[idField]
@@ -185,7 +183,8 @@ export default function makeServiceMutations(
 
     setCurrent(state, itemOrId) {
       const { idField } = state
-      const Model = globalModels.byServicePath[servicePath]
+      const Model =
+        globalModels[state.options.serverAlias].byServicePath[servicePath]
       let id
       let item
 
@@ -216,7 +215,8 @@ export default function makeServiceMutations(
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy(state, id) {
       const current = state.keyedById[id]
-      const Model = globalModels.byServicePath[servicePath]
+      const Model =
+        globalModels[state.options.serverAlias].byServicePath[servicePath]
       const copyData = _merge({}, current)
       const copy = new Model(copyData, { isClone: true })
 
@@ -233,7 +233,8 @@ export default function makeServiceMutations(
       const current = isIdOk
         ? state.keyedById[id]
         : state.keyedById[state.currentId]
-      const Model = globalModels.byServicePath[servicePath]
+      const Model =
+        globalModels[state.options.serverAlias].byServicePath[servicePath]
       let copy
 
       if (state.keepCopiesInStore || !Model) {
@@ -251,7 +252,8 @@ export default function makeServiceMutations(
       const current = isIdOk
         ? state.keyedById[id]
         : state.keyedById[state.currentId]
-      const Model = globalModels.byServicePath[servicePath]
+      const Model =
+        globalModels[state.options.serverAlias].byServicePath[servicePath]
       let copy
 
       if (state.keepCopiesInStore || !Model) {

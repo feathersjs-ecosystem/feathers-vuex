@@ -92,6 +92,7 @@ describe('makeModel / BaseModel', function() {
       serverAlias: 'myApi'
     })
     const plugin = makeServicePlugin({
+      servicePath: 'todos',
       service: feathers.service('todos'),
       Model: BaseModel
     })
@@ -117,6 +118,7 @@ describe('makeModel / BaseModel', function() {
       public test: boolean = true
     }
     const todosPlugin = makeServicePlugin({
+      servicePath: 'todos',
       Model: Todo,
       service: feathers.service('todos')
     })
@@ -126,6 +128,7 @@ describe('makeModel / BaseModel', function() {
       public test: boolean = true
     }
     const tasksPlugin = makeServicePlugin({
+      servicePath: 'tasks',
       Model: Task,
       service: feathers.service('tasks')
     })
