@@ -73,11 +73,8 @@ export default {
         this.isFindPending = true
 
         if (query) {
-          const params = { query }
+          const params = { query, qid: this.qid || 'default' }
 
-          if (this.qid) {
-            params.qid = params.qid || this.qid
-          }
           return this.$store
             .dispatch(`${this.service}/find`, params)
             .then(() => {
