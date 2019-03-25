@@ -1,4 +1,9 @@
-export default function setupAuthState ({ userService }) {
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
+export default function setupAuthState({ userService }) {
   const state = {
     accessToken: null, // The JWT
     payload: null, // The JWT payload

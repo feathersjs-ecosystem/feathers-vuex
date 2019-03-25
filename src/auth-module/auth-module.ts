@@ -7,7 +7,6 @@ import setupState from './state'
 import setupGetters from './getters'
 import setupMutations from './mutations'
 import setupActions from './actions'
-import { globalModels } from '../service-module/global-models'
 
 const defaults = {
   namespace: 'auth',
@@ -34,8 +33,8 @@ export default function authPluginInit(feathersClient) {
 
     const defaultState = setupState(options)
     const defaultGetters = setupGetters()
-    const defaultMutations = setupMutations(feathersClient)
-    const defaultActions = setupActions(feathersClient, globalModels)
+    const defaultMutations = setupMutations()
+    const defaultActions = setupActions(feathersClient)
 
     return function setupStore(store) {
       const { namespace } = options
