@@ -15,42 +15,46 @@ export default function makeAuthActions(feathersClient) {
       return feathersClient
         .authenticate(data)
         .then(response => {
-          if (response.accessToken) {
-            commit('setAccessToken', response.accessToken)
-
-            // Decode the token and set the payload, but return the response
-            return feathersClient.passport
-              .verifyJWT(response.accessToken)
-              .then(payload => {
-                commit('setPayload', payload)
-
-                // Populate the user if the userService was provided
-                if (
-                  state.userService &&
-                  payload.hasOwnProperty(state.entityIdField)
-                ) {
-                  return dispatch(
-                    'populateUser',
-                    payload[state.entityIdField]
-                  ).then(() => {
-                    commit('unsetAuthenticatePending')
-                    return response
-                  })
-                } else {
-                  commit('unsetAuthenticatePending')
-                }
-                return response
-              })
-            // If there was not an accessToken in the response, allow the response to pass through to handle two-factor-auth
-          } else {
-            return response
-          }
+          return dispatch('responseHandler', response)
         })
         .catch(error => {
           commit('setAuthenticateError', error)
           commit('unsetAuthenticatePending')
           return Promise.reject(error)
         })
+    },
+
+    responseHandler({ commit, state, dispatch }, response) {
+      if (response.accessToken) {
+        commit('setAccessToken', response.accessToken)
+
+        // Decode the token and set the payload, but return the response
+        return feathersClient.passport
+          .verifyJWT(response.accessToken)
+          .then(payload => {
+            commit('setPayload', payload)
+
+            // Populate the user if the userService was provided
+            if (
+              state.userService &&
+              payload.hasOwnProperty(state.entityIdField)
+            ) {
+              return dispatch(
+                'populateUser',
+                payload[state.entityIdField]
+              ).then(() => {
+                commit('unsetAuthenticatePending')
+                return response
+              })
+            } else {
+              commit('unsetAuthenticatePending')
+            }
+            return response
+          })
+        // If there was not an accessToken in the response, allow the response to pass through to handle two-factor-auth
+      } else {
+        return response
+      }
     },
 
     populateUser({ commit, state, dispatch }, userId) {
