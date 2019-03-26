@@ -51,16 +51,5 @@ export default function makeDefaultState(servicePath, options) {
     errorOnRemove: null
   }
 
-  if (enableEvents) {
-    Object.assign(state, {
-      realtimeLocksById: {
-        create: {},
-        patch: {},
-        update: {},
-        remove: {}
-      }
-    })
-  }
-
   return state
 }
