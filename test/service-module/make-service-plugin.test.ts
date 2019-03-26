@@ -13,7 +13,7 @@ import _pick from 'lodash.pick'
 Vue.use(Vuex)
 
 describe('makeServicePlugin', function() {
-  it.only('registers the vuex module with options', function() {
+  it('registers the vuex module with options', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias

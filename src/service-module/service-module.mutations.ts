@@ -267,78 +267,26 @@ export default function makeServiceMutations(servicePath, { debug }) {
       })
     },
 
-    setFindPending(state) {
-      state.isFindPending = true
+    setPending(state, method: string): void {
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      state[`is${uppercaseMethod}Pending`] = true
     },
-    unsetFindPending(state) {
-      state.isFindPending = false
-    },
-    setGetPending(state) {
-      state.isGetPending = true
-    },
-    unsetGetPending(state) {
-      state.isGetPending = false
-    },
-    setCreatePending(state) {
-      state.isCreatePending = true
-    },
-    unsetCreatePending(state) {
-      state.isCreatePending = false
-    },
-    setUpdatePending(state) {
-      state.isUpdatePending = true
-    },
-    unsetUpdatePending(state) {
-      state.isUpdatePending = false
-    },
-    setPatchPending(state) {
-      state.isPatchPending = true
-    },
-    unsetPatchPending(state) {
-      state.isPatchPending = false
-    },
-    setRemovePending(state) {
-      state.isRemovePending = true
-    },
-    unsetRemovePending(state) {
-      state.isRemovePending = false
+    unsetPending(state, method: string): void {
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      state[`is${uppercaseMethod}Pending`] = false
     },
 
-    setFindError(state, payload) {
-      state.errorOnFind = Object.assign({}, serializeError(payload))
+    setError(state, payload: { method: string; error: Error }): void {
+      const { method, error } = payload
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      state[`errorOn${uppercaseMethod}`] = Object.assign(
+        {},
+        serializeError(error)
+      )
     },
-    clearFindError(state) {
-      state.errorOnFind = null
-    },
-    setGetError(state, payload) {
-      state.errorOnGet = Object.assign({}, serializeError(payload))
-    },
-    clearGetError(state) {
-      state.errorOnGet = null
-    },
-    setCreateError(state, payload) {
-      state.errorOnCreate = Object.assign({}, serializeError(payload))
-    },
-    clearCreateError(state) {
-      state.errorOnCreate = null
-    },
-    setUpdateError(state, payload) {
-      state.errorOnUpdate = Object.assign({}, serializeError(payload))
-    },
-    clearUpdateError(state) {
-      state.errorOnUpdate = null
-    },
-    setPatchError(state, payload) {
-      state.errorOnPatch = Object.assign({}, serializeError(payload))
-    },
-    clearPatchError(state) {
-      state.errorOnPatch = null
-    },
-    setRemoveError(state, payload) {
-      state.errorOnRemove = Object.assign({}, serializeError(payload))
-    },
-    clearRemoveError(state) {
-      state.errorOnRemove = null
+    clearError(state, method: string): void {
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      state[`errorOn${uppercaseMethod}`] = null
     }
   }
 }

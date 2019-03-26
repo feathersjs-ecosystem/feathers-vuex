@@ -35,6 +35,12 @@ export default function makeDefaultState(servicePath, options) {
     paramsForServer,
     whitelist,
     pagination: {},
+    realtimeLocks: {
+      create: {},
+      patch: {},
+      update: {},
+      remove: {}
+    },
 
     isFindPending: false,
     isGetPending: false,

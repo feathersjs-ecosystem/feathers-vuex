@@ -206,3 +206,31 @@ it('works with multiple, independent Feathers servers', function() {
 ## Services are no longer set up internally
 
 You no longer just pass a servicePath, but instead an entire service object.
+
+## Simplified Pending Mutations
+
+Previously, there was a mutation for every single variety of method and set/unset pending. (`setFindPending`, `unsetFindPending`, etc.). There were a total of twelve methods for this simple operation. They are now combined into two methods: `setPending(method)` and `unsetPending(method)`.  Here's the difference.
+
+```js
+// The old way
+commit('setFindPending')
+commit('unsetFindPending')
+
+// The new way
+commit('setPending', 'find')
+commit('unsetPending', 'find')
+```
+
+## Simplified Error Mutations
+
+The "error" mutations have been simplified similar to the "pending" mutations:
+
+```js
+// The old way
+commit('setFindError', error)
+commit('clearFindError')
+
+// The new way
+commit('setError', { method: 'find', error })
+commit('clearError', 'find')
+```

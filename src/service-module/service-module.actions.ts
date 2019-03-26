@@ -14,7 +14,7 @@ export default function makeServiceActions(service, { debug }) {
         const { qid = 'default', query } = params
 
         dispatch('addOrUpdateList', response)
-        commit('unsetFindPending')
+        commit('unsetPending', 'find')
 
         const mapItemFromState = item => {
           const id = item[idField]
@@ -44,12 +44,12 @@ export default function makeServiceActions(service, { debug }) {
         return response
       }
       const handleError = error => {
-        commit('setFindError', error)
-        commit('unsetFindPending')
+        commit('setError', { method: 'find', error })
+        commit('unsetPending', 'find')
         return Promise.reject(error)
       }
 
-      commit('setFindPending')
+      commit('setPending', 'find')
 
       return service
         .find(params)
@@ -82,7 +82,7 @@ export default function makeServiceActions(service, { debug }) {
       }
 
       function getFromRemote() {
-        commit('setGetPending')
+        commit('setPending', 'get')
         return service
           .get(id, params)
           .then(item => {
@@ -90,12 +90,12 @@ export default function makeServiceActions(service, { debug }) {
 
             dispatch('addOrUpdate', item)
 
-            commit('unsetGetPending')
+            commit('unsetPending', 'get')
             return state.keyedById[id]
           })
           .catch(error => {
-            commit('setGetError', error)
-            commit('unsetGetPending')
+            commit('setError', { method: 'get', error })
+            commit('unsetPending', 'get')
             return Promise.reject(error)
           })
       }
@@ -123,7 +123,7 @@ export default function makeServiceActions(service, { debug }) {
 
       params = params || {}
 
-      commit('setCreatePending')
+      commit('setPending', 'create')
 
       return service
         .create(data, params)
@@ -142,12 +142,12 @@ export default function makeServiceActions(service, { debug }) {
 
             response = state.keyedById[id]
           }
-          commit('unsetCreatePending')
+          commit('unsetPending', 'create')
           return response
         })
         .catch(error => {
-          commit('setCreateError', error)
-          commit('unsetCreatePending')
+          commit('setError', { method: 'create', error })
+          commit('unsetPending', 'create')
           return Promise.reject(error)
         })
     },
@@ -155,19 +155,19 @@ export default function makeServiceActions(service, { debug }) {
     update({ commit, dispatch, state }, [id, data, params]) {
       const { idField } = state
 
-      commit('setUpdatePending')
+      commit('setPending', 'update')
 
       return service
         .update(id, data, params)
         .then(item => {
           const id = item[idField]
           dispatch('addOrUpdate', item)
-          commit('unsetUpdatePending')
+          commit('unsetPending', 'update')
           return state.keyedById[id]
         })
         .catch(error => {
-          commit('setUpdateError', error)
-          commit('unsetUpdatePending')
+          commit('setError', { method: 'update', error })
+          commit('unsetPending', 'update')
           return Promise.reject(error)
         })
     },
@@ -175,7 +175,7 @@ export default function makeServiceActions(service, { debug }) {
     patch({ commit, dispatch, state }, [id, data, params]) {
       const { idField, diffOnPatch } = state
 
-      commit('setPatchPending')
+      commit('setPending', 'patch')
 
       if (diffOnPatch) {
         const { observableDiff, applyChange } = diffFunctions()
@@ -199,12 +199,12 @@ export default function makeServiceActions(service, { debug }) {
           const id = item[idField]
 
           dispatch('addOrUpdate', item)
-          commit('unsetPatchPending')
+          commit('unsetPending', 'patch')
           return state.keyedById[id]
         })
         .catch(error => {
-          commit('setPatchError', error)
-          commit('unsetPatchPending')
+          commit('setError', { method: 'patch', error })
+          commit('unsetPending', 'patch')
           return Promise.reject(error)
         })
     },
@@ -222,18 +222,18 @@ export default function makeServiceActions(service, { debug }) {
 
       params = params || {}
 
-      commit('setRemovePending')
+      commit('setPending', 'remove')
 
       return service
         .remove(id, params)
         .then(item => {
           commit('removeItem', id)
-          commit('unsetRemovePending')
+          commit('unsetPending', 'remove')
           return item
         })
         .catch(error => {
-          commit('setRemoveError', error)
-          commit('unsetRemovePending')
+          commit('setError', { method: 'remove', error})
+          commit('unsetPending', 'remove')
           return Promise.reject(error)
         })
     }

@@ -25,7 +25,7 @@ const options = {
   globalModels: {
     Todo: todoModel,
     byServicePath: {
-      'todos': todoModel
+      todos: todoModel
     }
   }
 }
@@ -44,39 +44,19 @@ const {
   rejectCopy,
   commitCopy,
   updatePaginationForQuery,
-  setFindPending,
-  unsetFindPending,
-  setGetPending,
-  unsetGetPending,
-  setCreatePending,
-  unsetCreatePending,
-  setUpdatePending,
-  unsetUpdatePending,
-  setPatchPending,
-  unsetPatchPending,
-  setRemovePending,
-  unsetRemovePending,
-  setFindError,
-  clearFindError,
-  setGetError,
-  clearGetError,
-  setCreateError,
-  clearCreateError,
-  setUpdateError,
-  clearUpdateError,
-  setPatchError,
-  clearPatchError,
-  setRemoveError,
-  clearRemoveError
+  setPending,
+  unsetPending,
+  setError,
+  clearError
 } = makeServiceMutations('todos', options)
 
-describe('Service Module - Mutations', function () {
-  beforeEach(function () {
+describe('Service Module - Mutations', function() {
+  beforeEach(function() {
     this.state = makeServiceState('todos', options)
     this.state.keepCopiesInStore = true
   })
 
-  it('addItem', function () {
+  it('addItem', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -107,7 +87,7 @@ describe('Service Module - Mutations', function () {
     assert(state.keyedById[2].test)
   })
 
-  it('addItems', function () {
+  it('addItems', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -126,8 +106,8 @@ describe('Service Module - Mutations', function () {
     assert(state.keyedById[2].test)
   })
 
-  describe('updateItem', function () {
-    it('updates existing item when addOnUpsert=true', function () {
+  describe('updateItem', function() {
+    it('updates existing item when addOnUpsert=true', function() {
       const state = this.state
       state.addOnUpsert = true
       const item1 = {
@@ -146,7 +126,7 @@ describe('Service Module - Mutations', function () {
       assert(state.keyedById[1].test === false)
     })
 
-    it('updates existing item when addOnUpsert=false', function () {
+    it('updates existing item when addOnUpsert=false', function() {
       const state = this.state
       state.addOnUpsert = false
       const item1 = {
@@ -165,7 +145,7 @@ describe('Service Module - Mutations', function () {
       assert(state.keyedById[1].test === false)
     })
 
-    it('adds non-existing item when addOnUpsert=true', function () {
+    it('adds non-existing item when addOnUpsert=true', function() {
       const state = this.state
       state.addOnUpsert = true
 
@@ -175,11 +155,14 @@ describe('Service Module - Mutations', function () {
       }
       updateItem(state, item1updated)
 
-      assert.deepEqual([state.addOnUpsert, state.ids, state.keyedById], [true, [1], { 1: { _id: 1, test: false } }])
+      assert.deepEqual(
+        [state.addOnUpsert, state.ids, state.keyedById],
+        [true, [1], { 1: { _id: 1, test: false } }]
+      )
       // assert(state.keyedById[1].test === false)
     })
 
-    it('discards non-existing item when addOnUpsert=false', function () {
+    it('discards non-existing item when addOnUpsert=false', function() {
       const state = this.state
       state.addOnUpsert = false
 
@@ -193,12 +176,12 @@ describe('Service Module - Mutations', function () {
     })
   })
 
-  describe('Vue event bindings', function () {
-    it('does not break when attempting to overwrite a getter', function (done) {
+  describe('Vue event bindings', function() {
+    it('does not break when attempting to overwrite a getter', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
-        get getter () {
+        get getter() {
           return 'Release the flying monkies!'
         }
       }
@@ -210,7 +193,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.getter' (val) {
+          'item.getter'(val) {
             throw new Error('this should never happen')
           }
         }
@@ -228,12 +211,12 @@ describe('Service Module - Mutations', function () {
       done()
     })
 
-    it('correctly emits events for existing array properties', function (done) {
+    it('correctly emits events for existing array properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
         test: true,
-        users: [ 'Marshall', 'Mariah' ]
+        users: ['Marshall', 'Mariah']
       }
       const items = [item1]
       addItems(state, items)
@@ -243,7 +226,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.users' (val) {
+          'item.users'(val) {
             assert(this.item.users.length === 3)
             done()
           }
@@ -255,12 +238,12 @@ describe('Service Module - Mutations', function () {
       const updatedItem = {
         _id: 1,
         test: false,
-        users: [ 'Marshall', 'Mariah', 'Scooby Doo' ]
+        users: ['Marshall', 'Mariah', 'Scooby Doo']
       }
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for new array properties', function (done) {
+    it('correctly emits events for new array properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -274,7 +257,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.users' (val) {
+          'item.users'(val) {
             assert(this.item.users.length === 3)
             done()
           }
@@ -286,12 +269,12 @@ describe('Service Module - Mutations', function () {
       const updatedItem = {
         _id: 1,
         test: false,
-        users: [ 'Marshall', 'Mariah', 'Scooby Doo' ]
+        users: ['Marshall', 'Mariah', 'Scooby Doo']
       }
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for existing object properties', function (done) {
+    it('correctly emits events for existing object properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -305,7 +288,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.obj' (val) {
+          'item.obj'(val) {
             assert(this.item.obj.test === false)
             done()
           }
@@ -321,7 +304,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for new object properties', function (done) {
+    it('correctly emits events for new object properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1
@@ -334,7 +317,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.obj' (val) {
+          'item.obj'(val) {
             assert(this.item.obj.test === false)
             done()
           }
@@ -350,7 +333,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for existing boolean properties', function (done) {
+    it('correctly emits events for existing boolean properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -364,7 +347,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.isValid' (val) {
+          'item.isValid'(val) {
             assert(this.item.isValid === false)
             done()
           }
@@ -380,7 +363,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for new boolean properties', function (done) {
+    it('correctly emits events for new boolean properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1
@@ -393,7 +376,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.isValid' (val) {
+          'item.isValid'(val) {
             assert(this.item.isValid === false)
             done()
           }
@@ -409,7 +392,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for existing string properties', function (done) {
+    it('correctly emits events for existing string properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -423,7 +406,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name' (val) {
+          'item.name'(val) {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -439,7 +422,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for new string properties', function (done) {
+    it('correctly emits events for new string properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1
@@ -452,7 +435,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name' (val) {
+          'item.name'(val) {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -468,7 +451,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for existing null properties', function (done) {
+    it('correctly emits events for existing null properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -482,7 +465,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name' (val) {
+          'item.name'(val) {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -498,7 +481,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for properties set to null', function (done) {
+    it('correctly emits events for properties set to null', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -512,7 +495,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name' (val) {
+          'item.name'(val) {
             assert(this.item.name === null)
             done()
           }
@@ -528,7 +511,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for existing number properties', function (done) {
+    it('correctly emits events for existing number properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1,
@@ -542,7 +525,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.age' (val) {
+          'item.age'(val) {
             assert(this.item.age === 50)
             done()
           }
@@ -558,7 +541,7 @@ describe('Service Module - Mutations', function () {
       updateItem(state, updatedItem)
     })
 
-    it('correctly emits events for new number properties', function (done) {
+    it('correctly emits events for new number properties', function(done) {
       const state = this.state
       const item1 = {
         _id: 1
@@ -571,7 +554,7 @@ describe('Service Module - Mutations', function () {
           item: state.keyedById[1]
         },
         watch: {
-          'item.age' (val) {
+          'item.age'(val) {
             assert(this.item.age === 50)
             done()
           }
@@ -588,7 +571,7 @@ describe('Service Module - Mutations', function () {
     })
   })
 
-  it('updateItems', function () {
+  it('updateItems', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -616,7 +599,7 @@ describe('Service Module - Mutations', function () {
     assert(state.keyedById[2].test === false)
   })
 
-  it('removeItem', function () {
+  it('removeItem', function() {
     const state = this.state
 
     addItem(state, { _id: 1, test: true })
@@ -626,7 +609,7 @@ describe('Service Module - Mutations', function () {
     assert(Object.keys(state.keyedById).length === 0)
   })
 
-  it('removeItems with array of ids', function () {
+  it('removeItems with array of ids', function() {
     const state = this.state
     const items = [
       { _id: 1, test: true },
@@ -639,10 +622,13 @@ describe('Service Module - Mutations', function () {
     removeItems(state, itemsToRemove)
 
     assert(state.ids.length === 2, 'should have 2 ids left')
-    assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
+    assert(
+      Object.keys(state.keyedById).length === 2,
+      'should have 2 items left'
+    )
   })
 
-  it('removeItems with array of items', function () {
+  it('removeItems with array of items', function() {
     const state = this.state
     const items = [
       { _id: 1, test: true },
@@ -651,17 +637,17 @@ describe('Service Module - Mutations', function () {
       { _id: 4, test: true }
     ]
     addItems(state, items)
-    const itemsToRemove = [
-      { _id: 1, test: true },
-      { _id: 2, test: true }
-    ]
+    const itemsToRemove = [{ _id: 1, test: true }, { _id: 2, test: true }]
     removeItems(state, itemsToRemove)
 
     assert(state.ids.length === 2, 'should have 2 ids left')
-    assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
+    assert(
+      Object.keys(state.keyedById).length === 2,
+      'should have 2 items left'
+    )
   })
 
-  it('clearAll', function () {
+  it('clearAll', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -679,7 +665,7 @@ describe('Service Module - Mutations', function () {
     assert(Object.keys(state.keyedById).length === 0)
   })
 
-  it('clearList', function () {
+  it('clearList', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -701,7 +687,7 @@ describe('Service Module - Mutations', function () {
     assert(state.keyedById[2].test, 'the item is still in keyedById')
   })
 
-  it('setCurrent', function () {
+  it('setCurrent', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -724,7 +710,7 @@ describe('Service Module - Mutations', function () {
     assert.deepEqual(state.copy, item1)
   })
 
-  it('clearCurrent', function () {
+  it('clearCurrent', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -743,7 +729,7 @@ describe('Service Module - Mutations', function () {
     assert(state.copy === null)
   })
 
-  it('copy works', function () {
+  it('copy works', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -756,7 +742,7 @@ describe('Service Module - Mutations', function () {
     assert(state.copy.test === false, 'the copy was updated successfully.')
   })
 
-  it('rejectCopy', function () {
+  it('rejectCopy', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -768,13 +754,16 @@ describe('Service Module - Mutations', function () {
     const copy = state.copy
 
     state.copy.test = false
-    assert(original.test === true, `the original item didn't change when copy was changed`)
+    assert(
+      original.test === true,
+      `the original item didn't change when copy was changed`
+    )
 
     rejectCopy(state)
     assert(copy.test === true, 'the copy was reset')
   })
 
-  it('commitCopy', function () {
+  it('commitCopy', function() {
     const state = this.state
     const item1 = {
       _id: 1,
@@ -789,10 +778,13 @@ describe('Service Module - Mutations', function () {
 
     commitCopy(state)
     assert(copy.test === false, `the copy wasn't changed after commitCopy`)
-    assert(original.test === false, 'the original item was updated after commitCopy')
+    assert(
+      original.test === false,
+      'the original item was updated after commitCopy'
+    )
   })
 
-  it('updatePaginationForQuery', function () {
+  it('updatePaginationForQuery', function() {
     const state = this.state
     const qid = 'query-identifier'
     const query = { limit: 2 }
@@ -813,193 +805,80 @@ describe('Service Module - Mutations', function () {
     assert.deepEqual(pageData.query, query, 'the query was stored')
   })
 
-  describe('Pending', function () {
-    it('setFindPending', function () {
+  describe('Pending', function() {
+    it('setPending', function() {
       const state = this.state
-      assert(!state.isFindPending)
-      setFindPending(state)
-      assert(state.isFindPending)
+      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        assert(!state[`is${uppercaseMethod}Pending`])
+        setPending(state, method)
+        assert(state[`is${uppercaseMethod}Pending`])
+      })
     })
 
-    it('setFindPending', function () {
+    it('unsetPending', function() {
       const state = this.state
-      setFindPending(state)
-      unsetFindPending(state)
-      assert(!state.isFindPending)
-    })
+      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
 
-    it('setGetPending', function () {
-      const state = this.state
-      assert(!state.isGetPending)
-      setGetPending(state)
-      assert(state.isGetPending)
-    })
-
-    it('setGetPending', function () {
-      const state = this.state
-      setGetPending(state)
-      unsetGetPending(state)
-      assert(!state.isGetPending)
-    })
-
-    it('setCreatePending', function () {
-      const state = this.state
-      assert(!state.isCreatePending)
-      setCreatePending(state)
-      assert(state.isCreatePending)
-    })
-
-    it('setCreatePending', function () {
-      const state = this.state
-      setCreatePending(state)
-      unsetCreatePending(state)
-      assert(!state.isCreatePending)
-    })
-
-    it('setUpdatePending', function () {
-      const state = this.state
-      assert(!state.isUpdatePending)
-      setUpdatePending(state)
-      assert(state.isUpdatePending)
-    })
-
-    it('setUpdatePending', function () {
-      const state = this.state
-      setUpdatePending(state)
-      unsetUpdatePending(state)
-      assert(!state.isUpdatePending)
-    })
-
-    it('setPatchPending', function () {
-      const state = this.state
-      assert(!state.isPatchPending)
-      setPatchPending(state)
-      assert(state.isPatchPending)
-    })
-
-    it('setPatchPending', function () {
-      const state = this.state
-      setPatchPending(state)
-      unsetPatchPending(state)
-      assert(!state.isPatchPending)
-    })
-
-    it('setRemovePending', function () {
-      const state = this.state
-      assert(!state.isRemovePending)
-      setRemovePending(state)
-      assert(state.isRemovePending)
-    })
-
-    it('setRemovePending', function () {
-      const state = this.state
-      setRemovePending(state)
-      unsetRemovePending(state)
-      assert(!state.isRemovePending)
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        assert(!state[`is${uppercaseMethod}Pending`])
+        unsetPending(state, method)
+        assert(state[`is${uppercaseMethod}Pending`])
+      })
     })
   })
 
-  describe('Errors', function () {
-    it('setFindError', function () {
+  describe('Errors', function() {
+    it('setError', function() {
       const state = this.state
-      setFindError(state, new Error('This is a test'))
-      assert(state.errorOnFind.message)
-      assert(state.errorOnFind.name)
-      assert(state.errorOnFind.stack)
+      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        setError(state, { method, error: new Error('This is a test') })
+        assert(state[`errorOn${uppercaseMethod}`].message)
+        assert(state[`errorOn${uppercaseMethod}`].name)
+        assert(state[`errorOn${uppercaseMethod}`].stack)
+      })
     })
 
-    it('setFindError with feathers-errors', function () {
+    it('setError with feathers-errors', function() {
       const state = this.state
-      setFindError(state, new errors.NotAuthenticated('You are not logged in'))
-      assert(state.errorOnFind.className)
-      assert(state.errorOnFind.code)
-      assert(state.errorOnFind.hasOwnProperty('errors'))
-      assert(state.errorOnFind.hasOwnProperty('data'))
-      assert(state.errorOnFind.message)
-      assert(state.errorOnFind.name)
-      assert(state.errorOnFind.stack)
+      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        setError(state, {
+          method,
+          error: new errors.NotAuthenticated('You are not logged in')
+        })
+        assert(state[`errorOn${uppercaseMethod}`].className)
+        assert(state[`errorOn${uppercaseMethod}`].code)
+        assert(state[`errorOn${uppercaseMethod}`].hasOwnProperty('errors'))
+        assert(state[`errorOn${uppercaseMethod}`].hasOwnProperty('data'))
+        assert(state[`errorOn${uppercaseMethod}`].message)
+        assert(state[`errorOn${uppercaseMethod}`].name)
+        assert(state[`errorOn${uppercaseMethod}`].stack)
+      })
     })
 
-    it('clearFindError', function () {
+    it('clearError', function() {
       const state = this.state
-      setFindError(state, new Error('This is a test'))
-      clearFindError(state)
-      assert(!state.errorOnFind, 'errorOnFind was cleared')
-    })
+      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
 
-    it('setGetError', function () {
-      const state = this.state
-      setGetError(state, new Error('This is a test'))
-      assert(state.errorOnGet.message)
-      assert(state.errorOnGet.name)
-      assert(state.errorOnGet.stack)
-    })
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
 
-    it('clearGetError', function () {
-      const state = this.state
-      setGetError(state, new Error('This is a test'))
-      clearGetError(state)
-      assert(!state.errorOnGet, 'errorOnGet was cleared')
-    })
-
-    it('setCreateError', function () {
-      const state = this.state
-      setCreateError(state, new Error('This is a test'))
-      assert(state.errorOnCreate.message)
-      assert(state.errorOnCreate.name)
-      assert(state.errorOnCreate.stack)
-    })
-
-    it('clearCreateError', function () {
-      const state = this.state
-      setCreateError(state, new Error('This is a test'))
-      clearCreateError(state)
-      assert(!state.errorOnCreate, 'errorOnCreate was cleared')
-    })
-
-    it('setUpdateError', function () {
-      const state = this.state
-      setUpdateError(state, new Error('This is a test'))
-      assert(state.errorOnUpdate.message)
-      assert(state.errorOnUpdate.name)
-      assert(state.errorOnUpdate.stack)
-    })
-
-    it('clearUpdateError', function () {
-      const state = this.state
-      setUpdateError(state, new Error('This is a test'))
-      clearUpdateError(state)
-      assert(!state.errorOnUpdate, 'errorOnUpdate was cleared')
-    })
-
-    it('setPatchError', function () {
-      const state = this.state
-      setPatchError(state, new Error('This is a test'))
-      assert(state.errorOnPatch.message)
-      assert(state.errorOnPatch.name)
-      assert(state.errorOnPatch.stack)
-    })
-
-    it('clearPatchError', function () {
-      const state = this.state
-      setPatchError(state, new Error('This is a test'))
-      clearPatchError(state)
-      assert(!state.errorOnPatch, 'errorOnPatch was cleared')
-    })
-
-    it('setRemoveError', function () {
-      const state = this.state
-      setRemoveError(state, new Error('This is a test'))
-      assert(state.errorOnRemove.message)
-      assert(state.errorOnRemove.name)
-      assert(state.errorOnRemove.stack)
-    })
-
-    it('clearRemoveError', function () {
-      const state = this.state
-      setRemoveError(state, new Error('This is a test'))
-      clearRemoveError(state)
-      assert(!state.errorOnRemove, 'errorOnRemove was cleared')
+        setError(state, { method, error: new Error('This is a test') })
+        clearError(state, method)
+        assert(
+          state[`errorOn${uppercaseMethod}`] === null,
+          `errorOn${uppercaseMethod} was cleared`
+        )
+      })
     })
   })
 })

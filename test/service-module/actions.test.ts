@@ -25,7 +25,6 @@ interface ServiceState {
   errorOnPatch: any
   errorOnUpdate: any
   errorOnRemove: any
-  currentId: number
   isFindPending: boolean
   isGetPending: boolean
   isCreatePending: boolean
@@ -94,7 +93,7 @@ const assertRejected = (promise, done, callback) => {
   )
 }
 
-describe('Service Module - Actions', () => {
+describe.only('Service Module - Actions', () => {
   beforeEach(function() {
     this.todoService = feathersClient.use(
       'todos',
@@ -593,7 +592,6 @@ describe('Service Module - Actions', () => {
         assert(todoState.ids.length === 1, 'only one item is in the store')
         assert(todoState.errorOnGet === null, 'there was no errorOnGet')
         assert(todoState.isGetPending === false, 'isGetPending is set to false')
-        assert(todoState.currentId === 0, 'the currentId was set')
 
         let expectedKeyedById: NumberedList = {
           0: { id: 0, description: 'Do the first' }

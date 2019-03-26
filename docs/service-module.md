@@ -193,6 +193,8 @@ Clears all data from `ids`, `keyedById`, and `currentId`
 
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
 
+Before Feathers-Vuex 2.0, these were the available mutations:
+
 - `setFindPending(state)` - sets `isFindPending` to `true`
 - `unsetFindPending(state)` - sets `isFindPending` to `false`
 - `setGetPending(state)` - sets `isGetPending` to `true`
@@ -206,9 +208,16 @@ The following mutations are called automatically by the service actions, and wil
 - `setRemovePending(state)` - sets `isRemovePending` to `true`
 - `unsetRemovePending(state)` - sets `isRemovePending` to `false`
 
+In Feathers-Vuex 2.0, these have changed to only two mutations:
+
+- `setPending(state, method)` - sets the `is${method}Pending` attribute to true
+- `unsetPending(state, method)` - sets the `is${method}Pending` attribute to false
+
 ### Mutations for Managing Errors
 
 The following mutations are called automatically by the service actions, and will rarely need to be used manually.
+
+Before Feathers-Vuex 2.0, these were the available mutations:
 
 - `setFindError(state, error)`
 - `clearFindError(state)`
@@ -222,6 +231,11 @@ The following mutations are called automatically by the service actions, and wil
 - `clearPatchError(state)`
 - `setRemoveError(state, error)`
 - `clearRemoveError(state)`
+
+In Feathers-Vuex 2.0, these have changed to only two mutations:
+
+- `setError(state, { method, error })` - sets the `errorOn${method}` attribute to the error
+- `clearError(state, method)` - sets the `errorOn${method}` attribute to `null`
 
 ## Service Actions
 

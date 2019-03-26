@@ -64,16 +64,16 @@ export default function prepareMakeServicePlugin(
       if (options.enableEvents) {
         // Listen to socket events when available.
         service.on('created', item =>
-          store.commit(`${namespace}/addItem`, item)
+          store.commit(`${options.namespace}/addItem`, item)
         )
         service.on('updated', item =>
-          store.commit(`${namespace}/updateItem`, item)
+          store.commit(`${options.namespace}/updateItem`, item)
         )
         service.on('patched', item =>
-          store.commit(`${namespace}/updateItem`, item)
+          store.commit(`${options.namespace}/updateItem`, item)
         )
         service.on('removed', item =>
-          store.commit(`${namespace}/removeItem`, item)
+          store.commit(`${options.namespace}/removeItem`, item)
         )
       }
     }
