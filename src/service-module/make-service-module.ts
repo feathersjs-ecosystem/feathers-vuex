@@ -6,10 +6,10 @@ eslint
 import _omit from 'lodash.omit'
 import _pick from 'lodash.pick'
 
-import makeDefaultState from './module.state'
-import makeGetters from './module.getters'
-import makeMutations from './module.mutations'
-import makeActions from './module.actions'
+import makeDefaultState from './service-module.state'
+import makeGetters from './service-module.getters'
+import makeMutations from './service-module.mutations'
+import makeActions from './service-module.actions'
 
 export default function makeServiceModule(service, options) {
   const nonStateProps = [

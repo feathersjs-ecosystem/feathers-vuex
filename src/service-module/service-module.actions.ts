@@ -232,7 +232,7 @@ export default function makeServiceActions(service, { debug }) {
           return item
         })
         .catch(error => {
-          commit('setError', { method: 'remove', error})
+          commit('setError', { method: 'remove', error })
           commit('unsetPending', 'remove')
           return Promise.reject(error)
         })

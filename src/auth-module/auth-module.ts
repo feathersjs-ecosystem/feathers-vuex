@@ -3,10 +3,10 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import setupState from './state'
-import setupGetters from './getters'
-import setupMutations from './mutations'
-import setupActions from './actions'
+import setupState from './auth-module.state'
+import setupGetters from './auth-module.getters'
+import setupMutations from './auth-module.mutations'
+import setupActions from './auth-module.actions'
 
 const defaults = {
   namespace: 'auth',

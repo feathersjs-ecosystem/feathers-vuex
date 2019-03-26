@@ -4,9 +4,9 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { assert } from 'chai'
-import makeServiceGetters from '../../src/service-module/module.getters'
-import makeServiceMutations from '../../src/service-module/module.mutations'
-import makeServiceState from '../../src/service-module/module.state'
+import makeServiceGetters from '../../src/service-module/service-module.getters'
+import makeServiceMutations from '../../src/service-module/service-module.mutations'
+import makeServiceState from '../../src/service-module/service-module.state'
 
 const options = {
   idField: '_id',
