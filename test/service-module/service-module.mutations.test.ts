@@ -30,6 +30,7 @@ const {
   createCopy,
   resetCopy,
   commitCopy,
+  clearCopy,
   updatePaginationForQuery,
   setPending,
   unsetPending,
@@ -738,6 +739,21 @@ describe('Service Module - Mutations', function() {
       commitCopy(state, item1._id)
       assert(copy.test === false, `the copy wasn't changed after commitCopy`)
       assert(original.test === false, 'original item updated after commitCopy')
+    })
+
+    it('clearCopy', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      addItem(state, item1)
+
+      // Create a copy then clear it.
+      createCopy(state, item1._id)
+      assert(state.copiesById[item1._id], `the copy is there!`)
+      clearCopy(state, item1._id)
+      assert(!state.copiesById[item1._id], `the copy is gone!`)
     })
   })
 

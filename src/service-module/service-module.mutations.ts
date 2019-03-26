@@ -157,13 +157,6 @@ export default function makeServiceMutations() {
       state.keyedById = {}
     },
 
-    // Removes the copy from copiesById
-    clearCopy(state, id) {
-      const newCopiesById = Object.assign({}, state.copiesById)
-      delete newCopiesById[id]
-      state.copiesById = newCopiesById
-    },
-
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
@@ -215,6 +208,13 @@ export default function makeServiceMutations() {
       if (copy) {
         mergeWithAccessors(state.keyedById[id], copy)
       }
+    },
+
+    // Removes the copy from copiesById
+    clearCopy(state, id) {
+      const newCopiesById = Object.assign({}, state.copiesById)
+      delete newCopiesById[id]
+      state.copiesById = newCopiesById
     },
 
     /**
