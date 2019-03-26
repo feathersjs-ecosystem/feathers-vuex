@@ -7,20 +7,11 @@ import { assert } from 'chai'
 import { assertGetter } from '../test-utils'
 import makeServiceMutations from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
-import feathersVuex from '../../src/index'
-import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
-
-const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-  serverAlias: 'myApi'
-})
-class Todo extends BaseModel {
-  public static test: boolean = true
-}
 
 const options = {
   idField: '_id',
@@ -290,7 +281,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.getter'(val) {
+          'item.getter'() {
             console.log(state.keyedById)
             throw new Error('this should never happen')
           }

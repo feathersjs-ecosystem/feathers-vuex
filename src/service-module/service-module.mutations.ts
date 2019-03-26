@@ -179,7 +179,7 @@ export default function makeServiceMutations() {
       if (keepCopiesInStore) {
         state.copiesById[id] = model || copyData
       } else {
-        Model.copiesById[id] = model || copyData
+        Model.copiesById[id] = Vue.observable(model || copyData)
       }
     },
 
@@ -215,9 +215,6 @@ export default function makeServiceMutations() {
       if (copy) {
         mergeWithAccessors(state.keyedById[id], copy)
       }
-
-      // updateOriginal(copy, current)
-      // Object.assign(current, copy)
     },
 
     /**
