@@ -15,11 +15,11 @@ const options = {
 }
 
 const { find, list } = makeServiceGetters()
-const { addItems } = makeServiceMutations('todos', { debug: false })
+const { addItems } = makeServiceMutations()
 
 describe('Service Module - Getters', function() {
   beforeEach(function() {
-    const state = makeServiceState('todos', options)
+    const state = makeServiceState('getter-todos', options)
     this.items = [
       { _id: 1, otherField: true, test: true },
       {
@@ -44,7 +44,11 @@ describe('Service Module - Getters', function() {
     const { state, items } = this
     const results = list(state)
 
-    assert.deepEqual(results, items, 'the list was correct')
+    results.forEach((record, index) => {
+      const item = items[index]
+
+      assert.deepEqual(record, item, 'item in correct order')
+    })
   })
 
   it('find', function() {

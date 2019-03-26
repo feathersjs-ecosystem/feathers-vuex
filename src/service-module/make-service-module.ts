@@ -25,7 +25,7 @@ export default function makeServiceModule(service, options) {
 
   const defaultState = makeDefaultState(stateOptions.servicePath, stateOptions)
   const defaultGetters = makeGetters()
-  const defaultMutations = makeMutations(stateOptions.servicePath, options)
+  const defaultMutations = makeMutations()
   const defaultActions = makeActions(service, options)
 
   Object.assign(stateOptions, {

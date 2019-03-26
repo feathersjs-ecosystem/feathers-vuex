@@ -113,6 +113,14 @@ const state = {
 }
 ```
 
+## The "currentItem" workflow is no longer supported
+
+The `setCurrent` mutation and `currentId` state encouraged use of a very limiting API.  It's much more common for apps to require more than one current record.  The `createCopy`, `resetCopy` (formerly called `rejectCopy`), `commitCopy`, and `clearCopy` mutations (since v1.x) provide a more flexible solution for implementing the same functionality.  As a result of this, following have been removed from the modules:
+
+- state: `currentID`
+- getters: `current`
+- mutations: `setCurrent`, `clearList`, `copy`
+
 ## The `diffOnPatch` option is turned on by default
 
 In Feathers-Vuex 2.0, the `diffOnPatch` option is enabled, by default. This means that only the necessary data is sent to the API server.  Set `diffOnPatch: false` in the options to revert back to the old way.

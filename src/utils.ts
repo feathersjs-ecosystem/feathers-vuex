@@ -8,7 +8,8 @@ import decode from 'jwt-decode'
 import inflection from 'inflection'
 import { diff } from 'deep-diff'
 import Vue from 'vue'
-import isObject from 'lodash.isobject'
+import fastCopy from 'fast-copy'
+import { isPlainObject as _isPlainObject, isObject as _isObject } from 'lodash'
 
 export function stripSlashes(location) {
   return Array.isArray(location)
@@ -237,7 +238,7 @@ export function updateOriginal(newData, existingItem) {
       // If both old and new are arrays
     } else if (Array.isArray(oldProp) && Array.isArray(newProp)) {
       shouldCopyProp = true
-    } else if (isObject(oldProp)) {
+    } else if (_isObject(oldProp)) {
       shouldCopyProp = true
     } else if (
       oldProp !== newProp &&
@@ -284,4 +285,47 @@ export function randomString(length) {
   }
 
   return text
+}
+
+export function createRelatedInstance({ item, Model, idField, store }) {
+  // Create store instances (if data contains an idField)
+  const model = new Model(item)
+  const id = model[idField]
+  const storedModel = store.state[model.constructor.namespace].keyedById[id]
+
+  return { model, storedModel }
+}
+
+export function mergeWithAccessors(dest, source) {
+  const props = Object.getOwnPropertyNames(source)
+  props.forEach(key => {
+    const desc = Object.getOwnPropertyDescriptor(source, key)
+
+    // Do not allow sharing of deeply-nested objects between instances
+    // This may break accessors on nested data.
+    if (_isPlainObject(desc.value)) {
+      desc.value = fastCopy(desc.value)
+    }
+
+    Object.defineProperty(dest, key, desc)
+  })
+  return dest
+}
+
+export function cloneWithAccessors(obj) {
+  const clone = {}
+
+  const props = Object.getOwnPropertyNames(obj)
+  props.forEach(key => {
+    const desc = Object.getOwnPropertyDescriptor(obj, key)
+
+    // Do not allow sharing of deeply-nested objects between instances
+    if (_isPlainObject(desc.value)) {
+      desc.value = fastCopy(desc.value)
+    }
+
+    Object.defineProperty(clone, key, desc)
+  })
+
+  return clone
 }

@@ -89,7 +89,7 @@ The following attributes are available in each service module's state:
 - `ids {Array}` - an array of plain ids representing the ids that belong to each object in the `keyedById` map.
 - `keyedById {Object}` - a hash map keyed by the id of each item.
 - `currentId {Number|String}` - the id of the item marked as current.
-- `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `rejectCopy` to revert `copy` to once again match `current`.  You may prefer to use the new [clone API](./common-patterns.md#Multiple-Copies) for [managing multiple copies with model instances](./common-patterns.md#Multiple-Copies).
+- `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `resetCopy` to revert `copy` to once again match `current`.  You may prefer to use the new [clone API](./common-patterns.md#Multiple-Copies) for [managing multiple copies with model instances](./common-patterns.md#Multiple-Copies).
 - `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `modelName {String}` - the key in the $FeathersVuex plugin where the model will be found.
 - `autoRemove {Boolean` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
@@ -173,15 +173,19 @@ Removes the passed in items or ids from the store.
 
 Saves changes from the `copy` to the `current` item.
 
-### `rejectCopy(state)`
+### `resetCopy(state)`
 
 Re-copies the data from `current` to `copy`, restoring the original copy.
 
 ### `clearCurrent(state)`
 
+> Removed in 2.0
+
 Clears the `current` item, which also clears the copy.
 
 ### `clearList(state)`
+
+> Removed in 2.0
 
 Clears the `list`, excepting the `current` item.
 

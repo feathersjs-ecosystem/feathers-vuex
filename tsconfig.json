@@ -3,7 +3,9 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "target": "ES6"
   },
   "include": [
     "src/**/*", "test/**/*"

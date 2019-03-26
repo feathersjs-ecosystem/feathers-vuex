@@ -1,7 +1,4 @@
-import fastCopy from 'fast-copy'
-import isPlainObject from 'lodash.isplainobject'
-import merge from 'lodash.merge'
-import { updateOriginal } from '../utils'
+import { updateOriginal, cloneWithAccessors } from '../utils'
 
 const defaults = {
   idField: 'id',
@@ -9,15 +6,16 @@ const defaults = {
   instanceDefaults: {}
 }
 
-export default function (options) {
+export default function(options) {
   options = Object.assign({}, defaults, options)
   const { idField, preferUpdate, globalModels, modelName } = options
   const instanceDefaults = options.instanceDefaults || {}
 
   class FeathersVuexModel {
-    constructor (data = {}, options = {}) {
+    constructor(data = {}, options = {}) {
       const { store, namespace } = this.constructor
-      const existingItem = data[idField] && FeathersVuexModel.getFromStore(data[idField])
+      const existingItem =
+        data[idField] && FeathersVuexModel.getFromStore(data[idField])
       const _relationships = {}
       let fnDefaults
 
@@ -36,9 +34,15 @@ export default function (options) {
 
       // Don't modify the original instanceDefaults. Clone it with accessors intact
       if (typeof instanceDefaults === 'function') {
-        fnDefaults = instanceDefaults(data, { store, Model: this.constructor, Models: globalModels })
+        fnDefaults = instanceDefaults(data, {
+          store,
+          Model: this.constructor,
+          Models: globalModels
+        })
       }
-      const _instanceDefaults = cloneWithAccessors(fnDefaults || instanceDefaults)
+      const _instanceDefaults = cloneWithAccessors(
+        fnDefaults || instanceDefaults
+      )
 
       Object.keys(_instanceDefaults).forEach(key => {
         // Prevent getters and setters from firing before the instance is constructed
@@ -78,19 +82,29 @@ export default function (options) {
               if (Model === Date) {
                 related[index] = new Date(item)
               } else {
-                const { model, storedModel } = createRelatedInstance({ item, Model, idField, store })
+                const { model, storedModel } = createRelatedInstance({
+                  item,
+                  Model,
+                  idField,
+                  store
+                })
 
                 // Replace the original array index with a reference to the model
                 related[index] = storedModel || model
               }
             })
 
-          // Handle objects
+            // Handle objects
           } else {
             if (Model === Date) {
               data[prop] = new Date(data[prop])
             } else {
-              const { model, storedModel } = createRelatedInstance({ item: related, Model, idField, store })
+              const { model, storedModel } = createRelatedInstance({
+                item: related,
+                Model,
+                idField,
+                store
+              })
 
               // Replace the data's prop value with a reference to the model
               data[prop] = storedModel || model
@@ -111,7 +125,8 @@ export default function (options) {
       dataProps.forEach(key => {
         const desc = Object.getOwnPropertyDescriptor(data, key)
         const propertyExists = this.hasOwnProperty(key)
-        const isComputed = desc.get || desc.set || typeof desc.value === 'function'
+        const isComputed =
+          desc.get || desc.set || typeof desc.value === 'function'
         if (propertyExists && isComputed) {
           return
         }
@@ -124,7 +139,7 @@ export default function (options) {
       }
     }
 
-    clone () {
+    clone() {
       if (this.isClone) {
         throw new Error('You cannot clone a copy')
       }
@@ -132,9 +147,8 @@ export default function (options) {
 
       return this._clone(id)
     }
-    _clone (id) {}
 
-    reset () {
+    reset() {
       if (this.isClone) {
         const id = this[idField]
         this._reset(id)
@@ -142,9 +156,8 @@ export default function (options) {
         throw new Error('You cannot reset a non-copy')
       }
     }
-    _reset () {}
 
-    commit () {
+    commit() {
       if (this.isClone) {
         const id = this[idField]
         return this._commit(id)
@@ -152,51 +165,50 @@ export default function (options) {
         throw new Error('You cannnot call commit on a non-copy')
       }
     }
-    _commit (id) {}
 
-    save (params) {
+    save(params) {
       if (this[idField]) {
-        return preferUpdate
-          ? this.update(params)
-          : this.patch(params)
+        return preferUpdate ? this.update(params) : this.patch(params)
       } else {
         return this.create(params)
       }
     }
 
-    create (params) {
+    create(params) {
       const data = Object.assign({}, this)
       if (data[idField] === null) {
         delete data[idField]
       }
       return this._create(data, params)
     }
-    _create (data, params) {}
 
-    patch (params) {
+    patch(params) {
       if (!this[idField]) {
-        const error = new Error(`Missing ${idField} property. You must create the data before you can patch with this data`, this)
+        const error = new Error(
+          `Missing ${idField} property. You must create the data before you can patch with this data`,
+          this
+        )
         return Promise.reject(error)
       }
       return this._patch(this[idField], this, params)
     }
-    _patch () {}
 
-    update (params) {
+    update(params) {
       if (!this[idField]) {
-        const error = new Error(`Missing ${idField} property. You must create the data before you can update with this data`, this)
+        const error = new Error(
+          `Missing ${idField} property. You must create the data before you can update with this data`,
+          this
+        )
         return Promise.reject(error)
       }
       return this._update(this[idField], this, params)
     }
-    _update () {}
 
-    remove (params) {
+    remove(params) {
       return this._remove(this[idField], params)
     }
-    _remove () {}
 
-    toJSON () {
+    toJSON() {
       return merge({}, this)
     }
   }
@@ -208,31 +220,4 @@ export default function (options) {
   })
 
   return FeathersVuexModel
-}
-
-function createRelatedInstance ({ item, Model, idField, store }) {
-  // Create store instances (if data contains an idField)
-  const model = new Model(item)
-  const id = model[idField]
-  const storedModel = store.state[model.constructor.namespace].keyedById[id]
-
-  return { model, storedModel }
-}
-
-function cloneWithAccessors (obj) {
-  const clone = {}
-
-  const props = Object.getOwnPropertyNames(obj)
-  props.forEach(key => {
-    const desc = Object.getOwnPropertyDescriptor(obj, key)
-
-    // Do not allow sharing of deeply-nested objects between instances
-    if (isPlainObject(desc.value)) {
-      desc.value = fastCopy(desc.value)
-    }
-
-    Object.defineProperty(clone, key, desc)
-  })
-
-  return clone
 }

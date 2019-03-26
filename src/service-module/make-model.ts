@@ -6,6 +6,7 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels } from './global-models'
 import Vue from 'vue'
+import { mergeWithAccessors } from '../utils'
 
 /**
  *
@@ -29,10 +30,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     public data: Record<string, any>
     public constructor(data) {
-      Object.assign(this, data)
-      Object.keys(this).forEach(key => {
-        this[key] = Vue.observable(this[key])
-      })
+      mergeWithAccessors(this, data)
     }
 
     public static getId(record: Record<string, any>): string {
@@ -102,7 +100,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.isClone) {
         const id = this[FeathersVuexModel.idField]
         FeathersVuexModel.store.commit(
-          `${FeathersVuexModel.namespace}/rejectCopy`,
+          `${FeathersVuexModel.namespace}/resetCopy`,
           id
         )
       } else {

@@ -96,7 +96,7 @@ Now that we have Model instances, let's take a look at the functionality they pr
 
 *Remember, if a record already has an attribute with any of these method names, it will be overwritten with the method.*
 
-These methods give access to many of the store `actions` and `mutations`.  Using Model instances, you no longer have to use `mapActions` for `create`, `patch`, `update`, or `remove`.  You also no longer have to use `mapMutations` for `createCopy`, `commitCopy`, or `rejectCopy`.
+These methods give access to many of the store `actions` and `mutations`.  Using Model instances, you no longer have to use `mapActions` for `create`, `patch`, `update`, or `remove`.  You also no longer have to use `mapMutations` for `createCopy`, `commitCopy`, or `resetCopy`.
 
 ```js
 store.dispatch('todos/find', { query: {} })

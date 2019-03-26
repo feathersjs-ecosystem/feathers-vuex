@@ -1,7 +1,13 @@
-import assert from 'chai/chai'
-import makeServiceMutations from '~/src/service-module/mutations'
-import makeServiceState from '~/src/service-module/state'
-import makeServiceModuleMaker from '~/src/service-module/service-module'
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
+import { assert } from 'chai'
+import { assertGetter } from '../test-utils'
+import makeServiceMutations from '../../src/service-module/service-module.mutations'
+import makeServiceState from '../../src/service-module/service-module.state'
+import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
@@ -9,25 +15,17 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-const makeServiceModule = makeServiceModuleMaker(feathersClient)
-const { serviceModel } = makeServiceModule
-const todoModel = serviceModel({})
-// const store = new Vuex.Store({
-//   plugins: [
-//     todoModule
-//   ]
-// })
-// store.test = true
+const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'myApi'
+})
+class Todo extends BaseModel {
+  public static test: boolean = true
+}
 
 const options = {
   idField: '_id',
   autoRemove: false,
-  globalModels: {
-    Todo: todoModel,
-    byServicePath: {
-      todos: todoModel
-    }
-  }
+  serverAlias: 'myApi'
 }
 
 const {
@@ -38,72 +36,166 @@ const {
   removeItem,
   removeItems,
   clearAll,
-  clearList,
-  setCurrent,
-  clearCurrent,
-  rejectCopy,
+  createCopy,
+  resetCopy,
   commitCopy,
   updatePaginationForQuery,
   setPending,
   unsetPending,
   setError,
   clearError
-} = makeServiceMutations('todos', options)
+} = makeServiceMutations()
 
 describe('Service Module - Mutations', function() {
   beforeEach(function() {
-    this.state = makeServiceState('todos', options)
+    this.state = makeServiceState('mutation-todos', options)
     this.state.keepCopiesInStore = true
   })
 
-  it('addItem', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
+  describe('Create, Update, Remove', function() {
+    it('addItem', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const item2 = {
+        _id: 2,
+        test: true
+      }
 
-    addItem(state, item1)
-    assert(state.ids.length === 1)
-    assert(state.ids[0] === 1)
-    assert(state.keyedById[1].test)
+      addItem(state, item1)
+      assert(state.ids.length === 1)
+      assert(state.ids[0] === 1)
+      assert(state.keyedById[1].test)
 
-    // Add item 2
-    addItem(state, item2)
-    assert(state.ids.length === 2)
-    assert(state.ids[1] === 2)
-    assert(state.keyedById[2].test)
+      // Add item 2
+      addItem(state, item2)
+      assert(state.ids.length === 2)
+      assert(state.ids[1] === 2)
+      assert(state.keyedById[2].test)
 
-    // Re-add item 1
-    addItem(state, item1)
-    assert(state.ids.length === 2, 'still only two items in the ids array')
-    assert(state.ids[0] === 1)
-    assert(state.keyedById[1].test)
-    assert(state.ids[1] === 2)
-    assert(state.keyedById[2].test)
-  })
+      // Re-add item 1
+      addItem(state, item1)
+      assert(state.ids.length === 2, 'still only two items in the ids array')
+      assert(state.ids[0] === 1)
+      assert(state.keyedById[1].test)
+      assert(state.ids[1] === 2)
+      assert(state.keyedById[2].test)
+    })
 
-  it('addItems', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-    const items = [item1, item2]
-    addItems(state, items)
-    assert(state.ids.length === 2, 'still only two items in the ids array')
-    assert(state.ids[0] === 1)
-    assert(state.keyedById[1].test)
-    assert(state.ids[1] === 2)
-    assert(state.keyedById[2].test)
+    it('addItems', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const item2 = {
+        _id: 2,
+        test: true
+      }
+      const items = [item1, item2]
+      addItems(state, items)
+      assert(state.ids.length === 2, 'still only two items in the ids array')
+      assert(state.ids[0] === 1)
+      assert(state.keyedById[1].test)
+      assert(state.ids[1] === 2)
+      assert(state.keyedById[2].test)
+    })
+
+    it('updateItems', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const item2 = {
+        _id: 2,
+        test: true
+      }
+      const items = [item1, item2]
+      addItems(state, items)
+
+      const item1updated = {
+        _id: 1,
+        test: false
+      }
+      const item2updated = {
+        _id: 2,
+        test: false
+      }
+      const itemsToUpdate = [item1updated, item2updated]
+      updateItems(state, itemsToUpdate)
+
+      assert(state.keyedById[1].test === false)
+      assert(state.keyedById[2].test === false)
+    })
+
+    it('removeItem', function() {
+      const state = this.state
+
+      addItem(state, { _id: 1, test: true })
+      removeItem(state, 1)
+
+      assert(state.ids.length === 0)
+      assert(Object.keys(state.keyedById).length === 0)
+    })
+
+    it('removeItems with array of ids', function() {
+      const state = this.state
+      const items = [
+        { _id: 1, test: true },
+        { _id: 2, test: true },
+        { _id: 3, test: true },
+        { _id: 4, test: true }
+      ]
+      addItems(state, items)
+      const itemsToRemove = [1, 2]
+      removeItems(state, itemsToRemove)
+
+      assert(state.ids.length === 2, 'should have 2 ids left')
+      assert(
+        Object.keys(state.keyedById).length === 2,
+        'should have 2 items left'
+      )
+    })
+
+    it('removeItems with array of items', function() {
+      const state = this.state
+      const items = [
+        { _id: 1, test: true },
+        { _id: 2, test: true },
+        { _id: 3, test: true },
+        { _id: 4, test: true }
+      ]
+      addItems(state, items)
+      const itemsToRemove = [{ _id: 1, test: true }, { _id: 2, test: true }]
+      removeItems(state, itemsToRemove)
+
+      assert(state.ids.length === 2, 'should have 2 ids left')
+      assert(
+        Object.keys(state.keyedById).length === 2,
+        'should have 2 items left'
+      )
+    })
+
+    it('clearAll', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const item2 = {
+        _id: 2,
+        test: true
+      }
+      const items = [item1, item2]
+      addItems(state, items)
+
+      clearAll(state)
+      assert(state.ids.length === 0)
+      assert(Object.keys(state.keyedById).length === 0)
+    })
   })
 
   describe('updateItem', function() {
@@ -185,15 +277,21 @@ describe('Service Module - Mutations', function() {
           return 'Release the flying monkeys!'
         }
       }
+      assertGetter(item1, 'getter', 'Release the flying monkeys!')
       const items = [item1]
+
       addItems(state, items)
+
+      // Prove the getter is still in place in the store
+      assertGetter(state.keyedById[1], 'getter', 'Release the flying monkeys!')
 
       const vm = new Vue({
         data: {
           item: state.keyedById[1]
         },
         watch: {
-          'item.getter'() {
+          'item.getter'(val) {
+            console.log(state.keyedById)
             throw new Error('this should never happen')
           }
         }
@@ -571,262 +669,129 @@ describe('Service Module - Mutations', function() {
     })
   })
 
-  it('updateItems', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-    const items = [item1, item2]
-    addItems(state, items)
+  describe('Copy & Commit', function() {
+    it('createCopy', function() {
+      const { state } = this
+      const item1 = {
+        _id: 1,
+        test: true,
+        get getter() {
+          return 'Life is a Joy!'
+        },
+        set setter(val) {
+          this.test = val
+        }
+      }
+      addItem(state, item1)
+      const original = state.keyedById[1]
 
-    const item1updated = {
-      _id: 1,
-      test: false
-    }
-    const item2updated = {
-      _id: 2,
-      test: false
-    }
-    const itemsToUpdate = [item1updated, item2updated]
-    updateItems(state, itemsToUpdate)
+      createCopy(state, item1._id)
 
-    assert(state.keyedById[1].test === false)
-    assert(state.keyedById[2].test === false)
+      const copy = state.copiesById[item1._id]
+
+      copy.setter = false
+      assert(copy.getter === 'Life is a Joy!', `getter was preserved`)
+      assert(copy.test === false, `copy was changed through setter`)
+      assert(original.test === true, `original item intact after copy changed`)
+    })
+
+    it('resetCopy', function() {
+      const { state } = this
+      const item1 = {
+        _id: 1,
+        test: true,
+        get getter() {
+          return 'Life is a Joy!'
+        },
+        set setter(val) {
+          this.test = val
+        }
+      }
+      addItem(state, item1)
+
+      // Create a copy and modify it.
+      createCopy(state, item1._id)
+      const copy = state.copiesById[item1._id]
+      copy.test = false
+
+      // Call resetCopy and check that it's back to the original value
+      resetCopy(state, item1._id)
+      assert(copy.test === true, 'the copy was reset')
+
+      // Make sure accessors stayed intact
+      assertGetter(copy, 'getter', 'Life is a Joy!')
+      copy.setter = false
+      assert(copy.test === false, 'the setter is intact')
+    })
+
+    it('commitCopy', function() {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        test: true,
+        get getter() {
+          return 'Life is a Joy!'
+        },
+        set setter(val) {
+          this.test = val
+        }
+      }
+      addItem(state, item1)
+      const original = state.keyedById[item1._id]
+
+      // Create a copy and modify it.
+      createCopy(state, item1._id)
+      const copy = state.copiesById[item1._id]
+      copy.test = false
+
+      commitCopy(state, item1._id)
+      assert(copy.test === false, `the copy wasn't changed after commitCopy`)
+      assert(original.test === false, 'original item updated after commitCopy')
+    })
   })
 
-  it('removeItem', function() {
-    const state = this.state
+  describe('Pagination', function() {
+    it('updatePaginationForQuery', function() {
+      const state = this.state
+      const qid = 'query-identifier'
+      const query = { limit: 2 }
+      const response = {
+        data: [{ _id: 1, test: true }],
+        limit: 2,
+        skip: 0,
+        total: 1
+      }
 
-    addItem(state, { _id: 1, test: true })
-    removeItem(state, 1)
+      updatePaginationForQuery(state, { qid, response, query })
 
-    assert(state.ids.length === 0)
-    assert(Object.keys(state.keyedById).length === 0)
-  })
-
-  it('removeItems with array of ids', function() {
-    const state = this.state
-    const items = [
-      { _id: 1, test: true },
-      { _id: 2, test: true },
-      { _id: 3, test: true },
-      { _id: 4, test: true }
-    ]
-    addItems(state, items)
-    const itemsToRemove = [1, 2]
-    removeItems(state, itemsToRemove)
-
-    assert(state.ids.length === 2, 'should have 2 ids left')
-    assert(
-      Object.keys(state.keyedById).length === 2,
-      'should have 2 items left'
-    )
-  })
-
-  it('removeItems with array of items', function() {
-    const state = this.state
-    const items = [
-      { _id: 1, test: true },
-      { _id: 2, test: true },
-      { _id: 3, test: true },
-      { _id: 4, test: true }
-    ]
-    addItems(state, items)
-    const itemsToRemove = [{ _id: 1, test: true }, { _id: 2, test: true }]
-    removeItems(state, itemsToRemove)
-
-    assert(state.ids.length === 2, 'should have 2 ids left')
-    assert(
-      Object.keys(state.keyedById).length === 2,
-      'should have 2 items left'
-    )
-  })
-
-  it('clearAll', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-    const items = [item1, item2]
-    addItems(state, items)
-
-    clearAll(state)
-    assert(state.ids.length === 0)
-    assert(Object.keys(state.keyedById).length === 0)
-  })
-
-  it('clearList', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-
-    const items = [item1, item2]
-    addItems(state, items)
-    setCurrent(state, item2)
-
-    clearList(state)
-    assert(state.ids.length === 1, 'only one id was left in the list')
-    assert(state.ids[0] === 2, 'the remaining id is for the current item')
-    assert(state.keyedById[1] === undefined, 'item1 is removed from keyedById')
-    assert(state.keyedById[2].test, 'the item is still in keyedById')
-  })
-
-  it('setCurrent', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-    const items = [item1, item2]
-    addItems(state, items)
-    setCurrent(state, item2)
-
-    assert(state.currentId === 2)
-    assert.deepEqual(state.copy, item2)
-
-    setCurrent(state, item1._id)
-
-    assert(state.currentId === 1)
-    assert.deepEqual(state.copy, item1)
-  })
-
-  it('clearCurrent', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    const item2 = {
-      _id: 2,
-      test: true
-    }
-    const items = [item1, item2]
-    addItems(state, items)
-    setCurrent(state, item2)
-    clearCurrent(state)
-
-    assert(state.currentId === null)
-    assert(state.copy === null)
-  })
-
-  it('copy works', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    addItem(state, item1)
-    setCurrent(state, item1)
-    assert(state.copy.test === true, 'the copy is in place')
-    state.copy.test = false
-    assert(state.copy.test === false, 'the copy was updated successfully.')
-  })
-
-  it('rejectCopy', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    addItem(state, item1)
-    setCurrent(state, item1)
-    const original = state.keyedById[1]
-    const copy = state.copy
-
-    state.copy.test = false
-    assert(
-      original.test === true,
-      `the original item didn't change when copy was changed`
-    )
-
-    rejectCopy(state)
-    assert(copy.test === true, 'the copy was reset')
-  })
-
-  it('commitCopy', function() {
-    const state = this.state
-    const item1 = {
-      _id: 1,
-      test: true
-    }
-    addItem(state, item1)
-    setCurrent(state, item1)
-    const original = state.keyedById[1]
-    const copy = state.copy
-
-    copy.test = false
-
-    commitCopy(state)
-    assert(copy.test === false, `the copy wasn't changed after commitCopy`)
-    assert(
-      original.test === false,
-      'the original item was updated after commitCopy'
-    )
-  })
-
-  it('updatePaginationForQuery', function() {
-    const state = this.state
-    const qid = 'query-identifier'
-    const query = { limit: 2 }
-    const response = {
-      data: [{ _id: 1, test: true }],
-      limit: 2,
-      skip: 0,
-      total: 1
-    }
-
-    updatePaginationForQuery(state, { qid, response, query })
-
-    const pageData = state.pagination[qid]
-    assert(pageData.ids.length === 1, `the _id was added to the pagination ids`)
-    assert(pageData.limit === 2, 'the limit was correct')
-    assert(pageData.skip === 0, 'the skip was correct')
-    assert(pageData.total === 1, 'the total was correct')
-    assert.deepEqual(pageData.query, query, 'the query was stored')
+      const pageData = state.pagination[qid]
+      assert(
+        pageData.ids.length === 1,
+        `the _id was added to the pagination ids`
+      )
+      assert(pageData.limit === 2, 'the limit was correct')
+      assert(pageData.skip === 0, 'the skip was correct')
+      assert(pageData.total === 1, 'the total was correct')
+      assert.deepEqual(pageData.query, query, 'the query was stored')
+    })
   })
 
   describe('Pending', function() {
-    it('setPending', function() {
+    it('setPending && unsetPending', function() {
       const state = this.state
       const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
         assert(!state[`is${uppercaseMethod}Pending`])
+
+        // Set pending & check
         setPending(state, method)
         assert(state[`is${uppercaseMethod}Pending`])
-      })
-    })
 
-    it('unsetPending', function() {
-      const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
-
-      methods.forEach(method => {
-        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
-        assert(!state[`is${uppercaseMethod}Pending`])
+        // Unset pending & check
         unsetPending(state, method)
-        assert(state[`is${uppercaseMethod}Pending`])
+        assert(!state[`!is${uppercaseMethod}Pending`])
       })
     })
   })

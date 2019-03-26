@@ -278,21 +278,6 @@ describe('Service Module', () => {
       assert.deepEqual(todo, {}, 'default model is an empty object')
     })
 
-    it('setCurrent works on model instances with getters', function() {
-      const { Person, store } = this
-      const person = new Person({
-        id: 1,
-        firstName: 'Al',
-        lastName: 'fred'
-      })
-      store.commit('people/setCurrent', person)
-
-      assert(
-        store.state.people.copy.fullName === 'Al fred',
-        'setCurrent preserved the getter accessor prop'
-      )
-    })
-
     it('stores clones in Model.copiesById by default', function() {
       const { Todo } = this
       const todo = new Todo({ id: 1, description: 'Do something' })

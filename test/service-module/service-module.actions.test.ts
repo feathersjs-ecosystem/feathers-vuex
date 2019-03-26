@@ -93,7 +93,7 @@ const assertRejected = (promise, done, callback) => {
   )
 }
 
-describe.only('Service Module - Actions', () => {
+describe('Service Module - Actions', () => {
   beforeEach(function() {
     this.todoService = feathersClient.use(
       'todos',

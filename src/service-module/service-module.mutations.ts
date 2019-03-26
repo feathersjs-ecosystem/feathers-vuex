@@ -4,17 +4,16 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import Vue from 'vue'
-import _merge from 'lodash.merge'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
-import { checkId, updateOriginal } from '../utils'
+import { checkId, updateOriginal, mergeWithAccessors } from '../utils'
 import { globalModels } from './global-models'
-import { get } from 'lodash'
+import { get as _get } from 'lodash'
 
-export default function makeServiceMutations(servicePath, { debug }) {
+export default function makeServiceMutations() {
   function addItems(state, items) {
-    const { idField } = state
-    const Model = get(
+    const { idField, debug, servicePath } = state
+    const Model = _get(
       globalModels,
       `[${state.serverAlias}].byServicePath[${servicePath}]`
     )
@@ -43,8 +42,8 @@ export default function makeServiceMutations(servicePath, { debug }) {
   }
 
   function updateItems(state, items) {
-    const { idField, replaceItems, addOnUpsert } = state
-    const Model = get(
+    const { idField, replaceItems, addOnUpsert, debug, servicePath } = state
+    const Model = _get(
       globalModels,
       `[${state.serverAlias}].byServicePath[${servicePath}]`
     )
@@ -97,25 +96,19 @@ export default function makeServiceMutations(servicePath, { debug }) {
     },
 
     removeItem(state, item) {
-      const { idField } = state
+      const { idField, debug } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
-      const { currentId } = state
       const isIdOk = checkId(idToBeRemoved, item, debug)
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
       if (isIdOk && index !== null && index !== undefined) {
         Vue.delete(state.ids, index)
         Vue.delete(state.keyedById, idToBeRemoved)
-
-        if (currentId === idToBeRemoved) {
-          state.currentId = null
-          state.copy = null
-        }
       }
     },
 
     removeItems(state, items) {
-      const { idField, currentId } = state
+      const { idField } = state
 
       if (!Array.isArray(items)) {
         throw new Error(
@@ -157,33 +150,11 @@ export default function makeServiceMutations(servicePath, { debug }) {
       indexesInReverseOrder.forEach(indexInIdsArray => {
         Vue.delete(state.ids, indexInIdsArray)
       })
-
-      if (currentId && mapOfIdsToRemove[currentId]) {
-        state.currentId = null
-        state.copy = null
-      }
     },
 
     clearAll(state) {
       state.ids = []
-      state.currentId = null
-      state.copy = null
       state.keyedById = {}
-    },
-
-    clearList(state) {
-      let currentId = state.currentId
-      let current = state.keyedById[currentId]
-
-      if (currentId && current) {
-        state.keyedById = {
-          [currentId]: current
-        }
-        state.ids = [currentId]
-      } else {
-        state.keyedById = {}
-        state.ids = []
-      }
     },
 
     // Removes the copy from copiesById
@@ -195,56 +166,57 @@ export default function makeServiceMutations(servicePath, { debug }) {
 
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy(state, id) {
+      const { servicePath, keepCopiesInStore } = state
       const current = state.keyedById[id]
-      const Model =
-        globalModels[state.options.serverAlias].byServicePath[servicePath]
-      const copyData = _merge({}, current)
-      const copy = new Model(copyData, { isClone: true })
-
-      if (state.keepCopiesInStore) {
-        state.copiesById[id] = copy
+      const Model = _get(
+        globalModels,
+        `[${state.serverAlias}].byServicePath[${servicePath}]`
+      )
+      const copyData = mergeWithAccessors({}, current)
+      if (Model) {
+        var model = new Model(copyData, { isClone: true })
+      }
+      if (keepCopiesInStore) {
+        state.copiesById[id] = model || copyData
       } else {
-        Model.copiesById[id] = copy
+        Model.copiesById[id] = model || copyData
       }
     },
 
     // Resets the copy to match the original record, locally
-    rejectCopy(state, id) {
-      const isIdOk = checkId(id, undefined, debug)
-      const current = isIdOk
-        ? state.keyedById[id]
-        : state.keyedById[state.currentId]
-      const Model =
-        globalModels[state.options.serverAlias].byServicePath[servicePath]
-      let copy
+    resetCopy(state, id) {
+      const { debug, servicePath, keepCopiesInStore } = state
+      checkId(id, undefined, debug)
+      const Model = _get(
+        globalModels,
+        `[${state.serverAlias}].byServicePath[${servicePath}]`
+      )
+      const copy = keepCopiesInStore
+        ? state.copiesById[id]
+        : Model && _get(Model, `copiesById[${id}]`)
 
-      if (state.keepCopiesInStore || !Model) {
-        copy = isIdOk ? state.copiesById[id] : state.copy
-      } else {
-        copy = Model.copiesById[id]
+      if (copy) {
+        mergeWithAccessors(copy, state.keyedById[id])
       }
-
-      _merge(copy, current)
     },
 
     // Deep assigns copy to original record, locally
     commitCopy(state, id) {
-      const isIdOk = checkId(id, undefined, debug)
-      const current = isIdOk
-        ? state.keyedById[id]
-        : state.keyedById[state.currentId]
-      const Model =
-        globalModels[state.options.serverAlias].byServicePath[servicePath]
-      let copy
+      const { debug, servicePath, keepCopiesInStore } = state
+      checkId(id, undefined, debug)
+      const Model = _get(
+        globalModels,
+        `[${state.serverAlias}].byServicePath[${servicePath}]`
+      )
+      const copy = keepCopiesInStore
+        ? state.copiesById[id]
+        : Model && _get(Model, `copiesById[${id}]`)
 
-      if (state.keepCopiesInStore || !Model) {
-        copy = isIdOk ? state.copiesById[id] : state.copy
-      } else {
-        copy = Model.copiesById[id]
+      if (copy) {
+        mergeWithAccessors(state.keyedById[id], copy)
       }
 
-      updateOriginal(copy, current)
-
+      // updateOriginal(copy, current)
       // Object.assign(current, copy)
     },
 
