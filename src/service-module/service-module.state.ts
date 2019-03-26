@@ -35,12 +35,6 @@ export default function makeDefaultState(servicePath, options) {
     paramsForServer,
     whitelist,
     pagination: {},
-    realtimeLocks: {
-      create: {},
-      patch: {},
-      update: {},
-      remove: {}
-    },
 
     isFindPending: false,
     isGetPending: false,
@@ -55,6 +49,17 @@ export default function makeDefaultState(servicePath, options) {
     errorOnUpdate: null,
     errorOnPatch: null,
     errorOnRemove: null
+  }
+
+  if (enableEvents) {
+    Object.assign(state, {
+      realtimeLocksById: {
+        create: {},
+        patch: {},
+        update: {},
+        remove: {}
+      }
+    })
   }
 
   return state
