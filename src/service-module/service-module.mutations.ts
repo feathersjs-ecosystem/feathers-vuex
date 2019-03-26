@@ -248,8 +248,10 @@ export default function makeServiceMutations(servicePath, { debug }) {
       // Object.assign(current, copy)
     },
 
-    // Stores pagination data on state.pagination based on the query identifier (qid)
-    // The qid must be manually assigned to `params.qid`
+    /**
+     * Stores pagination data on state.pagination based on the query identifier
+     * (qid) The qid must be manually assigned to `params.qid`
+     */
     updatePaginationForQuery(state, { qid, response, query }) {
       const { data, limit, skip, total } = response
       const { idField } = state

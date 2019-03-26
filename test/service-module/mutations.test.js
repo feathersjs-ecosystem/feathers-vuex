@@ -182,7 +182,7 @@ describe('Service Module - Mutations', function() {
       const item1 = {
         _id: 1,
         get getter() {
-          return 'Release the flying monkies!'
+          return 'Release the flying monkeys!'
         }
       }
       const items = [item1]
@@ -193,7 +193,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.getter'(val) {
+          'item.getter'() {
             throw new Error('this should never happen')
           }
         }
@@ -207,7 +207,7 @@ describe('Service Module - Mutations', function() {
       }
       updateItem(state, updatedItem)
 
-      assert(state.keyedById[1].getter === 'Release the flying monkies!')
+      assert(state.keyedById[1].getter === 'Release the flying monkeys!')
       done()
     })
 
@@ -226,7 +226,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.users'(val) {
+          'item.users'() {
             assert(this.item.users.length === 3)
             done()
           }
@@ -257,7 +257,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.users'(val) {
+          'item.users'() {
             assert(this.item.users.length === 3)
             done()
           }
@@ -288,7 +288,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.obj'(val) {
+          'item.obj'() {
             assert(this.item.obj.test === false)
             done()
           }
@@ -317,7 +317,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.obj'(val) {
+          'item.obj'() {
             assert(this.item.obj.test === false)
             done()
           }
@@ -347,7 +347,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.isValid'(val) {
+          'item.isValid'() {
             assert(this.item.isValid === false)
             done()
           }
@@ -376,7 +376,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.isValid'(val) {
+          'item.isValid'() {
             assert(this.item.isValid === false)
             done()
           }
@@ -406,7 +406,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name'(val) {
+          'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -435,7 +435,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name'(val) {
+          'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -465,7 +465,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name'(val) {
+          'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
           }
@@ -495,7 +495,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.name'(val) {
+          'item.name'() {
             assert(this.item.name === null)
             done()
           }
@@ -525,7 +525,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.age'(val) {
+          'item.age'() {
             assert(this.item.age === 50)
             done()
           }
@@ -554,7 +554,7 @@ describe('Service Module - Mutations', function() {
           item: state.keyedById[1]
         },
         watch: {
-          'item.age'(val) {
+          'item.age'() {
             assert(this.item.age === 50)
             done()
           }
