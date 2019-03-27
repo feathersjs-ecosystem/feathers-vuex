@@ -38,8 +38,8 @@ interface ServiceState {
   }
 }
 interface RootState {
-  todos: ServiceState
-  tasks: ServiceState
+  'my-todos': ServiceState
+  'my-tasks': ServiceState
   broken: ServiceState
 }
 interface NumberedList {
@@ -96,14 +96,14 @@ const assertRejected = (promise, done, callback) => {
 describe('Service Module - Actions', () => {
   beforeEach(function() {
     this.todoService = feathersClient.use(
-      'todos',
+      'my-todos',
       memory({
         store: makeStore()
       })
     )
 
     this.taskService = feathersClient.use(
-      'tasks',
+      'my-tasks',
       memory({
         store: makeStore(),
         paginate: {
@@ -153,21 +153,21 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'todos',
+              servicePath: 'my-todos',
               Model: Todo,
-              service: feathersClient.service('todos')
+              service: feathersClient.service('my-todos')
             })
           ]
         })
-        const todoState = store.state.todos
-        const actions = mapActions('todos', ['find'])
+        const todoState = store.state['my-todos']
+        const actions = mapActions('my-todos', ['find'])
 
         assert(todoState.ids.length === 0, 'no ids before find')
         assert(todoState.errorOnFind === null, 'no error before find')
         assert(todoState.isFindPending === false, 'isFindPending is false')
         assert(todoState.idField === 'id', 'idField is `id`')
 
-        actions.find.call({ $store: store }, {}).then(() => {
+        actions.find.call({ $store: store }, {}).then(response => {
           assert(todoState.ids.length === 10, 'three ids populated')
           assert(todoState.errorOnFind === null, 'errorOnFind still null')
           assert(todoState.isFindPending === false, 'isFindPending is false')
@@ -200,13 +200,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'todos',
+              servicePath: 'my-todos',
               Model: Todo,
-              service: feathersClient.service('todos')
+              service: feathersClient.service('my-todos')
             })
           ]
         })
-        const actions = mapActions('todos', ['find'])
+        const actions = mapActions('my-todos', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $limit: 1 } })
@@ -226,13 +226,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'todos',
+              servicePath: 'my-todos',
               Model: Todo,
-              service: feathersClient.service('todos')
+              service: feathersClient.service('my-todos')
             })
           ]
         })
-        const actions = mapActions('todos', ['find'])
+        const actions = mapActions('my-todos', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $skip: 9 } })
@@ -252,13 +252,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'todos',
+              servicePath: 'my-todos',
               Model: Todo,
-              service: feathersClient.service('todos')
+              service: feathersClient.service('my-todos')
             })
           ]
         })
-        const actions = mapActions('todos', ['find'])
+        const actions = mapActions('my-todos', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
@@ -280,13 +280,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $limit: 1 } })
@@ -309,13 +309,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $skip: 9 } })
@@ -338,13 +338,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
 
         actions.find
           .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
@@ -367,21 +367,18 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
 
         actions.find.call({ $store: store }, { query: {} }).then(() => {
-          const {
-            ids,
-            limit,
-            skip,
-            total
-          } = store.state.tasks.pagination.default
+          const { ids, limit, skip, total } = store.state[
+            'my-tasks'
+          ].pagination.default
           assert(ids.length === 10, 'ten ids were returned in this page')
           assert(
             limit === 10,
@@ -397,17 +394,19 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
         const qid = 'component-name'
 
         actions.find.call({ $store: store }, { query: {}, qid }).then(() => {
-          const { ids, limit, skip, total } = store.state.tasks.pagination[qid]
+          const { ids, limit, skip, total } = store.state[
+            'my-tasks'
+          ].pagination[qid]
           assert(ids.length === 10, 'ten ids were returned in this page')
           assert(
             limit === 10,
@@ -423,21 +422,21 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
         const qid = 'component-name'
 
         actions.find
           .call({ $store: store }, { query: { $limit: 5, $skip: 2 }, qid })
           .then(() => {
-            const { ids, limit, skip, total } = store.state.tasks.pagination[
-              qid
-            ]
+            const { ids, limit, skip, total } = store.state[
+              'my-tasks'
+            ].pagination[qid]
             assert(ids.length === 5, 'ten ids were returned in this page')
             assert(
               limit === 5,
@@ -453,13 +452,13 @@ describe('Service Module - Actions', () => {
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
-              servicePath: 'tasks',
+              servicePath: 'my-tasks',
               Model: Task,
-              service: feathersClient.service('tasks')
+              service: feathersClient.service('my-tasks')
             })
           ]
         })
-        const actions = mapActions('tasks', ['find'])
+        const actions = mapActions('my-tasks', ['find'])
         const qids = ['component-query-zero', 'component-query-one']
 
         actions.find
@@ -469,9 +468,9 @@ describe('Service Module - Actions', () => {
           )
           .then(() => {
             qids.forEach(qid => {
-              const { ids, limit, skip, total } = store.state.tasks.pagination[
-                qid
-              ]
+              const { ids, limit, skip, total } = store.state[
+                'my-tasks'
+              ].pagination[qid]
               assert(ids.length === 10, 'ten ids were returned in this page')
               assert(
                 limit === 10,
@@ -574,14 +573,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['get'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['get'])
 
       assert(todoState.ids.length === 0)
       assert(todoState.errorOnGet === null)
@@ -656,14 +655,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['get'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['get'])
 
       assert(todoState.ids.length === 0)
       assert(todoState.errorOnGet === null)
@@ -769,14 +768,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['create'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['create'])
 
       actions.create
         .call({ $store: store }, { description: 'Do the second' })
@@ -833,14 +832,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['create', 'update'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['create', 'update'])
 
       actions.create
         .call({ $store: store }, { description: 'Do the second' })
@@ -913,14 +912,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['create', 'patch'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['create', 'patch'])
 
       const dataUnchanged = {
         unchanged: true,
@@ -965,14 +964,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['create', 'patch'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['create', 'patch'])
 
       actions.create
         .call({ $store: store }, { description: 'Do the second' })
@@ -1039,14 +1038,14 @@ describe('Service Module - Actions', () => {
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
-            servicePath: 'todos',
+            servicePath: 'my-todos',
             Model: Todo,
-            service: feathersClient.service('todos')
+            service: feathersClient.service('my-todos')
           })
         ]
       })
-      const todoState = store.state.todos
-      const actions = mapActions('todos', ['create', 'remove'])
+      const todoState = store.state['my-todos']
+      const actions = mapActions('my-todos', ['create', 'remove'])
 
       actions.create
         .call({ $store: store }, { description: 'Do the second' })
