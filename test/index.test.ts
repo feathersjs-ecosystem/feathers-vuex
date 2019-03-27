@@ -1,6 +1,5 @@
 import { assert } from 'chai'
 import * as feathersVuex from '../src/index'
-import { feathersSocketioClient as feathersClient } from './fixtures/feathers-client'
 import Vue from 'vue'
 import Vuex from 'vuex'
 

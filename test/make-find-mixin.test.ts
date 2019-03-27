@@ -1,6 +1,6 @@
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
-import feathersVuex, { FeathersVuex, models } from '../src/index'
+import feathersVuex, { FeathersVuex } from '../src/index'
 import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
 import makeFindMixin from '../src/make-find-mixin'
 import Vue from 'vue/dist/vue'
