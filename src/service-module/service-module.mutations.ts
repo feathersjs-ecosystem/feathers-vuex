@@ -80,9 +80,7 @@ export default function makeServiceMutations() {
     addItem(state, item) {
       addItems(state, [item])
     },
-    addItems(state, items) {
-      addItems(state, items)
-    },
+    addItems,
     updateItem(state, item) {
       updateItems(state, [item])
     },
