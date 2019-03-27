@@ -659,6 +659,53 @@ describe('Service Module - Mutations', function() {
       }
       updateItem(state, updatedItem)
     })
+
+    it('correctly emits events after commitCopy', function(done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        obj: { test: true },
+        get getter() {
+          return this.obj.test
+        },
+        set setter(val) {
+          this.obj.test = val
+        }
+      }
+      const items = [item1]
+
+      addItems(state, items)
+      const item = state.keyedById[item1._id]
+
+      createCopy(state, item._id)
+      const copy = state.copiesById[item1._id]
+
+      const vm = new Vue({
+        data: {
+          item,
+          copy
+        },
+        watch: {
+          'item.obj': {
+            handler() {
+              assert(this.item.obj.test === false)
+              done()
+            },
+            deep: true
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+      assert(vm.copy, 'vm has copy')
+
+      // Modify copy and commit
+      vm.copy.setter = false
+      commitCopy(state, item1._id)
+
+      assert(item.obj.test === false, 'deep obj should be false')
+      assert(vm.item.obj.test === false, 'deep obj should be false')
+    })
   })
 
   describe('Copy & Commit', function() {

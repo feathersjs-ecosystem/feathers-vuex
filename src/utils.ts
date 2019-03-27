@@ -297,17 +297,39 @@ export function createRelatedInstance({ item, Model, idField, store }) {
 }
 
 export function mergeWithAccessors(dest, source) {
-  const props = Object.getOwnPropertyNames(source)
-  props.forEach(key => {
+  const sourceProps = Object.getOwnPropertyNames(source)
+  const destProps = Object.getOwnPropertyNames(dest)
+  const sourceIsVueObservable = sourceProps.includes('__ob__')
+  const destIsVueObservable = destProps.includes('__ob__')
+  sourceProps.forEach(key => {
     const desc = Object.getOwnPropertyDescriptor(source, key)
 
-    // Do not allow sharing of deeply-nested objects between instances
-    // This may break accessors on nested data.
-    if (_isPlainObject(desc.value)) {
-      desc.value = fastCopy(desc.value)
+    // If we're dealing with a Vue Observable, just assign the values.
+    if (destIsVueObservable) {
+      dest[key] = source[key]
+      return
     }
 
-    Object.defineProperty(dest, key, desc)
+    // Handle defining accessors
+    if (typeof desc.get === 'function' || typeof desc.set === 'function') {
+      if (destIsVueObservable) {
+        dest[key] = desc.value
+      } else {
+        Object.defineProperty(dest, key, desc)
+      }
+      return
+    }
+
+    // Assign values
+    if (key !== '__ob__') {
+      // Do not allow sharing of deeply-nested objects between instances
+      // Probably breaks accessors on nested data. Use recursion if this is an issue
+      if (_isPlainObject(desc.value)) {
+        desc.value = fastCopy(desc.value)
+      }
+      // Vue.set(dest, key, desc.value)
+      dest[key] = desc.value
+    }
   })
   return dest
 }
