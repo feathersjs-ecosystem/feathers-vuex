@@ -1,5 +1,6 @@
 import { assert } from 'chai'
 import { AuthState } from '../src/auth-module/types'
+import { isNode, isBrowser } from '../src/utils'
 import {
   initAuth,
   getServicePrefix,
@@ -100,6 +101,16 @@ describe('Utils', function() {
           )}", expected "${prefix}"`
         )
       })
+    })
+  })
+
+  describe('Environments', () => {
+    it('sets isNode to true', () => {
+      assert(isNode, 'isNode was true')
+    })
+
+    it('sets isBrowser to false', () => {
+      assert(!isBrowser, 'isBrowser was false')
     })
   })
 })
