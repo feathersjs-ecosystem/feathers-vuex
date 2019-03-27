@@ -23,7 +23,6 @@ describe('feathers-vuex', () => {
 
   it('requires a Feathers Client instance', () => {
     try {
-      console.log(Object.keys(feathersVuex))
       feathersVuex.default(
         {},
         {
