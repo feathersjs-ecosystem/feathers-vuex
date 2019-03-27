@@ -7,18 +7,16 @@ import FeathersVuexFind from '../FeathersVuexFind'
 import FeathersVuexGet from '../FeathersVuexGet'
 import { globalModels } from '../service-module/global-models'
 
-export default function setupVuePlugin() {
-  return {
-    install(Vue, options = { components: true }) {
-      const shouldSetupComponents = options.components !== false
+export const FeathersVuex = {
+  install(Vue, options = { components: true }) {
+    const shouldSetupComponents = options.components !== false
 
-      Vue.$FeathersVuex = globalModels
-      Vue.prototype.$FeathersVuex = globalModels
+    Vue.$FeathersVuex = globalModels
+    Vue.prototype.$FeathersVuex = globalModels
 
-      if (shouldSetupComponents) {
-        Vue.component('feathers-vuex-find', FeathersVuexFind)
-        Vue.component('feathers-vuex-get', FeathersVuexGet)
-      }
+    if (shouldSetupComponents) {
+      Vue.component('feathers-vuex-find', FeathersVuexFind)
+      Vue.component('feathers-vuex-get', FeathersVuexGet)
     }
   }
 }

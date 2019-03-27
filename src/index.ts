@@ -8,13 +8,13 @@ import FeathersVuexFind from './FeathersVuexFind'
 import FeathersVuexGet from './FeathersVuexGet'
 import makeFindMixin from './make-find-mixin'
 import makeGetMixin from './make-get-mixin'
-import { globalModels } from './service-module/global-models'
+import { globalModels as models } from './service-module/global-models'
 import makeModel from './service-module/make-model'
 import prepareMakeServicePlugin from './service-module/make-service-plugin'
 
 import { FeathersVuexOptions } from './service-module/types'
 import { initAuth } from './utils'
-import setupVuePlugin from './vue-plugin/vue-plugin'
+import { FeathersVuex } from './vue-plugin/vue-plugin'
 
 const defaultOptions: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
@@ -54,8 +54,8 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     makeServicePlugin,
     BaseModel,
     makeAuthPlugin: setupAuthModule(feathers),
-    FeathersVuex: setupVuePlugin(),
-    models: globalModels
+    FeathersVuex,
+    models
   }
 }
 
@@ -63,6 +63,8 @@ export {
   initAuth,
   FeathersVuexFind,
   FeathersVuexGet,
+  FeathersVuex,
   makeFindMixin,
-  makeGetMixin
+  makeGetMixin,
+  models
 }
