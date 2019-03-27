@@ -706,6 +706,53 @@ describe('Service Module - Mutations', function() {
       assert(item.obj.test === false, 'deep obj should be false')
       assert(vm.item.obj.test === false, 'deep obj should be false')
     })
+
+    it('correctly emits events after resetCopy', function(done) {
+      const state = this.state
+      const item1 = {
+        _id: 1,
+        obj: { test: true },
+        get getter() {
+          return this.obj.test
+        },
+        set setter(val) {
+          this.obj.test = val
+        }
+      }
+      const items = [item1]
+
+      addItems(state, items)
+      const item = state.keyedById[item1._id]
+
+      // createCopy and modify, but don't commit
+      createCopy(state, item._id)
+      const copy = state.copiesById[item1._id]
+      copy.setter = false
+
+      const vm = new Vue({
+        data: {
+          item,
+          copy
+        },
+        watch: {
+          'copy.obj': {
+            handler() {
+              assert(this.copy.obj.test === true)
+              done()
+            },
+            deep: true
+          }
+        }
+      })
+
+      assert(vm.item, 'vm has item')
+      assert(vm.copy, 'vm has copy')
+
+      resetCopy(state, item1._id)
+
+      assert(item.obj.test === true, 'deep obj should be true')
+      assert(vm.item.obj.test === true, 'deep obj should be true')
+    })
   })
 
   describe('Copy & Commit', function() {
