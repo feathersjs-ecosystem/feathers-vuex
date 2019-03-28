@@ -26,7 +26,9 @@ export interface MakeServicePluginOptions {
   diffOnPatch?: boolean
   enableEvents?: boolean
   idField?: string
+  nameStyle?: string
   namespace?: string
+  preferUpdate?: boolean
   servicePath?: string
   state?: {}
   getters?: {}
