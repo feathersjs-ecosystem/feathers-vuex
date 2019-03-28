@@ -28,3 +28,15 @@ export function prepareAddModel(options: FeathersVuexOptions) {
     globalModels[serverAlias].byServicePath[Model.servicePath] = Model
   }
 }
+
+export function clearModels() {
+  Object.keys(globalModels).forEach(key => {
+    const serverAliasObj = globalModels[key]
+
+    Object.keys(serverAliasObj).forEach(key => {
+      delete globalModels[key]
+    })
+
+    delete globalModels[key]
+  })
+}

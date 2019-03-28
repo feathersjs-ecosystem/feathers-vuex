@@ -6,6 +6,7 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { clearModels } from '../../src/service-module/global-models'
 import {
   feathersRestClient as feathers,
   makeFeathersRestClient
@@ -15,6 +16,10 @@ import feathersVuex from '../../src/index'
 Vue.use(Vuex)
 
 describe('makeModel / BaseModel', function() {
+  before(() => {
+    clearModels()
+  })
+
   it('properly sets up the BaseModel', function() {
     const alias = 'default'
     const { BaseModel } = feathersVuex(feathers, { serverAlias: alias })
@@ -29,7 +34,7 @@ describe('makeModel / BaseModel', function() {
       copiesById
     } = BaseModel
 
-    assert(name === 'FeathersVuexModel', 'name in place')
+    assert(name === 'BaseModel', 'name in place')
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
     assert(!store, 'no store by default')
