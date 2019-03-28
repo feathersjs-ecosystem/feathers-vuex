@@ -1,5 +1,13 @@
-import assert from 'chai/chai'
-import setupVuexService from '~/src/service-module/service-module'
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
+import { ServiceState } from './types'
+import { assert } from 'chai/chai'
+import feathersVuex, { models } from '../../src/index'
+import { clearModels } from '../../src/service-module/global-models'
+
 import {
   makeFeathersRestClient,
   feathersRestClient as feathersClient,
@@ -10,44 +18,111 @@ import memory from 'feathers-memory'
 import { makeTodos } from '../fixtures/todos'
 import Vuex from 'vuex'
 
-const globalModels = {}
-const service = setupVuexService(feathersClient, {}, globalModels)
+interface Options {
+  idField: string
+}
+interface TodoState extends ServiceState {
+  test: any
+  test2: {
+    test: boolean
+  }
+  isTrue: boolean
+}
+interface RootState {
+  todos: TodoState
+  tasks: ServiceState
+  tests: ServiceState
+  blah: ServiceState
+  things: ServiceState
+}
 
-describe('Service Module', () => {
+const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'service-module'
+})
+
+class ServiceTodo extends BaseModel {
+  public id
+  public description: string
+}
+class HotspotMedia extends BaseModel {
+  public id
+  public description: string
+}
+class Media extends BaseModel {
+  public id
+  public description: string
+}
+class Person extends BaseModel {
+  public static test: boolean = true
+}
+class Item extends BaseModel {
+  public static test: boolean = true
+}
+class Task extends BaseModel {
+  public static test: boolean = true
+}
+class Car extends BaseModel {
+  public static test: boolean = true
+}
+class Group extends BaseModel {
+  public static test: boolean = true
+}
+class Test extends BaseModel {
+  public static test: boolean = true
+}
+class Thing extends BaseModel {
+  public static test: boolean = true
+}
+
+describe.skip('Service Module', () => {
+  before(() => {
+    clearModels()
+  })
+
   it('registers a vuex plugin and Model for the service', () => {
-    const serviceName = 'todos'
+    const serviceName = 'service-todos'
     const feathersService = feathersClient.service(serviceName)
-    const store = new Vuex.Store({
-      plugins: [service(serviceName)]
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: ServiceTodo,
+          service: feathersClient.service(serviceName)
+        })
+      ]
     })
     assert(
-      globalModels.hasOwnProperty('Todo'),
-      'the Model was added to the globalModels'
+      models['service-module'].hasOwnProperty('ServiceTodo'),
+      'the Model was added to the models'
     )
     assert(
-      feathersService.FeathersVuexModel === globalModels.Todo,
+      feathersService.FeathersVuexModel === ServiceTodo,
       'the Model is also found at service.FeathersVuexModel'
     )
 
-    const todo = new globalModels.Todo({
-      description: 'Do the dishes',
-      isComplete: false
-    })
-    assert(todo instanceof globalModels.Todo, 'Model can be instantiated.')
+    // const serviceTodo = new ServiceTodo({
+    //   description: 'Do the dishes',
+    //   isComplete: false
+    // })
+    // assert(serviceTodo instanceof ServiceTodo, 'Model can be instantiated.')
+    // assert(serviceTodo instanceof BaseModel, 'Model can be instantiated.')
 
     assert(store.state[serviceName])
   })
 
   describe('Models', function() {
     beforeEach(function() {
-      const serviceName = 'todos'
-      const store = new Vuex.Store({
-        plugins: [service(serviceName)]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos')
+          })
+        ]
       })
       assert(store)
       assert(
-        globalModels.hasOwnProperty('Todo'),
-        'the Model was added to the globalModels'
+        models['service-module'].hasOwnProperty('ServiceTodo'),
+        'the Model was added to the models'
       )
       const owners = (this.owners = [
         { id: 1, name: 'Marshall' },
@@ -60,113 +135,128 @@ describe('Service Module', () => {
         isComplete: false,
         owners
       }
-      store.commit('todos/addItem', data)
+      store.commit('service-todos/addItem', data)
 
-      const todo = store.state.todos.keyedById[1]
+      const serviceTodo = store.state['service-todos'].keyedById[1]
 
-      this.todo = todo
-      this.todoClone = todo.clone()
+      this.serviceTodo = serviceTodo
     })
 
     it('allows creating model clones', function() {
-      const { todoClone } = this
+      const serviceTodoClone = this.serviceTodo.clone()
 
-      assert(todoClone.isClone, 'created a todo clone with isClone attribute')
       assert(
-        todoClone instanceof globalModels.Todo,
+        serviceTodoClone.isClone,
+        'created a todo clone with isClone attribute'
+      )
+      assert(
+        serviceTodoClone instanceof ServiceTodo,
         'the copy is an instance of the same class'
       )
     })
 
     it('allows modifying clones without affecting the original', function() {
-      const { todo, todoClone } = this
+      const { serviceTodo } = this
+      const serviceTodoClone = serviceTodo.clone()
 
-      todoClone.description = 'Do something else'
+      serviceTodoClone.description = 'Do something else'
 
       assert(
-        todo.description === 'Do the dishes',
+        serviceTodo.description === 'Do the dishes',
         'the original todo remained intact'
       )
     })
 
     it('allows commiting changes back to the original in the store', function() {
-      const { todo, todoClone } = this
+      const { module, moduleClone } = this
 
-      todoClone.description = 'Do something else'
-      todoClone.commit()
+      moduleClone.description = 'Do something else'
+      moduleClone.commit()
 
       assert(
-        todo.description === 'Do something else',
+        module.description === 'Do something else',
         'the original todo was updated'
       )
     })
 
     it('performs a shallow merge when commiting back to the original record', function() {
-      const { todo, todoClone, owners } = this
+      const { module, moduleClone, owners } = this
 
-      todoClone.owners = [
+      moduleClone.owners = [
         { id: 1, name: 'Marshall' },
         { id: 2, name: 'Mariah' }
       ]
-      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
+      assert.deepEqual(
+        module.owners,
+        owners,
+        'original todo remained unchanged'
+      )
 
-      todoClone.commit()
+      moduleClone.commit()
 
       assert.deepEqual(
-        todo.owners,
+        module.owners,
         [owners[0], owners[1]],
         'ownerIds were updated properly'
       )
     })
 
     it(`changes the original record if you don't use the return value of commit()`, function() {
-      const { todo, todoClone, owners } = this
-
-      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
-
-      todoClone.commit()
-      todoClone.owners[0].name = 'Ted'
+      const { module, moduleClone, owners } = this
 
       assert.deepEqual(
-        todo.owners[0].name,
+        module.owners,
+        owners,
+        'original todo remained unchanged'
+      )
+
+      moduleClone.commit()
+      moduleClone.owners[0].name = 'Ted'
+
+      assert.deepEqual(
+        module.owners[0].name,
         'Ted',
         'nested object in original todo was changed'
       )
     })
 
     it(`doesn't change the original record if you use modify return value of a commit`, function() {
-      let { todo, todoClone, owners } = this
-
-      assert.deepEqual(todo.owners, owners, 'original todo remained unchanged')
-
-      todoClone = todoClone.commit()
-      todoClone.owners[0].name = 'Ted'
+      let { module, moduleClone, owners } = this
 
       assert.deepEqual(
-        todo.owners[0].name,
+        module.owners,
+        owners,
+        'original todo remained unchanged'
+      )
+
+      moduleClone = moduleClone.commit()
+      moduleClone.owners[0].name = 'Ted'
+
+      assert.deepEqual(
+        module.owners[0].name,
         'Marshall',
         'nested object in original todo was NOT changed'
       )
     })
 
     it('allows reseting copy changes back to match the original', function() {
-      const { todo, todoClone } = this
+      const { module, moduleClone } = this
 
-      todoClone.description = 'Do something else'
-      todoClone.reset()
+      moduleClone.description = 'Do something else'
+      moduleClone.reset()
 
       assert(
-        todo.description === 'Do the dishes',
+        module.description === 'Do the dishes',
         'the original todo was untouched'
       )
       assert(
-        todoClone.description === 'Do the dishes',
+        moduleClone.description === 'Do the dishes',
         'the clone was reset to match the original'
       )
     })
 
     it('adds additional properties to model instances when more data arrives for the same id', function() {
-      const { todo, owners } = this
+      const { module, owners } = this
       const newData = {
         id: 1,
         description: 'Do the dishes',
@@ -174,51 +264,51 @@ describe('Service Module', () => {
         owners,
         test: true
       }
-      const newTodo = new todo.constructor(newData)
+      const newTodo = new module.constructor(newData)
 
-      assert(newTodo === todo, 'the records are the same')
+      assert(newTodo === module, 'the records are the same')
       assert(newTodo.test === true, 'the new attribute was added')
       assert(
-        todo.test === true,
+        module.test === true,
         'the new attribute was also added to the original'
       )
     })
 
     it('ignores when new data with matching id has fewer props than current record', function() {
-      const { todo, owners } = this
+      const { module, owners } = this
       const newData = {
         id: 1,
         owners
       }
-      const newTodo = new todo.constructor(newData)
+      const newTodo = new module.constructor(newData)
 
-      assert(newTodo === todo, 'the records are the same')
+      assert(newTodo === module, 'the records are the same')
       assert(
-        todo.description === 'Do the dishes',
+        module.description === 'Do the dishes',
         'the existing attributes remained in place'
       )
       assert(
-        todo.isComplete === false,
+        module.isComplete === false,
         'the existing attributes remained in place'
       )
     })
 
     it('updates the new record when non-null, non-undefined values do not match', function() {
-      const { todo, owners } = this
+      const { module, owners } = this
       const newData = {
         id: 1,
         description: 'Do the mopping',
         isComplete: true,
         owners
       }
-      const newTodo = new todo.constructor(newData)
+      const newTodo = new module.constructor(newData)
 
-      assert(newTodo === todo, 'the records are the same')
+      assert(newTodo === module, 'the records are the same')
       assert(
-        todo.description === 'Do the mopping',
+        module.description === 'Do the mopping',
         'non-matching string was updated'
       )
-      assert(todo.isComplete === true, 'non-matching boolean was updated')
+      assert(module.isComplete === true, 'non-matching boolean was updated')
     })
   })
 
@@ -229,80 +319,92 @@ describe('Service Module', () => {
         description: '',
         isComplete: false
       })
-      this.store = new Vuex.Store({
+
+      // TODO: Do Something with this!
+      const instanceDefaultsForPerson = {
+        firstName: '',
+        lastName: '',
+        location: {
+          coordinates: [-111.549668, 39.014]
+        },
+        get fullName() {
+          return `${this.firstName} ${this.lastName}`
+        },
+        todos({ store }) {
+          console.log(Object.keys(store))
+        }
+      }
+      const instanceDefaultsForCars = {
+        keepCopiesInStore: true,
+        instanceDefaults: taskDefaults
+      }
+      const instanceDefaultsForGroups = function instanceDefaults() {
+        return {
+          name: '',
+          get todos() {
+            return models.Todo.findInStore({ query: {} }).data
+          }
+        }
+      }
+      this.store = new Vuex.Store<RootState>({
         plugins: [
-          service('todos'),
-          service('people', {
-            instanceDefaults: {
-              firstName: '',
-              lastName: '',
-              location: {
-                coordinates: [-111.549668, 39.014]
-              },
-              get fullName() {
-                return `${this.firstName} ${this.lastName}`
-              },
-              todos({ store }) {
-                console.log(Object.keys(store))
-              }
-            }
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos')
           }),
-          service('tasks', {
-            keepCopiesInStore: true,
-            instanceDefaults: taskDefaults
+          makeServicePlugin({
+            Model: Person,
+            service: feathersClient.service('people')
           }),
-          service('groups', {
-            instanceDefaults(data, { store, Model, Models }) {
-              return {
-                name: '',
-                get todos() {
-                  return Models.Todo.findInStore({ query: {} }).data
-                }
-              }
-            }
+          makeServicePlugin({
+            Model: Car,
+            service: feathersClient.service('cars')
+          }),
+          makeServicePlugin({
+            Model: Group,
+            service: feathersClient.service('groups')
           })
         ]
       })
-      this.Todo = globalModels.Todo
-      this.Task = globalModels.Task
-      this.Person = globalModels.Person
-      this.Group = globalModels.Group
+      this.Todo = ServiceTodo
+      this.Task = models.Task
+      this.Person = models.Person
+      this.Group = models.Group
     })
 
     // store.commit('todos/addItem', data)
 
     it('models default to an empty object', function() {
       const { Todo } = this
-      const todo = new Todo()
+      const module = new Todo()
 
-      assert.deepEqual(todo, {}, 'default model is an empty object')
+      assert.deepEqual(module, {}, 'default model is an empty object')
     })
 
-    it('stores clones in Model.copiesById by default', function() {
-      const { Todo } = this
-      const todo = new Todo({ id: 1, description: 'Do something' })
+    // it('stores clones in Model.copiesById by default', function() {
+    //   const module = new ServiceTodo({ id: 1, description: 'Do something' })
 
-      assert.deepEqual(
-        Todo.copiesById,
-        {},
-        'Model.copiesById should start out empty'
-      )
+    //   assert.deepEqual(
+    //     ServiceTodo.copiesById,
+    //     {},
+    //     'Model.copiesById should start out empty'
+    //   )
 
-      const todoClone = todo.clone()
-      assert(
-        Todo.copiesById[1],
-        'should have a copy stored on Model.copiesById'
-      )
+    //   const moduleClone = module.clone()
+    //   assert(
+    //     ServiceTodo.copiesById[1],
+    //     'should have a copy stored on Model.copiesById'
+    //   )
 
-      todoClone.description = 'Do something else'
-      todoClone.commit()
+    //   // moduleClone.description = 'Do something else'
+    //   // moduleClone.commit()
 
-      assert.equal(
-        todo.description,
-        'Do something else',
-        'the original should have been updated'
-      )
-    })
+    //   assert.equal(
+    //     module.description,
+    //     'Do something else',
+    //     'the original should have been updated'
+    //   )
+    // })
 
     it('allows customizing the default values for a model', function() {
       const { Task, taskDefaults } = this
@@ -370,7 +472,7 @@ describe('Service Module', () => {
         diffOnPatch: false,
         skipRequestIfExists: false,
         getters: {},
-        globalModels,
+        models,
         idField: 'id',
         instanceDefaults: taskDefaults,
         keepCopiesInStore: true,
@@ -394,18 +496,26 @@ describe('Service Module', () => {
 
   describe('Models - Methods', function() {
     beforeEach(function() {
-      this.store = new Vuex.Store({
+      this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
-          service('tasks', {
+          makeServicePlugin({
+            Model: Task,
+            service: feathersClient.service('tasks'),
             preferUpdate: true
           }),
-          service('todos'),
-          service('items')
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos')
+          }),
+          makeServicePlugin({
+            Model: Item,
+            service: feathersClient.service('items')
+          })
         ]
       })
-      this.Todo = globalModels.Todo
-      this.Task = globalModels.Task
+      this.Todo = ServiceTodo
+      this.Task = models.Task
     })
 
     it('Model.find', function() {
@@ -434,9 +544,9 @@ describe('Service Module', () => {
 
     it('instance.save calls create with correct arguments', function() {
       const { Todo } = this
-      const todo = new Todo({ test: true })
+      const module = new Todo({ test: true })
 
-      Object.defineProperty(todo, 'create', {
+      Object.defineProperty(module, 'create', {
         value(params) {
           assert(arguments.length === 1, 'should have only called with params')
           assert(
@@ -446,15 +556,15 @@ describe('Service Module', () => {
         }
       })
 
-      todo.save()
+      module.save()
     })
 
     it('instance.save passes params to create', function() {
       const { Todo } = this
-      const todo = new Todo({ test: true })
+      const module = new Todo({ test: true })
       let called = false
 
-      Object.defineProperty(todo, 'create', {
+      Object.defineProperty(module, 'create', {
         value(params) {
           assert(arguments.length === 1, 'should have only called with params')
           assert(params.test, 'should have received params')
@@ -462,16 +572,16 @@ describe('Service Module', () => {
         }
       })
 
-      todo.save({ test: true })
+      module.save({ test: true })
       assert(called, 'create should have been called')
     })
 
     it('instance.save passes params to patch', function() {
       const { Todo } = this
-      const todo = new Todo({ id: 1, test: true })
+      const module = new Todo({ id: 1, test: true })
       let called = false
 
-      Object.defineProperty(todo, 'patch', {
+      Object.defineProperty(module, 'patch', {
         value(params) {
           assert(arguments.length === 1, 'should have only called with params')
           assert(params.test, 'should have received params')
@@ -479,7 +589,7 @@ describe('Service Module', () => {
         }
       })
 
-      todo.save({ test: true })
+      module.save({ test: true })
       assert(called, 'patch should have been called')
     })
 
@@ -520,17 +630,25 @@ describe('Service Module', () => {
 
   describe('Models - modelName', function() {
     beforeEach(function() {
-      this.store = new Vuex.Store({
+      this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
-          service('media'),
-          service('hotspot-media', {
-            modelName: 'HotspotMedia'
+          makeServicePlugin({
+            Model: HotspotMedia,
+            service: feathersClient.service('hotspot-media')
+          }),
+          makeServicePlugin({
+            Model: Media,
+            service: feathersClient.service('media')
+          }),
+          makeServicePlugin({
+            Model: HotspotMedia,
+            service: feathersClient.service('hotspot-media')
           })
         ]
       })
-      this.Medium = globalModels.Medium
-      this.HotspotMedia = globalModels.HotspotMedia
+      this.Medium = models.Medium
+      this.HotspotMedia = models.HotspotMedia
     })
 
     it('allows passing a custom Model name', function() {
@@ -541,41 +659,43 @@ describe('Service Module', () => {
 
   describe('Models - Dates', function() {
     beforeEach(function() {
-      this.store = new Vuex.Store({
+      const instanceDefaults = {
+        id: null,
+        description: '',
+        isComplete: false,
+        createdAt: Date
+      }
+      this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
-          service('todos', {
-            instanceDefaults: {
-              id: null,
-              description: '',
-              isComplete: false,
-              createdAt: Date
-            }
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos')
           })
         ]
       })
-      this.Todo = globalModels.Todo
+      this.Todo = ServiceTodo
     })
 
     it('converts keys that contain the Date constructor into date instances', function() {
       const { Todo } = this
       const createdAt = '2018-05-01T04:42:24.136Z'
-      const todo = new Todo({
+      const module = new Todo({
         description: 'Go on a date.',
         isComplete: true,
         createdAt
       })
 
       assert(
-        typeof todo.createdAt === 'object',
-        'todo.createdAt is an instance of object'
+        typeof module.createdAt === 'object',
+        'module.createdAt is an instance of object'
       )
       assert(
-        todo.createdAt.constructor.name === 'Date',
-        'todo.createdAt is an instance of date'
+        module.createdAt.constructor.name === 'Date',
+        'module.createdAt is an instance of date'
       )
       assert(
-        todo.createdAt.toString() === new Date(createdAt).toString(),
+        module.createdAt.toString() === new Date(createdAt).toString(),
         'the correct date was used'
       )
     })
@@ -583,45 +703,57 @@ describe('Service Module', () => {
 
   describe('Models - Relationships', function() {
     beforeEach(function() {
-      this.store = new Vuex.Store({
+      class Task extends BaseModel {
+        public static instanceDefaults: {
+          id: null
+          description: ''
+          isComplete: false
+        }
+      }
+      class ServiceTodo extends BaseModel {
+        public static instanceDefaults(data) {
+          const priority = data.priority || 'normal'
+          const defaultsByPriority = {
+            normal: {
+              description: '',
+              isComplete: false,
+              task: 'Task',
+              item: 'Item',
+              priority: ''
+            },
+            high: {
+              isHighPriority: true,
+              priority: ''
+            }
+          }
+          return defaultsByPriority[priority]
+        }
+      }
+      class Item extends BaseModel {
+        public static instanceDefaults({ Models }) {
+          return {
+            test: false,
+            todo: 'Todo',
+            get todos() {
+              return Models.Todo.findInStore({ query: {} }).data
+            }
+          }
+        }
+      }
+      this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
-          service('tasks', {
-            instanceDefaults: {
-              id: null,
-              description: '',
-              isComplete: false
-            }
+          makeServicePlugin({
+            Model: Task,
+            service: feathersClient.service('tasks')
           }),
-          service('todos', {
-            instanceDefaults(data) {
-              const priority = data.priority || 'normal'
-              const defaultsByPriority = {
-                normal: {
-                  description: '',
-                  isComplete: false,
-                  task: 'Task',
-                  item: 'Item',
-                  priority: ''
-                },
-                high: {
-                  isHighPriority: true,
-                  priority: ''
-                }
-              }
-              return defaultsByPriority[priority]
-            }
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos')
           }),
-          service('items', {
-            instanceDefaults(data, { store, Model, Models }) {
-              return {
-                test: false,
-                todo: 'Todo',
-                get todos() {
-                  return Models.Todo.findInStore({ query: {} }).data
-                }
-              }
-            },
+          makeServicePlugin({
+            Model: Item,
+            service: feathersClient.service('items'),
             mutations: {
               toggleTestBoolean(state, item) {
                 item.test = !item.test
@@ -630,18 +762,21 @@ describe('Service Module', () => {
           })
         ]
       })
-      this.Todo = globalModels.Todo
-      this.Task = globalModels.Task
-      this.Item = globalModels.Item
+      this.Todo = ServiceTodo
+      this.Task = models.Task
+      this.Item = models.Item
     })
 
     it('can setup relationships through es5 getters in instanceDefaults', function() {
       const { Item, Todo } = this
-      const todo = new Todo({ id: 5, description: 'hey' })
+      const module = new Todo({ id: 5, description: 'hey' })
       const item = new Item({})
 
       assert(Array.isArray(item.todos), 'Received an array of todos')
-      assert(item.todos[0] === todo, 'The todo was returned through the getter')
+      assert(
+        item.todos[0] === module,
+        'The todo was returned through the getter'
+      )
     })
 
     it('can have different instanceDefaults based on new instance data', function() {
@@ -666,7 +801,7 @@ describe('Service Module', () => {
 
     it('converts keys that match Model names into Model instances', function() {
       const { Todo, store } = this
-      const todo = new Todo({
+      const module = new Todo({
         task: {
           description: 'test',
           isComplete: true
@@ -674,7 +809,7 @@ describe('Service Module', () => {
       })
 
       assert(
-        todo.task.constructor.className === 'Task',
+        module.task.constructor.className === 'Task',
         'task is an instance of Task'
       )
       assert.deepEqual(
@@ -687,7 +822,7 @@ describe('Service Module', () => {
     it('adds model instances containing an id to the store', function() {
       const { Todo, store } = this
 
-      const todo = new Todo({
+      const module = new Todo({
         task: {
           id: 1,
           description: 'test',
@@ -697,7 +832,7 @@ describe('Service Module', () => {
 
       assert.deepEqual(
         store.state.tasks.keyedById[1],
-        todo.task,
+        module.task,
         'task was added to the store'
       )
     })
@@ -705,7 +840,7 @@ describe('Service Module', () => {
     it('works with multiple keys that match Model names', function() {
       const { Todo, store } = this
 
-      const todo = new Todo({
+      const module = new Todo({
         task: {
           id: 1,
           description: 'test',
@@ -719,12 +854,12 @@ describe('Service Module', () => {
 
       assert.deepEqual(
         store.state.tasks.keyedById[1],
-        todo.task,
+        module.task,
         'task was added to the store'
       )
       assert.deepEqual(
         store.state.items.keyedById[2],
-        todo.item,
+        module.item,
         'item was added to the store'
       )
     })
@@ -732,7 +867,7 @@ describe('Service Module', () => {
     it('handles nested relationships', function() {
       const { Todo } = this
 
-      const todo = new Todo({
+      const module = new Todo({
         task: {
           id: 1,
           description: 'test',
@@ -748,7 +883,7 @@ describe('Service Module', () => {
       })
 
       assert(
-        todo.item.todo.constructor.className === 'Todo',
+        module.item.module.constructor.className === 'Todo',
         'the nested todo is an instance of Todo'
       )
     })
@@ -756,7 +891,7 @@ describe('Service Module', () => {
     it('handles recursive nested relationships', function() {
       const { Todo, store } = this
 
-      const todo = new Todo({
+      const module = new Todo({
         id: 1,
         description: 'todo description',
         item: {
@@ -771,22 +906,22 @@ describe('Service Module', () => {
 
       assert.deepEqual(
         store.state.todos.keyedById[1],
-        todo,
+        module,
         'todo was added to the store'
       )
       assert.deepEqual(
         store.state.items.keyedById[2],
-        todo.item,
+        module.item,
         'item was added to the store'
       )
-      assert(todo.item, 'todo still has an item')
-      assert(todo.item.todo, 'todo still nested in itself')
+      assert(module.item, 'todo still has an item')
+      assert(module.item.module, 'todo still nested in itself')
     })
 
     it('updates related data', function() {
       const { Todo, store } = this
 
-      const todo = new Todo({
+      const module = new Todo({
         id: 'todo-1',
         description: 'todo description',
         item: {
@@ -803,12 +938,12 @@ describe('Service Module', () => {
       const storedItem = store.state.items.keyedById['item-2']
 
       store.commit('items/toggleTestBoolean', storedItem)
-      // todo.item.test = false
+      // module.item.test = false
 
       assert.equal(
-        todo.item.test,
+        module.item.test,
         false,
-        'the nested todo.item.test should be false'
+        'the nested module.item.test should be false'
       )
       assert.equal(
         storedTodo.item.test,
@@ -844,12 +979,12 @@ describe('Service Module', () => {
       assert.equal(
         todo1.item.test,
         true,
-        'the nested todo.item.test should be true'
+        'the nested module.item.test should be true'
       )
       assert.equal(
         todo2.item.test,
         true,
-        'the nested todo.item.test should be true'
+        'the nested module.item.test should be true'
       )
       assert.equal(
         storedTodo.item.test,
@@ -912,8 +1047,20 @@ describe('Service Module', () => {
 
   describe('Setting Up', () => {
     it('service stores have global defaults', () => {
-      const store = new Vuex.Store({
-        plugins: [service('tasks'), service('/v2/todos')]
+      class Todo extends BaseModel {
+        public static test: boolean = true
+      }
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: Task,
+            service: feathersClient.service('tasks')
+          }),
+          makeServicePlugin({
+            Model: Todo,
+            service: feathersClient.service('/v2/todos')
+          })
+        ]
       })
       const { state } = store
 
@@ -924,8 +1071,14 @@ describe('Service Module', () => {
 
     it('can customize the idField for each service', function() {
       const idField = '_id'
-      const store = new Vuex.Store({
-        plugins: [service('tests', { idField })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            idField,
+            Model: Test,
+            service: feathersClient.service('tests')
+          })
+        ]
       })
 
       assert(
@@ -936,8 +1089,13 @@ describe('Service Module', () => {
 
     it('allows enabling autoRemove', function() {
       const autoRemove = true
-      const store = new Vuex.Store({
-        plugins: [service('tests', { autoRemove })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: Test,
+            service: feathersClient.service('tests')
+          })
+        ]
       })
 
       assert(
@@ -949,8 +1107,14 @@ describe('Service Module', () => {
     it('can switch to path name as namespace', () => {
       const nameStyle = 'path'
       const serviceName = '/v1/tests'
-      const store = new Vuex.Store({
-        plugins: [service(serviceName, { nameStyle })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: Test,
+            service: feathersClient.service(serviceName),
+            nameStyle
+          })
+        ]
       })
       const namespace = stripSlashes(serviceName)
 
@@ -962,8 +1126,14 @@ describe('Service Module', () => {
 
     it('can explicitly provide a namespace', () => {
       const namespace = 'blah'
-      const store = new Vuex.Store({
-        plugins: [service('/v1/tests', { namespace })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: Test,
+            service: feathersClient.service('/v1/tests'),
+            namespace
+          })
+        ]
       })
       assert(store.state.blah, 'the namespace option was used as the namespace')
     })
@@ -971,8 +1141,15 @@ describe('Service Module', () => {
     it('prioritizes the explicit namespace', () => {
       const namespace = 'blah'
       const nameStyle = 'path'
-      const store = new Vuex.Store({
-        plugins: [service('/v1/tests', { namespace, nameStyle })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: Test,
+            service: feathersClient.service('/v1/tests'),
+            namespace,
+            nameStyle
+          })
+        ]
       })
       assert(store.state.blah, 'the namespace option was used as the namespace')
     })
@@ -980,16 +1157,23 @@ describe('Service Module', () => {
 
   describe('Basics', () => {
     beforeEach(function() {
-      this.feathersClient = makeFeathersRestClient()
-      this.feathersClient.use('todos', memory({ store: makeTodos() }))
-      this.service = setupVuexService(this.feathersClient)
+      this.feathers = makeFeathersRestClient()
+      this.feathers.use('service-todos', memory({ store: makeTodos() }))
+      this.fv = feathersVuex(this.feathers, {
+        serverAlias: 'basics'
+      })
     })
 
     it('populates default store', () => {
-      const store = new Vuex.Store({
-        plugins: [service('todos')]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          this.fv.makeServicePlugin({
+            Model: ServiceTodo,
+            service: this.feathers.service('service-todos')
+          })
+        ]
       })
-      const todoState = store.state.todos
+      const todoState = store.state['service-todos']
       const expectedState = {
         autoRemove: false,
         copiesById: {},
@@ -1017,7 +1201,7 @@ describe('Service Module', () => {
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
-        servicePath: 'todos',
+        servicePath: 'service-todos',
         pagination: {},
         paramsForServer: [],
         whitelist: []
@@ -1047,8 +1231,8 @@ describe('Service Module', () => {
     })
 
     it(`populates items on find`, function(done) {
-      const store = new Vuex.Store({
-        plugins: [this.service('todos', { idField: '_id' })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [this.service('service-todos', { idField: '_id' })]
       })
 
       const todoState = store.state.todos
@@ -1071,7 +1255,7 @@ describe('Service Module', () => {
       beforeEach(function() {
         this.feathersClient = makeFeathersRestClient()
         this.feathersClient.use(
-          'todos',
+          'service-todos',
           memory({
             store: makeTodos()
           })
@@ -1086,15 +1270,22 @@ describe('Service Module', () => {
             }
           })
         )
-        this.service = setupVuexService(this.feathersClient)
+        this.fv = feathersVuex(this.feathersClient, {
+          serverAlias: 'auto-remove'
+        })
       })
 
       it(`removes missing items when pagination is off`, function(done) {
-        const store = new Vuex.Store({
-          plugins: [this.service('todos', { idField: '_id', autoRemove: true })]
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            this.service('service-todos', {
+              idField: '_id',
+              autoRemove: true
+            })
+          ]
         })
 
-        const todoState = store.state.todos
+        const todoState = store.state['service-todos']
 
         assert(todoState.ids.length === 0)
 
@@ -1103,7 +1294,7 @@ describe('Service Module', () => {
           .dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('todos').store[3]
+            delete this.feathersClient.service('service-todos').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(
               todoState.ids.length === 3,
@@ -1127,7 +1318,7 @@ describe('Service Module', () => {
       })
 
       it(`does not remove missing items when pagination is on`, function(done) {
-        const store = new Vuex.Store({
+        const store = new Vuex.Store<RootState>({
           plugins: [this.service('tasks', { idField: '_id', autoRemove: true })]
         })
 
@@ -1165,9 +1356,12 @@ describe('Service Module', () => {
       })
 
       it(`does not remove missing items when autoRemove is off`, function(done) {
-        const store = new Vuex.Store({
+        const store = new Vuex.Store<RootState>({
           plugins: [
-            this.service('todos', { idField: '_id', autoRemove: false })
+            this.service('service-todos', {
+              idField: '_id',
+              autoRemove: false
+            })
           ]
         })
         const todoState = store.state.todos
@@ -1179,7 +1373,7 @@ describe('Service Module', () => {
           .dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('todos').store[3]
+            delete this.feathersClient.service('service-todos').store[3]
             // We went around using the store actions, so there will still be three items.
             assert(
               todoState.ids.length === 3,
@@ -1212,8 +1406,14 @@ describe('Service Module', () => {
           test: true
         }
       }
-      const store = new Vuex.Store({
-        plugins: [service('todos', { state: customState })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos'),
+            state: customState
+          })
+        ]
       })
 
       assert(store.state.todos.test === true, 'added custom state')
@@ -1227,8 +1427,15 @@ describe('Service Module', () => {
           state.test = false
         }
       }
-      const store = new Vuex.Store({
-        plugins: [service('todos', { state, mutations: customMutations })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos'),
+            state,
+            mutations: customMutations
+          })
+        ]
       })
 
       store.commit('todos/setTestToFalse')
@@ -1244,8 +1451,14 @@ describe('Service Module', () => {
           return 123
         }
       }
-      const store = new Vuex.Store({
-        plugins: [service('todos', { getters: customGetters })]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos'),
+            getters: customGetters
+          })
+        ]
       })
 
       assert(
@@ -1270,8 +1483,14 @@ describe('Service Module', () => {
           }
         }
       }
-      const store = new Vuex.Store({
-        plugins: [service('todos', config)]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: ServiceTodo,
+            service: feathersClient.service('service-todos'),
+            ...config
+          })
+        ]
       })
 
       store.dispatch('todos/trigger')
@@ -1280,11 +1499,18 @@ describe('Service Module', () => {
   })
 
   describe.skip('Updates the Store on Events', function() {
-    const socketService = setupVuexService(feathersSocketioClient)
+    const fv = feathersVuex(feathersSocketioClient, {
+      serverAlias: 'updates-store-on-events'
+    })
 
     it('created', function(done) {
-      const store = new Vuex.Store({
-        plugins: [socketService('things')]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          fv.makeServicePlugin({
+            Model: Thing,
+            service: feathersSocketioClient.service('things')
+          })
+        ]
       })
 
       feathersSocketioClient.service('things').on('created', item => {
@@ -1299,8 +1525,13 @@ describe('Service Module', () => {
     })
 
     it('patched', function(done) {
-      const store = new Vuex.Store({
-        plugins: [socketService('things')]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          fv.makeServicePlugin({
+            Model: Thing,
+            service: feathersSocketioClient.service('things')
+          })
+        ]
       })
 
       store.commit('things/addItem', { id: 1, test: false })
@@ -1317,8 +1548,13 @@ describe('Service Module', () => {
     })
 
     it('updated', function(done) {
-      const store = new Vuex.Store({
-        plugins: [socketService('things')]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          fv.makeServicePlugin({
+            Model: Thing,
+            service: feathersSocketioClient.service('things')
+          })
+        ]
       })
 
       store.commit('things/addItem', { id: 1, test: false })
@@ -1335,8 +1571,13 @@ describe('Service Module', () => {
     })
 
     it('removed', function(done) {
-      const store = new Vuex.Store({
-        plugins: [socketService('things')]
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          fv.makeServicePlugin({
+            Model: Thing,
+            service: feathersSocketioClient.service('things')
+          })
+        ]
       })
 
       store.commit('things/addItem', { id: 1, test: false })
