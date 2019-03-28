@@ -269,23 +269,24 @@ describe.skip('Service Module', function() {
     })
 
     it('allows reseting copy changes back to match the original', function() {
-      const { module, moduleClone } = this
+      const { serviceTodo } = this
+      let serviceTodoClone = serviceTodo.clone()
 
-      moduleClone.description = 'Do something else'
-      moduleClone.reset()
+      serviceTodoClone.description = 'Do something else'
+      serviceTodoClone.reset()
 
       assert(
-        module.description === 'Do the dishes',
+        serviceTodo.description === 'Do the dishes',
         'the original todo was untouched'
       )
       assert(
-        moduleClone.description === 'Do the dishes',
+        serviceTodoClone.description === 'Do the dishes',
         'the clone was reset to match the original'
       )
     })
 
     it('adds additional properties to model instances when more data arrives for the same id', function() {
-      const { module, owners } = this
+      const { serviceTodo, owners } = this
       const newData = {
         id: 1,
         description: 'Do the dishes',
@@ -293,12 +294,12 @@ describe.skip('Service Module', function() {
         owners,
         test: true
       }
-      const newTodo = new module.constructor(newData)
+      const newTodo = new serviceTodo.constructor(newData)
 
-      assert(newTodo === module, 'the records are the same')
+      assert(newTodo === serviceTodo, 'the records are the same')
       assert(newTodo.test === true, 'the new attribute was added')
       assert(
-        module.test === true,
+        serviceTodo.test === true,
         'the new attribute was also added to the original'
       )
     })
