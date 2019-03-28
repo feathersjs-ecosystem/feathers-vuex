@@ -310,6 +310,10 @@ export function mergeWithAccessors(dest, source) {
   sourceProps.forEach(key => {
     const desc = Object.getOwnPropertyDescriptor(source, key)
 
+    if (!desc.enumerable) {
+      return
+    }
+
     // If we're dealing with a Vue Observable, just assign the values.
     if (destIsVueObservable || sourceIsVueObservable) {
       dest[key] = source[key]

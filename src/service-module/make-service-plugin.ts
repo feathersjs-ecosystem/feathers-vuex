@@ -7,6 +7,7 @@ import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath } from '../utils'
+import { get as _get } from 'lodash'
 
 const defaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
@@ -58,8 +59,8 @@ export default function prepareMakeServicePlugin(
       store.registerModule(options.namespace, module)
 
       // (2a^) Monkey patch the BaseModel in globalModels
-      const { BaseModel } = globalModels[options.serverAlias]
-      if (!BaseModel.store) {
+      const BaseModel = _get(globalModels, `[${options.serverAlias}].BaseModel`)
+      if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
           store,
           namespace: options.namespace,
@@ -67,7 +68,7 @@ export default function prepareMakeServicePlugin(
         })
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
-      if (!(Model.prototype instanceof BaseModel)) {
+      if (!BaseModel || !(Model.prototype instanceof BaseModel)) {
         Object.assign(Model, {
           store,
           namespace: options.namespace,
@@ -75,6 +76,7 @@ export default function prepareMakeServicePlugin(
         })
       }
       addModel(Model)
+      console.log(globalModels)
 
       // (3^) Setup real-time events
       if (options.enableEvents) {

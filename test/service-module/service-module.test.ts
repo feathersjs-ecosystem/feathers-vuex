@@ -36,50 +36,72 @@ interface RootState {
   things: ServiceState
 }
 
-const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-  serverAlias: 'service-module'
-})
+function makeContext() {
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'service-module'
+  })
 
-class ServiceTodo extends BaseModel {
-  public id
-  public description: string
-}
-class HotspotMedia extends BaseModel {
-  public id
-  public description: string
-}
-class Media extends BaseModel {
-  public id
-  public description: string
-}
-class Person extends BaseModel {
-  public static test: boolean = true
-}
-class Item extends BaseModel {
-  public static test: boolean = true
-}
-class Task extends BaseModel {
-  public static test: boolean = true
-}
-class Car extends BaseModel {
-  public static test: boolean = true
-}
-class Group extends BaseModel {
-  public static test: boolean = true
-}
-class Test extends BaseModel {
-  public static test: boolean = true
-}
-class Thing extends BaseModel {
-  public static test: boolean = true
+  class ServiceTodo extends BaseModel {
+    public id
+    public description: string
+
+    public constructor(data, options?) {
+      super(data, options)
+    }
+  }
+  class HotspotMedia extends BaseModel {
+    public id
+    public description: string
+  }
+  class Media extends BaseModel {
+    public id
+    public description: string
+  }
+  class Person extends BaseModel {
+    public static test: boolean = true
+  }
+  class Item extends BaseModel {
+    public static test: boolean = true
+  }
+  class Task extends BaseModel {
+    public static test: boolean = true
+  }
+  class Car extends BaseModel {
+    public static test: boolean = true
+  }
+  class Group extends BaseModel {
+    public static test: boolean = true
+  }
+  class Test extends BaseModel {
+    public static test: boolean = true
+  }
+  class Thing extends BaseModel {
+    public static test: boolean = true
+  }
+
+  return {
+    makeServicePlugin,
+    BaseModel,
+    ServiceTodo,
+    HotspotMedia,
+    Media,
+    Person,
+    Item,
+    Task,
+    Car,
+    Group,
+    Test,
+    Thing
+  }
 }
 
-describe.skip('Service Module', () => {
-  before(() => {
+describe.only('Service Module', function() {
+  beforeEach(() => {
     clearModels()
   })
 
-  it('registers a vuex plugin and Model for the service', () => {
+  it('registers a vuex plugin and Model for the service', function() {
+    const { makeServicePlugin, ServiceTodo, BaseModel } = makeContext()
     const serviceName = 'service-todos'
     const feathersService = feathersClient.service(serviceName)
     const store = new Vuex.Store<RootState>({
@@ -99,18 +121,19 @@ describe.skip('Service Module', () => {
       'the Model is also found at service.FeathersVuexModel'
     )
 
-    // const serviceTodo = new ServiceTodo({
-    //   description: 'Do the dishes',
-    //   isComplete: false
-    // })
-    // assert(serviceTodo instanceof ServiceTodo, 'Model can be instantiated.')
-    // assert(serviceTodo instanceof BaseModel, 'Model can be instantiated.')
+    const serviceTodo = new ServiceTodo({
+      description: 'Do the dishes',
+      isComplete: false
+    })
+    assert(serviceTodo instanceof ServiceTodo, 'Model can be instantiated.')
+    assert(serviceTodo instanceof BaseModel, 'Model can be instantiated.')
 
     assert(store.state[serviceName])
   })
 
   describe('Models', function() {
     beforeEach(function() {
+      const { makeServicePlugin, ServiceTodo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -140,9 +163,11 @@ describe.skip('Service Module', () => {
       const serviceTodo = store.state['service-todos'].keyedById[1]
 
       this.serviceTodo = serviceTodo
+      this.ServiceTodo = ServiceTodo
     })
 
     it('allows creating model clones', function() {
+      const { ServiceTodo } = this
       const serviceTodoClone = this.serviceTodo.clone()
 
       assert(
@@ -167,14 +192,15 @@ describe.skip('Service Module', () => {
       )
     })
 
-    it('allows commiting changes back to the original in the store', function() {
-      const { module, moduleClone } = this
+    it.only('allows commiting changes back to the original in the store', function() {
+      const { serviceTodo } = this
+      const serviceTodoClone = serviceTodo.clone()
 
-      moduleClone.description = 'Do something else'
-      moduleClone.commit()
+      serviceTodoClone.description = 'Do something else'
+      serviceTodoClone.commit()
 
       assert(
-        module.description === 'Do something else',
+        serviceTodo.description === 'Do something else',
         'the original todo was updated'
       )
     })
@@ -314,6 +340,8 @@ describe.skip('Service Module', () => {
 
   describe('Models - Default Values', function() {
     beforeEach(function() {
+      const { makeServicePlugin, ServiceTodo, Person, Car, Group } = this
+
       const taskDefaults = (this.taskDefaults = {
         id: null,
         description: '',
@@ -496,6 +524,7 @@ describe.skip('Service Module', () => {
 
   describe('Models - Methods', function() {
     beforeEach(function() {
+      const { makeServicePlugin, Task, ServiceTodo, Item } = this
       this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
@@ -630,6 +659,7 @@ describe.skip('Service Module', () => {
 
   describe('Models - modelName', function() {
     beforeEach(function() {
+      const { makeServicePlugin, HotspotMedia, Media } = this
       this.store = new Vuex.Store<RootState>({
         strict: true,
         plugins: [
@@ -659,6 +689,7 @@ describe.skip('Service Module', () => {
 
   describe('Models - Dates', function() {
     beforeEach(function() {
+      const { makeServicePlugin, ServiceTodo } = this
       const instanceDefaults = {
         id: null,
         description: '',
@@ -703,6 +734,7 @@ describe.skip('Service Module', () => {
 
   describe('Models - Relationships', function() {
     beforeEach(function() {
+      const { makeServicePlugin, BaseModel } = this
       class Task extends BaseModel {
         public static instanceDefaults: {
           id: null
@@ -1046,7 +1078,8 @@ describe.skip('Service Module', () => {
   })
 
   describe('Setting Up', () => {
-    it('service stores have global defaults', () => {
+    it('service stores have global defaults', function() {
+      const { makeServicePlugin, BaseModel, Task } = this
       class Todo extends BaseModel {
         public static test: boolean = true
       }
@@ -1070,6 +1103,7 @@ describe.skip('Service Module', () => {
     })
 
     it('can customize the idField for each service', function() {
+      const { makeServicePlugin, Test } = this
       const idField = '_id'
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -1088,6 +1122,7 @@ describe.skip('Service Module', () => {
     })
 
     it('allows enabling autoRemove', function() {
+      const { makeServicePlugin, Test } = this
       const autoRemove = true
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -1104,7 +1139,8 @@ describe.skip('Service Module', () => {
       )
     })
 
-    it('can switch to path name as namespace', () => {
+    it('can switch to path name as namespace', function() {
+      const { makeServicePlugin, Test } = this
       const nameStyle = 'path'
       const serviceName = '/v1/tests'
       const store = new Vuex.Store<RootState>({
@@ -1124,7 +1160,8 @@ describe.skip('Service Module', () => {
       )
     })
 
-    it('can explicitly provide a namespace', () => {
+    it('can explicitly provide a namespace', function() {
+      const { makeServicePlugin, Test } = this
       const namespace = 'blah'
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -1138,7 +1175,8 @@ describe.skip('Service Module', () => {
       assert(store.state.blah, 'the namespace option was used as the namespace')
     })
 
-    it('prioritizes the explicit namespace', () => {
+    it('prioritizes the explicit namespace', function() {
+      const { makeServicePlugin, Test } = this
       const namespace = 'blah'
       const nameStyle = 'path'
       const store = new Vuex.Store<RootState>({
@@ -1162,13 +1200,17 @@ describe.skip('Service Module', () => {
       this.fv = feathersVuex(this.feathers, {
         serverAlias: 'basics'
       })
+      class ServiceTodo extends this.fv.BaseModel {
+        public static test: boolean = true
+      }
+      this.ServiceTodo = ServiceTodo
     })
 
-    it('populates default store', () => {
+    it('populates default store', function() {
       const store = new Vuex.Store<RootState>({
         plugins: [
           this.fv.makeServicePlugin({
-            Model: ServiceTodo,
+            Model: this.ServiceTodo,
             service: this.feathers.service('service-todos')
           })
         ]
@@ -1400,6 +1442,8 @@ describe.skip('Service Module', () => {
 
   describe('Customizing Service Stores', function() {
     it('allows adding custom state', function() {
+      const { makeServicePlugin, ServiceTodo } = this
+
       const customState = {
         test: true,
         test2: {
@@ -1421,6 +1465,7 @@ describe.skip('Service Module', () => {
     })
 
     it('allows custom mutations', function() {
+      const { makeServicePlugin, ServiceTodo } = this
       const state = { test: true }
       const customMutations = {
         setTestToFalse(state) {
@@ -1446,6 +1491,7 @@ describe.skip('Service Module', () => {
     })
 
     it('allows custom getters', function() {
+      const { makeServicePlugin, ServiceTodo } = this
       const customGetters = {
         oneTwoThree(state) {
           return 123
@@ -1468,6 +1514,7 @@ describe.skip('Service Module', () => {
     })
 
     it('allows adding custom actions', function() {
+      const { makeServicePlugin, ServiceTodo } = this
       const config = {
         state: {
           isTrue: false
@@ -1504,6 +1551,7 @@ describe.skip('Service Module', () => {
     })
 
     it('created', function(done) {
+      const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
           fv.makeServicePlugin({
@@ -1525,6 +1573,7 @@ describe.skip('Service Module', () => {
     })
 
     it('patched', function(done) {
+      const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
           fv.makeServicePlugin({
@@ -1548,6 +1597,7 @@ describe.skip('Service Module', () => {
     })
 
     it('updated', function(done) {
+      const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
           fv.makeServicePlugin({
@@ -1571,6 +1621,7 @@ describe.skip('Service Module', () => {
     })
 
     it('removed', function(done) {
+      const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
           fv.makeServicePlugin({

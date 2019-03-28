@@ -163,14 +163,21 @@ export default function makeServiceMutations() {
         globalModels,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
       )
-      const copyData = mergeWithAccessors({}, current)
+
       if (Model) {
-        var model = new Model(copyData, { isClone: true })
-      }
-      if (keepCopiesInStore) {
-        state.copiesById[id] = model || copyData
+        var model = new Model(current, { isClone: true })
       } else {
-        Model.copiesById[id] = Vue.observable(model || copyData)
+        var copyData = mergeWithAccessors({}, current)
+      }
+
+      let item = model || copyData
+      if (keepCopiesInStore) {
+        state.copiesById[id] = item
+      } else {
+        if (!item.hasOwnProperty('__ob__')) {
+          item = Vue.observable(item)
+        }
+        Model.copiesById[id] = item
       }
     },
 

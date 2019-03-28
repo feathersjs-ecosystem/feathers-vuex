@@ -130,7 +130,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         const id = this[BaseModel.idField]
         BaseModel.store.commit(`${BaseModel.namespace}/commitCopy`, id)
 
-        return this._clone(id)
+        return this
       } else {
         throw new Error('You cannnot call commit on a non-copy')
       }
