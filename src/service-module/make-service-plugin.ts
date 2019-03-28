@@ -5,7 +5,7 @@ eslint
 */
 import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
-import { prepareAddModel } from './global-models'
+import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath } from '../utils'
 
 const defaults = {
@@ -28,7 +28,8 @@ export default function prepareMakeServicePlugin(
   const addModel = prepareAddModel(globalOptions)
   /**
    * (1) Make a Vuex plugin for the provided service.
-   * (2) Attach the vuex store to the Model.
+   * (2a) Attach the vuex store to the BaseModel.
+   * (2b) If the Model does not extend the BaseModel, monkey patch it, too
    * (3) Setup real-time events
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
@@ -56,8 +57,23 @@ export default function prepareMakeServicePlugin(
       const module = makeServiceModule(service, options)
       store.registerModule(options.namespace, module)
 
-      // (2^) Monkey patch the Model and add to globalModels
-      Object.assign(Model, { store, namespace: options.namespace, servicePath })
+      // (2a^) Monkey patch the BaseModel in globalModels
+      const { BaseModel } = globalModels[options.serverAlias]
+      if (!BaseModel.store) {
+        Object.assign(BaseModel, {
+          store,
+          namespace: options.namespace,
+          servicePath
+        })
+      }
+      // (2b^) Monkey patch the Model(s) and add to globalModels
+      if (!(Model.prototype instanceof BaseModel)) {
+        Object.assign(Model, {
+          store,
+          namespace: options.namespace,
+          servicePath
+        })
+      }
       addModel(Model)
 
       // (3^) Setup real-time events
