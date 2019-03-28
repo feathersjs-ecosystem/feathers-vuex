@@ -266,6 +266,12 @@ export function makeNamespace(namespace, servicePath, nameStyle) {
   return namespace || nameStyles[nameStyle](servicePath)
 }
 
+/**
+ * Gets the service path or name from the service.  The modelname is provided
+ * to allow easier discovery if there's a problem.
+ * @param service
+ * @param modelName
+ */
 export function getServicePath(service: any, modelName: string) {
   if (!service.name) {
     throw new Error(
@@ -305,7 +311,7 @@ export function mergeWithAccessors(dest, source) {
     const desc = Object.getOwnPropertyDescriptor(source, key)
 
     // If we're dealing with a Vue Observable, just assign the values.
-    if (destIsVueObservable) {
+    if (destIsVueObservable || sourceIsVueObservable) {
       dest[key] = source[key]
       return
     }
