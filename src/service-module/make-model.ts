@@ -45,8 +45,20 @@ export default function makeModel(options: FeathersVuexOptions) {
     protected isClone: boolean
 
     public data: Record<string, any>
+
     public constructor(data, options: BaseModelConstructorOptions = {}) {
       data = data || {}
+      const { idField } = BaseModel
+      const id = data[idField]
+
+      // Update original item if it already exists.
+      const existingItem =
+        id !== null && id !== undefined && BaseModel.getFromStore(id)
+      if (existingItem) {
+        BaseModel.commit('updateItem', data)
+        return existingItem
+      }
+
       if (options.isClone) {
         Object.defineProperty(this, 'isClone', {
           value: true,
@@ -63,29 +75,61 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static find(params) {
-      return BaseModel.store.dispatch(`${BaseModel.namespace}/find`, params)
+      this.dispatch('find', params)
     }
 
     public static findInStore(params) {
-      return BaseModel.store.getters[`${BaseModel.namespace}/find`](params)
+      return BaseModel.getters('find', params)
     }
 
     public static get(id, params) {
-      const { store } = BaseModel
       if (params) {
-        return store.dispatch(`${BaseModel.namespace}/get`, [id, params])
+        return BaseModel.dispatch('get', [id, params])
       } else {
-        return store.dispatch(`${BaseModel.namespace}/get`, id)
+        return BaseModel.dispatch('get', id)
       }
     }
 
-    public static getFromStore(id, params) {
-      const { store } = BaseModel
+    public static getFromStore(id, params?) {
       if (params) {
-        return store.getters[`${BaseModel.namespace}/get`]([id, params])
+        return BaseModel.getters('get', [id, params])
       } else {
-        return store.getters[`${BaseModel.namespace}/get`](id)
+        return BaseModel.getters('get', id)
       }
+    }
+
+    /**
+     * An alias for store.getters
+     * @param method the vuex getter name without the namespace
+     * @param payload if provided, the getter will be called as a function
+     */
+    public static getters(name: string, payload?: any) {
+      if (payload !== undefined) {
+        return BaseModel.store.getters[`${BaseModel.namespace}/${name}`](
+          payload
+        )
+      } else {
+        return BaseModel.store.getters[`${BaseModel.namespace}/${name}`]
+      }
+    }
+    /**
+     * An alias for store.commit
+     * @param method the vuex mutation name without the namespace
+     * @param payload the payload for the mutation
+     */
+    public static commit(method: string, payload: any): void {
+      BaseModel.store.commit(`${BaseModel.namespace}/${method}`, payload)
+    }
+    /**
+     * An alias for store.dispatch
+     * @param method the vuex action name without the namespace
+     * @param payload the payload for the action
+     */
+    public static dispatch(method: string, payload: any) {
+      return BaseModel.store.dispatch(
+        `${BaseModel.namespace}/${method}`,
+        payload
+      )
     }
 
     /**
@@ -105,7 +149,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       store.commit(`${namespace}/createCopy`, id)
 
       if (store.state[namespace].keepCopiesInStore) {
-        return store.getters[`${namespace}/getCopyById`](id)
+        return BaseModel.getters('getCopyById', id)
       } else {
         return copiesById[id]
       }
@@ -117,7 +161,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public reset() {
       if (this.isClone) {
         const id = this[BaseModel.idField]
-        BaseModel.store.commit(`${BaseModel.namespace}/resetCopy`, id)
+        BaseModel.commit('resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -129,7 +173,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public commit() {
       if (this.isClone) {
         const id = this[BaseModel.idField]
-        BaseModel.store.commit(`${BaseModel.namespace}/commitCopy`, id)
+        BaseModel.commit('commitCopy', id)
 
         return this
       } else {
@@ -158,14 +202,14 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return store.dispatch(`${BaseModel.namespace}/create`, [data, params])
+      return BaseModel.dispatch('create', [data, params])
     }
 
     /**
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch(params) {
+    public patch(params?) {
       if (!this[options.idField]) {
         const error = new Error(
           `Missing ${
@@ -174,8 +218,8 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel.store.dispatch(`${BaseModel.namespace}/patch`, [
-        this[options.idField],
+      return BaseModel.dispatch('patch', [
+        this[BaseModel.idField],
         this,
         params
       ])
@@ -194,8 +238,8 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel.store.dispatch(`${BaseModel.namespace}/update`, [
-        this[options.idField],
+      return BaseModel.dispatch('update', [
+        this[BaseModel.idField],
         this,
         params
       ])
@@ -206,10 +250,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      return BaseModel.store.dispatch(`${BaseModel.namespace}/remove`, [
-        this[options.idField],
-        params
-      ])
+      return BaseModel.dispatch('remove', [this[BaseModel.idField], params])
     }
   }
   addModel(BaseModel)
