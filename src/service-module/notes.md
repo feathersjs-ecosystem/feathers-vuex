@@ -146,6 +146,10 @@ const store = new Vuex.Store({
 })
 ```
 
+## Options are no longer kept on the Model
+
+The Model class no longer has an `options` property.  You can access the same information through the `Model.store.state[Model.namespace]`.
+
 ## The 'apiPrefix' option has been removed
 
 Feathers-Vuex now includes full support for communicating with multiple FeathersJS APIs.  The `apiPrefix` option was a poorly implemented, hacky first attempt at this same feature.  It was buggy.  Since it didn't work as intended, it has been removed.  See this example test for working with multiple APIs:

@@ -305,223 +305,42 @@ describe.skip('Service Module', function() {
     })
 
     it('ignores when new data with matching id has fewer props than current record', function() {
-      const { module, owners } = this
+      const { serviceTodo, owners } = this
       const newData = {
         id: 1,
         owners
       }
-      const newTodo = new module.constructor(newData)
+      const newTodo = new serviceTodo.constructor(newData)
 
-      assert(newTodo === module, 'the records are the same')
+      assert(newTodo === serviceTodo, 'the records are the same')
       assert(
-        module.description === 'Do the dishes',
+        serviceTodo.description === 'Do the dishes',
         'the existing attributes remained in place'
       )
       assert(
-        module.isComplete === false,
+        serviceTodo.isComplete === false,
         'the existing attributes remained in place'
       )
     })
 
     it('updates the new record when non-null, non-undefined values do not match', function() {
-      const { module, owners } = this
+      const { serviceTodo, owners } = this
       const newData = {
         id: 1,
         description: 'Do the mopping',
         isComplete: true,
         owners
       }
-      const newTodo = new module.constructor(newData)
+      const newTodo = new serviceTodo.constructor(newData)
 
-      assert(newTodo === module, 'the records are the same')
+      assert(newTodo === serviceTodo, 'the records are the same')
       assert(
-        module.description === 'Do the mopping',
+        serviceTodo.description === 'Do the mopping',
         'non-matching string was updated'
       )
-      assert(module.isComplete === true, 'non-matching boolean was updated')
-    })
-  })
-
-  describe('Models - Default Values', function() {
-    beforeEach(function() {
-      const { makeServicePlugin, ServiceTodo, Person, Car, Group } = this
-
-      const taskDefaults = (this.taskDefaults = {
-        id: null,
-        description: '',
-        isComplete: false
-      })
-
-      // TODO: Do Something with this!
-      const instanceDefaultsForPerson = {
-        firstName: '',
-        lastName: '',
-        location: {
-          coordinates: [-111.549668, 39.014]
-        },
-        get fullName() {
-          return `${this.firstName} ${this.lastName}`
-        },
-        todos({ store }) {
-          console.log(Object.keys(store))
-        }
-      }
-      const instanceDefaultsForCars = {
-        keepCopiesInStore: true,
-        instanceDefaults: taskDefaults
-      }
-      const instanceDefaultsForGroups = function instanceDefaults() {
-        return {
-          name: '',
-          get todos() {
-            return models.Todo.findInStore({ query: {} }).data
-          }
-        }
-      }
-      this.store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: ServiceTodo,
-            service: feathersClient.service('service-todos')
-          }),
-          makeServicePlugin({
-            Model: Person,
-            service: feathersClient.service('people')
-          }),
-          makeServicePlugin({
-            Model: Car,
-            service: feathersClient.service('cars')
-          }),
-          makeServicePlugin({
-            Model: Group,
-            service: feathersClient.service('groups')
-          })
-        ]
-      })
-      this.Todo = ServiceTodo
-      this.Task = models.Task
-      this.Person = models.Person
-      this.Group = models.Group
-    })
-
-    // store.commit('todos/addItem', data)
-
-    it('models default to an empty object', function() {
-      const { Todo } = this
-      const module = new Todo()
-
-      assert.deepEqual(module, {}, 'default model is an empty object')
-    })
-
-    // it('stores clones in Model.copiesById by default', function() {
-    //   const module = new ServiceTodo({ id: 1, description: 'Do something' })
-
-    //   assert.deepEqual(
-    //     ServiceTodo.copiesById,
-    //     {},
-    //     'Model.copiesById should start out empty'
-    //   )
-
-    //   const moduleClone = module.clone()
-    //   assert(
-    //     ServiceTodo.copiesById[1],
-    //     'should have a copy stored on Model.copiesById'
-    //   )
-
-    //   // moduleClone.description = 'Do something else'
-    //   // moduleClone.commit()
-
-    //   assert.equal(
-    //     module.description,
-    //     'Do something else',
-    //     'the original should have been updated'
-    //   )
-    // })
-
-    it('allows customizing the default values for a model', function() {
-      const { Task, taskDefaults } = this
-      const task = new Task()
-
-      assert.deepEqual(
-        task,
-        taskDefaults,
-        'the instance had the customized values'
-      )
-    })
-
-    it('allows model classes to be customized with es5 getters', function() {
-      const { Person } = this
-      const person = new Person({
-        firstName: 'Marshall',
-        lastName: 'Thompson'
-      })
-
-      assert.equal(
-        person.fullName,
-        `Marshall Thompson`,
-        'the es5 getter returned the correct value'
-      )
-    })
-
-    it('instanceDefaults can be a function that receives the store', function() {
-      const { Group } = this
-      const group = new Group({
-        name: 'test'
-      })
-
       assert(
-        Array.isArray(group.todos),
-        'instanceDefaults correctly assigned as function'
-      )
-    })
-
-    it('does not allow sharing of deeply nested objects between instances', function() {
-      const { Person } = this
-      const person1 = new Person({
-        firstName: 'Marshall',
-        lastName: 'Thompson'
-      })
-      const person2 = new Person({ firstName: 'Austin', lastName: 'Thompson' })
-
-      person1.location.coordinates[0] = 5
-
-      assert.equal(
-        person2.location.coordinates[0],
-        -111.549668,
-        'the value was not shared'
-      )
-    })
-
-    it('keeps the options on the Model', function() {
-      const { Task, taskDefaults } = this
-      const options = {
-        actions: {},
-        apiPrefix: '',
-        autoRemove: false,
-        debug: false,
-        enableEvents: true,
-        addOnUpsert: false,
-        diffOnPatch: false,
-        skipRequestIfExists: false,
-        getters: {},
-        models,
-        idField: 'id',
-        instanceDefaults: taskDefaults,
-        keepCopiesInStore: true,
-        modelName: '',
-        mutations: {},
-        nameStyle: 'short',
-        preferUpdate: false,
-        replaceItems: false,
-        paramsForServer: [],
-        whitelist: [],
-        state: {}
-      }
-
-      assert.deepEqual(
-        Task.options,
-        options,
-        'The Model.options object should be in place'
+        serviceTodo.isComplete === true,
+        'non-matching boolean was updated'
       )
     })
   })

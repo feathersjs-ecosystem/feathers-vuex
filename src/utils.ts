@@ -308,9 +308,10 @@ export function mergeWithAccessors(dest, source) {
   const sourceIsVueObservable = sourceProps.includes('__ob__')
   const destIsVueObservable = destProps.includes('__ob__')
   sourceProps.forEach(key => {
-    const desc = Object.getOwnPropertyDescriptor(source, key)
+    const sourceDesc = Object.getOwnPropertyDescriptor(source, key)
+    const destDesc = Object.getOwnPropertyDescriptor(dest, key)
 
-    if (!desc.enumerable) {
+    if (!sourceDesc.enumerable) {
       return
     }
 
@@ -325,22 +326,26 @@ export function mergeWithAccessors(dest, source) {
     }
 
     // Handle defining accessors
-    if (typeof desc.get === 'function' || typeof desc.set === 'function') {
-      if (destIsVueObservable) {
-        dest[key] = desc.value
-      } else {
-        Object.defineProperty(dest, key, desc)
-      }
+    if (
+      typeof sourceDesc.get === 'function' ||
+      typeof sourceDesc.set === 'function'
+    ) {
+      Object.defineProperty(dest, key, sourceDesc)
+      return
+    }
+
+    // Do not attempt to overwrite a getter in the dest object
+    if (destDesc && typeof destDesc.get === 'function') {
       return
     }
 
     // Assign values
     // Do not allow sharing of deeply-nested objects between instances
     // Potentially breaks accessors on nested data. Needs recursion if this is an issue
-    if (_isPlainObject(desc.value)) {
-      desc.value = fastCopy(desc.value)
+    if (_isObject(sourceDesc.value)) {
+      var value = fastCopy(sourceDesc.value)
     }
-    dest[key] = desc.value
+    dest[key] = value || sourceDesc.value
   })
   return dest
 }
@@ -361,4 +366,19 @@ export function cloneWithAccessors(obj) {
   })
 
   return clone
+}
+
+export function separateAccessors(props) {
+  return Object.keys(props).reduce(
+    ({ accessors, values }, key) => {
+      const desc = Object.getOwnPropertyDescriptor(props, key)
+      if (typeof desc.get === 'function' || typeof desc.set === 'function') {
+        Object.defineProperty(accessors, key, desc)
+      } else {
+        Object.defineProperty(values, key, desc)
+      }
+      return { accessors, values }
+    },
+    { accessors: {}, values: {} }
+  )
 }

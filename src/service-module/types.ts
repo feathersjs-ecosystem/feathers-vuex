@@ -30,6 +30,7 @@ export interface MakeServicePluginOptions {
   namespace?: string
   preferUpdate?: boolean
   servicePath?: string
+  instanceDefaults?: () => {}
   state?: {}
   getters?: {}
   mutations?: {}

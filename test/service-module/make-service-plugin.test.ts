@@ -9,7 +9,7 @@ import Vuex from 'vuex'
 import { clearModels } from '../../src/service-module/global-models'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
-import _pick from 'lodash.pick'
+import { pick as _pick, omit as _omit } from 'lodash'
 
 Vue.use(Vuex)
 
@@ -55,6 +55,7 @@ describe('makeServicePlugin', function() {
       errorOnUpdate: null,
       idField: 'id',
       ids: [],
+      instanceDefaults: () => ({}),
       isCreatePending: false,
       isFindPending: false,
       isGetPending: false,
@@ -76,7 +77,11 @@ describe('makeServicePlugin', function() {
       whitelist: []
     }
 
-    assert.deepEqual(received, expected, 'The module was registered.')
+    assert.deepEqual(
+      _omit(received, ['instanceDefaults']),
+      _omit(expected, ['instanceDefaults']),
+      'The module was registered.'
+    )
   })
 
   it('sets up Model.store && service.FeathersVuexModel', function() {

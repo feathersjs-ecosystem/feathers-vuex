@@ -7,16 +7,14 @@ import Vue from 'vue'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
 import { checkId, updateOriginal, mergeWithAccessors } from '../utils'
-import { globalModels } from './global-models'
+import { globalModels as models } from './global-models'
 import { get as _get } from 'lodash'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
-    const { idField, debug, servicePath } = state
-    const Model = _get(
-      globalModels,
-      `[${state.serverAlias}].byServicePath[${servicePath}]`
-    )
+    const { idField, debug, servicePath, serverAlias, modelName } = state
+    const Model = _get(models, `[${state.serverAlias}][${modelName}]`)
+    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
     let newKeyedById = { ...state.keyedById }
 
@@ -25,7 +23,7 @@ export default function makeServiceMutations() {
       const isIdOk = checkId(id, item, debug)
 
       if (isIdOk) {
-        if (Model && !item.isFeathersVuexInstance) {
+        if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
           item = new Model(item)
         }
 
@@ -44,7 +42,7 @@ export default function makeServiceMutations() {
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert, debug, servicePath } = state
     const Model = _get(
-      globalModels,
+      models,
       `[${state.serverAlias}].byServicePath[${servicePath}]`
     )
 
@@ -160,7 +158,7 @@ export default function makeServiceMutations() {
       const { servicePath, keepCopiesInStore } = state
       const current = state.keyedById[id]
       const Model = _get(
-        globalModels,
+        models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
       )
 
@@ -186,7 +184,7 @@ export default function makeServiceMutations() {
       const { debug, servicePath, keepCopiesInStore } = state
       checkId(id, undefined, debug)
       const Model = _get(
-        globalModels,
+        models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
       )
       const copy = keepCopiesInStore
@@ -203,7 +201,7 @@ export default function makeServiceMutations() {
       const { debug, servicePath, keepCopiesInStore } = state
       checkId(id, undefined, debug)
       const Model = _get(
-        globalModels,
+        models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
       )
       const copy = keepCopiesInStore

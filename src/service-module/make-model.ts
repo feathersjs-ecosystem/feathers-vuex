@@ -5,7 +5,7 @@ eslint
 */
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
-import { mergeWithAccessors } from '../utils'
+import { mergeWithAccessors, separateAccessors } from '../utils'
 import { get as _get } from 'lodash'
 
 interface BaseConstructor {
@@ -13,6 +13,9 @@ interface BaseConstructor {
 }
 interface BaseModelConstructorOptions {
   isClone?: boolean
+}
+interface ChildClassOptions {
+  merge?: boolean
 }
 
 /**
@@ -35,6 +38,8 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static namespace: string
     public static servicePath: string
 
+    public static instanceDefaults
+
     public static idField: string = options.idField
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
@@ -42,32 +47,56 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static readonly models = globalModels // Can access other Models here
     public static readonly copiesById = {}
 
-    protected isClone: boolean
+    protected __isClone: boolean
 
     public data: Record<string, any>
 
-    public constructor(data, options: BaseModelConstructorOptions = {}) {
+    public static merge = mergeWithAccessors
+
+    public constructor(
+      data,
+      options: BaseModelConstructorOptions = {},
+      childClassOptions: ChildClassOptions = { merge: true }
+    ) {
       data = data || {}
+      const { merge } = childClassOptions
       const { idField } = BaseModel
       const id = data[idField]
+      const hasValidId = !options.isClone && id !== null && id !== undefined
 
       // Update original item if it already exists.
-      const existingItem =
-        id !== null && id !== undefined && BaseModel.getFromStore(id)
-      if (existingItem) {
-        BaseModel.commit('updateItem', data)
-        return existingItem
+      if (hasValidId) {
+        const existingItem = BaseModel.getFromStore(id)
+        if (existingItem) {
+          BaseModel.commit('updateItem', data)
+          return existingItem
+        }
       }
 
       if (options.isClone) {
-        Object.defineProperty(this, 'isClone', {
+        Object.defineProperty(this, '__isClone', {
           value: true,
           enumerable: false,
           writable: false
         })
       }
 
+      if (BaseModel.instanceDefaults) {
+        const instanceDefaults = BaseModel.instanceDefaults()
+        const separatedDefaults = separateAccessors(instanceDefaults)
+        mergeWithAccessors(this, separatedDefaults.accessors)
+        mergeWithAccessors(this, separatedDefaults.values)
+      }
+
+      // Handles Vue objects or regular ones. We can't simply assign or return
+      // the data due to how Vue wraps everything into an accessor.
       mergeWithAccessors(this, data)
+
+      // Add the item to the store
+      if (hasValidId && merge !== false) {
+        BaseModel.commit('addItem', this)
+      }
+      return this
     }
 
     public static getId(record: Record<string, any>): string {
@@ -136,7 +165,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * clone the current record using the `createCopy` mutation
      */
     public clone() {
-      if (this.isClone) {
+      if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
       const id = this[BaseModel.idField]
@@ -145,10 +174,11 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     private _clone(id) {
       const { store, copiesById, namespace } = BaseModel
+      const { keepCopiesInStore } = store.state[namespace]
       // const { store } = this.constructor
       store.commit(`${namespace}/createCopy`, id)
 
-      if (store.state[namespace].keepCopiesInStore) {
+      if (keepCopiesInStore) {
         return BaseModel.getters('getCopyById', id)
       } else {
         return copiesById[id]
@@ -159,7 +189,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Reset a clone to match the instance in the store.
      */
     public reset() {
-      if (this.isClone) {
+      if (this.__isClone) {
         const id = this[BaseModel.idField]
         BaseModel.commit('resetCopy', id)
       } else {
@@ -171,7 +201,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Update a store instance to match a clone.
      */
     public commit() {
-      if (this.isClone) {
+      if (this.__isClone) {
         const id = this[BaseModel.idField]
         BaseModel.commit('commitCopy', id)
 

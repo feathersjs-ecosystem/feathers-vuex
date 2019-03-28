@@ -36,3 +36,7 @@ export interface PaginationState {
   ip: number
   total: number
 }
+
+export interface Location {
+  coordinates: number[]
+}

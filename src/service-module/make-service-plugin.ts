@@ -16,7 +16,8 @@ const defaults = {
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
-  actions: {} // for custom actions
+  actions: {}, // for custom actions
+  instanceDefaults: () => ({}) // Default instanceDefaults is an empty object
 }
 
 /**
@@ -35,7 +36,7 @@ export default function prepareMakeServicePlugin(
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
     const options = Object.assign({}, defaults, globalOptions, config)
-    const { Model, service, namespace, nameStyle } = options
+    const { Model, service, namespace, nameStyle, instanceDefaults } = options
 
     if (!service) {
       throw new Error(
@@ -64,7 +65,8 @@ export default function prepareMakeServicePlugin(
         Object.assign(BaseModel, {
           store,
           namespace: options.namespace,
-          servicePath
+          servicePath,
+          instanceDefaults
         })
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
@@ -72,7 +74,8 @@ export default function prepareMakeServicePlugin(
         Object.assign(Model, {
           store,
           namespace: options.namespace,
-          servicePath
+          servicePath,
+          instanceDefaults
         })
       }
       addModel(Model)
