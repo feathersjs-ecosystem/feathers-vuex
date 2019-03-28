@@ -46,6 +46,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     public data: Record<string, any>
     public constructor(data, options: BaseModelConstructorOptions = {}) {
+      data = data || {}
       if (options.isClone) {
         Object.defineProperty(this, 'isClone', {
           value: true,

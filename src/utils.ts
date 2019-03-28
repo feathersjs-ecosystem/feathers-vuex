@@ -316,7 +316,11 @@ export function mergeWithAccessors(dest, source) {
 
     // If we're dealing with a Vue Observable, just assign the values.
     if (destIsVueObservable || sourceIsVueObservable) {
-      dest[key] = source[key]
+      if (_isObject(source[key])) {
+        dest[key] = fastCopy(source[key])
+      } else {
+        dest[key] = source[key]
+      }
       return
     }
 
@@ -331,15 +335,12 @@ export function mergeWithAccessors(dest, source) {
     }
 
     // Assign values
-    if (key !== '__ob__') {
-      // Do not allow sharing of deeply-nested objects between instances
-      // Probably breaks accessors on nested data. Use recursion if this is an issue
-      if (_isPlainObject(desc.value)) {
-        desc.value = fastCopy(desc.value)
-      }
-      // Vue.set(dest, key, desc.value)
-      dest[key] = desc.value
+    // Do not allow sharing of deeply-nested objects between instances
+    // Potentially breaks accessors on nested data. Needs recursion if this is an issue
+    if (_isPlainObject(desc.value)) {
+      desc.value = fastCopy(desc.value)
     }
+    dest[key] = desc.value
   })
   return dest
 }

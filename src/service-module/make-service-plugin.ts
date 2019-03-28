@@ -76,7 +76,6 @@ export default function prepareMakeServicePlugin(
         })
       }
       addModel(Model)
-      console.log(globalModels)
 
       // (3^) Setup real-time events
       if (options.enableEvents) {

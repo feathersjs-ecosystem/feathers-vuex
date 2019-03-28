@@ -95,7 +95,7 @@ function makeContext() {
   }
 }
 
-describe.only('Service Module', function() {
+describe.skip('Service Module', function() {
   beforeEach(() => {
     clearModels()
   })
@@ -192,7 +192,7 @@ describe.only('Service Module', function() {
       )
     })
 
-    it.only('allows commiting changes back to the original in the store', function() {
+    it('allows commiting changes back to the original in the store', function() {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -206,60 +206,63 @@ describe.only('Service Module', function() {
     })
 
     it('performs a shallow merge when commiting back to the original record', function() {
-      const { module, moduleClone, owners } = this
+      const { serviceTodo, owners } = this
+      const serviceTodoClone = serviceTodo.clone()
 
-      moduleClone.owners = [
+      serviceTodoClone.owners = [
         { id: 1, name: 'Marshall' },
         { id: 2, name: 'Mariah' }
       ]
       assert.deepEqual(
-        module.owners,
+        serviceTodo.owners,
         owners,
         'original todo remained unchanged'
       )
 
-      moduleClone.commit()
+      serviceTodoClone.commit()
 
       assert.deepEqual(
-        module.owners,
+        serviceTodo.owners,
         [owners[0], owners[1]],
         'ownerIds were updated properly'
       )
     })
 
-    it(`changes the original record if you don't use the return value of commit()`, function() {
-      const { module, moduleClone, owners } = this
+    it(`no longer changes original if you don't use the return value of commit()`, function() {
+      const { serviceTodo, owners } = this
+      const serviceTodoClone = serviceTodo.clone()
 
       assert.deepEqual(
-        module.owners,
+        serviceTodo.owners,
         owners,
         'original todo remained unchanged'
       )
 
-      moduleClone.commit()
-      moduleClone.owners[0].name = 'Ted'
+      serviceTodoClone.commit()
+      serviceTodoClone.owners[0].name = 'Ted'
 
       assert.deepEqual(
-        module.owners[0].name,
-        'Ted',
-        'nested object in original todo was changed'
+        serviceTodo.owners[0].name,
+        'Marshall',
+        'nested object in original todo was unchanged'
       )
     })
 
-    it(`doesn't change the original record if you use modify return value of a commit`, function() {
-      let { module, moduleClone, owners } = this
+    it(`doesn't change the original if you modify return value of a commit`, function() {
+      const { serviceTodo, owners } = this
+      let serviceTodoClone = serviceTodo.clone()
 
       assert.deepEqual(
-        module.owners,
+        serviceTodo.owners,
         owners,
         'original todo remained unchanged'
       )
 
-      moduleClone = moduleClone.commit()
-      moduleClone.owners[0].name = 'Ted'
+      serviceTodoClone = serviceTodoClone.commit()
+      serviceTodoClone.owners[0].name = 'Ted'
 
       assert.deepEqual(
-        module.owners[0].name,
+        serviceTodo.owners[0].name,
         'Marshall',
         'nested object in original todo was NOT changed'
       )
