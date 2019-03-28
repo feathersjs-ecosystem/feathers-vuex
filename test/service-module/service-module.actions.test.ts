@@ -3,40 +3,13 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+import { ServiceState } from './types'
 import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 
-interface PaginationState {
-  ids: any
-  limit: number
-  skip: number
-  ip: number
-  total: number
-}
-interface ServiceState {
-  options: {}
-  ids: string[]
-  errorOnFind: any
-  errorOnGet: any
-  errorOnCreate: any
-  errorOnPatch: any
-  errorOnUpdate: any
-  errorOnRemove: any
-  isFindPending: boolean
-  isGetPending: boolean
-  isCreatePending: boolean
-  isPatchPending: boolean
-  isUpdatePending: boolean
-  isRemovePending: boolean
-  idField: string
-  keyedById: {}
-  pagination?: {
-    default: PaginationState
-  }
-}
 interface RootState {
   'my-todos': ServiceState
   'my-tasks': ServiceState
