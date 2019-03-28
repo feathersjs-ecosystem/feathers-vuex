@@ -20,20 +20,30 @@ interface NumberedList {
   1?: {}
 }
 
-const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-  serverAlias: 'default'
-})
-class Todo extends BaseModel {
-  public static test: boolean = true
-}
-class Task extends BaseModel {
-  public static test: boolean = true
-}
-class NoId extends BaseModel {
-  public static test: boolean = true
-}
-class Broken extends BaseModel {
-  public static test: boolean = true
+function makeContext() {
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'default'
+  })
+  class Todo extends BaseModel {
+    public static test: boolean = true
+  }
+  class Task extends BaseModel {
+    public static test: boolean = true
+  }
+  class NoId extends BaseModel {
+    public static test: boolean = true
+  }
+  class Broken extends BaseModel {
+    public static test: boolean = true
+  }
+  return {
+    makeServicePlugin,
+    BaseModel,
+    Todo,
+    Task,
+    NoId,
+    Broken
+  }
 }
 const makeStore = () => {
   return {
@@ -123,6 +133,7 @@ describe('Service Module - Actions', () => {
   describe('Find', () => {
     describe('without pagination', () => {
       it('Find without pagination', done => {
+        const { makeServicePlugin, Todo } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -170,6 +181,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('find with limit', done => {
+        const { makeServicePlugin, Todo } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -196,6 +208,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('find with skip', done => {
+        const { makeServicePlugin, Todo } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -222,6 +235,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('Find with limit and skip', done => {
+        const { makeServicePlugin, Todo } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -250,6 +264,7 @@ describe('Service Module - Actions', () => {
 
     describe('with pagination', () => {
       it('find with limit', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -279,6 +294,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('find with skip', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -308,6 +324,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('find with limit and skip', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -337,6 +354,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('adds default pagination data to the store', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -364,6 +382,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('can provide a query identifier to store pagination', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -392,6 +411,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('updates properly with limit and skip', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -422,6 +442,7 @@ describe('Service Module - Actions', () => {
       })
 
       it('works with multiple queries and identifiers', done => {
+        const { makeServicePlugin, Task } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -458,6 +479,7 @@ describe('Service Module - Actions', () => {
       })
 
       it(`allows non-id'd data to pass through`, done => {
+        const { makeServicePlugin, NoId } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -482,6 +504,7 @@ describe('Service Module - Actions', () => {
       })
 
       it(`runs the afterFind action`, done => {
+        const { makeServicePlugin, NoId } = makeContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
             makeServicePlugin({
@@ -513,6 +536,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnFind state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -543,6 +567,7 @@ describe('Service Module - Actions', () => {
 
   describe('Get', function() {
     it('updates store list state on service success', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -625,6 +650,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('does not make remote call when skipRequestIfExists=true', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -708,6 +734,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnGet state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -738,6 +765,7 @@ describe('Service Module - Actions', () => {
 
   describe('Create', function() {
     it('updates store list state on service success', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -769,6 +797,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnCreate state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -802,6 +831,7 @@ describe('Service Module - Actions', () => {
 
   describe('Update', () => {
     it('updates store list state on service success', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -845,6 +875,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnUpdate state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -882,6 +913,7 @@ describe('Service Module - Actions', () => {
 
   describe('Patch', () => {
     it('updates only the changed properties', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -934,6 +966,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates store state on service success', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -971,6 +1004,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnPatch state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -1008,6 +1042,7 @@ describe('Service Module - Actions', () => {
 
   describe('Remove', () => {
     it('updates store state on service success', done => {
+      const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
@@ -1045,6 +1080,7 @@ describe('Service Module - Actions', () => {
     })
 
     it('updates errorOnRemove state on service failure', done => {
+      const { makeServicePlugin, Broken } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
