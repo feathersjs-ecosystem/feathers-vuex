@@ -6,6 +6,7 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { clearModels } from '../../src/service-module/global-models'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 import _pick from 'lodash.pick'
@@ -13,6 +14,10 @@ import _pick from 'lodash.pick'
 Vue.use(Vuex)
 
 describe('makeServicePlugin', function() {
+  beforeEach(() => {
+    clearModels()
+  })
+
   it('registers the vuex module with options', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
