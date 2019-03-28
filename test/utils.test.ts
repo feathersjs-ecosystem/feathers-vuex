@@ -13,29 +13,37 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
-  feathersClient,
-  { serverAlias: 'utils' }
-)
-
-class User extends BaseModel {
-  public static test: boolean = true
-}
-
 interface RootState {
   auth: AuthState
 }
 
 describe('Utils', function() {
+  before(function() {
+    const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
+      feathersClient,
+      { serverAlias: 'utils' }
+    )
+
+    class User extends BaseModel {
+      public static test: boolean = true
+    }
+
+    Object.assign(this, {
+      makeServicePlugin,
+      makeAuthPlugin,
+      BaseModel,
+      User
+    })
+  })
   it('properly populates auth', function() {
     const store = new Vuex.Store<RootState>({
       plugins: [
-        makeServicePlugin({
-          Model: User,
+        this.makeServicePlugin({
+          Model: this.User,
           servicePath: 'users',
           service: feathersClient.service('users')
         }),
-        makeAuthPlugin({})
+        this.makeAuthPlugin({})
       ]
     })
     const accessToken =
