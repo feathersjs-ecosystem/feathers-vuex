@@ -24,13 +24,11 @@ describe('Models - Default Values', function() {
       idField: '_id',
       serverAlias: 'temp-ids'
     })
-
     class Transaction extends BaseModel {
       public constructor(data?, options?) {
         super(data, options)
       }
     }
-
     new Vuex.Store<RootState>({
       plugins: [
         makeServicePlugin({
@@ -39,7 +37,6 @@ describe('Models - Default Values', function() {
         })
       ]
     })
-
     const txn = new Transaction({
       description: 'Green Pasture - No More Dentists!',
       website: 'https://www.greenpasture.org',
@@ -59,13 +56,11 @@ describe('Models - Default Values', function() {
       idField: '_id',
       serverAlias: 'temp-ids'
     })
-
     class Transaction extends BaseModel {
       public constructor(data?, options?) {
         super(data, options)
       }
     }
-
     const store = new Vuex.Store<RootState>({
       plugins: [
         makeServicePlugin({
@@ -91,13 +86,11 @@ describe('Models - Default Values', function() {
       idField: '_id',
       serverAlias: 'temp-ids'
     })
-
     class Transaction extends BaseModel {
       public constructor(data?, options?) {
         super(data, options)
       }
     }
-
     const store = new Vuex.Store<RootState>({
       plugins: [
         makeServicePlugin({
@@ -106,7 +99,6 @@ describe('Models - Default Values', function() {
         })
       ]
     })
-
     const txn = new Transaction({
       description: 'Robb Wolf - the Paleo Solution',
       website:
@@ -124,13 +116,11 @@ describe('Models - Default Values', function() {
       idField: '_id',
       serverAlias: 'temp-ids'
     })
-
     class Transaction extends BaseModel {
       public constructor(data?, options?) {
         super(data, options)
       }
     }
-
     const store = new Vuex.Store<RootState>({
       plugins: [
         makeServicePlugin({
@@ -139,7 +129,6 @@ describe('Models - Default Values', function() {
         })
       ]
     })
-
     const txn = new Transaction({
       description: 'Rovit Monthly Subscription',
       website: 'https://rovit.com',
@@ -154,5 +143,36 @@ describe('Models - Default Values', function() {
     const originalTemp = store.state.transactions.tempsById[txn.__id]
 
     assert.equal(originalTemp.amount, 11.99, 'original was updated')
+  })
+
+  it('can reset a temp clone', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      serverAlias: 'temp-ids'
+    })
+    class Transaction extends BaseModel {
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Transaction,
+          service: feathersClient.service('transactions')
+        })
+      ]
+    })
+    const txn = new Transaction({
+      description: 'Rovit Monthly Subscription',
+      website: 'https://rovit.com',
+      amount: 1.99
+    })
+
+    // Clone it, change it and commit it.
+    const clone = txn.clone()
+    clone.amount = 11.99
+    clone.reset()
+
+    assert.equal(clone.amount, 1.99, 'clone was reset')
   })
 })
