@@ -404,14 +404,14 @@ describe('Models - Default Values', function() {
     assert.equal(person2.lastName, 'Me', 'lastName was set')
   })
 
-  it.skip('instanceDefault accessors stay intact with clone and commit', function() {
+  it('instanceDefault accessors stay intact with clone and commit', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
 
     class Person extends BaseModel {
       public constructor(data?, options?) {
-        super(data, options, { merge: false })
+        super(data, options)
       }
     }
 

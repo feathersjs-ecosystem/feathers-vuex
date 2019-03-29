@@ -6,10 +6,16 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, separateAccessors } from '../utils'
-import { get as _get } from 'lodash'
+import { get as _get, merge as _merge } from 'lodash'
+
+// A hack to prevent error with this.constructor.preferUpdate
+interface Function {
+  preferUpdate: boolean
+}
 
 interface BaseConstructor {
   store: {}
+  preferUpdate: boolean
 }
 interface BaseModelInstanceOptions {
   clone?: boolean
@@ -33,13 +39,14 @@ export default function makeModel(options: FeathersVuexOptions) {
     return ExistingBaseModel
   }
 
-  abstract class BaseModel {
+  abstract class BaseModel<BaseConstructor> {
     // Monkey patched onto the Model class in `makeServicePlugin()`
     public static store: Record<string, any>
     public static namespace: string
     public static servicePath: string
 
     public static instanceDefaults
+    public static serialize
 
     public static idField: string = options.idField
     public static tempIdField: string = options.tempIdField
@@ -140,12 +147,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload if provided, the getter will be called as a function
      */
     public static _getters(name: string, payload?: any) {
+      const { namespace } = this.constructor.namespace
       if (payload !== undefined) {
-        return BaseModel.store.getters[`${BaseModel.namespace}/${name}`](
-          payload
-        )
+        return BaseModel.store.getters[`${namespace}/${name}`](payload)
       } else {
-        return BaseModel.store.getters[`${BaseModel.namespace}/${name}`]
+        return BaseModel.store.getters[`${namespace}/${name}`]
       }
     }
     /**
@@ -154,7 +160,8 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the mutation
      */
     public static _commit(method: string, payload: any): void {
-      BaseModel.store.commit(`${BaseModel.namespace}/${method}`, payload)
+      const { namespace } = this.constructor.namespace
+      BaseModel.store.commit(`${namespace}/${method}`, payload)
     }
     /**
      * An alias for store.dispatch
@@ -162,10 +169,8 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the action
      */
     public static _dispatch(method: string, payload: any) {
-      return BaseModel.store.dispatch(
-        `${BaseModel.namespace}/${method}`,
-        payload
-      )
+      const { namespace } = this.constructor.namespace
+      return BaseModel.store.dispatch(`${namespace}/${method}`, payload)
     }
 
     /**
@@ -222,8 +227,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public save(params) {
-      if (this[options.idField]) {
-        return options.preferUpdate ? this.update(params) : this.patch(params)
+      const id = this[options.idField]
+      if (id) {
+        const preferUpdate = Object.getPrototypeOf(this).constructor
+          .preferUpdate
+        return preferUpdate ? this.update(params) : this.patch(params)
       } else {
         return this.create(params)
       }
@@ -286,6 +294,13 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public remove(params) {
       return BaseModel._dispatch('remove', [this[BaseModel.idField], params])
+    }
+
+    public toJSON() {
+      const { serialize } = Object.getPrototypeOf(this).constructor
+      const obj = serialize(this)
+      const data = _merge({}, obj)
+      return data
     }
   }
   addModel(BaseModel)

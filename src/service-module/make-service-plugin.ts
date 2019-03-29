@@ -17,7 +17,8 @@ const defaults = {
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
-  instanceDefaults: () => ({}) // Default instanceDefaults is an empty object
+  instanceDefaults: () => ({}), // Default instanceDefaults is an empty object
+  serialize: item => item // Default serialize function
 }
 
 /**
@@ -36,7 +37,15 @@ export default function prepareMakeServicePlugin(
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
     const options = Object.assign({}, defaults, globalOptions, config)
-    const { Model, service, namespace, nameStyle, instanceDefaults } = options
+    const {
+      Model,
+      service,
+      namespace,
+      nameStyle,
+      instanceDefaults,
+      preferUpdate,
+      serialize
+    } = options
 
     if (!service) {
       throw new Error(
@@ -63,21 +72,18 @@ export default function prepareMakeServicePlugin(
       const BaseModel = _get(globalModels, `[${options.serverAlias}].BaseModel`)
       if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
-          store,
-          namespace: options.namespace,
-          servicePath,
-          instanceDefaults
+          store
         })
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
-      if (!BaseModel || !(Model.prototype instanceof BaseModel)) {
-        Object.assign(Model, {
-          store,
-          namespace: options.namespace,
-          servicePath,
-          instanceDefaults
-        })
-      }
+      Object.assign(Model, {
+        store,
+        namespace: options.namespace,
+        servicePath,
+        instanceDefaults,
+        serialize,
+        preferUpdate
+      })
       addModel(Model)
 
       // (3^) Setup real-time events
