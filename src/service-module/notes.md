@@ -83,6 +83,12 @@ created () {
 }
 ```
 
+## Support for Temporary Records
+
+Feathers-Vuex 2.0 supports tracking temporary items and automatically assigns a temporary id (customizable using the `options.tempIdField`) and adds the records to the `state.tempsById` field.
+
+Previously, when a record didn't have an `[idField]`, a console.error would ask if you had configured the `idField` option.  Because of the new ability to handle temporary records, a message is only logged when assigning a temporary id to a record.  The `checkId` utility function has been removed, since this was its main purpose.
+
 ## Changes to service module state
 
 The options are no longer at the root level of the service module state.  You'll find them all in the options key:

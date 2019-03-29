@@ -147,7 +147,13 @@ describe('Models - Default Values', function() {
     const { Todo } = this
     const module = new Todo()
 
-    assert.deepEqual(module, {}, 'default model is an empty object')
+    const expectedProps = ['__id', '__isTemp']
+
+    assert.deepEqual(
+      Object.keys(module),
+      expectedProps,
+      'default model is a temp'
+    )
   })
 
   it('adds new instances containing an id to the store', function() {
@@ -329,14 +335,14 @@ describe('Models - Default Values', function() {
     assert(!areSame, 'the locations are different objects')
   })
 
-  it('allows passing instanceDefaults in the service plugin options', function() {
+  it('RECOMMENDED: allows passing instanceDefaults in the service plugin options', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
 
     class Person extends BaseModel {
       public constructor(data?, options?) {
-        super(data, options, { merge: false })
+        super(data, options)
       }
     }
 
@@ -396,5 +402,76 @@ describe('Models - Default Values', function() {
     assert.equal(person1.lastName, 'Me', 'lastName was set')
     assert.equal(person2.firstName, 'Kai', 'firstName was set')
     assert.equal(person2.lastName, 'Me', 'lastName was set')
+  })
+
+  it.skip('instanceDefault accessors stay intact with clone and commit', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      serverAlias: 'instance-defaults'
+    })
+
+    class Person extends BaseModel {
+      public constructor(data?, options?) {
+        super(data, options, { merge: false })
+      }
+    }
+
+    const location: Location = {
+      coordinates: [1, 1]
+    }
+
+    new Vuex.Store({
+      plugins: [
+        makeServicePlugin({
+          Model: Person,
+          service: feathersClient.service('people'),
+          instanceDefaults: () => ({
+            firstName: 'Harry',
+            lastName: 'Potter',
+            location,
+            get fullName() {
+              return `${this.firstName} ${this.lastName}`
+            },
+            set fullName(val) {
+              const [firstName, lastName] = val.split(' ')
+              Object.assign(this, { firstName, lastName })
+            }
+          })
+        })
+      ]
+    })
+
+    const person = new Person({ firstName: 'Marshall', lastName: 'Thompson' })
+
+    // Clone the person
+    const clone = person.clone()
+
+    // Check the getter
+    clone.firstName = 'FeathersJS'
+    clone.lastName = 'Developer'
+    assert.equal(clone.fullName, 'FeathersJS Developer', 'getter is in place')
+
+    // Check the setter
+    clone.fullName = 'Marshall Me'
+    assert.equal(
+      `${clone.firstName} ${clone.lastName}`,
+      'Marshall Me',
+      'Setter is in place'
+    )
+
+    // Commit the clone
+    clone.commit()
+
+    //Check the getter
+    person.firstName = 'FeathersJS'
+    person.lastName = 'Developer'
+    assert.equal(person.fullName, 'FeathersJS Developer', 'getter is in place')
+
+    // Check the setter
+    person.fullName = 'Scooby Doo'
+    assert.equal(
+      `${person.firstName} ${person.lastName}`,
+      'Scooby Doo',
+      'Setter is in place'
+    )
   })
 })

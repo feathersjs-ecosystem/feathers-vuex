@@ -22,6 +22,7 @@ export interface ServiceState {
   isRemovePending: boolean
   idField: string
   keyedById: {}
+  tempsById: {}
   namespace: string
   nameStyle: string // Should be enum of 'short' or 'path'
   pagination?: {

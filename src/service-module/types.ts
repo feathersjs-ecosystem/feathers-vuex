@@ -10,6 +10,7 @@ export interface FeathersVuexOptions {
   diffOnPatch?: boolean
   enableEvents?: boolean
   idField?: string
+  tempIdField?: string
   keepCopiesInStore?: boolean
   nameStyle?: string
   paramsForServer?: string[]
@@ -26,6 +27,7 @@ export interface MakeServicePluginOptions {
   diffOnPatch?: boolean
   enableEvents?: boolean
   idField?: string
+  tempIdField?: string
   nameStyle?: string
   namespace?: string
   preferUpdate?: boolean

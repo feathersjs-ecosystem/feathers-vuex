@@ -22,6 +22,7 @@ const defaultOptions: FeathersVuexOptions = {
   diffOnPatch: true, // Only send changed data on patch. Sends the full object if set to false.
   enableEvents: true, // Listens to socket.io events when available
   idField: 'id', // The field in each record that will contain the id
+  tempIdField: '__id',
   debug: false, // Set to true to enable logging messages.
   keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'

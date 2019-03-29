@@ -54,6 +54,7 @@ describe('makeServicePlugin', function() {
       errorOnRemove: null,
       errorOnUpdate: null,
       idField: 'id',
+      tempIdField: '__id',
       ids: [],
       instanceDefaults: () => ({}),
       isCreatePending: false,
@@ -74,6 +75,7 @@ describe('makeServicePlugin', function() {
       serverAlias: 'default',
       servicePath: 'todos',
       skipRequestIfExists: false,
+      tempsById: {},
       whitelist: []
     }
 

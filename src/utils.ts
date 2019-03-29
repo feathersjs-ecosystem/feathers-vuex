@@ -10,6 +10,7 @@ import { diff } from 'deep-diff'
 import Vue from 'vue'
 import fastCopy from 'fast-copy'
 import { isPlainObject as _isPlainObject, isObject as _isObject } from 'lodash'
+import ObjectID from 'bson-objectid'
 
 export function stripSlashes(location) {
   return Array.isArray(location)
@@ -153,17 +154,20 @@ export const initAuth = function initAuth(options) {
   return Promise.resolve(payload)
 }
 
-export function checkId(id, item, debug) {
-  if (id === undefined || id === null) {
-    if (debug) {
-      console.error(
-        'No id found for item. Do you need to customize the `idField`?',
-        item
-      )
-    }
-    return false
+/**
+ * Generate a new tempId and mark the record as a temp
+ * @param state
+ * @param item
+ */
+export function assignTempId(state, item) {
+  const { debug, tempIdField } = state
+  if (debug) {
+    console.info('assigning temporary id to item', item)
   }
-  return true
+  const newId = new ObjectID().toHexString()
+  item[tempIdField] = newId
+  item.__isTemp = true
+  return newId
 }
 
 // Creates a Model class name from the last part of the servicePath

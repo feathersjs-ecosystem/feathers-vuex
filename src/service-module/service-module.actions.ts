@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { checkId, diffFunctions } from '../utils'
+import { diffFunctions } from '../utils'
 
 export default function makeServiceActions(service, { debug }) {
   const serviceActions = {
@@ -253,9 +253,7 @@ export default function makeServiceActions(service, { debug }) {
         let id = item[idField]
         let existingItem = state.keyedById[id]
 
-        const isIdOk = checkId(id, item, debug)
-
-        if (isIdOk) {
+        if (id !== null && id !== undefined) {
           existingItem ? toUpdate.push(item) : toAdd.push(item)
         }
       })
@@ -289,7 +287,7 @@ export default function makeServiceActions(service, { debug }) {
       let id = item[idField]
       let existingItem = state.keyedById[id]
 
-      const isIdOk = checkId(id, item, debug)
+      const isIdOk = id !== null && id !== undefined
 
       if (
         service.FeathersVuexModel &&

@@ -22,6 +22,7 @@ export default function makeDefaultState(servicePath, options) {
     ids: [],
     keyedById: {},
     copiesById: {},
+    tempsById: {},
     idField,
     servicePath,
     autoRemove,

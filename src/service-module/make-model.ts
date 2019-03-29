@@ -11,8 +11,9 @@ import { get as _get } from 'lodash'
 interface BaseConstructor {
   store: {}
 }
-interface BaseModelConstructorOptions {
-  isClone?: boolean
+interface BaseModelInstanceOptions {
+  clone?: boolean
+  commit?: boolean
 }
 interface ChildClassOptions {
   merge?: boolean
@@ -41,6 +42,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static instanceDefaults
 
     public static idField: string = options.idField
+    public static tempIdField: string = options.tempIdField
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
 
@@ -49,31 +51,33 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     protected __isClone: boolean
 
+    public __id: string
     public data: Record<string, any>
 
     public static merge = mergeWithAccessors
 
     public constructor(
       data,
-      options: BaseModelConstructorOptions = {},
+      options: BaseModelInstanceOptions = {},
       childClassOptions: ChildClassOptions = { merge: true }
     ) {
       data = data || {}
       const { merge } = childClassOptions
-      const { idField } = BaseModel
-      const id = data[idField]
-      const hasValidId = !options.isClone && id !== null && id !== undefined
+      const { idField, tempIdField } = BaseModel
+      const id = data[idField] || data[tempIdField]
+      const hasValidId = id !== null && id !== undefined
 
-      // Update original item if it already exists.
-      if (hasValidId) {
+      // If it already exists, update the original and return
+      if (hasValidId && !options.clone) {
         const existingItem = BaseModel.getFromStore(id)
         if (existingItem) {
-          BaseModel.commit('updateItem', data)
+          BaseModel._commit('updateItem', data)
           return existingItem
         }
       }
 
-      if (options.isClone) {
+      // Mark as a clone
+      if (options.clone) {
         Object.defineProperty(this, '__isClone', {
           value: true,
           enumerable: false,
@@ -81,6 +85,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         })
       }
 
+      // Setup instanceDefaults, separate out accessors
       if (BaseModel.instanceDefaults) {
         const instanceDefaults = BaseModel.instanceDefaults()
         const separatedDefaults = separateAccessors(instanceDefaults)
@@ -90,11 +95,13 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Handles Vue objects or regular ones. We can't simply assign or return
       // the data due to how Vue wraps everything into an accessor.
-      mergeWithAccessors(this, data)
+      if (merge !== false) {
+        mergeWithAccessors(this, data)
+      }
 
       // Add the item to the store
-      if (hasValidId && merge !== false) {
-        BaseModel.commit('addItem', this)
+      if (!options.clone && options.commit !== false && BaseModel.store) {
+        BaseModel._commit('addItem', this)
       }
       return this
     }
@@ -104,26 +111,26 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static find(params) {
-      this.dispatch('find', params)
+      BaseModel._dispatch('find', params)
     }
 
     public static findInStore(params) {
-      return BaseModel.getters('find', params)
+      return BaseModel._getters('find', params)
     }
 
     public static get(id, params) {
       if (params) {
-        return BaseModel.dispatch('get', [id, params])
+        return BaseModel._dispatch('get', [id, params])
       } else {
-        return BaseModel.dispatch('get', id)
+        return BaseModel._dispatch('get', id)
       }
     }
 
     public static getFromStore(id, params?) {
       if (params) {
-        return BaseModel.getters('get', [id, params])
+        return BaseModel._getters('get', [id, params])
       } else {
-        return BaseModel.getters('get', id)
+        return BaseModel._getters('get', id)
       }
     }
 
@@ -132,7 +139,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param method the vuex getter name without the namespace
      * @param payload if provided, the getter will be called as a function
      */
-    public static getters(name: string, payload?: any) {
+    public static _getters(name: string, payload?: any) {
       if (payload !== undefined) {
         return BaseModel.store.getters[`${BaseModel.namespace}/${name}`](
           payload
@@ -146,7 +153,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param method the vuex mutation name without the namespace
      * @param payload the payload for the mutation
      */
-    public static commit(method: string, payload: any): void {
+    public static _commit(method: string, payload: any): void {
       BaseModel.store.commit(`${BaseModel.namespace}/${method}`, payload)
     }
     /**
@@ -154,7 +161,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param method the vuex action name without the namespace
      * @param payload the payload for the action
      */
-    public static dispatch(method: string, payload: any) {
+    public static _dispatch(method: string, payload: any) {
       return BaseModel.store.dispatch(
         `${BaseModel.namespace}/${method}`,
         payload
@@ -168,7 +175,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id = this[BaseModel.idField]
+      const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
       return this._clone(id)
     }
 
@@ -179,19 +186,18 @@ export default function makeModel(options: FeathersVuexOptions) {
       store.commit(`${namespace}/createCopy`, id)
 
       if (keepCopiesInStore) {
-        return BaseModel.getters('getCopyById', id)
+        return BaseModel._getters('getCopyById', id)
       } else {
         return copiesById[id]
       }
     }
-
     /**
      * Reset a clone to match the instance in the store.
      */
     public reset() {
       if (this.__isClone) {
         const id = this[BaseModel.idField]
-        BaseModel.commit('resetCopy', id)
+        BaseModel._commit('resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -203,11 +209,11 @@ export default function makeModel(options: FeathersVuexOptions) {
     public commit() {
       if (this.__isClone) {
         const id = this[BaseModel.idField]
-        BaseModel.commit('commitCopy', id)
+        BaseModel._commit('commitCopy', id)
 
         return this
       } else {
-        throw new Error('You cannnot call commit on a non-copy')
+        throw new Error('You cannot call commit on a non-copy')
       }
     }
 
@@ -227,12 +233,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public create(params) {
-      const { store } = BaseModel
       const data = Object.assign({}, this)
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return BaseModel.dispatch('create', [data, params])
+      return BaseModel._dispatch('create', [data, params])
     }
 
     /**
@@ -248,7 +253,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel.dispatch('patch', [
+      return BaseModel._dispatch('patch', [
         this[BaseModel.idField],
         this,
         params
@@ -268,7 +273,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel.dispatch('update', [
+      return BaseModel._dispatch('update', [
         this[BaseModel.idField],
         this,
         params
@@ -280,7 +285,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      return BaseModel.dispatch('remove', [this[BaseModel.idField], params])
+      return BaseModel._dispatch('remove', [this[BaseModel.idField], params])
     }
   }
   addModel(BaseModel)

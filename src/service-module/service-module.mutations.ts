@@ -6,52 +6,54 @@ eslint
 import Vue from 'vue'
 import serializeError from 'serialize-error'
 import isObject from 'lodash.isobject'
-import { checkId, updateOriginal, mergeWithAccessors } from '../utils'
+import { updateOriginal, mergeWithAccessors, assignTempId } from '../utils'
 import { globalModels as models } from './global-models'
 import { get as _get } from 'lodash'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
-    const { idField, debug, servicePath, serverAlias, modelName } = state
-    const Model = _get(models, `[${state.serverAlias}][${modelName}]`)
+    const { serverAlias, idField, tempIdField, modelName } = state
+    const Model = _get(models, `[${serverAlias}][${modelName}]`)
     const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
-    let newKeyedById = { ...state.keyedById }
+    const newKeyedById = { ...state.keyedById }
+    const newTempsById = { ...state.tempsById }
 
     for (let item of items) {
-      let id = item[idField]
-      const isIdOk = checkId(id, item, debug)
+      const id = item[idField]
+      const isTemp = id === null || id === undefined
 
-      if (isIdOk) {
-        if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
-          item = new Model(item)
+      if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
+        item = new Model(item)
+      }
+
+      if (isTemp) {
+        if (!item[tempIdField]) {
+          var tempId = assignTempId(state, item)
         }
-
+        newTempsById[tempId] = item
+      } else {
         // Only add the id if it's not already in the `ids` list.
         if (!state.ids.includes(id)) {
           state.ids.push(id)
         }
-
         newKeyedById[id] = item
       }
     }
 
     state.keyedById = newKeyedById
+    state.tempsById = newTempsById
   }
 
   function updateItems(state, items) {
-    const { idField, replaceItems, addOnUpsert, debug, servicePath } = state
-    const Model = _get(
-      models,
-      `[${state.serverAlias}].byServicePath[${servicePath}]`
-    )
+    const { idField, replaceItems, addOnUpsert, serverAlias, modelName } = state
+    const Model = _get(models, `[${serverAlias}][${modelName}]`)
 
     for (let item of items) {
       let id = item[idField]
-      const isIdOk = checkId(id, item, debug)
 
       // Update the record
-      if (isIdOk) {
+      if (id !== null && id !== undefined) {
         if (state.ids.includes(id)) {
           // Completely replace the item
           if (replaceItems) {
@@ -92,9 +94,9 @@ export default function makeServiceMutations() {
     },
 
     removeItem(state, item) {
-      const { idField, debug } = state
+      const { idField } = state
       const idToBeRemoved = isObject(item) ? item[idField] : item
-      const isIdOk = checkId(idToBeRemoved, item, debug)
+      const isIdOk = idToBeRemoved !== null && idToBeRemoved !== undefined
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
       if (isIdOk && index !== null && index !== undefined) {
@@ -156,14 +158,14 @@ export default function makeServiceMutations() {
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const current = state.keyedById[id]
+      const current = state.keyedById[id] || state.tempsById[id]
       const Model = _get(
         models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
       )
 
       if (Model) {
-        var model = new Model(current, { isClone: true })
+        var model = new Model(current, { clone: true })
       } else {
         var copyData = mergeWithAccessors({}, current)
       }
@@ -172,6 +174,7 @@ export default function makeServiceMutations() {
       if (keepCopiesInStore) {
         state.copiesById[id] = item
       } else {
+        // Since it won't be added to the store, make it a Vue object
         if (!item.hasOwnProperty('__ob__')) {
           item = Vue.observable(item)
         }
@@ -181,8 +184,7 @@ export default function makeServiceMutations() {
 
     // Resets the copy to match the original record, locally
     resetCopy(state, id) {
-      const { debug, servicePath, keepCopiesInStore } = state
-      checkId(id, undefined, debug)
+      const { servicePath, keepCopiesInStore } = state
       const Model = _get(
         models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
@@ -198,8 +200,7 @@ export default function makeServiceMutations() {
 
     // Deep assigns copy to original record, locally
     commitCopy(state, id) {
-      const { debug, servicePath, keepCopiesInStore } = state
-      checkId(id, undefined, debug)
+      const { servicePath, keepCopiesInStore } = state
       const Model = _get(
         models,
         `[${state.serverAlias}].byServicePath[${servicePath}]`
