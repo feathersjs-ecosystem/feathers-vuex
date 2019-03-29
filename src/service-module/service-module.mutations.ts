@@ -210,7 +210,10 @@ export default function makeServiceMutations() {
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        mergeWithAccessors(state.keyedById[id], copy)
+        const original = copy.__isTemp
+          ? state.tempsById[id]
+          : state.keyedById[id]
+        mergeWithAccessors(original, copy)
       }
     },
 

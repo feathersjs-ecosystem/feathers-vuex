@@ -116,7 +116,43 @@ describe('Models - Default Values', function() {
 
     txn.clone()
 
-    // Make sure we got an id.
     assert(Transaction.copiesById[txn.__id], 'it is in the copiesById')
+  })
+
+  it('commits into store.tempsById', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+
+    class Transaction extends BaseModel {
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Transaction,
+          service: feathersClient.service('transactions')
+        })
+      ]
+    })
+
+    const txn = new Transaction({
+      description: 'Rovit Monthly Subscription',
+      website: 'https://rovit.com',
+      amount: 1.99
+    })
+
+    // Clone it, change it and commit it.
+    const clone = txn.clone()
+    clone.amount = 11.99
+    clone.commit()
+
+    const originalTemp = store.state.transactions.tempsById[txn.__id]
+
+    assert.equal(originalTemp.amount, 11.99, 'original was updated')
   })
 })
