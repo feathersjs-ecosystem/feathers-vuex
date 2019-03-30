@@ -65,6 +65,28 @@ function makeContext() {
     public static test: boolean = true
   }
 
+  const todosPlugin = makeServicePlugin({
+    Model: ServiceTodo,
+    service: feathersClient.service('service-todos')
+  })
+  this.store = new Vuex.Store<RootState>({
+    plugins: [
+      todosPlugin
+      makeServicePlugin({
+        Model: Person,
+        service: feathersClient.service('people')
+      }),
+      makeServicePlugin({
+        Model: Car,
+        service: feathersClient.service('cars')
+      }),
+      makeServicePlugin({
+        Model: Group,
+        service: feathersClient.service('groups')
+      })
+    ]
+  })
+
   return {
     makeServicePlugin,
     BaseModel,
@@ -80,83 +102,33 @@ function makeContext() {
 }
 
 describe('Models - Default Values', function() {
-  beforeEach(function() {
-    const { makeServicePlugin, ServiceTodo, Person, Car, Group } = makeContext()
+  it('models default to an empty object when there is no BaseModel.store', function() {
+    const { BaseModel } = makeContext()
 
-    const taskDefaults = (this.taskDefaults = {
-      id: null,
-      description: '',
-      isComplete: false
-    })
+    // Since we're not using this NakedTodo model in a service plugin, it doesn't get
+    // monkey patched with the store.
+    class NakedTodo extends BaseModel {
+      public static test: boolean = true
+    }
+    const todo = new NakedTodo()
 
-    // TODO: Do Something with this!
-    const instanceDefaultsForPerson = {
-      firstName: '',
-      lastName: '',
-      location: {
-        coordinates: [-111.549668, 39.014]
-      },
-      get fullName() {
-        return `${this.firstName} ${this.lastName}`
-      },
-      todos({ store }) {
-        console.log(Object.keys(store))
-      }
-    }
-    const instanceDefaultsForCars = {
-      keepCopiesInStore: true,
-      instanceDefaults: taskDefaults
-    }
-    const instanceDefaultsForGroups = function instanceDefaults() {
-      return {
-        name: '',
-        get todos() {
-          return models.Todo.findInStore({ query: {} }).data
-        }
-      }
-    }
-    this.store = new Vuex.Store<RootState>({
-      plugins: [
-        makeServicePlugin({
-          Model: ServiceTodo,
-          service: feathersClient.service('service-todos')
-        }),
-        makeServicePlugin({
-          Model: Person,
-          service: feathersClient.service('people')
-        }),
-        makeServicePlugin({
-          Model: Car,
-          service: feathersClient.service('cars')
-        }),
-        makeServicePlugin({
-          Model: Group,
-          service: feathersClient.service('groups')
-        })
-      ]
-    })
-    this.Todo = ServiceTodo
-    this.Task = models.Task
-    this.Person = models.Person
-    this.Group = models.Group
+    assert.deepEqual(todo, {}, 'default model is a temp')
   })
 
-  // store.commit('todos/addItem', data)
-
-  it('models default to an empty object', function() {
+  it('models have tempIds when there is a store', function() {
     const { Todo } = this
-    const module = new Todo()
+    const todo = new Todo()
 
     const expectedProps = ['__id', '__isTemp']
 
     assert.deepEqual(
-      Object.keys(module),
+      Object.keys(todo),
       expectedProps,
       'default model is a temp'
     )
   })
 
-  it('adds new instances containing an id to the store', function() {
+  it.only('adds new instances containing an id to the store', function() {
     const { ServiceTodo } = makeContext()
 
     const todo = new ServiceTodo({
