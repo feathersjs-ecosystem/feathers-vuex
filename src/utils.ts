@@ -14,10 +14,8 @@ import {
 } from 'lodash'
 import ObjectID from 'bson-objectid'
 
-export function stripSlashes(location) {
-  return Array.isArray(location)
-    ? location.map(l => _trim(l, '/'))
-    : _trim(location, '/')
+export function stripSlashes(location: string) {
+  return _trim(location, '/')
 }
 
 //  From feathers-plus/feathers-hooks-common
