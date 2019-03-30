@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { ServiceState } from './types'
-import { assert } from 'chai/chai'
+import { assert } from 'chai'
 import feathersVuex, { models } from '../../src/index'
 import { clearModels } from '../../src/service-module/global-models'
 
@@ -117,6 +117,7 @@ describe('Service Module', function() {
       'the Model was added to the models'
     )
     assert(
+      // @ts-ignore
       feathersService.FeathersVuexModel === ServiceTodo,
       'the Model is also found at service.FeathersVuexModel'
     )

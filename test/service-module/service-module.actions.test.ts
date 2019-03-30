@@ -80,6 +80,7 @@ describe('Service Module - Actions', () => {
   beforeEach(function() {
     this.todoService = feathersClient.use(
       'my-todos',
+      // @ts-ignore
       memory({
         store: makeStore()
       })
@@ -87,6 +88,7 @@ describe('Service Module - Actions', () => {
 
     this.taskService = feathersClient.use(
       'my-tasks',
+      // @ts-ignore
       memory({
         store: makeStore(),
         paginate: {
@@ -98,6 +100,7 @@ describe('Service Module - Actions', () => {
 
     this.noIdService = feathersClient.use(
       'no-ids',
+      // @ts-ignore
       memory({
         store: makeStore(),
         paginate: {

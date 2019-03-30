@@ -65,6 +65,7 @@ describe('Utils', function() {
           'the token was in place'
         )
         assert(store.state.auth.payload, 'the payload was set')
+        // @ts-ignore
         return feathersClient.passport.getJWT()
       })
       .then(token => {

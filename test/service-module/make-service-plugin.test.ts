@@ -82,10 +82,13 @@ describe('makeServicePlugin', function() {
 
     assert.deepEqual(
       _omit(received, ['instanceDefaults', 'serialize']),
+      // @ts-ignore
       _omit(expected, ['instanceDefaults', 'serialize']),
       'The module was registered.'
     )
+    // @ts-ignore
     assert.equal(typeof received.serialize, 'function')
+    // @ts-ignore
     assert.equal(typeof received.instanceDefaults, 'function')
   })
 
@@ -104,6 +107,7 @@ describe('makeServicePlugin', function() {
     const store = new Vuex.Store({ plugins: [todosPlugin] })
 
     assert(Todo.store === store, 'the store is on the Model!')
+    // @ts-ignore
     assert.equal(service.FeathersVuexModel, Todo, 'Model accessible on service')
   })
 

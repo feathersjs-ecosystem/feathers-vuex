@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "moduleResolution": "node",
-    "target": "ES6"
+    "target": "ES2017"
   },
   "include": [
     "src/**/*", "test/**/*"
