@@ -73,7 +73,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // If it already exists, update the original and return
       if (hasValidId && !options.clone) {
-        const existingItem = BaseModel.getFromStore(id)
+        const existingItem = BaseModel.getFromStore.call(this, id)
         if (existingItem) {
           BaseModel._commit('updateItem', data)
           return existingItem
@@ -105,7 +105,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Add the item to the store
       if (!options.clone && options.commit !== false && BaseModel.store) {
-        BaseModel._commit('addItem', this)
+        BaseModel._commit.call(this, 'addItem', this)
       }
       return this
     }
@@ -115,7 +115,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static find(params) {
-      BaseModel._dispatch('find', params)
+      BaseModel._dispatch.call('find', params)
     }
 
     public static findInStore(params) {
@@ -124,17 +124,17 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     public static get(id, params) {
       if (params) {
-        return BaseModel._dispatch('get', [id, params])
+        return BaseModel._dispatch.call(this, 'get', [id, params])
       } else {
-        return BaseModel._dispatch('get', id)
+        return BaseModel._dispatch.call(this, 'get', id)
       }
     }
 
     public static getFromStore(id, params?) {
       if (params) {
-        return BaseModel._getters('get', [id, params])
+        return BaseModel._getters.call(this, 'get', [id, params])
       } else {
-        return BaseModel._getters('get', id)
+        return BaseModel._getters.call(this, 'get', id)
       }
     }
 
@@ -242,7 +242,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return BaseModel._dispatch('create', [data, params])
+      return BaseModel._dispatch.call(this, 'create', [data, params])
     }
 
     /**
@@ -258,7 +258,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel._dispatch('patch', [
+      return BaseModel._dispatch.call(this, 'patch', [
         this[BaseModel.idField],
         this,
         params
@@ -278,7 +278,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel._dispatch('update', [
+      return BaseModel._dispatch.call(this, 'update', [
         this[BaseModel.idField],
         this,
         params
@@ -290,7 +290,10 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      return BaseModel._dispatch('remove', [this[BaseModel.idField], params])
+      return BaseModel._dispatch.call(this, 'remove', [
+        this[BaseModel.idField],
+        params
+      ])
     }
 
     public toJSON() {
