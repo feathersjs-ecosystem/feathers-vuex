@@ -309,7 +309,7 @@ describe('Models - Default Values', function() {
     assert(!areSame, 'the locations are different objects')
   })
 
-  it.only('allows passing instanceDefaults in the service plugin options', function() {
+  it('allows passing instanceDefaults in the service plugin options', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
