@@ -217,7 +217,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public commit() {
       if (this.__isClone) {
         const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
-        BaseModel._commit('commitCopy', id)
+        BaseModel._commit.call(this, 'commitCopy', id)
 
         return this
       } else {
