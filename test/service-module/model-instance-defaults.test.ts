@@ -71,7 +71,7 @@ function makeContext() {
   })
   this.store = new Vuex.Store<RootState>({
     plugins: [
-      todosPlugin
+      todosPlugin,
       makeServicePlugin({
         Model: Person,
         service: feathersClient.service('people')
