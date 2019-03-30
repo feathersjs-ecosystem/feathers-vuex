@@ -14,7 +14,7 @@ interface RootState {
   transactions: ServiceState
 }
 
-describe('Models - Default Values', function() {
+describe('Models - Temp Ids', function() {
   beforeEach(() => {
     clearModels()
   })
