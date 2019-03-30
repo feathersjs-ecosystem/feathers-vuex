@@ -9,6 +9,7 @@ import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
+import { clearModels } from '../../src/service-module/global-models'
 
 interface RootState {
   'my-todos': ServiceState
@@ -20,7 +21,73 @@ interface NumberedList {
   1?: {}
 }
 
+const makeStore = () => {
+  return {
+    0: { id: 0, description: 'Do the first' },
+    1: { id: 1, description: 'Do the second' },
+    2: { id: 2, description: 'Do the third' },
+    3: { id: 3, description: 'Do the fourth' },
+    4: { id: 4, description: 'Do the fifth' },
+    5: { id: 5, description: 'Do the sixth' },
+    6: { id: 6, description: 'Do the seventh' },
+    7: { id: 7, description: 'Do the eighth' },
+    8: { id: 8, description: 'Do the ninth' },
+    9: { id: 9, description: 'Do the tenth' }
+  }
+}
+
 function makeContext() {
+  const todoService = feathersClient.use(
+    'my-todos',
+    // @ts-ignore
+    memory({
+      store: makeStore()
+    })
+  )
+  const taskService = feathersClient.use(
+    'my-tasks',
+    // @ts-ignore
+    memory({
+      store: makeStore(),
+      paginate: {
+        default: 10,
+        max: 50
+      }
+    })
+  )
+  const noIdService = feathersClient.use(
+    'no-ids',
+    // @ts-ignore
+    memory({
+      store: makeStore(),
+      paginate: {
+        default: 10,
+        max: 50
+      }
+    })
+  )
+  const brokenService = feathersClient.use('broken', {
+    find() {
+      return Promise.reject(new Error('find error'))
+    },
+    get() {
+      return Promise.reject(new Error('get error'))
+    },
+    create() {
+      return Promise.reject(new Error('create error'))
+    },
+    update() {
+      return Promise.reject(new Error('update error'))
+    },
+    patch() {
+      return Promise.reject(new Error('patch error'))
+    },
+    remove() {
+      return Promise.reject(new Error('remove error'))
+    },
+    setup() {}
+  })
+
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
     serverAlias: 'default'
   })
@@ -39,24 +106,14 @@ function makeContext() {
   return {
     makeServicePlugin,
     BaseModel,
+    todoService,
+    taskService,
+    noIdService,
+    brokenService,
     Todo,
     Task,
     NoId,
     Broken
-  }
-}
-const makeStore = () => {
-  return {
-    0: { id: 0, description: 'Do the first' },
-    1: { id: 1, description: 'Do the second' },
-    2: { id: 2, description: 'Do the third' },
-    3: { id: 3, description: 'Do the fourth' },
-    4: { id: 4, description: 'Do the fifth' },
-    5: { id: 5, description: 'Do the sixth' },
-    6: { id: 6, description: 'Do the seventh' },
-    7: { id: 7, description: 'Do the eighth' },
-    8: { id: 8, description: 'Do the ninth' },
-    9: { id: 9, description: 'Do the tenth' }
   }
 }
 
@@ -77,74 +134,20 @@ const assertRejected = (promise, done, callback) => {
 }
 
 describe('Service Module - Actions', () => {
-  beforeEach(function() {
-    this.todoService = feathersClient.use(
-      'my-todos',
-      // @ts-ignore
-      memory({
-        store: makeStore()
-      })
-    )
-
-    this.taskService = feathersClient.use(
-      'my-tasks',
-      // @ts-ignore
-      memory({
-        store: makeStore(),
-        paginate: {
-          default: 10,
-          max: 50
-        }
-      })
-    )
-
-    this.noIdService = feathersClient.use(
-      'no-ids',
-      // @ts-ignore
-      memory({
-        store: makeStore(),
-        paginate: {
-          default: 10,
-          max: 50
-        }
-      })
-    )
-
-    this.brokenService = feathersClient.use('broken', {
-      find() {
-        return Promise.reject(new Error('find error'))
-      },
-      get() {
-        return Promise.reject(new Error('get error'))
-      },
-      create() {
-        return Promise.reject(new Error('create error'))
-      },
-      update() {
-        return Promise.reject(new Error('update error'))
-      },
-      patch() {
-        return Promise.reject(new Error('patch error'))
-      },
-      remove() {
-        return Promise.reject(new Error('remove error'))
-      },
-      setup() {}
-    })
+  beforeEach(() => {
+    clearModels()
   })
-
   describe('Find', () => {
     describe('without pagination', () => {
       it('Find without pagination', done => {
         const { makeServicePlugin, Todo } = makeContext()
+        const todosPlugin = makeServicePlugin({
+          servicePath: 'my-todos',
+          Model: Todo,
+          service: feathersClient.service('my-todos')
+        })
         const store = new Vuex.Store<RootState>({
-          plugins: [
-            makeServicePlugin({
-              servicePath: 'my-todos',
-              Model: Todo,
-              service: feathersClient.service('my-todos')
-            })
-          ]
+          plugins: [todosPlugin]
         })
         const todoState = store.state['my-todos']
         const actions = mapActions('my-todos', ['find'])
