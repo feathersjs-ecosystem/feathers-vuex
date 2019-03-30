@@ -8,10 +8,11 @@ import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../src/index'
 import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
 import makeFindMixin from '../src/make-find-mixin'
-import Vue from 'vue'
+import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
 
 jsdom()
+require('events').EventEmitter.prototype._maxListeners = 100
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
@@ -25,7 +26,9 @@ function makeContext() {
   return { FindModel, BaseModel, makeServicePlugin }
 }
 
+// @ts-ignore
 Vue.use(Vuex)
+// @ts-ignore
 Vue.use(FeathersVuex)
 
 describe('Find Mixin', function() {
