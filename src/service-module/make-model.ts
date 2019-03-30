@@ -76,7 +76,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (hasValidId && !options.clone) {
         const existingItem = BaseModel.getFromStore.call(this, id)
         if (existingItem) {
-          BaseModel._commit('updateItem', data)
+          BaseModel._commit.call(this, 'updateItem', data)
           return existingItem
         }
       }
@@ -120,7 +120,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static findInStore(params) {
-      return BaseModel._getters('find', params)
+      return BaseModel._getters.call(this, 'find', params)
     }
 
     public static get(id, params) {
@@ -147,6 +147,9 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static _getters(name: string, payload?: any) {
       const { namespace } = this.constructor as typeof BaseModel
       checkNamespace(namespace, this)
+      if (!BaseModel.store.getters.hasOwnProperty(`${namespace}/${name}`)) {
+        throw new Error(`Could not find getter named ${namespace}/${name}`)
+      }
       if (payload !== undefined) {
         return BaseModel.store.getters[`${namespace}/${name}`](payload)
       } else {
