@@ -65,6 +65,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       options: BaseModelInstanceOptions = {},
       childClassOptions: ChildClassOptions = { merge: true }
     ) {
+      const { store } = this.constructor as typeof BaseModel
       data = data || {}
       const { merge } = childClassOptions
       const { instanceDefaults, idField, tempIdField } = this
@@ -105,14 +106,15 @@ export default function makeModel(options: FeathersVuexOptions) {
       }
 
       // Add the item to the store
-      if (!options.clone && options.commit !== false && BaseModel.store) {
+      if (!options.clone && options.commit !== false && store) {
         BaseModel._commit.call(this, 'addItem', this)
       }
       return this
     }
 
     public static getId(record: Record<string, any>): string {
-      return record[BaseModel.idField]
+      const { idField } = this.constructor as typeof BaseModel
+      return record[idField]
     }
 
     public static find(params) {
@@ -145,15 +147,17 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload if provided, the getter will be called as a function
      */
     public static _getters(name: string, payload?: any) {
-      const { namespace } = this.constructor as typeof BaseModel
-      checkNamespace(namespace, this)
-      if (!BaseModel.store.getters.hasOwnProperty(`${namespace}/${name}`)) {
-        throw new Error(`Could not find getter named ${namespace}/${name}`)
-      }
-      if (payload !== undefined) {
-        return BaseModel.store.getters[`${namespace}/${name}`](payload)
-      } else {
-        return BaseModel.store.getters[`${namespace}/${name}`]
+      const { namespace, store } = this.constructor as typeof BaseModel
+
+      if (checkNamespace(namespace, this)) {
+        if (!store.getters.hasOwnProperty(`${namespace}/${name}`)) {
+          throw new Error(`Could not find getter named ${namespace}/${name}`)
+        }
+        if (payload !== undefined) {
+          return store.getters[`${namespace}/${name}`](payload)
+        } else {
+          return store.getters[`${namespace}/${name}`]
+        }
       }
     }
     /**
@@ -162,10 +166,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the mutation
      */
     public static _commit(method: string, payload: any): void {
-      const { namespace } = this.constructor as typeof BaseModel
-      checkNamespace(namespace, this)
+      const { namespace, store } = this.constructor as typeof BaseModel
 
-      BaseModel.store.commit(`${namespace}/${method}`, payload)
+      if (checkNamespace(namespace, this)) {
+        store.commit(`${namespace}/${method}`, payload)
+      }
     }
     /**
      * An alias for store.dispatch
@@ -173,32 +178,34 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the action
      */
     public static _dispatch(method: string, payload: any) {
-      const { namespace } = this.constructor as typeof BaseModel
-      checkNamespace(namespace, this)
-      return BaseModel.store.dispatch(`${namespace}/${method}`, payload)
+      const { namespace, store } = this.constructor as typeof BaseModel
+
+      if (checkNamespace(namespace, this)) {
+        return store.dispatch(`${namespace}/${method}`, payload)
+      }
     }
 
     /**
      * clone the current record using the `createCopy` mutation
      */
     public clone() {
+      const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
+      const id = this[idField] || this[tempIdField]
       return this._clone(id)
     }
 
     private _clone(id) {
       const { store, copiesById, namespace } = this
         .constructor as typeof BaseModel
-      checkNamespace(namespace, this)
       const { keepCopiesInStore } = store.state[namespace]
-      // const { store } = this.constructor
-      store.commit(`${namespace}/createCopy`, id)
+
+      BaseModel._commit.call(this, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return BaseModel._getters('getCopyById', id)
+        return BaseModel._getters.call(this, 'getCopyById', id)
       } else {
         return copiesById[id]
       }
@@ -207,8 +214,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Reset a clone to match the instance in the store.
      */
     public reset() {
+      const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
-        const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
+        const id = this[idField] || this[tempIdField]
         BaseModel._commit.call(this, 'resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
@@ -219,8 +227,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Update a store instance to match a clone.
      */
     public commit() {
+      const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
-        const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
+        const id = this[idField] || this[tempIdField]
         BaseModel._commit.call(this, 'commitCopy', id)
 
         return this
@@ -260,7 +269,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public patch(params?) {
-      if (!this[options.idField]) {
+      const { idField } = this.constructor as typeof BaseModel
+
+      if (!this[idField]) {
         const error = new Error(
           `Missing ${
             options.idField
@@ -269,7 +280,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         return Promise.reject(error)
       }
       return BaseModel._dispatch.call(this, 'patch', [
-        this[BaseModel.idField],
+        this[idField],
         this,
         params
       ])
@@ -280,7 +291,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public update(params) {
-      if (!this[options.idField]) {
+      const { idField } = this.constructor as typeof BaseModel
+
+      if (!this[idField]) {
         const error = new Error(
           `Missing ${
             options.idField
@@ -289,7 +302,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         return Promise.reject(error)
       }
       return BaseModel._dispatch.call(this, 'update', [
-        this[BaseModel.idField],
+        this[idField],
         this,
         params
       ])
@@ -300,10 +313,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      return BaseModel._dispatch.call(this, 'remove', [
-        this[BaseModel.idField],
-        params
-      ])
+      const { idField } = this.constructor as typeof BaseModel
+
+      return BaseModel._dispatch.call(this, 'remove', [this[idField], params])
     }
 
     public toJSON() {
