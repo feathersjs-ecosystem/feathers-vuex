@@ -172,7 +172,7 @@ describe('Service Module', function() {
       const serviceTodoClone = this.serviceTodo.clone()
 
       assert(
-        serviceTodoClone.isClone,
+        serviceTodoClone.__isClone,
         'created a todo clone with isClone attribute'
       )
       assert(
@@ -343,36 +343,6 @@ describe('Service Module', function() {
         serviceTodo.isComplete === true,
         'non-matching boolean was updated'
       )
-    })
-  })
-
-  describe('Models - modelName', function() {
-    beforeEach(function() {
-      const { makeServicePlugin, HotspotMedia, Media } = this
-      this.store = new Vuex.Store<RootState>({
-        strict: true,
-        plugins: [
-          makeServicePlugin({
-            Model: HotspotMedia,
-            service: feathersClient.service('hotspot-media')
-          }),
-          makeServicePlugin({
-            Model: Media,
-            service: feathersClient.service('media')
-          }),
-          makeServicePlugin({
-            Model: HotspotMedia,
-            service: feathersClient.service('hotspot-media')
-          })
-        ]
-      })
-      this.Medium = models.Medium
-      this.HotspotMedia = models.HotspotMedia
-    })
-
-    it('allows passing a custom Model name', function() {
-      assert(!this.HotspotMedium, `the model wasn't in the default location`)
-      assert(this.HotspotMedia, 'the model is named correctly.')
     })
   })
 
@@ -829,19 +799,16 @@ describe('Service Module', function() {
     })
 
     it('can switch to path name as namespace', function() {
-      const { makeServicePlugin, Test } = this
-      const nameStyle = 'path'
-      const serviceName = '/v1/tests'
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: Test,
-            service: feathersClient.service(serviceName),
-            nameStyle
-          })
-        ]
+      const { makeServicePlugin, Test } = makeContext()
+      const plugin = makeServicePlugin({
+        Model: Test,
+        service: feathersClient.service('/v1/tests'),
+        nameStyle: 'path'
       })
-      const namespace = stripSlashes(serviceName)
+      const store = new Vuex.Store<RootState>({
+        plugins: [plugin]
+      })
+      const namespace = stripSlashes('/v1/tests')
 
       assert(
         store.state[namespace],
