@@ -1,25 +1,35 @@
+/*
+eslint
+@typescript-eslint/explicit-function-return-type: 0,
+@typescript-eslint/no-explicit-any: 0
+*/
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../src/index'
 import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
 import makeFindMixin from '../src/make-find-mixin'
-import Vue from 'vue/dist/vue'
+import Vue from 'vue'
 import Vuex from 'vuex'
 
 jsdom()
 
-const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-  serverAlias: 'make-find-mixin'
-})
+function makeContext() {
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'make-find-mixin'
+  })
 
-class FindModel extends BaseModel {
-  public static test: boolean = true
+  class FindModel extends BaseModel {
+    public static test: boolean = true
+  }
+
+  return { FindModel, BaseModel, makeServicePlugin }
 }
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
 describe('Find Mixin', function() {
+  const { makeServicePlugin, FindModel } = makeContext()
   const serviceName = 'todos'
   const store = new Vuex.Store({
     plugins: [
@@ -33,7 +43,19 @@ describe('Find Mixin', function() {
   it('correctly forms mixin data', function() {
     const todosMixin = makeFindMixin({ service: 'todos' })
 
-    const vm = new Vue({
+    interface TodosComponent {
+      todos: []
+      todosServiceName: string
+      isFindTodosPending: boolean
+      findTodos: Function
+      todosLocal: boolean
+      todosQid: string
+      todosQueryWhen: Function
+      todosParams: any
+      todosFetchParams: any
+    }
+
+    const vm = new Vue<TodosComponent>({
       name: 'todos-component',
       mixins: [todosMixin],
       store,
