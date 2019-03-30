@@ -15,6 +15,8 @@ import feathersVuex from '../../src/index'
 
 Vue.use(Vuex)
 
+process.setMaxListeners(100)
+
 describe('makeModel / BaseModel', function() {
   before(() => {
     clearModels()
