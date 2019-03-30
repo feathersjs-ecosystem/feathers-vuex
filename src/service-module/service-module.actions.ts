@@ -5,7 +5,7 @@ eslint
 */
 import { observableDiff, applyChange } from 'deep-diff'
 
-export default function makeServiceActions(service, { debug }) {
+export default function makeServiceActions(service) {
   const serviceActions = {
     find({ commit, dispatch, state }, params) {
       params = params || {}
