@@ -35,11 +35,11 @@ function makeContext() {
     serverAlias: 'service-module'
   })
 
-  class ServiceTodo extends BaseModel {
+  class Todo extends BaseModel {
     public id
     public description: string
 
-    public constructor(data, options?) {
+    public constructor(data = {}, options?) {
       super(data, options)
     }
   }
@@ -66,7 +66,7 @@ function makeContext() {
   }
 
   const todosPlugin = makeServicePlugin({
-    Model: ServiceTodo,
+    Model: Todo,
     service: feathersClient.service('service-todos')
   })
   const store = new Vuex.Store<RootState>({
@@ -90,7 +90,7 @@ function makeContext() {
   return {
     makeServicePlugin,
     BaseModel,
-    ServiceTodo,
+    Todo,
     Person,
     Item,
     Task,
@@ -121,7 +121,7 @@ describe('Models - Default Values', function() {
   })
 
   it('models have tempIds when there is a store', function() {
-    const { Todo } = this
+    const { Todo } = makeContext()
     const todo = new Todo()
 
     const expectedProps = ['__id', '__isTemp']
@@ -133,34 +133,31 @@ describe('Models - Default Values', function() {
     )
   })
 
-  it.only('adds new instances containing an id to the store', function() {
-    const { ServiceTodo } = makeContext()
+  it('adds new instances containing an id to the store', function() {
+    const { Todo } = makeContext()
 
-    const todo = new ServiceTodo({
+    const todo = new Todo({
       id: 1,
       description: 'test',
       isComplete: true
     })
-    const todoInStore = ServiceTodo.store.state['service-todos'].keyedById[1]
+    const todoInStore = Todo.store.state['service-todos'].keyedById[1]
 
     assert.deepEqual(todoInStore, todo, 'task was added to the store')
   })
 
   it('stores clones in Model.copiesById by default', function() {
-    const { ServiceTodo } = makeContext()
-    const todo = new ServiceTodo({ id: 1, description: 'This is the original' })
+    const { Todo } = makeContext()
+    const todo = new Todo({ id: 1, description: 'This is the original' })
 
     assert.deepEqual(
-      ServiceTodo.copiesById,
+      Todo.copiesById,
       {},
       'Model.copiesById should start out empty'
     )
 
     const todoClone = todo.clone()
-    assert(
-      ServiceTodo.copiesById[1],
-      'should have a copy stored on Model.copiesById'
-    )
+    assert(Todo.copiesById[1], 'should have a copy stored on Model.copiesById')
 
     todoClone.description = `I'm a clone, now!`
     todoClone.commit()
