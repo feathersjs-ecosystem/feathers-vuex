@@ -103,6 +103,10 @@ function makeContext() {
 }
 
 describe('Models - Default Values', function() {
+  beforeEach(() => {
+    clearModels()
+  })
+
   it('models default to an empty object when there is no BaseModel.store', function() {
     const { BaseModel } = makeContext()
 
