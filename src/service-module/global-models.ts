@@ -8,7 +8,7 @@ import { FeathersVuexOptions } from './types'
 /**
  * A global object that holds references to all Model Classes in the application.
  */
-export const globalModels: { [k: string]: Record<string, any> } = {}
+export const globalModels: { [k: string]: any } = {}
 
 /**
  * prepareAddModel wraps options in a closure around addModel
