@@ -5,7 +5,7 @@ eslint
 */
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
-import { mergeWithAccessors, separateAccessors } from '../utils'
+import { mergeWithAccessors, separateAccessors, checkNamespace } from '../utils'
 import { get as _get, merge as _merge } from 'lodash'
 
 // A hack to prevent error with this.constructor.preferUpdate
@@ -145,6 +145,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public static _getters(name: string, payload?: any) {
       const { namespace } = this.constructor as typeof BaseModel
+      checkNamespace(namespace, this)
       if (payload !== undefined) {
         return BaseModel.store.getters[`${namespace}/${name}`](payload)
       } else {
@@ -158,6 +159,8 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public static _commit(method: string, payload: any): void {
       const { namespace } = this.constructor as typeof BaseModel
+      checkNamespace(namespace, this)
+
       BaseModel.store.commit(`${namespace}/${method}`, payload)
     }
     /**
@@ -167,6 +170,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public static _dispatch(method: string, payload: any) {
       const { namespace } = this.constructor as typeof BaseModel
+      checkNamespace(namespace, this)
       return BaseModel.store.dispatch(`${namespace}/${method}`, payload)
     }
 
@@ -182,7 +186,9 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     private _clone(id) {
-      const { store, copiesById, namespace } = BaseModel
+      const { store, copiesById, namespace } = this
+        .constructor as typeof BaseModel
+      checkNamespace(namespace, this)
       const { keepCopiesInStore } = store.state[namespace]
       // const { store } = this.constructor
       store.commit(`${namespace}/createCopy`, id)
