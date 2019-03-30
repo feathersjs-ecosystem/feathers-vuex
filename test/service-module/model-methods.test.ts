@@ -8,6 +8,9 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
+import { clearModels } from '../../src/service-module/global-models'
+
+require('events').EventEmitter.prototype._maxListeners = 100
 
 interface TodoState extends ServiceState {
   test: any
@@ -63,6 +66,10 @@ function makeContext() {
 }
 
 describe('Models - Methods', function() {
+  beforeEach(() => {
+    clearModels()
+  })
+
   it('Model.find', function() {
     const { Task } = makeContext()
 
