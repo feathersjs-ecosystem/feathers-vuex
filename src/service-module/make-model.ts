@@ -67,7 +67,8 @@ export default function makeModel(options: FeathersVuexOptions) {
     ) {
       data = data || {}
       const { merge } = childClassOptions
-      const { idField, tempIdField } = BaseModel
+      const { instanceDefaults, idField, tempIdField } = this
+        .constructor as typeof BaseModel
       const id = data[idField] || data[tempIdField]
       const hasValidId = id !== null && id !== undefined
 
@@ -90,11 +91,11 @@ export default function makeModel(options: FeathersVuexOptions) {
       }
 
       // Setup instanceDefaults, separate out accessors
-      if (BaseModel.instanceDefaults) {
-        const instanceDefaults = BaseModel.instanceDefaults()
-        const separatedDefaults = separateAccessors(instanceDefaults)
-        mergeWithAccessors(this, separatedDefaults.accessors)
-        mergeWithAccessors(this, separatedDefaults.values)
+      if (instanceDefaults && typeof instanceDefaults === 'function') {
+        const defaults = instanceDefaults()
+        const { accessors, values } = separateAccessors(defaults)
+        mergeWithAccessors(this, accessors)
+        mergeWithAccessors(this, values)
       }
 
       // Handles Vue objects or regular ones. We can't simply assign or return
