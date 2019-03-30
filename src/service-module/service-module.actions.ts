@@ -178,7 +178,6 @@ export default function makeServiceActions(service) {
       commit('setPending', 'patch')
 
       if (diffOnPatch) {
-        const { observableDiff, applyChange } = diffFunctions()
         let diff = {}
 
         observableDiff(state.copy, data, function(d) {
