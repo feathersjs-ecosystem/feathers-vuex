@@ -13,10 +13,6 @@ interface Function {
   preferUpdate: boolean
 }
 
-interface BaseConstructor {
-  store: {}
-  preferUpdate: boolean
-}
 interface BaseModelInstanceOptions {
   clone?: boolean
   commit?: boolean
@@ -39,14 +35,15 @@ export default function makeModel(options: FeathersVuexOptions) {
     return ExistingBaseModel
   }
 
-  abstract class BaseModel<BaseConstructor> {
-    // Monkey patched onto the Model class in `makeServicePlugin()`
-    public static store: Record<string, any>
-    public static namespace: string
+  abstract class BaseModel {
+    // Think of these as abstract static properties
     public static servicePath: string
-
+    public static namespace: string
     public static instanceDefaults
     public static serialize
+
+    // Monkey patched onto the Model class in `makeServicePlugin()`
+    public static store: Record<string, any>
 
     public static idField: string = options.idField
     public static tempIdField: string = options.tempIdField
@@ -147,7 +144,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload if provided, the getter will be called as a function
      */
     public static _getters(name: string, payload?: any) {
-      const { namespace } = this.constructor.namespace
+      const { namespace } = this.constructor as typeof BaseModel
       if (payload !== undefined) {
         return BaseModel.store.getters[`${namespace}/${name}`](payload)
       } else {
@@ -160,7 +157,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the mutation
      */
     public static _commit(method: string, payload: any): void {
-      const { namespace } = this.constructor.namespace
+      const { namespace } = this.constructor as typeof BaseModel
       BaseModel.store.commit(`${namespace}/${method}`, payload)
     }
     /**
@@ -169,7 +166,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the action
      */
     public static _dispatch(method: string, payload: any) {
-      const { namespace } = this.constructor.namespace
+      const { namespace } = this.constructor as typeof BaseModel
       return BaseModel.store.dispatch(`${namespace}/${method}`, payload)
     }
 
