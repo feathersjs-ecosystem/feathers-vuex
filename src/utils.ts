@@ -391,4 +391,5 @@ export function checkNamespace(namespace, item) {
       'this can be caused by not passing the Model into the makeServicePlugin function'
     )
   }
+  return namespace !== null && namespace !== undefined
 }
