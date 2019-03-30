@@ -5,7 +5,7 @@ eslint
 */
 import { ServiceState } from './types'
 import { assert } from 'chai'
-import feathersVuex, { models } from '../../src/index'
+import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 
@@ -29,11 +29,13 @@ function makeContext() {
     serverAlias: 'model-methods'
   })
   class Task extends BaseModel {
+    public servicePath: 'tasks'
     public constructor(data?, options?) {
       super(data, options)
     }
   }
   class Todo extends BaseModel {
+    public servicePath: 'todos'
     public constructor(data?, options?) {
       super(data, options)
     }
@@ -60,7 +62,7 @@ function makeContext() {
   }
 }
 
-describe.only('Models - Methods', function() {
+describe('Models - Methods', function() {
   it('Model.find', function() {
     const { Task } = makeContext()
 
@@ -119,7 +121,7 @@ describe.only('Models - Methods', function() {
     assert(called, 'create should have been called')
   })
 
-  it.only('instance.save passes params to patch', function() {
+  it('instance.save passes params to patch', function() {
     const { Todo } = makeContext()
     const todo = new Todo({ id: 1, test: true })
     let called = false
