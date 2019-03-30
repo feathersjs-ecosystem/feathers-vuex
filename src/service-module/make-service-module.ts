@@ -3,8 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import _omit from 'lodash.omit'
-import _pick from 'lodash.pick'
+import { omit as _omit, pick as _pick } from 'lodash'
 
 import makeDefaultState from './service-module.state'
 import makeGetters from './service-module.getters'

@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { diffFunctions } from '../utils'
+import { observableDiff, applyChange } from 'deep-diff'
 
 export default function makeServiceActions(service, { debug }) {
   const serviceActions = {

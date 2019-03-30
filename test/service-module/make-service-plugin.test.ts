@@ -19,11 +19,14 @@ describe('makeServicePlugin', function() {
   })
 
   it('registers the vuex module with options', function() {
+    interface RootState {
+      todos: { options: {} }
+    }
+
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
     })
-
     const servicePath = 'todos'
     class Todo extends BaseModel {
       public servicePath = servicePath
@@ -33,9 +36,6 @@ describe('makeServicePlugin', function() {
       Model: Todo,
       service: feathers.service(servicePath)
     })
-    interface RootState {
-      todos: { options: {} }
-    }
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
     const keys = Object.keys(store.state.todos)
@@ -75,15 +75,18 @@ describe('makeServicePlugin', function() {
       serverAlias: 'default',
       servicePath: 'todos',
       skipRequestIfExists: false,
+      serialize: item => item,
       tempsById: {},
       whitelist: []
     }
 
     assert.deepEqual(
-      _omit(received, ['instanceDefaults']),
-      _omit(expected, ['instanceDefaults']),
+      _omit(received, ['instanceDefaults', 'serialize']),
+      _omit(expected, ['instanceDefaults', 'serialize']),
       'The module was registered.'
     )
+    assert.equal(typeof received.serialize, 'function')
+    assert.equal(typeof received.instanceDefaults, 'function')
   })
 
   it('sets up Model.store && service.FeathersVuexModel', function() {

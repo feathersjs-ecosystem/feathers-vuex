@@ -3,13 +3,15 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import _trim from 'lodash.trim'
 import decode from 'jwt-decode'
 import inflection from 'inflection'
-import { diff } from 'deep-diff'
 import Vue from 'vue'
 import fastCopy from 'fast-copy'
-import { isPlainObject as _isPlainObject, isObject as _isObject } from 'lodash'
+import {
+  isPlainObject as _isPlainObject,
+  isObject as _isObject,
+  trim as _trim
+} from 'lodash'
 import ObjectID from 'bson-objectid'
 
 export function stripSlashes(location) {
@@ -214,10 +216,6 @@ export function getServiceCapitalization(servicePath) {
   name = name.replace('-', '_')
   name = inflection.camelize(name)
   return name
-}
-
-export function diffFunctions() {
-  return diff
 }
 
 export function updateOriginal(newData, existingItem) {

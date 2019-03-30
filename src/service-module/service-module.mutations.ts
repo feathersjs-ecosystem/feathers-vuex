@@ -5,10 +5,9 @@ eslint
 */
 import Vue from 'vue'
 import serializeError from 'serialize-error'
-import isObject from 'lodash.isobject'
 import { updateOriginal, mergeWithAccessors, assignTempId } from '../utils'
 import { globalModels as models } from './global-models'
-import { get as _get } from 'lodash'
+import { get as _get, isObject as _isObject } from 'lodash'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -95,7 +94,7 @@ export default function makeServiceMutations() {
 
     removeItem(state, item) {
       const { idField } = state
-      const idToBeRemoved = isObject(item) ? item[idField] : item
+      const idToBeRemoved = _isObject(item) ? item[idField] : item
       const isIdOk = idToBeRemoved !== null && idToBeRemoved !== undefined
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
@@ -114,7 +113,7 @@ export default function makeServiceMutations() {
         )
       }
       // Make sure we have an array of ids. Assume all are the same.
-      const containsObjects = items[0] && isObject(items[0])
+      const containsObjects = items[0] && _isObject(items[0])
       const idsToRemove = containsObjects
         ? items.map(item => item[idField])
         : items
