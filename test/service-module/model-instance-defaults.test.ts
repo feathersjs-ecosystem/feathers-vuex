@@ -69,7 +69,7 @@ function makeContext() {
     Model: ServiceTodo,
     service: feathersClient.service('service-todos')
   })
-  this.store = new Vuex.Store<RootState>({
+  const store = new Vuex.Store<RootState>({
     plugins: [
       todosPlugin,
       makeServicePlugin({
@@ -97,7 +97,8 @@ function makeContext() {
     Car,
     Group,
     Test,
-    Thing
+    Thing,
+    store
   }
 }
 
