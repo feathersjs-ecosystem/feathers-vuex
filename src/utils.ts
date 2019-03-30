@@ -382,3 +382,13 @@ export function separateAccessors(props) {
     { accessors: {}, values: {} }
   )
 }
+
+export function checkNamespace(namespace, item) {
+  if (!namespace) {
+    console.error(
+      'A `namespace` was not available on the Model for this item:',
+      item,
+      'this can be caused by not passing the Model into the makeServicePlugin function'
+    )
+  }
+}
