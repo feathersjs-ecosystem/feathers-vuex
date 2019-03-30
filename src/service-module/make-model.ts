@@ -206,7 +206,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public reset() {
       if (this.__isClone) {
         const id = this[BaseModel.idField] || this[BaseModel.tempIdField]
-        BaseModel._commit('resetCopy', id)
+        BaseModel._commit.call(this, 'resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
       }
