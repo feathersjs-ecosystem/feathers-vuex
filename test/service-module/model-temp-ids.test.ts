@@ -154,7 +154,7 @@ describe('Models - Temp Ids', function() {
         super(data, options)
       }
     }
-    const store = new Vuex.Store<RootState>({
+    new Vuex.Store<RootState>({
       plugins: [
         makeServicePlugin({
           Model: Transaction,
