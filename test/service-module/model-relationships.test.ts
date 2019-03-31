@@ -132,97 +132,113 @@ describe('Models - `setupInstance` & Relatioships', function() {
   })
 })
 
+function makeContext() {
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'myApi'
+  })
+  class Task extends BaseModel {
+    public static instanceDefaults() {
+      return {
+        id: null,
+        description: '',
+        isComplete: false
+      }
+    }
+    public constructor(data, options?) {
+      super(data, options)
+    }
+  }
+  class Todo extends BaseModel {
+    public static instanceDefaults(data) {
+      const priority = data.priority || 'normal'
+      const defaultsByPriority = {
+        normal: {
+          description: '',
+          isComplete: false,
+          task: 'Task',
+          item: 'Item',
+          priority: ''
+        },
+        high: {
+          isHighPriority: true,
+          priority: ''
+        }
+      }
+      return defaultsByPriority[priority]
+    }
+    public static setupInstance(data, { models, store }) {
+      const { Task, Item } = models.myApi
+
+      return Object.assign(data, {
+        ...(data.task && { task: new Task(data.task) }),
+        ...(data.item && { item: new Item(data.item) }),
+        ...(data.items && { items: data.items.map(item => new Item(item)) })
+      })
+    }
+    public constructor(data, options?) {
+      super(data, options)
+    }
+  }
+  class Item extends BaseModel {
+    public static instanceDefaults() {
+      return {
+        test: false,
+        todo: 'Todo'
+      }
+    }
+    public static setupInstance(data, { models, store }) {
+      const { Todo } = models.myApi
+
+      return Object.assign(data, {
+        get todos() {
+          return Todo.findInStore({ query: {} }).data
+        },
+        ...(data.todo && { todo: new Todo(data.todo) })
+      })
+    }
+    public constructor(data, options?) {
+      super(data, options)
+    }
+  }
+  const store = new Vuex.Store({
+    strict: true,
+    plugins: [
+      makeServicePlugin({
+        Model: Task,
+        service: feathersClient.service('tasks')
+      }),
+      makeServicePlugin({
+        Model: Todo,
+        service: feathersClient.service('service-todos')
+      }),
+      makeServicePlugin({
+        Model: Item,
+        service: feathersClient.service('items'),
+        mutations: {
+          toggleTestBoolean(state, item) {
+            item.test = !item.test
+          }
+        }
+      })
+    ]
+  })
+  return {
+    makeServicePlugin,
+    BaseModel,
+    store,
+    Todo,
+    Task,
+    Item
+  }
+}
+
 describe('Models - Relationships', function() {
   beforeEach(function() {
     clearModels()
-
-    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'myApi'
-    })
-    class Task extends BaseModel {
-      public static instanceDefaults() {
-        return {
-          id: null,
-          description: '',
-          isComplete: false
-        }
-      }
-    }
-    class Todo extends BaseModel {
-      public static instanceDefaults(data) {
-        const priority = data.priority || 'normal'
-        const defaultsByPriority = {
-          normal: {
-            description: '',
-            isComplete: false,
-            task: 'Task',
-            item: 'Item',
-            priority: ''
-          },
-          high: {
-            isHighPriority: true,
-            priority: ''
-          }
-        }
-        return defaultsByPriority[priority]
-      }
-      public static setupInstance(data, { models, store }) {
-        const { Task, Item } = models.myApi
-
-        return Object.assign(data, {
-          ...(data.task && { task: new Task(data.task) }),
-          ...(data.item && { item: new Item(data.item) }),
-          ...(data.items && { items: data.items.map(item => new Item(item)) })
-        })
-      }
-    }
-    class Item extends BaseModel {
-      public static instanceDefaults() {
-        return {
-          test: false,
-          todo: 'Todo'
-        }
-      }
-      public static setupInstance(data, { models, store }) {
-        const { Todo } = models.myApi
-
-        return Object.assign(data, {
-          get todos() {
-            return Todo.findInStore({ query: {} }).data
-          },
-          ...(data.todo && { todo: new Todo(data.todo) })
-        })
-      }
-    }
-    this.store = new Vuex.Store({
-      strict: true,
-      plugins: [
-        makeServicePlugin({
-          Model: Task,
-          service: feathersClient.service('tasks')
-        }),
-        makeServicePlugin({
-          Model: Todo,
-          service: feathersClient.service('service-todos')
-        }),
-        makeServicePlugin({
-          Model: Item,
-          service: feathersClient.service('items'),
-          mutations: {
-            toggleTestBoolean(state, item) {
-              item.test = !item.test
-            }
-          }
-        })
-      ]
-    })
-    this.Todo = Todo
-    this.Task = Task
-    this.Item = Item
   })
 
   it('can have different instanceDefaults based on new instance data', function() {
-    const { Todo } = this
+    const { Todo } = makeContext()
     const normalTodo = new Todo({
       description: 'Normal'
     })
@@ -242,7 +258,7 @@ describe('Models - Relationships', function() {
   })
 
   it('adds model instances containing an id to the store', function() {
-    const { Todo, Task } = this
+    const { Todo, Task } = makeContext()
 
     const todo = new Todo({
       task: {
@@ -260,7 +276,7 @@ describe('Models - Relationships', function() {
   })
 
   it('works with multiple keys that match Model names', function() {
-    const { Todo, Task, Item } = this
+    const { Todo, Task, Item } = makeContext()
 
     const todo = new Todo({
       task: {
@@ -287,7 +303,7 @@ describe('Models - Relationships', function() {
   })
 
   it('handles nested relationships', function() {
-    const { Todo } = this
+    const { Todo } = makeContext()
 
     const todo = new Todo({
       task: {
@@ -311,7 +327,7 @@ describe('Models - Relationships', function() {
   })
 
   it('handles circular nested relationships', function() {
-    const { Todo, Item } = this
+    const { Todo, Item } = makeContext()
 
     const todo = new Todo({
       id: 1,
@@ -337,7 +353,7 @@ describe('Models - Relationships', function() {
   })
 
   it('updates related data', function() {
-    const { Todo, Item, store } = this
+    const { Todo, Item, store } = makeContext()
 
     const module = new Todo({
       id: 'todo-1',
@@ -372,7 +388,7 @@ describe('Models - Relationships', function() {
   })
 
   it(`allows creating more than once relational instance`, function() {
-    const { Todo, Item } = this
+    const { Todo, Item } = makeContext()
 
     const todo1 = new Todo({
       id: 'todo-1',
@@ -413,7 +429,7 @@ describe('Models - Relationships', function() {
   })
 
   it(`handles arrays of related data`, function() {
-    const { Todo, Item } = this
+    const { Todo, Item } = makeContext()
 
     const todo1 = new Todo({
       id: 'todo-1',
@@ -462,6 +478,51 @@ describe('Models - Relationships', function() {
     assert(storedItem4, 'should have item 4')
   })
 
-  it.skip('preserves relationships on clone', function() {})
-  it.skip('preserves relationships on commit', function() {})
+  it('preserves relationships on clone', function() {
+    const { Todo, Task } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+    const clone = todo.clone()
+
+    assert(clone.task instanceof Task, 'nested task is a Task')
+  })
+  it('preserves relationships on commit', function() {
+    const { Todo, Task } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+    const clone = todo.clone()
+    const original = clone.commit()
+
+    assert(original.task instanceof Task, 'nested task is a Task')
+  })
+
+  it('preserves relationship with nested data clone and commit', function() {
+    const { Todo } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+    // Create a clone of the nested task, modify and commit.
+    const taskClone = todo.task.clone()
+    taskClone.isComplete = false
+    taskClone.commit()
+
+    assert.equal(todo.task.isComplete, false, 'preserved after clone')
+  })
 })
