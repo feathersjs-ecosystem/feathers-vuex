@@ -343,9 +343,8 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public toJSON() {
-      const { serialize } = Object.getPrototypeOf(this).constructor
-      const obj = serialize(this)
-      const data = _merge({}, obj)
+      const { serialize } = this.constructor as typeof BaseModel
+      const data = _merge({}, serialize(this))
       return data
     }
   }
