@@ -114,6 +114,48 @@ function makeContextWithState() {
   }
 }
 
+function makeAutoRemoveContext() {
+  const feathers = makeFeathersRestClient()
+    .use(
+      'todos',
+      memory({
+        store: makeTodos()
+      })
+    )
+    .use(
+      'tasks',
+      memory({
+        store: makeTodos(),
+        paginate: {
+          default: 10,
+          max: 50
+        }
+      })
+    )
+  const todosService = feathers.service('todos')
+  const tasksService = feathers.service('tasks')
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'autoRemove'
+  })
+  class Todo extends BaseModel {
+    public static servicePath: string = 'todos'
+    public static test: boolean = true
+  }
+  class Task extends BaseModel {
+    public static servicePath: string = 'tasks'
+    public static test: boolean = true
+  }
+  return {
+    feathers,
+    todosService,
+    tasksService,
+    makeServicePlugin,
+    BaseModel,
+    Todo,
+    Task
+  }
+}
+
 describe('Service Module', function() {
   beforeEach(() => {
     clearModels()
@@ -541,78 +583,45 @@ describe('Service Module', function() {
       )
     })
 
-    it('throws an error if first arg is not a string', function() {
-      const { service } = this
+    it('throws an error if no service is provided', function() {
+      const { makeServicePlugin } = makeContext()
       try {
         new Vuex.Store({
-          // eslint-disable-line no-new
-          plugins: [service({})]
+          // @ts-ignore
+          plugins: [makeServicePlugin({})]
         })
       } catch (error) {
-        assert(
-          error.message ===
-            'The first argument to setup a feathers-vuex service must be a string',
+        assert.equal(
+          error.message,
+          'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport.',
           'threw an error'
         )
       }
     })
 
-    it(`populates items on find`, function(done) {
-      const store = new Vuex.Store<RootState>({
-        plugins: [this.service('service-todos', { idField: '_id' })]
-      })
-
-      const todoState = store.state.todos
-
-      assert(todoState.ids.length === 0)
-
-      store
-        .dispatch('todos/find', { query: {} })
-        .then(todos => {
-          assert(todoState.ids.length === 3)
-          done()
-        })
-        .catch(error => {
-          assert(!error, error.message)
-          done()
-        })
-    })
-
-    describe('Auto-remove items', function() {
+    describe('Auto-Remove Items', function() {
       beforeEach(function() {
-        this.feathersClient = makeFeathersRestClient()
-        this.feathersClient.use(
-          'service-todos',
-          memory({
-            store: makeTodos()
-          })
-        )
-        this.feathersClient.use(
-          'tasks',
-          memory({
-            store: makeTodos(),
-            paginate: {
-              default: 10,
-              max: 50
-            }
-          })
-        )
-        this.fv = feathersVuex(this.feathersClient, {
-          serverAlias: 'auto-remove'
-        })
+        clearModels()
       })
 
-      it(`removes missing items when pagination is off`, function(done) {
+      it.only(`removes missing items when pagination is off`, function(done) {
+        const {
+          makeServicePlugin,
+          Todo,
+          todosService
+        } = makeAutoRemoveContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
-            this.service('service-todos', {
+            makeServicePlugin({
+              Model: Todo,
+              service: todosService,
               idField: '_id',
               autoRemove: true
             })
           ]
         })
 
-        const todoState = store.state['service-todos']
+        const todoState = store.state['todos']
 
         assert(todoState.ids.length === 0)
 
@@ -621,7 +630,8 @@ describe('Service Module', function() {
           .dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('service-todos').store[3]
+            // @ts-ignore
+            delete todosService.store[3]
             // We went around using the store actions, so there will still be three items.
             assert(
               todoState.ids.length === 3,
