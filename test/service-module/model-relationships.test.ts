@@ -309,10 +309,10 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('handles recursive nested relationships', function() {
-    const { Todo, store } = this
+  it('handles circular nested relationships', function() {
+    const { Todo, Item } = this
 
-    const module = new Todo({
+    const todo = new Todo({
       id: 1,
       description: 'todo description',
       item: {
@@ -325,18 +325,14 @@ describe('Models - Relationships', function() {
       }
     })
 
+    assert.deepEqual(Todo.getFromStore(1), todo, 'todo was added to the store')
     assert.deepEqual(
-      store.state.todos.keyedById[1],
-      module,
-      'todo was added to the store'
-    )
-    assert.deepEqual(
-      store.state.items.keyedById[2],
-      module.item,
+      Item.getFromStore(2),
+      todo.item,
       'item was added to the store'
     )
-    assert(module.item, 'todo still has an item')
-    assert(module.item.module, 'todo still nested in itself')
+    assert(todo.item, 'todo still has an item')
+    assert(todo.item.todo, 'todo still nested in itself')
   })
 
   it('updates related data', function() {
