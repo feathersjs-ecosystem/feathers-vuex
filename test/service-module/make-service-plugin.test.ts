@@ -56,7 +56,6 @@ describe('makeServicePlugin', function() {
       idField: 'id',
       tempIdField: '__id',
       ids: [],
-      instanceDefaults: () => ({}),
       isCreatePending: false,
       isFindPending: false,
       isGetPending: false,
@@ -75,24 +74,11 @@ describe('makeServicePlugin', function() {
       serverAlias: 'default',
       servicePath: 'todos',
       skipRequestIfExists: false,
-      setupInstance: item => item,
-      serialize: item => item,
       tempsById: {},
       whitelist: []
     }
 
-    assert.deepEqual(
-      _omit(received, ['instanceDefaults', 'serialize', 'setupInstance']),
-      // @ts-ignore
-      _omit(expected, ['instanceDefaults', 'serialize', 'setupInstance']),
-      'The module was registered.'
-    )
-    // @ts-ignore
-    assert.equal(typeof received.serialize, 'function')
-    // @ts-ignore
-    assert.equal(typeof received.setupInstance, 'function')
-    // @ts-ignore
-    assert.equal(typeof received.instanceDefaults, 'function')
+    assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
   })
 
   it('sets up Model.store && service.FeathersVuexModel', function() {
