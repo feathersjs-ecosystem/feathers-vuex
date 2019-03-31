@@ -461,4 +461,7 @@ describe('Models - Relationships', function() {
     assert(storedItem3, 'should have item 3')
     assert(storedItem4, 'should have item 4')
   })
+
+  it.skip('preserves relationships on clone', function() {})
+  it.skip('preserves relationships on commit', function() {})
 })

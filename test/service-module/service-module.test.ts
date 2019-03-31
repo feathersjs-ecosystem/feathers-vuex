@@ -348,7 +348,7 @@ describe('Service Module', function() {
 
   describe('Setting Up', () => {
     it('service stores have global defaults', function() {
-      const { makeServicePlugin, BaseModel, Task } = this
+      const { makeServicePlugin, BaseModel, Task } = makeContext()
       class Todo extends BaseModel {
         public static test: boolean = true
       }
@@ -372,7 +372,7 @@ describe('Service Module', function() {
     })
 
     it('can customize the idField for each service', function() {
-      const { makeServicePlugin, Test } = this
+      const { makeServicePlugin, Test } = makeContext()
       const idField = '_id'
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -391,13 +391,14 @@ describe('Service Module', function() {
     })
 
     it('allows enabling autoRemove', function() {
-      const { makeServicePlugin, Test } = this
+      const { makeServicePlugin, Test } = makeContext()
       const autoRemove = true
       const store = new Vuex.Store<RootState>({
         plugins: [
           makeServicePlugin({
             Model: Test,
-            service: feathersClient.service('tests')
+            service: feathersClient.service('tests'),
+            autoRemove
           })
         ]
       })
@@ -427,7 +428,7 @@ describe('Service Module', function() {
     })
 
     it('can explicitly provide a namespace', function() {
-      const { makeServicePlugin, Test } = this
+      const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -442,7 +443,7 @@ describe('Service Module', function() {
     })
 
     it('prioritizes the explicit namespace', function() {
-      const { makeServicePlugin, Test } = this
+      const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const nameStyle = 'path'
       const store = new Vuex.Store<RootState>({

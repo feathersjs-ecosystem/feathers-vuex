@@ -31,6 +31,7 @@ export interface MakeServicePluginOptions {
   nameStyle?: string
   namespace?: string
   preferUpdate?: boolean
+  autoRemove?: boolean
   servicePath?: string
   instanceDefaults?: () => {}
   setupInstance?: (data, { models, store }) => {}
