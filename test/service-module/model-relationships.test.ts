@@ -371,7 +371,7 @@ describe('Models - Relationships', function() {
   })
 
   it(`allows creating more than once relational instance`, function() {
-    const { Todo, store } = this
+    const { Todo, Item } = this
 
     const todo1 = new Todo({
       id: 'todo-1',
@@ -390,8 +390,8 @@ describe('Models - Relationships', function() {
       }
     })
 
-    const storedTodo = store.state.todos.keyedById['todo-2']
-    const storedItem = store.state.items.keyedById['item-3']
+    const storedTodo = Todo.getFromStore('todo-1')
+    const storedItem = Item.getFromStore('item-2')
 
     assert.equal(
       todo1.item.test,
