@@ -336,7 +336,7 @@ describe('Models - Relationships', function() {
   })
 
   it('updates related data', function() {
-    const { Todo, store } = this
+    const { Todo, Item, store } = this
 
     const module = new Todo({
       id: 'todo-1',
@@ -351,8 +351,8 @@ describe('Models - Relationships', function() {
       }
     })
 
-    const storedTodo = store.state.todos.keyedById['todo-1']
-    const storedItem = store.state.items.keyedById['item-2']
+    const storedTodo = Todo.getFromStore('todo-1')
+    const storedItem = Item.getFromStore('item-2')
 
     store.commit('items/toggleTestBoolean', storedItem)
     // module.item.test = false
