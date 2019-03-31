@@ -252,3 +252,139 @@ commit('clearFindError')
 commit('setError', { method: 'find', error })
 commit('clearError', 'find')
 ```
+
+## Relationships have been separated from `instanceDefaults`
+
+Feathers-Vuex 2.0 has a new API for establishing relationships between data.  Before we cover how it works, let's review the old API, first.
+
+Feathers-Vuex 1.x allowed using the `instanceDefaults` API to both setup default values for Vue reactivity AND establishing relationships between services.  It supported passing a string name that matched a model name to setup a relationship, as shown in this next example.  This was a simple, but very limited API:
+
+```js
+// Defaults for a todo service
+instanceDefaults: {
+  _id: '',
+  description: '',
+  isCompleted: false,
+  user: 'User'
+}
+```
+
+Any instance data with a matching key would overwrite the same property in the instanceDefaults, which resulted in an inconsistent API.
+
+In Feathers-Vuex 2.0, the `instanceDefaults` work the same for setting defaults with only one exception (see the next example).  They no longer setup the relationships, though.  The new `setupInstance` function provides an API that is much more powerful.
+
+The main difference with `instanceDefaults` in Feathers-Vuex 2.0 is that it MUST be provided as a function, now:
+
+```js
+// See the `model-instance-defaults.test.ts` file for example usage.
+// This is a brief example.
+instanceDefaults(data, { models, store}) {
+  return {
+    _id: '',
+    description: '',
+    isCompleted: false
+    // No user props, here.
+  }
+}
+```
+
+Notice in the above example that we did not return `user`.  We'll handle it in the `setupInstance` method.
+
+Where `instanceDefaults` props get replaced by instance data, the props returned from `setupInstance` overwrite the instance data.  If it were using `Object.assign`, internally (it's not, but IF it were), it would look like the below example, where `data` is the original instance data passed to the constructor.
+
+```js
+Object.assign({}, instanceDefaults(data), data, setupInstance(data))
+```
+
+## Define Relationships and Modify Data with `setupInstance`
+
+The new `setupInstance` method allows a lot of flexibility in creating new instances.  It has the exact same API as the `instanceDefaults` method.  The only difference is the order in which they are applied to the instance data.
+
+While you could technically use `setupInstance` to do all of your default values, the APIs have been kept separate to allow a clean separation between setting up defaults and establishing relationships and other constructors.
+
+
+```js
+// See the `model-relationships.test.ts` file for example usage.
+// This is a brief example.
+function setupInstance(data, { models, store }) {
+  const { User, Tag } = models.myServerAlias // Based on the serverAlias you provide, initially
+
+  // A single User instance
+  if (data.user) {
+    data.user = new User(data.user)
+  }
+  // An array of Tag instances
+  if (data.tags) {
+    data.tags = data.tags.map(t => new Tag(t))
+  }
+  // A JavaScript Date Object
+  if (data.createdAt) {
+    data.createdAt = new Date(data.createdAt)
+  }
+}
+```
+
+Or below is an example that does the exact same thing with one line per attribute:
+
+```js
+function setupInstance(data, { models, store }) {
+  const { User } = models.myServerAlias
+
+  return Object.assign(data, {
+    ...(data.user && { user: new User(data.user) }), // A single User instance
+    ...(data.tags && { tags: data.tags.map(t => new Tag(t)) }), // An array of Tag instances
+    ...(data.createdAt && { createdAt: new Date(data.createdAt) }) // A JavaScript Date Object
+  })
+}
+```
+
+Where `instanceDefaults` props get replaced by instance data, the props returned from `setupInstance` overwrite the instance data.  If it were using `Object.assign`, internally (it's not, but IF it were), it would look like the below example, where `data` is the original instance data passed to the constructor.
+
+```js
+Object.assign({}, instanceDefaults(data), data, setupInstance(data))
+```
+
+## Preventing duplicate merge when extending BaseModel with a custom constructor
+
+The BaseModel constructor calls `mergeWithAccessors(this, newData)`.  This utility function correctly copies data between both regular objects and Vue.observable instances.  If you create a class where you need to do your own merging, you probably don't want `mergeWithAccessors` to run twice.  In this case, you can use the `merge: false` BaseModel instance option to prevent the internal merge.  You can then access the `mergeWithAccessors` method by calling `MyModel.merge(this, newData)`.  Here's an example:
+
+```ts
+const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'myApiServer'
+})
+
+class Todo extends BaseModel {
+  public constructor(data, options?) {
+    options.merge = false // Prevent the internal merge from occurring.
+    super(data, options)
+
+    // ... your custom construcor logic happens here.
+
+    // Call the static merge method to do your own merging.
+    Todo.merge(this, data)
+  }
+}
+```
+
+It's important to note that setting `merge: false` in the options will disable the `setupinstance` function.  You need to manually call it, like this:
+
+```ts
+class Todo extends BaseModel {
+  public constructor(data, options?) {
+    options.merge = false // Prevent the internal merge from occurring.
+    super(data, options)
+
+    // ... your custom construcor logic happens here.
+
+    // Call setupInstance manually
+    const { models, store } = Todo
+    // JavaScript fundamentals: if you're using `this` in `setupInstance`, use .call(this, ...)
+    const instanceData = Todo.setupInstance.call(this, data, { models, store })
+    // If you're not using `this, just call it like normal
+    const instanceData = Todo.setupInstance(data, { models, store })
+
+    // Call the static merge method to do your own merging.
+    Todo.merge(this, instanceData)
+  }
+}
+```

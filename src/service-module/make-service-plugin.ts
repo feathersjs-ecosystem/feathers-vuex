@@ -17,7 +17,8 @@ const defaults = {
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
-  instanceDefaults: () => ({}), // Default instanceDefaults is an empty object
+  instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
+  setupInstance: instance => instance, // Default setupInstance returns the instance
   serialize: item => item // Default serialize function
 }
 
@@ -43,6 +44,7 @@ export default function prepareMakeServicePlugin(
       namespace,
       nameStyle,
       instanceDefaults,
+      setupInstance,
       preferUpdate,
       serialize
     } = options
@@ -81,6 +83,7 @@ export default function prepareMakeServicePlugin(
         namespace: options.namespace,
         servicePath,
         instanceDefaults,
+        setupInstance,
         serialize,
         preferUpdate
       })

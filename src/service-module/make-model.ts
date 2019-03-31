@@ -47,6 +47,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static servicePath: string
     public static namespace: string
     public static instanceDefaults
+    public static setupInstance
     public static serialize
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
@@ -67,24 +68,31 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     public static merge = mergeWithAccessors
 
-    public constructor(
-      data,
-      options: BaseModelInstanceOptions = {},
-      childClassOptions: ChildClassOptions = { merge: true }
-    ) {
-      const { store } = this.constructor as typeof BaseModel
-      data = data || {}
-      const { merge } = childClassOptions
-      const { instanceDefaults, idField, tempIdField } = this
-        .constructor as typeof BaseModel
+    public constructor(data, options: BaseModelInstanceOptions) {
+      if (!data) {
+        return
+      }
+      options = Object.assign({}, defaultOptions, options)
+      const {
+        store,
+        models,
+        instanceDefaults,
+        idField,
+        tempIdField,
+        setupInstance,
+        getFromStore,
+        _commit
+      } = this.constructor as typeof BaseModel
       const id = data[idField] || data[tempIdField]
       const hasValidId = id !== null && id !== undefined
 
+      data = data || {}
+
       // If it already exists, update the original and return
       if (hasValidId && !options.clone) {
-        const existingItem = BaseModel.getFromStore.call(this, id)
+        const existingItem = getFromStore(id)
         if (existingItem) {
-          BaseModel._commit.call(this, 'updateItem', data)
+          _commit('updateItem', data)
           return existingItem
         }
       }
@@ -100,7 +108,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Setup instanceDefaults, separate out accessors
       if (instanceDefaults && typeof instanceDefaults === 'function') {
-        const defaults = instanceDefaults()
+        const defaults = instanceDefaults.call(this, this, { models, store })
         const { accessors, values } = separateAccessors(defaults)
         mergeWithAccessors(this, accessors)
         mergeWithAccessors(this, values)
@@ -108,13 +116,16 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Handles Vue objects or regular ones. We can't simply assign or return
       // the data due to how Vue wraps everything into an accessor.
-      if (merge !== false) {
-        mergeWithAccessors(this, data)
+      if (options.merge !== false) {
+        mergeWithAccessors(
+          this,
+          setupInstance.call(this, data, { models, store })
+        )
       }
 
       // Add the item to the store
       if (!options.clone && options.commit !== false && store) {
-        BaseModel._commit.call(this, 'addItem', this)
+        _commit.call(this.constructor, 'addItem', this)
       }
       return this
     }
@@ -125,26 +136,26 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static find(params) {
-      BaseModel._dispatch.call('find', params)
+      this._dispatch('find', params)
     }
 
     public static findInStore(params) {
-      return BaseModel._getters.call(this, 'find', params)
+      return this._getters('find', params)
     }
 
     public static get(id, params) {
       if (params) {
-        return BaseModel._dispatch.call(this, 'get', [id, params])
+        return this._dispatch('get', [id, params])
       } else {
-        return BaseModel._dispatch.call(this, 'get', id)
+        return this._dispatch('get', id)
       }
     }
 
     public static getFromStore(id, params?) {
       if (params) {
-        return BaseModel._getters.call(this, 'get', [id, params])
+        return this._getters('get', [id, params])
       } else {
-        return BaseModel._getters.call(this, 'get', id)
+        return this._getters('get', id)
       }
     }
 
@@ -154,7 +165,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload if provided, the getter will be called as a function
      */
     public static _getters(name: string, payload?: any) {
-      const { namespace, store } = this.constructor as typeof BaseModel
+      const { namespace, store } = this
 
       if (checkNamespace(namespace, this)) {
         if (!store.getters.hasOwnProperty(`${namespace}/${name}`)) {
@@ -173,7 +184,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the mutation
      */
     public static _commit(method: string, payload: any): void {
-      const { namespace, store } = this.constructor as typeof BaseModel
+      const { namespace, store } = this
 
       if (checkNamespace(namespace, this)) {
         store.commit(`${namespace}/${method}`, payload)
@@ -185,7 +196,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param payload the payload for the action
      */
     public static _dispatch(method: string, payload: any) {
-      const { namespace, store } = this.constructor as typeof BaseModel
+      const { namespace, store } = this
 
       if (checkNamespace(namespace, this)) {
         return store.dispatch(`${namespace}/${method}`, payload)
@@ -205,14 +216,14 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     private _clone(id) {
-      const { store, copiesById, namespace } = this
+      const { store, copiesById, namespace, _commit, _getters } = this
         .constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
 
-      BaseModel._commit.call(this, `createCopy`, id)
+      _commit.call(this, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return BaseModel._getters.call(this, 'getCopyById', id)
+        return _getters.call(this, 'getCopyById', id)
       } else {
         return copiesById[id]
       }
@@ -221,10 +232,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Reset a clone to match the instance in the store.
      */
     public reset() {
-      const { idField, tempIdField } = this.constructor as typeof BaseModel
+      const { idField, tempIdField, _commit } = this
+        .constructor as typeof BaseModel
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
-        BaseModel._commit.call(this, 'resetCopy', id)
+        _commit('resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -234,10 +246,11 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Update a store instance to match a clone.
      */
     public commit() {
-      const { idField, tempIdField } = this.constructor as typeof BaseModel
+      const { idField, tempIdField, _commit } = this
+        .constructor as typeof BaseModel
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
-        BaseModel._commit.call(this, 'commitCopy', id)
+        _commit('commitCopy', id)
 
         return this
       } else {
@@ -264,11 +277,12 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public create(params) {
+      const { _dispatch } = this.constructor as typeof BaseModel
       const data = Object.assign({}, this)
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return BaseModel._dispatch.call(this, 'create', [data, params])
+      return _dispatch('create', [data, params])
     }
 
     /**
@@ -276,7 +290,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public patch(params?) {
-      const { idField } = this.constructor as typeof BaseModel
+      const { idField, _dispatch } = this.constructor as typeof BaseModel
 
       if (!this[idField]) {
         const error = new Error(
@@ -286,11 +300,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel._dispatch.call(this, 'patch', [
-        this[idField],
-        this,
-        params
-      ])
+      return _dispatch('patch', [this[idField], this, params])
     }
 
     /**
@@ -298,7 +308,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public update(params) {
-      const { idField } = this.constructor as typeof BaseModel
+      const { idField, _dispatch } = this.constructor as typeof BaseModel
 
       if (!this[idField]) {
         const error = new Error(
@@ -308,11 +318,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return BaseModel._dispatch.call(this, 'update', [
-        this[idField],
-        this,
-        params
-      ])
+      return _dispatch('update', [this[idField], this, params])
     }
 
     /**
@@ -320,9 +326,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      const { idField } = this.constructor as typeof BaseModel
+      const { idField, _dispatch } = this.constructor as typeof BaseModel
 
-      return BaseModel._dispatch.call(this, 'remove', [this[idField], params])
+      return _dispatch('remove', [this[idField], params])
     }
 
     public toJSON() {
