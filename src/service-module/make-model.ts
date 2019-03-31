@@ -16,9 +16,16 @@ interface Function {
 interface BaseModelInstanceOptions {
   clone?: boolean
   commit?: boolean
+  merge?: boolean
 }
 interface ChildClassOptions {
   merge?: boolean
+}
+
+const defaultOptions = {
+  clone: false,
+  commit: true,
+  merge: true
 }
 
 /**
