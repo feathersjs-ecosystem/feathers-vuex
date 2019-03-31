@@ -134,15 +134,21 @@ describe('Models - `setupInstance` & Relational Data', function() {
 
 describe('Models - Relationships', function() {
   beforeEach(function() {
-    const { makeServicePlugin, BaseModel } = this
+    clearModels()
+
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      serverAlias: 'myApi'
+    })
     class Task extends BaseModel {
-      public static instanceDefaults: {
-        id: null
-        description: ''
-        isComplete: false
+      public static instanceDefaults() {
+        return {
+          id: null,
+          description: '',
+          isComplete: false
+        }
       }
     }
-    class ServiceTodo extends BaseModel {
+    class Todo extends BaseModel {
       public static instanceDefaults(data) {
         const priority = data.priority || 'normal'
         const defaultsByPriority = {
@@ -180,7 +186,7 @@ describe('Models - Relationships', function() {
           service: feathersClient.service('tasks')
         }),
         makeServicePlugin({
-          Model: ServiceTodo,
+          Model: Todo,
           service: feathersClient.service('service-todos')
         }),
         makeServicePlugin({
@@ -194,21 +200,12 @@ describe('Models - Relationships', function() {
         })
       ]
     })
-    this.Todo = ServiceTodo
-    this.Task = models.Task
-    this.Item = models.Item
+    this.Todo = Todo
+    this.Task = Task
+    this.Item = Item
   })
 
-  it('can setup relationships through es5 getters in instanceDefaults', function() {
-    const { Item, Todo } = this
-    const module = new Todo({ id: 5, description: 'hey' })
-    const item = new Item({})
-
-    assert(Array.isArray(item.todos), 'Received an array of todos')
-    assert(item.todos[0] === module, 'The todo was returned through the getter')
-  })
-
-  it('can have different instanceDefaults based on new instance data', function() {
+  it.only('can have different instanceDefaults based on new instance data', function() {
     const { Todo } = this
     const normalTodo = new Todo({
       description: 'Normal'
