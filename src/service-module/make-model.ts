@@ -112,7 +112,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Setup instanceDefaults, separate out accessors
       if (instanceDefaults && typeof instanceDefaults === 'function') {
-        const defaults = instanceDefaults.call(this, this, { models, store })
+        const defaults = instanceDefaults.call(this, data, { models, store })
         const { accessors, values } = separateAccessors(defaults)
         mergeWithAccessors(this, accessors)
         mergeWithAccessors(this, values)
