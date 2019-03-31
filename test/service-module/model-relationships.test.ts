@@ -58,7 +58,7 @@ describe('Models - `setupInstance` & Relational Data', function() {
     assert(todo.extraProp, 'got the extraProp')
   })
 
-  it.only('allows setting up relationships between models and other constructors', function() {
+  it('allows setting up relationships between models and other constructors', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'myApi'
     })
@@ -75,12 +75,6 @@ describe('Models - `setupInstance` & Relational Data', function() {
       public _id: string
       public firstName: string
       public email: string
-
-      public constructor(data, options?) {
-        super(data, options)
-
-        console.log(this)
-      }
     }
 
     function setupInstance(instance, { models, store }): Todo {
