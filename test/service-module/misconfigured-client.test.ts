@@ -22,7 +22,7 @@ describe('Service Module - Bad Client Setup', () => {
     } catch (error) {
       assert(
         error.message.includes(
-          'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport`.'
+          'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport.'
         ),
         'got an error with a misconfigured client'
       )
