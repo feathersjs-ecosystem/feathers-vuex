@@ -706,14 +706,21 @@ describe('Service Module', function() {
       })
 
       it(`does not remove missing items when autoRemove is off`, function(done) {
+        const {
+          makeServicePlugin,
+          Todo,
+          todosService
+        } = makeAutoRemoveContext()
         const store = new Vuex.Store<RootState>({
           plugins: [
-            this.service('service-todos', {
-              idField: '_id',
-              autoRemove: false
+            makeServicePlugin({
+              Model: Todo,
+              service: todosService,
+              idField: '_id'
             })
           ]
         })
+
         const todoState = store.state.todos
 
         assert(todoState.ids.length === 0)
@@ -723,7 +730,8 @@ describe('Service Module', function() {
           .dispatch('todos/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('service-todos').store[3]
+            // @ts-ignore
+            delete todosService.store[3]
             // We went around using the store actions, so there will still be three items.
             assert(
               todoState.ids.length === 3,
