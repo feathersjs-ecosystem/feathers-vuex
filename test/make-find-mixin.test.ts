@@ -58,7 +58,7 @@ describe('Find Mixin', function() {
       todosFetchParams: any
     }
 
-    const vm = new Vue<TodosComponent>({
+    const vm = new Vue({
       name: 'todos-component',
       mixins: [todosMixin],
       store,
