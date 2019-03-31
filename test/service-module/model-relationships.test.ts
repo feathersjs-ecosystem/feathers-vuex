@@ -188,7 +188,8 @@ describe('Models - Relationships', function() {
         return Object.assign(data, {
           get todos() {
             return Todo.findInStore({ query: {} }).data
-          }
+          },
+          ...(data.todo && { todo: new Todo(data.todo) })
         })
       }
     }
@@ -287,7 +288,7 @@ describe('Models - Relationships', function() {
   it('handles nested relationships', function() {
     const { Todo } = this
 
-    const module = new Todo({
+    const todo = new Todo({
       task: {
         id: 1,
         description: 'test',
@@ -303,7 +304,7 @@ describe('Models - Relationships', function() {
     })
 
     assert(
-      module.item.module.constructor.className === 'Todo',
+      todo.item.todo.constructor.name === 'Todo',
       'the nested todo is an instance of Todo'
     )
   })
