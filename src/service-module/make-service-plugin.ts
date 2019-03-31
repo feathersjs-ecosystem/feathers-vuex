@@ -51,14 +51,14 @@ export default function prepareMakeServicePlugin(
 
     if (!service) {
       throw new Error(
-        'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport`.'
+        'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport.'
       )
     }
 
     // Make sure we get a service path from either the service or the options
     let { servicePath } = options
     if (!servicePath) {
-      servicePath = getServicePath(service, Model.name)
+      servicePath = getServicePath(service, Model)
     }
     options.servicePath = servicePath
 

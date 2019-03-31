@@ -273,13 +273,18 @@ export function makeNamespace(namespace, servicePath, nameStyle) {
  * @param service
  * @param modelName
  */
-export function getServicePath(service: any, modelName: string) {
-  if (!service.name) {
+export function getServicePath(service: any, Model: 'any') {
+  // @ts-ignore
+  if (!service.name && !service.path && !Model.servicePath) {
     throw new Error(
-      `Service for model named ${modelName} is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
+      `Service for model named ${
+        // @ts-ignore
+        Model.name
+      } is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by adding a static servicePath =  passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
     )
   }
-  return service.path || service.name
+  // @ts-ignore
+  return service.path || service.name || Model.servicePath
 }
 
 export function randomString(length) {
