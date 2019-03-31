@@ -171,7 +171,8 @@ describe('Models - Relationships', function() {
 
         return Object.assign(data, {
           ...(data.task && { task: new Task(data.task) }),
-          ...(data.item && { item: new Item(data.item) })
+          ...(data.item && { item: new Item(data.item) }),
+          ...(data.items && { items: data.items.map(item => new Item(item)) })
         })
       }
     }
@@ -412,12 +413,12 @@ describe('Models - Relationships', function() {
   })
 
   it(`handles arrays of related data`, function() {
-    const { Todo, store } = this
+    const { Todo, Item } = this
 
     const todo1 = new Todo({
       id: 'todo-1',
       description: 'todo description',
-      item: [
+      items: [
         {
           id: 'item-1',
           test: true
@@ -431,7 +432,7 @@ describe('Models - Relationships', function() {
     const todo2 = new Todo({
       id: 'todo-2',
       description: 'todo description',
-      item: [
+      items: [
         {
           id: 'item-3',
           test: true
@@ -446,12 +447,12 @@ describe('Models - Relationships', function() {
     assert(todo1, 'todo1 is an instance')
     assert(todo2, 'todo2 is an instance')
 
-    const storedTodo1 = store.state.todos.keyedById['todo-1']
-    const storedTodo2 = store.state.todos.keyedById['todo-2']
-    const storedItem1 = store.state.items.keyedById['item-1']
-    const storedItem2 = store.state.items.keyedById['item-2']
-    const storedItem3 = store.state.items.keyedById['item-3']
-    const storedItem4 = store.state.items.keyedById['item-4']
+    const storedTodo1 = Todo.getFromStore('todo-1')
+    const storedTodo2 = Todo.getFromStore('todo-2')
+    const storedItem1 = Item.getFromStore('item-1')
+    const storedItem2 = Item.getFromStore('item-2')
+    const storedItem3 = Item.getFromStore('item-3')
+    const storedItem4 = Item.getFromStore('item-4')
 
     assert(storedTodo1, 'should have todo 1')
     assert(storedTodo2, 'should have todo 2')
