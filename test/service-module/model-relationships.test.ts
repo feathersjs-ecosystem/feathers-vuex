@@ -10,7 +10,7 @@ import { clearModels } from '../../src/service-module/global-models'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 
-describe('Models - `setupInstance` & Relational Data', function() {
+describe('Models - `setupInstance` & Relatioships', function() {
   beforeEach(function() {
     clearModels()
   })
@@ -166,16 +166,30 @@ describe('Models - Relationships', function() {
         }
         return defaultsByPriority[priority]
       }
+      public static setupInstance(data, { models, store }) {
+        const { Task, Item } = models.myApi
+
+        return Object.assign(data, {
+          ...(data.task && { task: new Task(data.task) }),
+          ...(data.item && { item: new Item(data.item) })
+        })
+      }
     }
     class Item extends BaseModel {
-      public static instanceDefaults({ Models }) {
+      public static instanceDefaults() {
         return {
           test: false,
-          todo: 'Todo',
-          get todos() {
-            return Models.Todo.findInStore({ query: {} }).data
-          }
+          todo: 'Todo'
         }
+      }
+      public static setupInstance(data, { models, store }) {
+        const { Todo } = models.myApi
+
+        return Object.assign(data, {
+          get todos() {
+            return Todo.findInStore({ query: {} }).data
+          }
+        })
       }
     }
     this.store = new Vuex.Store({
@@ -205,7 +219,7 @@ describe('Models - Relationships', function() {
     this.Item = Item
   })
 
-  it.only('can have different instanceDefaults based on new instance data', function() {
+  it('can have different instanceDefaults based on new instance data', function() {
     const { Todo } = this
     const normalTodo = new Todo({
       description: 'Normal'
@@ -225,30 +239,10 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('converts keys that match Model names into Model instances', function() {
-    const { Todo, store } = this
-    const module = new Todo({
-      task: {
-        description: 'test',
-        isComplete: true
-      }
-    })
-
-    assert(
-      module.task.constructor.className === 'Task',
-      'task is an instance of Task'
-    )
-    assert.deepEqual(
-      store.state.tasks.keyedById,
-      {},
-      'nothing was added to the store'
-    )
-  })
-
   it('adds model instances containing an id to the store', function() {
-    const { Todo, store } = this
+    const { Todo, Task } = this
 
-    const module = new Todo({
+    const todo = new Todo({
       task: {
         id: 1,
         description: 'test',
@@ -257,16 +251,16 @@ describe('Models - Relationships', function() {
     })
 
     assert.deepEqual(
-      store.state.tasks.keyedById[1],
-      module.task,
+      Task.getFromStore(1),
+      todo.task,
       'task was added to the store'
     )
   })
 
   it('works with multiple keys that match Model names', function() {
-    const { Todo, store } = this
+    const { Todo, Task, Item } = this
 
-    const module = new Todo({
+    const todo = new Todo({
       task: {
         id: 1,
         description: 'test',
@@ -279,13 +273,13 @@ describe('Models - Relationships', function() {
     })
 
     assert.deepEqual(
-      store.state.tasks.keyedById[1],
-      module.task,
+      Task.getFromStore(1),
+      todo.task,
       'task was added to the store'
     )
     assert.deepEqual(
-      store.state.items.keyedById[2],
-      module.item,
+      Item.getFromStore(2),
+      todo.item,
       'item was added to the store'
     )
   })
