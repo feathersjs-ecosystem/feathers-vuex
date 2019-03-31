@@ -3,39 +3,31 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+
+import { omit as _omit, pick as _pick } from 'lodash'
+
 export default function makeDefaultState(servicePath, options) {
-  const {
-    idField,
-    autoRemove,
-    enableEvents,
-    addOnUpsert,
-    diffOnPatch,
-    serverAlias,
-    skipRequestIfExists,
-    preferUpdate,
-    replaceItems,
-    paramsForServer,
-    whitelist
-  } = options
+  const nonStateProps = [
+    'actions',
+    'getters',
+    'instanceDefaults',
+    'Model',
+    'mutations',
+    'serialize',
+    'service',
+    'setupInstance',
+    'state',
+    'actions'
+  ]
 
   const state = {
     ids: [],
     keyedById: {},
     copiesById: {},
     tempsById: {},
-    idField,
-    servicePath,
-    autoRemove,
-    enableEvents,
-    addOnUpsert,
-    diffOnPatch,
-    skipRequestIfExists,
-    preferUpdate,
-    replaceItems,
-    serverAlias,
-    paramsForServer,
-    whitelist,
     pagination: {},
+
+    modelName: options.Model.name,
 
     isFindPending: false,
     isGetPending: false,
@@ -52,5 +44,7 @@ export default function makeDefaultState(servicePath, options) {
     errorOnRemove: null
   }
 
-  return state
+  const startingState = _omit(options, nonStateProps)
+
+  return Object.assign({}, state, startingState)
 }

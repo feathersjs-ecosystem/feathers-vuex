@@ -95,6 +95,25 @@ function makeContext() {
   }
 }
 
+function makeContextWithState() {
+  const feathers = makeFeathersRestClient()
+  const service = feathers.use('service-todos', memory({ store: makeTodos() }))
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
+    serverAlias: 'basics'
+  })
+  class ServiceTodo extends BaseModel {
+    public static test: boolean = true
+  }
+
+  return {
+    feathers,
+    service,
+    makeServicePlugin,
+    BaseModel,
+    ServiceTodo
+  }
+}
+
 describe('Service Module', function() {
   beforeEach(() => {
     clearModels()
@@ -461,33 +480,28 @@ describe('Service Module', function() {
   })
 
   describe('Basics', () => {
-    beforeEach(function() {
-      this.feathers = makeFeathersRestClient()
-      this.feathers.use('service-todos', memory({ store: makeTodos() }))
-      this.fv = feathersVuex(this.feathers, {
-        serverAlias: 'basics'
-      })
-      class ServiceTodo extends this.fv.BaseModel {
-        public static test: boolean = true
-      }
-      this.ServiceTodo = ServiceTodo
-    })
-
     it('populates default store', function() {
+      const {
+        makeServicePlugin,
+        feathers,
+        ServiceTodo
+      } = makeContextWithState()
       const store = new Vuex.Store<RootState>({
         plugins: [
-          this.fv.makeServicePlugin({
-            Model: this.ServiceTodo,
-            service: this.feathers.service('service-todos')
+          makeServicePlugin({
+            servicePath: 'service-todos',
+            Model: ServiceTodo,
+            service: feathers.service('service-todos')
           })
         ]
       })
       const todoState = store.state['service-todos']
       const expectedState = {
+        addOnUpsert: false,
         autoRemove: false,
         copiesById: {},
-        copy: null,
-        currentId: null,
+        debug: false,
+        diffOnPatch: true,
         enableEvents: true,
         errorOnCreate: null,
         errorOnGet: null,
@@ -503,14 +517,18 @@ describe('Service Module', function() {
         isUpdatePending: false,
         isPatchPending: false,
         isRemovePending: false,
+        keepCopiesInStore: false,
         keyedById: {},
-        modelName: 'Todo',
-        addOnUpsert: false,
-        diffOnPatch: false,
+        nameStyle: 'short',
+        namespace: 'service-todos',
+        modelName: 'ServiceTodo',
+        serverAlias: 'basics',
         skipRequestIfExists: false,
         preferUpdate: false,
         replaceItems: false,
         servicePath: 'service-todos',
+        tempIdField: '__id',
+        tempsById: {},
         pagination: {},
         paramsForServer: [],
         whitelist: []
