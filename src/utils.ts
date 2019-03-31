@@ -13,6 +13,7 @@ import {
   trim as _trim
 } from 'lodash'
 import ObjectID from 'bson-objectid'
+import { models } from './index'
 
 export function stripSlashes(location: string) {
   return _trim(location, '/')
@@ -302,6 +303,13 @@ export function createRelatedInstance({ item, Model, idField, store }) {
   return { model, storedModel }
 }
 
+export function isBaseModelInstance(item) {
+  const baseModels = Object.keys(models).map(alias => models[alias].BaseModel)
+  return !!baseModels.find(BaseModel => {
+    return item instanceof BaseModel
+  })
+}
+
 export function mergeWithAccessors(dest, source) {
   const sourceProps = Object.getOwnPropertyNames(source)
   const destProps = Object.getOwnPropertyNames(dest)
@@ -342,7 +350,7 @@ export function mergeWithAccessors(dest, source) {
     // Assign values
     // Do not allow sharing of deeply-nested objects between instances
     // Potentially breaks accessors on nested data. Needs recursion if this is an issue
-    if (_isObject(sourceDesc.value)) {
+    if (_isObject(sourceDesc.value) && !isBaseModelInstance(sourceDesc.value)) {
       var value = fastCopy(sourceDesc.value)
     }
     dest[key] = value || sourceDesc.value
