@@ -7,7 +7,7 @@ import Vue from 'vue'
 import serializeError from 'serialize-error'
 import { updateOriginal, mergeWithAccessors, assignTempId } from '../utils'
 import { globalModels as models } from './global-models'
-import { get as _get, isObject as _isObject } from 'lodash'
+import { get as _get, isObject as _isObject, omit as _omit } from 'lodash'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -102,6 +102,11 @@ export default function makeServiceMutations() {
         Vue.delete(state.ids, index)
         Vue.delete(state.keyedById, idToBeRemoved)
       }
+    },
+
+    // Removes temp records
+    removeTemps(state, tempIds) {
+      state.tempsById = _omit(state.tempsById, tempIds)
     },
 
     removeItems(state, items) {

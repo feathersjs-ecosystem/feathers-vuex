@@ -8,10 +8,59 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
+import memory from 'feathers-memory'
 import Vuex from 'vuex'
+import { makeStore } from '../test-utils'
 
 interface RootState {
   transactions: ServiceState
+}
+
+class ComicService extends memory.Service {
+  public create(data, params, callback) {
+    return super.create(data, params, callback).then(response => {
+      delete response.__id
+      delete response.__isTemp
+      return response
+    })
+  }
+  public update(id, data, params, callback) {
+    data.createdAt = new Date()
+    // this._super(data, params, callback)
+  }
+}
+
+function makeContext() {
+  feathersClient.use(
+    'comics',
+    // @ts-ignore
+    new ComicService({ store: makeStore() })
+  )
+  const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+    serverAlias: 'default'
+  })
+  class Comic extends BaseModel {
+    public static test: boolean = true
+
+    public constructor(data, options?) {
+      super(data, options)
+    }
+  }
+  const store = new Vuex.Store({
+    plugins: [
+      makeServicePlugin({
+        Model: Comic,
+        service: feathersClient.service('comics'),
+        servicePath: 'comics'
+      })
+    ]
+  })
+  return {
+    makeServicePlugin,
+    BaseModel,
+    Comic,
+    store
+  }
 }
 
 describe('Models - Temp Ids', function() {
@@ -174,5 +223,32 @@ describe('Models - Temp Ids', function() {
     clone.reset()
 
     assert.equal(clone.amount, 1.99, 'clone was reset')
+  })
+
+  it('returns the keyedById record after create, not the tempsById record', function(done) {
+    const { Comic, store } = makeContext()
+
+    const comic = new Comic({
+      name: 'The Uncanny X-Men',
+      year: 1969
+    })
+
+    // Create a temp and make sure it's in the tempsById
+    const tempId = comic.__id
+    // @ts-ignore
+    assert(store.state.comics.tempsById[tempId])
+
+    comic
+      .save()
+      .then(response => {
+        // The comic record is no longer in tempsById
+        // @ts-ignore
+        assert(!store.state.comics.tempsById[tempId], 'temp is gone')
+        // The comic record moved to keyedById
+        // @ts-ignore
+        assert(store.state.comics.keyedById[response.id], 'now a real record')
+        done()
+      })
+      .catch(done)
   })
 })

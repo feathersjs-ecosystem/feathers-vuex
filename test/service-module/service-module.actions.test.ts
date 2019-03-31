@@ -10,6 +10,7 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 import { clearModels } from '../../src/service-module/global-models'
+import { makeStore } from '../test-utils'
 
 interface RootState {
   'my-todos': ServiceState
@@ -21,32 +22,15 @@ interface NumberedList {
   1?: {}
 }
 
-const makeStore = () => {
-  return {
-    0: { id: 0, description: 'Do the first' },
-    1: { id: 1, description: 'Do the second' },
-    2: { id: 2, description: 'Do the third' },
-    3: { id: 3, description: 'Do the fourth' },
-    4: { id: 4, description: 'Do the fifth' },
-    5: { id: 5, description: 'Do the sixth' },
-    6: { id: 6, description: 'Do the seventh' },
-    7: { id: 7, description: 'Do the eighth' },
-    8: { id: 8, description: 'Do the ninth' },
-    9: { id: 9, description: 'Do the tenth' }
-  }
-}
-
 function makeContext() {
-  const todoService = feathersClient.use(
+  feathersClient.use(
     'my-todos',
-    // @ts-ignore
     memory({
       store: makeStore()
     })
   )
-  const taskService = feathersClient.use(
+  feathersClient.use(
     'my-tasks',
-    // @ts-ignore
     memory({
       store: makeStore(),
       paginate: {
@@ -55,6 +39,8 @@ function makeContext() {
       }
     })
   )
+  const todoService = feathersClient.service('my-todos')
+  const taskService = feathersClient.service('my-tasks')
   const noIdService = feathersClient.use(
     'no-ids',
     // @ts-ignore

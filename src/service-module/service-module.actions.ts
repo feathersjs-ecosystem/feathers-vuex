@@ -110,15 +110,22 @@ export default function makeServiceActions(service) {
     },
 
     create({ commit, dispatch, state }, dataOrArray) {
-      const { idField } = state
+      const { idField, tempIdField } = state
       let data
       let params
+      let tempIds
 
       if (Array.isArray(dataOrArray)) {
         data = dataOrArray[0]
         params = dataOrArray[1]
       } else {
         data = dataOrArray
+      }
+
+      if (Array.isArray(data)) {
+        tempIds = data.map(i => i[tempIdField])
+      } else {
+        tempIds = [data[tempIdField]] // Array of tempIds
       }
 
       params = params || {}
@@ -143,6 +150,7 @@ export default function makeServiceActions(service) {
             response = state.keyedById[id]
           }
           commit('unsetPending', 'create')
+          commit('removeTemps', tempIds)
           return response
         })
         .catch(error => {
