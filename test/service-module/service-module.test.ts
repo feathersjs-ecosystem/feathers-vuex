@@ -604,7 +604,7 @@ describe('Service Module', function() {
         clearModels()
       })
 
-      it.only(`removes missing items when pagination is off`, function(done) {
+      it(`removes missing items when pagination is off`, function(done) {
         const {
           makeServicePlugin,
           Todo,
@@ -655,8 +655,20 @@ describe('Service Module', function() {
       })
 
       it(`does not remove missing items when pagination is on`, function(done) {
+        const {
+          makeServicePlugin,
+          Task,
+          tasksService
+        } = makeAutoRemoveContext()
         const store = new Vuex.Store<RootState>({
-          plugins: [this.service('tasks', { idField: '_id', autoRemove: true })]
+          plugins: [
+            makeServicePlugin({
+              Model: Task,
+              service: tasksService,
+              idField: '_id',
+              autoRemove: true
+            })
+          ]
         })
 
         const taskState = store.state.tasks
@@ -668,7 +680,8 @@ describe('Service Module', function() {
           .dispatch('tasks/find', { query: {} })
           .then(todos => {
             // Remove the third item from the service
-            delete this.feathersClient.service('tasks').store[3]
+            // @ts-ignore
+            delete tasksService.store[3]
             // We went around using the store actions, so there will still be three items.
             assert(
               taskState.ids.length === 3,
