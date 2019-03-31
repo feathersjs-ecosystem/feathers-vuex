@@ -20,7 +20,7 @@ describe('makeServicePlugin', function() {
 
   it('registers the vuex module with options', function() {
     interface RootState {
-      todos: { options: {} }
+      todos: {}
     }
 
     const serverAlias = 'default'
@@ -75,19 +75,22 @@ describe('makeServicePlugin', function() {
       serverAlias: 'default',
       servicePath: 'todos',
       skipRequestIfExists: false,
+      setupInstance: item => item,
       serialize: item => item,
       tempsById: {},
       whitelist: []
     }
 
     assert.deepEqual(
-      _omit(received, ['instanceDefaults', 'serialize']),
+      _omit(received, ['instanceDefaults', 'serialize', 'setupInstance']),
       // @ts-ignore
-      _omit(expected, ['instanceDefaults', 'serialize']),
+      _omit(expected, ['instanceDefaults', 'serialize', 'setupInstance']),
       'The module was registered.'
     )
     // @ts-ignore
     assert.equal(typeof received.serialize, 'function')
+    // @ts-ignore
+    assert.equal(typeof received.setupInstance, 'function')
     // @ts-ignore
     assert.equal(typeof received.instanceDefaults, 'function')
   })
