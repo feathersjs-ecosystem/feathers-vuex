@@ -27,8 +27,6 @@ export default function makeDefaultState(servicePath, options) {
     tempsById: {},
     pagination: {},
 
-    modelName: options.Model.name,
-
     isFindPending: false,
     isGetPending: false,
     isCreatePending: false,
@@ -42,6 +40,11 @@ export default function makeDefaultState(servicePath, options) {
     errorOnUpdate: null,
     errorOnPatch: null,
     errorOnRemove: null
+  }
+
+  if (options.Model) {
+    // @ts-ignore
+    state.modelName = options.Model.name
   }
 
   const startingState = _omit(options, nonStateProps)
