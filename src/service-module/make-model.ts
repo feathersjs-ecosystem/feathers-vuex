@@ -46,8 +46,12 @@ export default function makeModel(options: FeathersVuexOptions) {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
-    public static instanceDefaults
-    public static setupInstance
+    public static instanceDefaults(data, { models, store }) {
+      return data
+    }
+    public static setupInstance(data, { models, store }) {
+      return data
+    }
     public static serialize
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
@@ -90,9 +94,9 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // If it already exists, update the original and return
       if (hasValidId && !options.clone) {
-        const existingItem = getFromStore(id)
+        const existingItem = getFromStore.call(this.constructor, id)
         if (existingItem) {
-          _commit('updateItem', data)
+          _commit.call(this.constructor, 'updateItem', data)
           return existingItem
         }
       }
@@ -220,10 +224,10 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
 
-      _commit.call(this, `createCopy`, id)
+      _commit.call(this.constructor, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return _getters.call(this, 'getCopyById', id)
+        return _getters.call(this.constructor, 'getCopyById', id)
       } else {
         return copiesById[id]
       }
@@ -236,7 +240,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
-        _commit('resetCopy', id)
+        _commit.call(this.constructor, 'resetCopy', id)
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -250,7 +254,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
-        _commit('commitCopy', id)
+        _commit.call(this.constructor, 'commitCopy', id)
 
         return this
       } else {
@@ -263,10 +267,9 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public save(params) {
-      const id = this[options.idField]
+      const { idField, preferUpdate } = this.constructor as typeof BaseModel
+      const id = this[idField]
       if (id) {
-        const preferUpdate = Object.getPrototypeOf(this).constructor
-          .preferUpdate
         return preferUpdate ? this.update(params) : this.patch(params)
       } else {
         return this.create(params)
@@ -282,7 +285,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (data[options.idField] === null) {
         delete data[options.idField]
       }
-      return _dispatch('create', [data, params])
+      return _dispatch.call(this.constructor, 'create', [data, params])
     }
 
     /**
@@ -300,7 +303,11 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return _dispatch('patch', [this[idField], this, params])
+      return _dispatch.call(this.constructor, 'patch', [
+        this[idField],
+        this,
+        params
+      ])
     }
 
     /**
@@ -318,7 +325,11 @@ export default function makeModel(options: FeathersVuexOptions) {
         )
         return Promise.reject(error)
       }
-      return _dispatch('update', [this[idField], this, params])
+      return _dispatch.call(this.constructor, 'update', [
+        this[idField],
+        this,
+        params
+      ])
     }
 
     /**
@@ -328,7 +339,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public remove(params) {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
 
-      return _dispatch('remove', [this[idField], params])
+      return _dispatch.call(this.constructor, 'remove', [this[idField], params])
     }
 
     public toJSON() {
