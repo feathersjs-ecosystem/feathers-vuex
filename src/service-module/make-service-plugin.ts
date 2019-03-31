@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
-import { makeNamespace, getServicePath } from '../utils'
+import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import { get as _get } from 'lodash'
 
 const defaults = {
@@ -78,7 +78,7 @@ export default function prepareMakeServicePlugin(
         })
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
-      Object.assign(Model, {
+      assignIfNotPresent(Model, {
         store,
         namespace: options.namespace,
         servicePath,

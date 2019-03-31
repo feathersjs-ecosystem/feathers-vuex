@@ -401,3 +401,11 @@ export function checkNamespace(namespace, item) {
   }
   return namespace !== null && namespace !== undefined
 }
+
+export function assignIfNotPresent(Model, props): void {
+  for (let key in props) {
+    if (!Model.hasOwnProperty(key)) {
+      Model[key] = props[key]
+    }
+  }
+}
