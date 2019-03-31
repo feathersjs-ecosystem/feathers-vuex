@@ -758,7 +758,7 @@ describe('Service Module', function() {
 
   describe('Customizing Service Stores', function() {
     it('allows adding custom state', function() {
-      const { makeServicePlugin, ServiceTodo } = this
+      const { makeServicePlugin, ServiceTodo } = makeContext()
 
       const customState = {
         test: true,
@@ -776,12 +776,15 @@ describe('Service Module', function() {
         ]
       })
 
-      assert(store.state.todos.test === true, 'added custom state')
-      assert(store.state.todos.test2.test === true, 'added custom state')
+      assert(store.state['service-todos'].test === true, 'added custom state')
+      assert(
+        store.state['service-todos'].test2.test === true,
+        'added custom state'
+      )
     })
 
     it('allows custom mutations', function() {
-      const { makeServicePlugin, ServiceTodo } = this
+      const { makeServicePlugin, ServiceTodo } = makeContext()
       const state = { test: true }
       const customMutations = {
         setTestToFalse(state) {
@@ -799,15 +802,15 @@ describe('Service Module', function() {
         ]
       })
 
-      store.commit('todos/setTestToFalse')
+      store.commit('service-todos/setTestToFalse')
       assert(
-        store.state.todos.test === false,
+        store.state['service-todos'].test === false,
         'the custom state was modified by the custom mutation'
       )
     })
 
     it('allows custom getters', function() {
-      const { makeServicePlugin, ServiceTodo } = this
+      const { makeServicePlugin, ServiceTodo } = makeContext()
       const customGetters = {
         oneTwoThree(state) {
           return 123
@@ -824,13 +827,13 @@ describe('Service Module', function() {
       })
 
       assert(
-        store.getters['todos/oneTwoThree'] === 123,
+        store.getters['service-todos/oneTwoThree'] === 123,
         'the custom getter was available'
       )
     })
 
     it('allows adding custom actions', function() {
-      const { makeServicePlugin, ServiceTodo } = this
+      const { makeServicePlugin, ServiceTodo } = makeContext()
       const config = {
         state: {
           isTrue: false
@@ -856,8 +859,11 @@ describe('Service Module', function() {
         ]
       })
 
-      store.dispatch('todos/trigger')
-      assert(store.state.todos.isTrue === true, 'the custom action was run')
+      store.dispatch('service-todos/trigger')
+      assert(
+        store.state['service-todos'].isTrue === true,
+        'the custom action was run'
+      )
     })
   })
 
