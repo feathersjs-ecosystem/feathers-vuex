@@ -1,10 +1,10 @@
-const feathers = require('@feathersjs/feathers')
-const rest = require('@feathersjs/express/rest')
-const socketio = require('@feathersjs/socketio')
-const bodyParser = require('body-parser')
-const auth = require('@feathersjs/authentication')
-const jwt = require('@feathersjs/authentication-jwt')
-const memory = require('feathers-memory')
+import feathers from '@feathersjs/feathers'
+import rest from '@feathersjs/express/rest'
+import socketio from '@feathersjs/socketio'
+import bodyParser from 'body-parser'
+import auth from '@feathersjs/authentication'
+import jwt from '@feathersjs/authentication-jwt'
+import memory from 'feathers-memory'
 
 const app = feathers()
   .use(bodyParser.json())
@@ -14,17 +14,21 @@ const app = feathers()
   .use('/users', memory())
   .use('/todos', memory())
   .use('/errors', memory())
-  .configure(auth({
-    secret: 'test',
-    service: '/users'
-  }))
+  .configure(
+    auth({
+      secret: 'test',
+      service: '/users'
+    })
+  )
   .configure(jwt())
 
 app.service('/errors').hooks({
   before: {
-    all: [hook => {
-      throw new Error(`${hook.method} Denied!`)
-    }]
+    all: [
+      hook => {
+        throw new Error(`${hook.method} Denied!`)
+      }
+    ]
   }
 })
 
@@ -38,7 +42,7 @@ process.on('unhandledRejection', (reason, p) =>
 server.on('listening', () => {
   console.log(`Feathers application started on localhost:${port}`)
 
-  setTimeout(function () {
+  setTimeout(function() {
     server.close()
   }, 50000)
 })
