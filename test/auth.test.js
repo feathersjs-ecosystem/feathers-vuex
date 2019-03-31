@@ -17,12 +17,15 @@ describe('feathers-vuex:auth', () => {
     var app = {}
     var store = {}
     var plugin = feathersVuexAuth(store).bind(app)
-    assert.throws(plugin, 'You must first register the @feathersjs/authentication-client plugin')
+    assert.throws(
+      plugin,
+      'You must first register the @feathersjs/authentication-client plugin'
+    )
   })
 
   it('returns the app, is chainable', () => {
     var app = {
-      authenticate () {}
+      authenticate() {}
     }
     var store = {}
     var returnValue = feathersVuexAuth(store).bind(app)()
@@ -37,10 +40,10 @@ describe('feathers-vuex:auth', () => {
     assert(oldAuthenticate !== feathersClient.authenticate)
   })
 
-  it('dispatches actions to the store.', (done) => {
+  it('dispatches actions to the store.', done => {
     const feathersClient = makeFeathersRestClient()
     const fakeStore = {
-      dispatch (action) {
+      dispatch(action) {
         switch (action.type) {
           case actionTypes.FEATHERS_AUTH_REQUEST:
             assert(action.payload.test || action.payload.accessToken)
@@ -62,7 +65,8 @@ describe('feathers-vuex:auth', () => {
     feathersClient.configure(feathersVuexAuth(fakeStore))
 
     try {
-      feathersClient.authenticate({ test: true })
+      feathersClient
+        .authenticate({ test: true })
         .then(response => {
           feathersClient.logout()
           return response
@@ -70,11 +74,12 @@ describe('feathers-vuex:auth', () => {
         .catch(error => {
           assert(error.className === 'not-authenticated')
         })
-    } catch (err) {
-
-    }
+    } catch (err) {}
     try {
-      feathersClient.authenticate({ strategy: 'jwt', accessToken: 'q34twershtdyfhgmj' })
+      feathersClient.authenticate({
+        strategy: 'jwt',
+        accessToken: 'q34twershtdyfhgmj'
+      })
     } catch (err) {
       console.log(err)
     }
