@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 
-import { omit as _omit, pick as _pick } from 'lodash'
+import { omit as _omit } from 'lodash'
 
 export default function makeDefaultState(servicePath, options) {
   const nonStateProps = [
