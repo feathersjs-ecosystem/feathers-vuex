@@ -432,7 +432,7 @@ describe('Service Module', function() {
       assert(state.todos, 'uses `short` nameStyle by default')
     })
 
-    it.only('can customize the idField for each service', function() {
+    it('can customize the idField for each service', function() {
       const { makeServicePlugin, Test, Person } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
