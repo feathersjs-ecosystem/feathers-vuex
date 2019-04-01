@@ -91,9 +91,9 @@ Previously, when a record didn't have an `[idField]`, a console.error would ask 
 
 ## Getters Work with Temporary Records
 
-The `find` getter has been updated to include records from `state.tempsById`, by default.  You can pass `temps: false` in the params to only search `state.keyedById`.
+The `find` getter has been updated to include records from `state.tempsById`, by default.  You can pass `temps: false` in the params to only search `state.keyedById`: `find({ query: {}, temps: false })`
 
-
+The `get` getter has also been updated to work with temp ids.  Pass the tempId the way you normally would pass the id:  `get(tempId)`
 
 
 ## Changes to service module state
