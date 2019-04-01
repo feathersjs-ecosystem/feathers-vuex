@@ -20,6 +20,9 @@
         "--recursive",
         "${workspaceFolder}/test/**/*.ts"
       ],
+      "env": {
+        "TS_NODE_PROJECT": "tsconfig.esnext.json"
+      },
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
