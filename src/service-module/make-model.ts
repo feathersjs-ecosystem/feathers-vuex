@@ -350,9 +350,18 @@ export default function makeModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params) {
-      const { idField, _dispatch } = this.constructor as typeof BaseModel
+      const { idField, tempIdField, _dispatch, _commit } = this
+        .constructor as typeof BaseModel
 
-      return _dispatch.call(this.constructor, 'remove', [this[idField], params])
+      if (this.hasOwnProperty(idField)) {
+        return _dispatch.call(this.constructor, 'remove', [
+          this[idField],
+          params
+        ])
+      } else {
+        _commit.call(this.constructor, 'removeTemps', [this[tempIdField]])
+        return Promise.resolve(this)
+      }
     }
 
     public toJSON() {

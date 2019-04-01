@@ -164,6 +164,17 @@ describe('Models - Methods', function() {
     assert(called, 'update should have been called')
   })
 
+  it.only('instance.remove works with temp records', function() {
+    const { Task, store } = makeContext()
+    const task = new Task({ test: true })
+    const tempId = task.__id
+
+    task.remove()
+
+    // @ts-ignore
+    assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
+  })
+
   it('instance.toJSON', function() {
     const { Task } = makeContext()
     const task = new Task({ id: 1, test: true })
