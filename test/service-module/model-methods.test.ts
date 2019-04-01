@@ -164,7 +164,7 @@ describe('Models - Methods', function() {
     assert(called, 'update should have been called')
   })
 
-  it.only('instance.remove works with temp records', function() {
+  it('instance.remove works with temp records', function() {
     const { Task, store } = makeContext()
     const task = new Task({ test: true })
     const tempId = task.__id
