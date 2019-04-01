@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "moduleResolution": "node",
-    "target": "esnext",
+    "target": "ES5",
     "sourceMap": true
   },
   "include": [
