@@ -69,8 +69,15 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    get: ({ keyedById, idField }) => (id, params = {}) => {
-      return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
+    get: state => (id, params = {}) => {
+      const { keyedById, tempsById, idField, tempIdField } = state
+      const record = keyedById[id]
+        ? select(params, idField)(keyedById[id])
+        : undefined
+      const tempRecord = tempsById[id]
+        ? select(params, tempIdField)(tempsById[id])
+        : undefined
+      return record || tempRecord
     },
     getCopyById: state => id => {
       return state.copiesById[id]

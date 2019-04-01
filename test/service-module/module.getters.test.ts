@@ -10,6 +10,7 @@ import makeServiceState from '../../src/service-module/service-module.state'
 
 const options = {
   idField: '_id',
+  tempIdField: '__id',
   autoRemove: false,
   serverAlias: 'default'
 }
@@ -53,6 +54,25 @@ describe('Service Module - Getters', function() {
 
       assert.deepEqual(record, item, 'item in correct order')
     })
+  })
+
+  it('get works on keyedById', function() {
+    const { state, items } = this
+    // @ts-ignore
+    const result = get(state)(1)
+
+    // @ts-ignore
+    assert.deepEqual(result, items[0])
+  })
+
+  it('get works on tempsById', function() {
+    const { state, items } = this
+    const tempId = Object.keys(state.tempsById)[0]
+    // @ts-ignore
+    const result = get(state)(tempId)
+
+    // @ts-ignore
+    assert(result.__id === tempId)
   })
 
   it('find', function() {
