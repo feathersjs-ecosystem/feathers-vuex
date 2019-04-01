@@ -95,7 +95,6 @@ The `find` getter has been updated to include records from `state.tempsById`, by
 
 The `get` getter has also been updated to work with temp ids.  Pass the tempId the way you normally would pass the id:  `get(tempId)`
 
-
 ## Changes to service module state
 
 The options are no longer at the root level of the service module state.  You'll find them all in the options key:
@@ -308,7 +307,6 @@ Object.assign({}, instanceDefaults(data), data, setupInstance(data))
 The new `setupInstance` method allows a lot of flexibility in creating new instances.  It has the exact same API as the `instanceDefaults` method.  The only difference is the order in which they are applied to the instance data.
 
 While you could technically use `setupInstance` to do all of your default values, the APIs have been kept separate to allow a clean separation between setting up defaults and establishing relationships and other constructors.
-
 
 ```js
 // See the `model-relationships.test.ts` file for example usage.

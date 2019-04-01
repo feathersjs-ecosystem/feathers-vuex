@@ -66,7 +66,7 @@ describe('Service Module - Getters', function() {
   })
 
   it('get works on tempsById', function() {
-    const { state, items } = this
+    const { state } = this
     const tempId = Object.keys(state.tempsById)[0]
     // @ts-ignore
     const result = get(state)(tempId)
