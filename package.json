@@ -29,11 +29,13 @@
     "prepare": "npm run compile",
     "prepublish": "npm run compile",
     "publish": "git push origin --tags && git push origin",
+    "release:pre": "npm run compile && npm publish --tag pre",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
-    "compile": "shx rm -rf lib/ && tsc",
+    "compile": "shx rm -rf lib/ && tsc && npm run lint-dist",
+    "lint-dist": "prettier --write \"dist/**/*.js\"",
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
@@ -44,7 +46,6 @@
     "docs:build": "vuepress build docs"
   },
   "prettier": {
-    "fix": true,
     "singleQuote": true,
     "semi": false,
     "trailingComma": "none",
