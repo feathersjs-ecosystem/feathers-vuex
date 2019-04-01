@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, separateAccessors, checkNamespace } from '../utils'
-import { get as _get, merge as _merge } from 'lodash'
+import { get as _get, merge as _merge, omit as _omit } from 'lodash'
 
 // A hack to prevent error with this.constructor.preferUpdate
 interface Function {
@@ -52,7 +52,20 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static setupInstance(data, { models, store }) {
       return data
     }
-    public static serialize
+    public static serialize(item, { models, store }) {
+      return _omit(item, [
+        '_clone',
+        'clone',
+        'commit',
+        'create',
+        'patch',
+        'remove',
+        'reset',
+        'save',
+        'toJSON',
+        'update'
+      ])
+    }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
     public static store: Record<string, any>
@@ -343,8 +356,8 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public toJSON() {
-      const { serialize } = this.constructor as typeof BaseModel
-      const data = _merge({}, serialize(this))
+      const { serialize, store, models } = this.constructor as typeof BaseModel
+      const data = _merge({}, serialize(this, { store, models }))
       return data
     }
   }

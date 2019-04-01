@@ -22,6 +22,10 @@ export default function makeServiceGetters() {
     },
     find: state => params => {
       params = params || {}
+
+      // Set params.temps to false to not include the tempsById records
+      params.temps = params.hasOwnProperty('temps') ? params.temps : true
+
       const { paramsForServer, whitelist } = state
       const q = _omit(params.query || {}, paramsForServer)
       const customOperators = Object.keys(q).filter(
@@ -33,6 +37,11 @@ export default function makeServiceGetters() {
         operators: additionalOperators.concat(whitelist)
       })
       let values = _.values(state.keyedById)
+
+      if (params.temps) {
+        values = values.concat(_.values(state.tempsById))
+      }
+
       values = sift(query, values)
 
       const total = values.length
@@ -62,12 +71,6 @@ export default function makeServiceGetters() {
     },
     get: ({ keyedById, idField }) => (id, params = {}) => {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
-    },
-    current(state) {
-      return state.currentId ? state.keyedById[state.currentId] : null
-    },
-    getCopy(state) {
-      return state.copy ? state.copy : null
     },
     getCopyById: state => id => {
       return state.copiesById[id]

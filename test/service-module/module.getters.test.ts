@@ -14,7 +14,7 @@ const options = {
   serverAlias: 'default'
 }
 
-const { find, list } = makeServiceGetters()
+const { find, list, get } = makeServiceGetters()
 const { addItems } = makeServiceMutations()
 
 describe('Service Module - Getters', function() {
@@ -34,6 +34,10 @@ describe('Service Module - Getters', function() {
         otherField: true,
         test: false,
         movies: [{ actors: ['Tom Hanks', 'Tom Cruise', 'Tomcat'] }]
+      },
+      {
+        name: 'Mariah',
+        status: 'temp'
       }
     ]
     addItems(state, this.items)
@@ -57,6 +61,22 @@ describe('Service Module - Getters', function() {
     const results = find(state)(params)
 
     assert.deepEqual(results.data, items, 'the list was correct')
+    assert(results.limit === 0, 'limit was correct')
+    assert(results.skip === 0, 'skip was correct')
+    assert(results.total === 4, 'total was correct')
+  })
+
+  it('find without temps', function() {
+    const { state, items } = this
+    // Set temps: false to skip the temps.
+    const params = { query: {}, temps: false }
+    const results = find(state)(params)
+
+    assert.deepEqual(
+      results.data,
+      items.filter(i => i._id),
+      'the list was correct'
+    )
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
     assert(results.total === 3, 'total was correct')
@@ -155,7 +175,7 @@ describe('Service Module - Getters', function() {
     assert(results.data[0]._id === 1, 'the correct record was returned')
     assert(results.limit === 1, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
-    assert(results.total === 3, 'total was correct')
+    assert(results.total === 4, 'total was correct')
   })
 
   it('find with skip', function() {
@@ -163,12 +183,12 @@ describe('Service Module - Getters', function() {
     const params = { query: { $skip: 1 } }
     const results = find(state)(params)
 
-    assert(results.data.length === 2, 'the length was correct')
+    assert(results.data.length === 3, 'the length was correct')
     assert(results.data[0]._id === 2, 'the correct record was returned')
     assert(results.data[1]._id === 3, 'the correct record was returned')
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 1, 'skip was correct')
-    assert(results.total === 3, 'total was correct')
+    assert(results.total === 4, 'total was correct')
   })
 
   it('find with limit and skip', function() {
@@ -180,7 +200,7 @@ describe('Service Module - Getters', function() {
     assert(results.data[0]._id === 2, 'the correct record was returned')
     assert(results.limit === 1, 'limit was correct')
     assert(results.skip === 1, 'skip was correct')
-    assert(results.total === 3, 'total was correct')
+    assert(results.total === 4, 'total was correct')
   })
 
   it('find with select', function() {
@@ -188,13 +208,17 @@ describe('Service Module - Getters', function() {
     const params = { query: { $select: ['otherField'] } }
     const results = find(state)(params)
 
-    assert(results.data.length === 3, 'the length was correct')
+    assert(results.data.length === 4, 'the length was correct')
     results.data.forEach(result => {
-      assert(Object.keys(result).length === 1, 'only one field was returned')
-      assert(result.otherField, 'the correct field was returned')
+      assert(Object.keys(result).length <= 1, 'only one field was returned')
     })
+    assert.equal(
+      results.data.filter(i => i.otherField).length,
+      3,
+      'three records have the field.'
+    )
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
-    assert(results.total === 3, 'total was correct')
+    assert(results.total === 4, 'total was correct')
   })
 })

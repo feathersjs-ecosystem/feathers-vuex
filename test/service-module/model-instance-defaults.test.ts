@@ -117,7 +117,7 @@ describe('Models - Default Values', function() {
     }
     const todo = new NakedTodo()
 
-    assert.deepEqual(todo, {}, 'default model is a temp')
+    assert.deepEqual(todo.toJSON(), {}, 'default model is an empty object')
   })
 
   it('models have tempIds when there is a store', function() {
