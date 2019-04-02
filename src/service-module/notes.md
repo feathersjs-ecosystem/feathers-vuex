@@ -259,6 +259,10 @@ commit('setError', { method: 'find', error })
 commit('clearError', 'find')
 ```
 
+## New Actions in the Service Module
+
+The `handleFindResponse` and `handleFindError` actions were previously enclosed inside the `find` action.  Since the majority fo the `find` action consisted of the response handler, they've been pulled out.  This allows for much better readability.  It's technically now possible to override both actions by providing replacements in the `makeServicePlugin` config.
+
 ## Relationships have been separated from `instanceDefaults`
 
 Feathers-Vuex 2.0 has a new API for establishing relationships between data.  Before we cover how it works, let's review the old API, first.

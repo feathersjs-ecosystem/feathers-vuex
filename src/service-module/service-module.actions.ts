@@ -7,54 +7,15 @@ import { observableDiff, applyChange } from 'deep-diff'
 
 export default function makeServiceActions(service) {
   const serviceActions = {
-    find({ commit, dispatch, state }, params) {
+    find({ commit, dispatch }, params) {
       params = params || {}
-      const { idField } = state
-      const handleResponse = response => {
-        const { qid = 'default', query } = params
-
-        dispatch('addOrUpdateList', response)
-        commit('unsetPending', 'find')
-
-        const mapItemFromState = item => {
-          const id = item[idField]
-
-          return state.keyedById[id]
-        }
-
-        // The pagination data will be under `pagination.default` or whatever qid is passed.
-        if (response.data) {
-          commit('updatePaginationForQuery', { qid, response, query })
-
-          const mappedFromState = response.data.map(mapItemFromState)
-
-          if (mappedFromState[0] !== undefined) {
-            response.data = mappedFromState
-          }
-        } else {
-          const mappedFromState = response.map(mapItemFromState)
-
-          if (mappedFromState[0] !== undefined) {
-            response = mappedFromState
-          }
-        }
-
-        dispatch('afterFind', response)
-
-        return response
-      }
-      const handleError = error => {
-        commit('setError', { method: 'find', error })
-        commit('unsetPending', 'find')
-        return Promise.reject(error)
-      }
 
       commit('setPending', 'find')
 
       return service
         .find(params)
-        .then(handleResponse)
-        .catch(handleError)
+        .then(response => dispatch('handleFindResponse', { params, response }))
+        .catch(error => dispatch('handleFindError', { params, error }))
     },
 
     // Two query syntaxes are supported, since actions only receive one argument.
@@ -247,6 +208,45 @@ export default function makeServiceActions(service) {
   }
 
   const actions = {
+    handleFindResponse({ state, commit, dispatch }, { params, response }) {
+      const { qid = 'default', query } = params
+      const { idField } = state
+
+      dispatch('addOrUpdateList', response)
+      commit('unsetPending', 'find')
+
+      const mapItemFromState = item => {
+        const id = item[idField]
+
+        return state.keyedById[id]
+      }
+
+      // The pagination data will be under `pagination.default` or whatever qid is passed.
+      if (response.data) {
+        commit('updatePaginationForQuery', { qid, response, query })
+
+        const mappedFromState = response.data.map(mapItemFromState)
+
+        if (mappedFromState[0] !== undefined) {
+          response.data = mappedFromState
+        }
+      } else {
+        const mappedFromState = response.map(mapItemFromState)
+
+        if (mappedFromState[0] !== undefined) {
+          response = mappedFromState
+        }
+      }
+
+      dispatch('afterFind', response)
+
+      return response
+    },
+    handleFindError({ commit }, { params, error }) {
+      commit('setError', { method: 'find', error })
+      commit('unsetPending', 'find')
+      return Promise.reject(error)
+    },
     afterFind() {},
     addOrUpdateList({ state, commit }, response) {
       const list = response.data || response
