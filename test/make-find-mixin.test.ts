@@ -89,4 +89,58 @@ describe('Find Mixin', function() {
       'no fetch params are in place by default, must be specified by the user'
     )
   })
+
+  it.skip('correctly forms mixin data for dynamic service', function() {
+    const tasksMixin = makeFindMixin({
+      service() {
+        return this.serviceName
+      }
+    })
+
+    interface TasksComponent {
+      tasks: []
+      serviceServiceName: string
+      isFindTasksPending: boolean
+      findTasks: Function
+      tasksLocal: boolean
+      tasksQid: string
+      tasksQueryWhen: Function
+      tasksParams: any
+      tasksFetchParams: any
+    }
+
+    const vm = new Vue({
+      name: 'tasls-component',
+      data: () => ({
+        serviceName: 'tasks'
+      }),
+      mixins: [tasksMixin],
+      store,
+      template: `<div></div>`
+    }).$mount()
+
+    assert.deepEqual(vm.tasks, [], 'tasks prop was empty array')
+    assert(
+      vm.hasOwnProperty('tasksPaginationData'),
+      'pagination data prop was present, even if undefined'
+    )
+    assert(vm.tasksServiceName === 'tasks', 'service name was correct')
+    assert(vm.isFindTasksPending === false, 'loading boolean is in place')
+    assert(typeof vm.findTasks === 'function', 'the find action is in place')
+    assert(vm.tasksLocal === false, 'local boolean is false by default')
+    assert(
+      vm.tasksQid === 'default',
+      'the default query identifier is in place'
+    )
+    assert(vm.tasksQueryWhen() === true, 'the default queryWhen is true')
+    // assert(vm.tasksWatch.length === 0, 'the default watch is an empty array')
+    assert(
+      vm.tasksParams === undefined,
+      'no params are in place by default, must be specified by the user'
+    )
+    assert(
+      vm.tasksFetchParams === undefined,
+      'no fetch params are in place by default, must be specified by the user'
+    )
+  })
 })
