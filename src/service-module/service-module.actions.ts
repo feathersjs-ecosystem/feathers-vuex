@@ -4,11 +4,13 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { observableDiff, applyChange } from 'deep-diff'
+import fastCopy from 'fast-copy'
 
 export default function makeServiceActions(service) {
   const serviceActions = {
     find({ commit, dispatch }, params) {
       params = params || {}
+      params = fastCopy(params)
 
       commit('setPending', 'find')
 
@@ -34,6 +36,8 @@ export default function makeServiceActions(service) {
         id = args
         params = {}
       }
+
+      params = fastCopy(params)
 
       if ('skipRequestIfExists' in params) {
         skipRequestIfExists = params.skipRequestIfExists
@@ -83,6 +87,8 @@ export default function makeServiceActions(service) {
         data = dataOrArray
       }
 
+      params = fastCopy(params)
+
       if (Array.isArray(data)) {
         tempIds = data.map(i => i[tempIdField])
       } else {
@@ -126,6 +132,8 @@ export default function makeServiceActions(service) {
 
       commit('setPending', 'update')
 
+      params = fastCopy(params)
+
       return service
         .update(id, data, params)
         .then(item => {
@@ -145,6 +153,8 @@ export default function makeServiceActions(service) {
       const { idField, diffOnPatch } = state
 
       commit('setPending', 'patch')
+
+      params = fastCopy(params)
 
       if (diffOnPatch) {
         let diff = {}
@@ -189,6 +199,7 @@ export default function makeServiceActions(service) {
       }
 
       params = params || {}
+      params = fastCopy(params)
 
       commit('setPending', 'remove')
 
@@ -208,6 +219,14 @@ export default function makeServiceActions(service) {
   }
 
   const actions = {
+    /**
+     * Handle the response from the find action.
+     *
+     * @param payload consists of the following two params
+     *   @param params - Remember that these params aren't what was sent to the
+     *         Feathers client.  The client modifies the params object.
+     *   @param response
+     */
     handleFindResponse({ state, commit, dispatch }, { params, response }) {
       const { qid = 'default', query } = params
       const { idField } = state
