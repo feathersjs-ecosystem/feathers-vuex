@@ -324,7 +324,11 @@ export function mergeWithAccessors(dest, source) {
     const sourceDesc = Object.getOwnPropertyDescriptor(source, key)
     const destDesc = Object.getOwnPropertyDescriptor(dest, key)
 
-    if (!sourceDesc.enumerable) {
+    // This might have to be uncommented, but we'll try it this way, for now.
+    // if (!sourceDesc.enumerable) {
+    //   return
+    // }
+    if (key === '__ob__') {
       return
     }
 
