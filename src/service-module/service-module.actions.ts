@@ -241,20 +241,16 @@ export default function makeServiceActions(service) {
       }
 
       // The pagination data will be under `pagination.default` or whatever qid is passed.
-      if (response.data) {
+      response.data &&
         commit('updatePaginationForQuery', { qid, response, query })
 
-        const mappedFromState = response.data.map(mapItemFromState)
-
-        if (mappedFromState[0] !== undefined) {
-          response.data = mappedFromState
-        }
-      } else {
-        const mappedFromState = response.map(mapItemFromState)
-
-        if (mappedFromState[0] !== undefined) {
-          response = mappedFromState
-        }
+      // Swap out the response records for their Vue-observable store versions
+      const data = response.data || response
+      const mappedFromState = data.map(mapItemFromState)
+      if (mappedFromState[0] !== undefined) {
+        response.data
+          ? (response.data = mappedFromState)
+          : (response = mappedFromState)
       }
 
       dispatch('afterFind', response)
