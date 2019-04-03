@@ -353,6 +353,80 @@ Where `instanceDefaults` props get replaced by instance data, the props returned
 Object.assign({}, instanceDefaults(data), data, setupInstance(data))
 ```
 
+### This part is out of date
+
+I'm testing out a version of the `mergeWithAccessors` utility function that allows copying non-enumerables, but still skips `__ob__` properties for Vue.Observables.  This section will require updating after I've integration tested it.
+
+Another important note when using es5 accessors (get/set) is that you must define the property as enumerable.  This is because the `mergeWithAccessors` utility that's used to clone and commit instances ignores any non-enumerable props.  Using the previous example as a starting point, this is how to define an es5 getter:
+
+```js
+function setupInstance(data, { models, store }) {
+  const { User } = models.myServerAlias
+
+  data = Object.assign(data, {
+    ...(data.user && { user: new User(data.user) }), // A single User instance
+    ...(data.tags && { tags: data.tags.map(t => new Tag(t)) }), // An array of Tag instances
+    ...(data.createdAt && { createdAt: new Date(data.createdAt) }) // A JavaScript Date Object
+  })
+
+  Object.defineProperties(data, {
+    fullName: {
+      enumerable: true,
+      get () {
+        return `${this.firstName} ${this.lastName}`
+      }
+    }
+  })
+
+  return data
+}
+```
+
+Making a getter enumerable means that it will get serialized in the toJSON method, by default.  This means that the attribute will get sent in requests to the API server.  This isn't a problem if the API strips away extra params without throwing an error.  For other APIs, it might be an issue.  To prevent the attribute from getting serialized in requests, you can override the toJSON method in the model class:
+
+```js
+import fastCopy from 'fast-copy'
+
+const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'myApi'
+})
+
+const Todo extends BaseModel {
+  // The `setupInstance` method must be a static method
+  static setupInstance(data, { models, store }) {
+    const { User } = models.myServerAlias
+
+    data = Object.assign(data, {
+      ...(data.user && { user: new User(data.user) }), // A single User instance
+      ...(data.tags && { tags: data.tags.map(t => new Tag(t)) }), // An array of Tag instances
+      ...(data.createdAt && { createdAt: new Date(data.createdAt) }) // A JavaScript Date Object
+    })
+
+    Object.defineProperties(data, {
+      fullName: {
+        enumerable: true,
+        get () {
+          return `${this.firstName} ${this.lastName}`
+        }
+      }
+    })
+
+    return data
+  }
+  // And toJSON is an instance prop
+  toJSON () {
+    // Copy the data so you don't modify the original
+    const copy = fastCopy(this)
+
+    // Delete the prop / modify as required
+    delete copy.fullName
+
+    // Return the modified data
+    return copy
+  }
+}
+```
+
 ## Preventing duplicate merge when extending BaseModel with a custom constructor
 
 The BaseModel constructor calls `mergeWithAccessors(this, newData)`.  This utility function correctly copies data between both regular objects and Vue.observable instances.  If you create a class where you need to do your own merging, you probably don't want `mergeWithAccessors` to run twice.  In this case, you can use the `merge: false` BaseModel instance option to prevent the internal merge.  You can then access the `mergeWithAccessors` method by calling `MyModel.merge(this, newData)`.  Here's an example:
