@@ -159,7 +159,7 @@ export default function makeServiceActions(service) {
       if (diffOnPatch) {
         let diff = {}
 
-        observableDiff(state.copy, data, function(d) {
+        observableDiff(state.keyedById[id], data, function(d) {
           if (d.path && d.path.length) {
             // Apply all changes except to the id property...
             if (d.path[d.path.length - 1] !== idField) {
