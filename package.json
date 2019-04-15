@@ -2,7 +2,7 @@
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
   "version": "2.0.0-pre.9",
-  "homepage": "https://github.com/feathersjs/feathers-vuex",
+  "homepage": "https:feathers-vuex.feathers-plus.com",
   "main": "lib/",
   "module": "dist/",
   "keywords": [
@@ -21,7 +21,7 @@
   },
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/feathersjs/feathers-vuex/issues"
+    "url": "https://github.com/feathers-plus/feathers-vuex/issues"
   },
   "engines": {
     "node": ">= 4.6.0"
