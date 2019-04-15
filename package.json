@@ -12,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/feathersjs/feathers-vuex.git"
+    "url": "git://github.com/feathers-plus/feathers-vuex.git"
   },
   "author": {
     "name": "Marshall Thompson",
