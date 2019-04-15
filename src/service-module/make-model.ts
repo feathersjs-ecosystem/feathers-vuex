@@ -52,20 +52,6 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static setupInstance(data, { models, store }) {
       return data
     }
-    public static serialize(item, { models, store }) {
-      return _omit(item, [
-        '_clone',
-        'clone',
-        'commit',
-        'create',
-        'patch',
-        'remove',
-        'reset',
-        'save',
-        'toJSON',
-        'update'
-      ])
-    }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
     public static store: Record<string, any>
@@ -368,9 +354,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public toJSON() {
-      const { serialize, store, models } = this.constructor as typeof BaseModel
-      const data = _merge({}, serialize(this, { store, models }))
-      return data
+      return _merge({}, this)
     }
   }
   addModel(BaseModel)

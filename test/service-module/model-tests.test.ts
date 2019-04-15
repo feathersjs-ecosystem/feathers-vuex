@@ -133,4 +133,28 @@ describe('TypeScript Class Inheritance', () => {
 
     assert(todo._options.servicePath === 'v1/todos', 'got static servicePath')
   })
+
+  it('cannot serialize instance methods', () => {
+    class BaseModel {
+      public clone() {
+        return this
+      }
+
+      public constructor(data) {
+        Object.assign(this, data)
+      }
+    }
+
+    class Todo extends BaseModel {
+      public serialize() {
+        return Object.assign({}, this, { serialized: true })
+      }
+    }
+
+    const todo = new Todo({ name: 'test' })
+    const json = JSON.parse(JSON.stringify(todo))
+
+    assert(!json.clone)
+    assert(!json.serialize)
+  })
 })

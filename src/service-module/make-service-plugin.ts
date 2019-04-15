@@ -18,8 +18,7 @@ const defaults = {
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
-  setupInstance: instance => instance, // Default setupInstance returns the instance
-  serialize: item => item // Default serialize function
+  setupInstance: instance => instance // Default setupInstance returns the instance
 }
 
 /**
@@ -45,8 +44,7 @@ export default function prepareMakeServicePlugin(
       nameStyle,
       instanceDefaults,
       setupInstance,
-      preferUpdate,
-      serialize
+      preferUpdate
     } = options
 
     if (!service) {
@@ -84,7 +82,6 @@ export default function prepareMakeServicePlugin(
         servicePath,
         instanceDefaults,
         setupInstance,
-        serialize,
         preferUpdate
       })
       addModel(Model)

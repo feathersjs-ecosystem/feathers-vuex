@@ -13,7 +13,6 @@ export default function makeDefaultState(servicePath, options) {
     'instanceDefaults',
     'Model',
     'mutations',
-    'serialize',
     'service',
     'setupInstance',
     'state',

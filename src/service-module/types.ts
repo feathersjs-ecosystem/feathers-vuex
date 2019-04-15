@@ -35,7 +35,6 @@ export interface MakeServicePluginOptions {
   servicePath?: string
   instanceDefaults?: () => {}
   setupInstance?: (data, { models, store }) => {}
-  serialize?: () => {}
   state?: {}
   getters?: {}
   mutations?: {}
