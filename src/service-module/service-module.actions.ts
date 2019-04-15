@@ -156,20 +156,21 @@ export default function makeServiceActions(service) {
 
       params = fastCopy(params)
 
-      if (diffOnPatch) {
-        let diff = {}
+      // This needs to be re-built, since we've removed state.copy
+      // if (diffOnPatch) {
+      //   let diff = {}
 
-        observableDiff(state.keyedById[id], data, function(d) {
-          if (d.path && d.path.length) {
-            // Apply all changes except to the id property...
-            if (d.path[d.path.length - 1] !== idField) {
-              applyChange(diff, data, d)
-            }
-          }
-        })
+      //   observableDiff(state.keyedById[id], data, function(d) {
+      //     if (d.path && d.path.length) {
+      //       // Apply all changes except to the id property...
+      //       if (d.path[d.path.length - 1] !== idField) {
+      //         applyChange(diff, data, d)
+      //       }
+      //     }
+      //   })
 
-        data = diff
-      }
+      //   data = diff
+      // }
 
       return service
         .patch(id, data, params)
