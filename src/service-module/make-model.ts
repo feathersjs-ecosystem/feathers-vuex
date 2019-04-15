@@ -355,7 +355,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       if (this.hasOwnProperty(idField)) {
         if (params.eager) {
-          _commit.call(this.constructor, 'removeItem', [this[idField]])
+          _commit.call(this.constructor, 'removeItem', this[idField])
         }
         return _dispatch.call(this.constructor, 'remove', [
           this[idField],
