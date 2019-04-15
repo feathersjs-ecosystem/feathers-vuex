@@ -17,6 +17,11 @@ Vue.use(Vuex)
 
 process.setMaxListeners(100)
 
+describe.skip('Model - Standalone', function() {
+  it.skip('allows using a model without a service', function() {})
+  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function() {})
+})
+
 describe('makeModel / BaseModel', function() {
   before(() => {
     clearModels()

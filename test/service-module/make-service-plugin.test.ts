@@ -7,6 +7,7 @@ import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { clearModels } from '../../src/service-module/global-models'
+import { clients } from '../../src/service-module/global-clients'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 import { pick as _pick, omit as _omit } from 'lodash'
@@ -16,6 +17,13 @@ Vue.use(Vuex)
 describe('makeServicePlugin', function() {
   beforeEach(() => {
     clearModels()
+  })
+
+  it('adds Feathers client to the global clients', () => {
+    feathersVuex(feathers, {
+      serverAlias: 'this is a test'
+    })
+    assert(clients.byAlias['this is a test'], 'got a reference to the client.')
   })
 
   it('registers the vuex module with options', function() {

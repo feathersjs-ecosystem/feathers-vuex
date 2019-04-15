@@ -9,6 +9,7 @@ import FeathersVuexGet from './FeathersVuexGet'
 import makeFindMixin from './make-find-mixin'
 import makeGetMixin from './make-get-mixin'
 import { globalModels as models } from './service-module/global-models'
+import { clients, addClient } from './service-module/global-clients'
 import makeModel from './service-module/make-model'
 import prepareMakeServicePlugin from './service-module/make-service-plugin'
 
@@ -48,6 +49,8 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     )
   }
 
+  addClient({ client: feathers, serverAlias: options.serverAlias })
+
   const BaseModel = makeModel(options)
   const makeServicePlugin = prepareMakeServicePlugin(options)
 
@@ -56,7 +59,8 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     BaseModel,
     makeAuthPlugin: setupAuthModule(feathers),
     FeathersVuex,
-    models
+    models,
+    clients
   }
 }
 
@@ -67,5 +71,6 @@ export {
   FeathersVuex,
   makeFindMixin,
   makeGetMixin,
-  models
+  models,
+  clients
 }
