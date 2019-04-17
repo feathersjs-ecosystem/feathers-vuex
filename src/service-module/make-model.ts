@@ -64,9 +64,8 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static readonly models = globalModels // Can access other Models here
     public static readonly copiesById = {}
 
-    protected __isClone: boolean
-
     public __id: string
+    public __isClone: boolean
     public data: Record<string, any>
 
     public static merge = mergeWithAccessors

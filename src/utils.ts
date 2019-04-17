@@ -315,7 +315,11 @@ export function isBaseModelInstance(item) {
   })
 }
 
-export function mergeWithAccessors(dest, source) {
+export function mergeWithAccessors(
+  dest,
+  source,
+  blacklist = ['__isClone', '__ob__']
+) {
   const sourceProps = Object.getOwnPropertyNames(source)
   const destProps = Object.getOwnPropertyNames(dest)
   const sourceIsVueObservable = sourceProps.includes('__ob__')
@@ -328,7 +332,7 @@ export function mergeWithAccessors(dest, source) {
     // if (!sourceDesc.enumerable) {
     //   return
     // }
-    if (key === '__ob__') {
+    if (blacklist.includes(key)) {
       return
     }
 
