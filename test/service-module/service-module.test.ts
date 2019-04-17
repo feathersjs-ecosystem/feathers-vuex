@@ -310,7 +310,7 @@ describe('Service Module', function() {
       )
     })
 
-    it(`doesn't change the original if you modify return value of a commit`, function() {
+    it(`changes the original if you modify return value of a commit`, function() {
       const { serviceTodo, owners } = this
       let serviceTodoClone = serviceTodo.clone()
 
@@ -325,8 +325,8 @@ describe('Service Module', function() {
 
       assert.deepEqual(
         serviceTodo.owners[0].name,
-        'Marshall',
-        'nested object in original todo was NOT changed'
+        'Ted',
+        'nested object in original todo was changed'
       )
     })
 

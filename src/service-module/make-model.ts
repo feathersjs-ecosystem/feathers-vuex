@@ -238,6 +238,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
         _commit.call(this.constructor, 'resetCopy', id)
+        return this
       } else {
         throw new Error('You cannot reset a non-copy')
       }
@@ -247,13 +248,13 @@ export default function makeModel(options: FeathersVuexOptions) {
      * Update a store instance to match a clone.
      */
     public commit() {
-      const { idField, tempIdField, _commit } = this
+      const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
         const id = this[idField] || this[tempIdField]
         _commit.call(this.constructor, 'commitCopy', id)
 
-        return this
+        return _getters.call(this.constructor, 'get', id)
       } else {
         throw new Error('You cannot call commit on a non-copy')
       }
