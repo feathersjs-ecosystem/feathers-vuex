@@ -103,8 +103,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (options.clone) {
         Object.defineProperty(this, '__isClone', {
           value: true,
-          enumerable: false,
-          writable: false
+          enumerable: false
         })
       }
 
