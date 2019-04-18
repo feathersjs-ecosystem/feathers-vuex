@@ -161,11 +161,11 @@ export default function makeServiceMutations() {
 
     // Creates a copy of the record with the passed-in id, stores it in copiesById
     createCopy(state, id) {
-      const { servicePath, keepCopiesInStore } = state
+      const { servicePath, keepCopiesInStore, serverAlias } = state
       const current = state.keyedById[id] || state.tempsById[id]
       const Model = _get(
         models,
-        `[${state.serverAlias}].byServicePath[${servicePath}]`
+        `[${serverAlias}].byServicePath[${servicePath}]`
       )
 
       if (Model) {

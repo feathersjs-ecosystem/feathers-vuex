@@ -7,6 +7,10 @@ import { assert } from 'chai'
 import makeServiceGetters from '../../src/service-module/service-module.getters'
 import makeServiceMutations from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
+import {
+  globalModels,
+  clearModels
+} from '../../src/service-module/global-models'
 
 const options = {
   idField: '_id',
@@ -15,7 +19,7 @@ const options = {
   serverAlias: 'default'
 }
 
-const { find, list, get } = makeServiceGetters()
+const { find, list, get, getCopyById } = makeServiceGetters()
 const { addItems } = makeServiceMutations()
 
 describe('Service Module - Getters', function() {
@@ -54,6 +58,49 @@ describe('Service Module - Getters', function() {
 
       assert.deepEqual(record, item, 'item in correct order')
     })
+  })
+
+  it('getCopyById with keepCopiesInStore: true', function() {
+    const state = {
+      keepCopiesInStore: true,
+      copiesById: {
+        1: { test: true }
+      }
+    }
+    // @ts-ignore
+    const result = getCopyById(state)(1)
+
+    // @ts-ignore
+    assert(result.test, 'got the copy')
+  })
+
+  it('getCopyById with keepCopiesInStore: false', function() {
+    const state = {
+      keepCopiesInStore: false,
+      servicePath: 'todos',
+      serverAlias: 'my-getters-test',
+      copiesById: {
+        1: { test: true }
+      }
+    }
+    Object.assign(globalModels, {
+      'my-getters-test': {
+        byServicePath: {
+          todos: {
+            copiesById: {
+              1: { test: true }
+            }
+          }
+        }
+      }
+    })
+    // @ts-ignore
+    const result = getCopyById(state)(1)
+
+    // @ts-ignore
+    assert(result.test, 'got the copy')
+
+    clearModels()
   })
 
   it('get works on keyedById', function() {

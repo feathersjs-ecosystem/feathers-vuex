@@ -7,6 +7,8 @@ import sift from 'sift'
 import commons from '@feathersjs/commons'
 import dbCommons from '@feathersjs/adapter-commons'
 import { omit as _omit } from 'lodash'
+import { globalModels as models } from './global-models'
+import { get as _get } from 'lodash'
 
 const { _ } = commons
 const { filterQuery, sorter, select } = dbCommons
@@ -80,7 +82,18 @@ export default function makeServiceGetters() {
       return record || tempRecord
     },
     getCopyById: state => id => {
-      return state.copiesById[id]
+      const { servicePath, keepCopiesInStore, serverAlias } = state
+
+      if (keepCopiesInStore) {
+        return state.copiesById[id]
+      } else {
+        const Model = _get(
+          models,
+          `[${serverAlias}].byServicePath[${servicePath}]`
+        )
+
+        return Model.copiesById[id]
+      }
     }
   }
 }
