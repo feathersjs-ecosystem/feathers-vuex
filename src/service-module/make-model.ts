@@ -73,9 +73,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static merge = mergeWithAccessors
 
     public constructor(data, options: BaseModelInstanceOptions) {
-      if (!data) {
-        return
-      }
+      const originalData = data
       options = Object.assign({}, defaultOptions, options)
       const {
         store,
@@ -87,7 +85,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         getFromStore,
         _commit
       } = this.constructor as typeof BaseModel
-      const id = data[idField] || data[tempIdField]
+      const id = data && (data[idField] || data[tempIdField])
       const hasValidId = id !== null && id !== undefined
 
       data = data || {}
@@ -127,8 +125,8 @@ export default function makeModel(options: FeathersVuexOptions) {
       }
 
       // Add the item to the store
-      // Make sure it wasn't an empty object.
-      if (!options.clone && options.commit !== false && store && data) {
+      // Make sure originalData wasn't an empty object.
+      if (!options.clone && options.commit !== false && store && originalData) {
         _commit.call(this.constructor, 'addItem', this)
       }
       return this
