@@ -103,6 +103,12 @@ export default function makeServiceActions(service) {
         .create(data, params)
         .then(response => {
           if (Array.isArray(response)) {
+            // If the response contains a real id, remove isTemp
+            response.forEach(item => {
+              if (item[idField]) {
+                delete item.__isTemp
+              }
+            })
             dispatch('addOrUpdateList', response)
             response = response.map(item => {
               const id = item[idField]
@@ -111,6 +117,11 @@ export default function makeServiceActions(service) {
             })
           } else {
             const id = response[idField]
+
+            // If the response contains a real id, remove isTemp
+            if (response[idField]) {
+              delete response.__isTemp
+            }
 
             dispatch('addOrUpdate', response)
 

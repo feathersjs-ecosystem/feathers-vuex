@@ -237,10 +237,12 @@ describe('Models - Temp Ids', function() {
     const tempId = comic.__id
     // @ts-ignore
     assert(store.state.comics.tempsById[tempId])
+    assert(comic.__isTemp)
 
     comic
       .save()
       .then(response => {
+        assert(!response.hasOwnProperty('__isTemp'))
         // The comic record is no longer in tempsById
         // @ts-ignore
         assert(!store.state.comics.tempsById[tempId], 'temp is gone')
