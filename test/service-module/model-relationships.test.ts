@@ -155,8 +155,6 @@ function makeContext() {
         normal: {
           description: '',
           isComplete: false,
-          task: 'Task',
-          item: 'Item',
           priority: ''
         },
         high: {

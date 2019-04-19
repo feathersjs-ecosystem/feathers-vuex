@@ -322,11 +322,18 @@ export function mergeWithAccessors(
 ) {
   const sourceProps = Object.getOwnPropertyNames(source)
   const destProps = Object.getOwnPropertyNames(dest)
-  const sourceIsVueObservable = sourceProps.includes('__ob__')
-  const destIsVueObservable = destProps.includes('__ob__')
+  let sourceIsVueObservable = sourceProps.includes('__ob__')
+  let destIsVueObservable = destProps.includes('__ob__')
   sourceProps.forEach(key => {
     const sourceDesc = Object.getOwnPropertyDescriptor(source, key)
     const destDesc = Object.getOwnPropertyDescriptor(dest, key)
+
+    // if (Array.isArray(source[key]) && source[key].find(i => i.__ob__)) {
+    //   sourceIsVueObservable = true
+    // }
+    // if (Array.isArray(dest[key]) && dest[key].find(i => i.__ob__)) {
+    //   destIsVueObservable = true
+    // }
 
     // This might have to be uncommented, but we'll try it this way, for now.
     // if (!sourceDesc.enumerable) {

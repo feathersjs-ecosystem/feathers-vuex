@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, separateAccessors, checkNamespace } from '../utils'
-import { get as _get, merge as _merge, omit as _omit } from 'lodash'
+import { get as _get, merge as _merge } from 'lodash'
 
 // A hack to prevent error with this.constructor.preferUpdate
 interface Function {
@@ -46,9 +46,11 @@ export default function makeModel(options: FeathersVuexOptions) {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
+    // eslint-disable-next-line
     public static instanceDefaults(data, { models, store }) {
       return data
     }
+    // eslint-disable-next-line
     public static setupInstance(data, { models, store }) {
       return data
     }
@@ -125,7 +127,8 @@ export default function makeModel(options: FeathersVuexOptions) {
       }
 
       // Add the item to the store
-      if (!options.clone && options.commit !== false && store) {
+      // Make sure it wasn't an empty object.
+      if (!options.clone && options.commit !== false && store && data) {
         _commit.call(this.constructor, 'addItem', this)
       }
       return this
