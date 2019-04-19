@@ -89,6 +89,16 @@ Feathers-Vuex 2.0 supports tracking temporary items and automatically assigns a 
 
 Previously, when a record didn't have an `[idField]`, a console.error would ask if you had configured the `idField` option.  Because of the new ability to handle temporary records, a message is only logged when assigning a temporary id to a record.  The `checkId` utility function has been removed, since this was its main purpose.
 
+Note: In order to get a tempId, you must pass at least an empty object to the constructor.  Supposing you have a Class named Todo:
+
+```js
+// This will not get you a tempId
+const noTempId = new Todo()
+
+// This will
+const todoWithTempId = new Todo({})
+```
+
 ## Getters Work with Temporary Records
 
 The `find` getter has been updated to include records from `state.tempsById`, by default.  You can pass `temps: false` in the params to only search `state.keyedById`: `find({ query: {}, temps: false })`

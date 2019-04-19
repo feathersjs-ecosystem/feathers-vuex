@@ -73,6 +73,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static merge = mergeWithAccessors
 
     public constructor(data, options: BaseModelInstanceOptions) {
+      // You have to pass at least an empty object to get a tempId.
       const originalData = data
       options = Object.assign({}, defaultOptions, options)
       const {
