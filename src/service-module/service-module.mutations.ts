@@ -22,6 +22,11 @@ export default function makeServiceMutations() {
       const id = item[idField]
       const isTemp = id === null || id === undefined
 
+      // If the response contains a real id, remove isTemp
+      if (id) {
+        delete item.__isTemp
+      }
+
       if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
         item = new Model(item)
       }
@@ -50,6 +55,11 @@ export default function makeServiceMutations() {
 
     for (let item of items) {
       let id = item[idField]
+
+      // If the response contains a real id, remove isTemp
+      if (id) {
+        delete item.__isTemp
+      }
 
       // Update the record
       if (id !== null && id !== undefined) {
