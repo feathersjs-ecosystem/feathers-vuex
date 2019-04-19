@@ -178,6 +178,9 @@ function makeContext() {
     }
   }
   class Item extends BaseModel {
+    public get todos() {
+      return BaseModel.models.Todo.findInStore({ query: {} }).data
+    }
     public static instanceDefaults() {
       return {
         test: false,
@@ -188,9 +191,6 @@ function makeContext() {
       const { Todo } = models.myApi
 
       return Object.assign(data, {
-        get todos() {
-          return Todo.findInStore({ query: {} }).data
-        },
         ...(data.todo && { todo: new Todo(data.todo) })
       })
     }
