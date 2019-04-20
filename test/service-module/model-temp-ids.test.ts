@@ -11,6 +11,7 @@ import { clearModels } from '../../src/service-module/global-models'
 import memory from 'feathers-memory'
 import Vuex from 'vuex'
 import { makeStore } from '../test-utils'
+import ObjectID from 'bson-objectid'
 
 interface RootState {
   transactions: ServiceState
@@ -98,6 +99,16 @@ describe('Models - Temp Ids', function() {
     // It should be non-enumerable and non-writable
     const desc = Object.getOwnPropertyDescriptor(txn, '__id')
     assert(desc.enumerable, 'it is enumerable')
+  })
+
+  it('allows specifying the value for the tempId', function() {
+    const context = makeContext()
+    const Comic = context.Comic
+    const oid = new ObjectID().toHexString()
+
+    const comic = new Comic({ __id: oid })
+
+    assert.equal(comic.__id, oid, 'the objectid was used')
   })
 
   it('adds to state.tempsById', function() {
