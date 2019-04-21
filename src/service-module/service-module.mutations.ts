@@ -35,6 +35,7 @@ export default function makeServiceMutations() {
         if (!item[tempIdField]) {
           var tempId = assignTempId(state, item)
         }
+        item.__isTemp = true
         newTempsById[tempId] = item
       } else {
         // Only add the id if it's not already in the `ids` list.

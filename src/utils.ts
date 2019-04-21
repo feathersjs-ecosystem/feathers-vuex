@@ -167,7 +167,6 @@ export function assignTempId(state, item) {
   }
   const newId = new ObjectID().toHexString()
   item[tempIdField] = newId
-  item.__isTemp = true
   return newId
 }
 

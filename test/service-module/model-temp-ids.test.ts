@@ -95,6 +95,7 @@ describe('Models - Temp Ids', function() {
 
     // Make sure we got an id.
     assert(txn.__id, 'the record got an __id')
+    assert(txn.__isTemp, 'item is a temp')
 
     // It should be non-enumerable and non-writable
     const desc = Object.getOwnPropertyDescriptor(txn, '__id')
@@ -108,6 +109,7 @@ describe('Models - Temp Ids', function() {
 
     const comic = new Comic({ __id: oid })
 
+    assert(comic.__isTemp, 'item is a temp')
     assert.equal(comic.__id, oid, 'the objectid was used')
   })
 
