@@ -51,6 +51,7 @@ export default function makeFindMixin(options) {
   const WATCH = `${prefix}Watch`
   const QUERY_WHEN = `${prefix}QueryWhen`
   const FIND_ACTION = `find${capitalized}`
+  const FIND_GETTER = `find${capitalized}InStore`
   const PAGINATION = `${prefix}PaginationData`
   const LOCAL = `${prefix}Local`
   const QID = `${prefix}Qid`
@@ -66,18 +67,18 @@ export default function makeFindMixin(options) {
     },
     computed: {
       [ITEMS]() {
-        return this[PARAMS]
-          ? this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
-          : []
+        return this[PARAMS] ? this[FIND_GETTER](this[PARAMS]).data : []
       },
       [ITEMS_FETCHED]() {
         if (this[FETCH_PARAMS]) {
-          return this.$store.getters[`${this[SERVICE_NAME]}/find`](
-            this[FETCH_PARAMS]
-          ).data
+          return this[FIND_GETTER](this[FETCH_PARAMS]).data
         } else {
           return this[ITEMS]
         }
+      },
+      [FIND_GETTER]() {
+        return params =>
+          this.$store.getters[`${this[SERVICE_NAME]}/find`](params)
       }
     },
     methods: {
