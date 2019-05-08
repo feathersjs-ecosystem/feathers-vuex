@@ -71,8 +71,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public data: Record<string, any>
 
     public static merge = mergeWithAccessors
-    // @ts-ignore
-    public static name = 'BaseModel'
+    public static modelName = 'BaseModel'
 
     public constructor(data, options: BaseModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
@@ -300,7 +299,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (!this[idField]) {
         const error = new Error(
           `Missing ${
-            options.idField
+          options.idField
           } property. You must create the data before you can patch with this data`
         )
         return Promise.reject(error)
@@ -322,7 +321,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (!this[idField]) {
         const error = new Error(
           `Missing ${
-            options.idField
+          options.idField
           } property. You must create the data before you can update with this data`
         )
         return Promise.reject(error)

@@ -21,10 +21,11 @@ export function prepareAddModel(options: FeathersVuexOptions) {
     globalModels[serverAlias] = globalModels[serverAlias] || {
       byServicePath: {}
     }
-    if (globalModels[serverAlias][Model.name] && options.debug) {
-      console.error(`Overwriting Model: models[${serverAlias}][${Model.name}].`)
+    const name = Model.modelName || Model.name
+    if (globalModels[serverAlias][name] && options.debug) {
+      console.error(`Overwriting Model: models[${serverAlias}][${name}].`)
     }
-    globalModels[serverAlias][Model.name] = Model
+    globalModels[serverAlias][name] = Model
     globalModels[serverAlias].byServicePath[Model.servicePath] = Model
   }
 }
