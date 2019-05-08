@@ -3,7 +3,7 @@
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
   "version": "2.0.0-pre.25",
   "homepage": "https:feathers-vuex.feathers-plus.com",
-  "main": "lib/",
+  "main": "dist/",
   "module": "dist/",
   "keywords": [
     "feathers",
