@@ -10,18 +10,19 @@ import { clearModels } from '../../src/service-module/global-models'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 
-describe('Models - `setupInstance` & Relatioships', function() {
-  beforeEach(function() {
+describe('Models - `setupInstance` & Relatioships', function () {
+  beforeEach(function () {
     clearModels()
   })
 
-  it('initializes instance with return value from setupInstance', function() {
+  it('initializes instance with return value from setupInstance', function () {
     let calledSetupInstance = false
 
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'myApi'
     })
     class Todo extends BaseModel {
+      public static modelName = 'Todo'
       public id?
       public description: string
 
@@ -58,11 +59,12 @@ describe('Models - `setupInstance` & Relatioships', function() {
     assert(todo.extraProp, 'got the extraProp')
   })
 
-  it('allows setting up relationships between models and other constructors', function() {
+  it('allows setting up relationships between models and other constructors', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'myApi'
     })
     class Todo extends BaseModel {
+      public static modelName = 'Todo'
       public id?
       public description: string
       public user: User
@@ -72,6 +74,7 @@ describe('Models - `setupInstance` & Relatioships', function() {
       }
     }
     class User extends BaseModel {
+      public static modelName = 'User'
       public _id: string
       public firstName: string
       public email: string
@@ -137,6 +140,7 @@ function makeContext() {
     serverAlias: 'myApi'
   })
   class Task extends BaseModel {
+    public static modelName = 'Task'
     public static instanceDefaults() {
       return {
         id: null,
@@ -149,6 +153,7 @@ function makeContext() {
     }
   }
   class Todo extends BaseModel {
+    public static modelName = 'Todo'
     public static instanceDefaults(data) {
       const priority = data.priority || 'normal'
       const defaultsByPriority = {
@@ -178,6 +183,7 @@ function makeContext() {
     }
   }
   class Item extends BaseModel {
+    public static modelName = 'Item'
     public get todos() {
       return BaseModel.models.Todo.findInStore({ query: {} }).data
     }
@@ -230,12 +236,12 @@ function makeContext() {
   }
 }
 
-describe('Models - Relationships', function() {
-  beforeEach(function() {
+describe('Models - Relationships', function () {
+  beforeEach(function () {
     clearModels()
   })
 
-  it('can have different instanceDefaults based on new instance data', function() {
+  it('can have different instanceDefaults based on new instance data', function () {
     const { Todo } = makeContext()
     const normalTodo = new Todo({
       description: 'Normal'
@@ -255,7 +261,7 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('adds model instances containing an id to the store', function() {
+  it('adds model instances containing an id to the store', function () {
     const { Todo, Task } = makeContext()
 
     const todo = new Todo({
@@ -273,7 +279,7 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('works with multiple keys that match Model names', function() {
+  it('works with multiple keys that match Model names', function () {
     const { Todo, Task, Item } = makeContext()
 
     const todo = new Todo({
@@ -300,7 +306,7 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('handles nested relationships', function() {
+  it('handles nested relationships', function () {
     const { Todo } = makeContext()
 
     const todo = new Todo({
@@ -324,7 +330,7 @@ describe('Models - Relationships', function() {
     )
   })
 
-  it('handles circular nested relationships', function() {
+  it('handles circular nested relationships', function () {
     const { Todo, Item } = makeContext()
 
     const todo = new Todo({
@@ -350,7 +356,7 @@ describe('Models - Relationships', function() {
     assert(todo.item.todo, 'todo still nested in itself')
   })
 
-  it('updates related data', function() {
+  it('updates related data', function () {
     const { Todo, Item, store } = makeContext()
 
     const module = new Todo({
@@ -385,7 +391,7 @@ describe('Models - Relationships', function() {
     assert.equal(storedItem.test, false, 'item.test should be false')
   })
 
-  it(`allows creating more than once relational instance`, function() {
+  it(`allows creating more than once relational instance`, function () {
     const { Todo, Item } = makeContext()
 
     const todo1 = new Todo({
@@ -426,7 +432,7 @@ describe('Models - Relationships', function() {
     assert.equal(storedItem.test, true, 'item.test should be true')
   })
 
-  it(`handles arrays of related data`, function() {
+  it(`handles arrays of related data`, function () {
     const { Todo, Item } = makeContext()
 
     const todo1 = new Todo({
@@ -476,7 +482,7 @@ describe('Models - Relationships', function() {
     assert(storedItem4, 'should have item 4')
   })
 
-  it('preserves relationships on clone', function() {
+  it('preserves relationships on clone', function () {
     const { Todo, Task } = makeContext()
 
     const todo = new Todo({
@@ -490,7 +496,7 @@ describe('Models - Relationships', function() {
 
     assert(clone.task instanceof Task, 'nested task is a Task')
   })
-  it('preserves relationships on commit', function() {
+  it('preserves relationships on commit', function () {
     const { Todo, Task } = makeContext()
 
     const todo = new Todo({
@@ -506,7 +512,7 @@ describe('Models - Relationships', function() {
     assert(original.task instanceof Task, 'nested task is a Task')
   })
 
-  it('preserves relationship with nested data clone and commit', function() {
+  it('preserves relationship with nested data clone and commit', function () {
     const { Todo } = makeContext()
 
     const todo = new Todo({

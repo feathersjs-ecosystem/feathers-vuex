@@ -71,22 +71,26 @@ function makeContext() {
     remove() {
       return Promise.reject(new Error('remove error'))
     },
-    setup() {}
+    setup() { }
   })
 
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
     serverAlias: 'default'
   })
   class Todo extends BaseModel {
+    public static modelName = 'Todo'
     public static test: boolean = true
   }
   class Task extends BaseModel {
+    public static modelName = 'Task'
     public static test: boolean = true
   }
   class NoId extends BaseModel {
+    public static modelName = 'NoId'
     public static test: boolean = true
   }
   class Broken extends BaseModel {
+    public static modelName = 'Broken'
     public static test: boolean = true
   }
   return {
@@ -505,7 +509,7 @@ describe('Service Module - Actions', () => {
               service: feathersClient.service('no-ids'),
               idField: '_id',
               actions: {
-                afterFind({}, response) {
+                afterFind({ }, response) {
                   assert(
                     response.data.length === 10,
                     'records were still returned'
@@ -557,7 +561,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Get', function() {
+  describe('Get', function () {
     it('updates store list state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -755,7 +759,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Create', function() {
+  describe('Create', function () {
     it('updates store list state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({

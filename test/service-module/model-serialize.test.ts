@@ -9,16 +9,17 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import { clearModels } from '../../src/service-module/global-models'
 import { omit as _omit } from 'lodash'
 
-describe('Models - Serialize', function() {
+describe('Models - Serialize', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('allows customizing toJSON', function() {
+  it('allows customizing toJSON', function () {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'myApi'
     })
     class Task extends BaseModel {
+      public static modelName = 'Task'
       public static instanceDefaults() {
         return {
           id: null,

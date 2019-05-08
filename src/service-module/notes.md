@@ -48,6 +48,7 @@ const {
 })
 
 class Todo extends BaseModel {
+  public static modelName = 'Todo'
   // customize the model as you see fit!
 }
 
@@ -155,6 +156,7 @@ Previous versions of Feathers-Vuex only supported a single FeathersVuexModel cla
 const { makeServicePlugin, BaseModel } = feathersVuex(feathers, { serverAlias: 'myApi' })
 
 class Todo extends BaseModel {
+  public static modelName = 'Todo'
   public static exampleProp: string = 'Hello, World! (notice the comma, folks!)'
 }
 
@@ -194,6 +196,7 @@ it('works with multiple, independent Feathers servers', function() {
     serverAlias: 'myApi'
   })
   class Todo extends myApi.BaseModel {
+    public static modelName = 'Todo'
     public test: boolean = true
   }
   const todosPlugin = myApi.makeServicePlugin({
@@ -207,6 +210,7 @@ it('works with multiple, independent Feathers servers', function() {
     serverAlias: 'theirApi'
   })
   class Task extends theirApi.BaseModel {
+    public static modelName = 'Task'
     public test: boolean = true
   }
   const tasksPlugin = theirApi.makeServicePlugin({
@@ -456,6 +460,7 @@ class Todo extends BaseModel {
     // Call the static merge method to do your own merging.
     Todo.merge(this, data)
   }
+  public static modelName = 'Todo'
 }
 ```
 
@@ -479,5 +484,6 @@ class Todo extends BaseModel {
     // Call the static merge method to do your own merging.
     Todo.merge(this, instanceData)
   }
+  public static modelName = 'Todo'
 }
 ```

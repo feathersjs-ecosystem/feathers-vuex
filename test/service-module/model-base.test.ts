@@ -17,17 +17,17 @@ Vue.use(Vuex)
 
 process.setMaxListeners(100)
 
-describe.skip('Model - Standalone', function() {
-  it.skip('allows using a model without a service', function() {})
-  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function() {})
+describe.skip('Model - Standalone', function () {
+  it.skip('allows using a model without a service', function () { })
+  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function () { })
 })
 
-describe('makeModel / BaseModel', function() {
+describe('makeModel / BaseModel', function () {
   before(() => {
     clearModels()
   })
 
-  it('properly sets up the BaseModel', function() {
+  it('properly sets up the BaseModel', function () {
     const alias = 'default'
     const { BaseModel } = feathersVuex(feathers, { serverAlias: alias })
     const {
@@ -86,7 +86,7 @@ describe('makeModel / BaseModel', function() {
     })
   })
 
-  it('allows customization through the FeathersVuexOptions', function() {
+  it('allows customization through the FeathersVuexOptions', function () {
     const { BaseModel } = feathersVuex(feathers, {
       serverAlias: 'myApi',
       idField: '_id',
@@ -99,7 +99,7 @@ describe('makeModel / BaseModel', function() {
     assert(serverAlias === 'myApi', 'serverAlias was set')
   })
 
-  it('receives store & other props after Vuex plugin is registered', function() {
+  it('receives store & other props after Vuex plugin is registered', function () {
     const { BaseModel, makeServicePlugin } = feathersVuex(feathers, {
       serverAlias: 'myApi'
     })
@@ -118,7 +118,7 @@ describe('makeModel / BaseModel', function() {
     assert.equal(servicePath, 'todos', 'servicePath is in place')
   })
 
-  it('allows access to other models after Vuex plugins are registered', function() {
+  it('allows access to other models after Vuex plugins are registered', function () {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
@@ -127,6 +127,7 @@ describe('makeModel / BaseModel', function() {
 
     // Create a Todo Model & Plugin
     class Todo extends BaseModel {
+      public static modelName = 'Todo'
       public test: boolean = true
     }
     const todosPlugin = makeServicePlugin({
@@ -137,6 +138,7 @@ describe('makeModel / BaseModel', function() {
 
     // Create a Task Model & Plugin
     class Task extends BaseModel {
+      public static modelName = 'Task'
       public test: boolean = true
     }
     const tasksPlugin = makeServicePlugin({
@@ -155,7 +157,7 @@ describe('makeModel / BaseModel', function() {
     assert.equal(Task.models, models, 'models available at Model.models')
   })
 
-  it('works with multiple, independent Feathers servers', function() {
+  it('works with multiple, independent Feathers servers', function () {
     // Create a Todo Model & Plugin on myApi
     const feathersMyApi = makeFeathersRestClient('https://api.my-api.com')
     const myApi = feathersVuex(feathersMyApi, {
@@ -163,6 +165,7 @@ describe('makeModel / BaseModel', function() {
       serverAlias: 'myApi'
     })
     class Todo extends myApi.BaseModel {
+      public static modelName = 'Todo'
       public test: boolean = true
     }
     const todosPlugin = myApi.makeServicePlugin({
@@ -176,6 +179,7 @@ describe('makeModel / BaseModel', function() {
       serverAlias: 'theirApi'
     })
     class Task extends theirApi.BaseModel {
+      public static modelName = 'Task'
       public test: boolean = true
     }
     const tasksPlugin = theirApi.makeServicePlugin({

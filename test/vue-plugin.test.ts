@@ -23,6 +23,7 @@ function makeContext() {
     serverAlias: 'make-find-mixin'
   })
   class FindModel extends BaseModel {
+    public static modelName = 'FindModel'
     public static test: boolean = true
   }
 
@@ -40,8 +41,8 @@ function makeContext() {
   }
 }
 
-describe('Vue Plugin', function() {
-  it('Adds the `$FeathersVuex` object to components', function() {
+describe('Vue Plugin', function () {
+  it('Adds the `$FeathersVuex` object to components', function () {
     const { store } = makeContext()
     const vm = new Vue({
       name: 'todos-component',

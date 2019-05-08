@@ -24,8 +24,9 @@ describe('TypeScript Class Inheritance', () => {
       }
     }
     class Todo extends BaseModel {
-      public description: string
+      public static modelName = 'Todo'
 
+      public description: string
       public static instanceDefaults = (data, options) => ({
         description: 'default description'
       })
@@ -69,6 +70,7 @@ describe('TypeScript Class Inheritance', () => {
       const { servicePath } = options
 
       class ServiceModel extends BaseModel {
+        public static modelName = 'ServiceModel'
         public constructor(data, options: ModelOptions = { servicePath: '' }) {
           options.servicePath = servicePath
           super(data, options)
@@ -78,6 +80,7 @@ describe('TypeScript Class Inheritance', () => {
     }
 
     class Todo extends makeServiceModel({ servicePath: 'todos' }) {
+      public static modelName = 'Todo'
       public description: string
 
       public static instanceDefaults = (data, options) => ({
@@ -116,6 +119,7 @@ describe('TypeScript Class Inheritance', () => {
     }
 
     class Todo extends BaseModel {
+      public static modelName = 'Todo'
       public static namespace: string = 'todos'
       public static servicePath: string = 'v1/todos'
 
@@ -146,6 +150,7 @@ describe('TypeScript Class Inheritance', () => {
     }
 
     class Todo extends BaseModel {
+      public static modelName = 'Todo'
       public serialize() {
         return Object.assign({}, this, { serialized: true })
       }

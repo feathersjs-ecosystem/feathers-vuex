@@ -32,13 +32,15 @@ function makeContext() {
     serverAlias: 'model-methods'
   })
   class Task extends BaseModel {
-    public servicePath: 'tasks'
+    public static modelName = 'Task'
+    public static servicePath: 'tasks'
     public constructor(data?, options?) {
       super(data, options)
     }
   }
   class Todo extends BaseModel {
-    public servicePath: 'todos'
+    public static modelName = 'Todo'
+    public static servicePath: 'todos'
     public constructor(data?, options?) {
       super(data, options)
     }
@@ -65,36 +67,36 @@ function makeContext() {
   }
 }
 
-describe('Models - Methods', function() {
+describe('Models - Methods', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('Model.find', function() {
+  it('Model.find', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.find === 'function')
   })
 
-  it('Model.findInStore', function() {
+  it('Model.findInStore', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.findInStore === 'function')
   })
 
-  it('Model.get', function() {
+  it('Model.get', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.get === 'function')
   })
 
-  it('Model.getFromStore', function() {
+  it('Model.getFromStore', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.getFromStore === 'function')
   })
 
-  it('instance.save calls create with correct arguments', function() {
+  it('instance.save calls create with correct arguments', function () {
     const { Task } = makeContext()
     const module = new Task({ test: true })
 
@@ -111,7 +113,7 @@ describe('Models - Methods', function() {
     module.save()
   })
 
-  it('instance.save passes params to create', function() {
+  it('instance.save passes params to create', function () {
     const { Task } = makeContext()
     const task = new Task({ test: true })
     let called = false
@@ -128,7 +130,7 @@ describe('Models - Methods', function() {
     assert(called, 'create should have been called')
   })
 
-  it('instance.save passes params to patch', function() {
+  it('instance.save passes params to patch', function () {
     const { Todo } = makeContext()
     const todo = new Todo({ id: 1, test: true })
     let called = false
@@ -145,7 +147,7 @@ describe('Models - Methods', function() {
     assert(called, 'patch should have been called')
   })
 
-  it('instance.save passes params to update', function() {
+  it('instance.save passes params to update', function () {
     const { Task } = makeContext()
     Task.preferUpdate = true
 
@@ -164,7 +166,7 @@ describe('Models - Methods', function() {
     assert(called, 'update should have been called')
   })
 
-  it('instance.remove works with temp records', function() {
+  it('instance.remove works with temp records', function () {
     const { Task, store } = makeContext()
     const task = new Task({ test: true })
     const tempId = task.__id
@@ -175,7 +177,7 @@ describe('Models - Methods', function() {
     assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
   })
 
-  it('instance.toJSON', function() {
+  it('instance.toJSON', function () {
     const { Task } = makeContext()
     const task = new Task({ id: 1, test: true })
 

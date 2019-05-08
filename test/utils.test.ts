@@ -17,14 +17,15 @@ interface RootState {
   auth: AuthState
 }
 
-describe('Utils', function() {
-  before(function() {
+describe('Utils', function () {
+  before(function () {
     const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
       feathersClient,
       { serverAlias: 'utils' }
     )
 
     class User extends BaseModel {
+      public static modelName = 'User'
       public static test: boolean = true
     }
 
@@ -35,7 +36,7 @@ describe('Utils', function() {
       User
     })
   })
-  it('properly populates auth', function() {
+  it('properly populates auth', function () {
     const store = new Vuex.Store<RootState>({
       plugins: [
         this.makeServicePlugin({
@@ -73,8 +74,8 @@ describe('Utils', function() {
       })
   })
 
-  describe('Inflections', function() {
-    it('properly inflects the service prefix', function() {
+  describe('Inflections', function () {
+    it('properly inflects the service prefix', function () {
       const decisionTable = [
         ['todos', 'todos'],
         ['TODOS', 'tODOS'],
@@ -93,7 +94,7 @@ describe('Utils', function() {
       })
     })
 
-    it('properly inflects the service capitalization', function() {
+    it('properly inflects the service capitalization', function () {
       const decisionTable = [
         ['todos', 'Todos'],
         ['TODOS', 'TODOS'],

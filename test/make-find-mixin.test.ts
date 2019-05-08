@@ -20,6 +20,7 @@ function makeContext() {
   })
 
   class FindModel extends BaseModel {
+    public static modelName = 'FindModel'
     public static test: boolean = true
   }
 
@@ -31,7 +32,7 @@ Vue.use(Vuex)
 // @ts-ignore
 Vue.use(FeathersVuex)
 
-describe('Find Mixin', function() {
+describe('Find Mixin', function () {
   const { makeServicePlugin, FindModel } = makeContext()
   const serviceName = 'todos'
   const store = new Vuex.Store({
@@ -43,7 +44,7 @@ describe('Find Mixin', function() {
     ]
   })
 
-  it('correctly forms mixin data', function() {
+  it('correctly forms mixin data', function () {
     const todosMixin = makeFindMixin({ service: 'todos' })
 
     interface TodosComponent {
@@ -90,7 +91,7 @@ describe('Find Mixin', function() {
     )
   })
 
-  it.skip('correctly forms mixin data for dynamic service', function() {
+  it.skip('correctly forms mixin data for dynamic service', function () {
     const tasksMixin = makeFindMixin({
       service() {
         return this.serviceName

@@ -64,6 +64,7 @@ function makeContext() {
     public static test: boolean = true
   }
   class Task extends BaseModel {
+    public static modelName = 'Task'
     public static test: boolean = true
   }
   class Car extends BaseModel {
@@ -138,10 +139,12 @@ function makeAutoRemoveContext() {
     serverAlias: 'autoRemove'
   })
   class Todo extends BaseModel {
+    public static modelName = 'Todo'
     public static servicePath: string = 'todos'
     public static test: boolean = true
   }
   class Task extends BaseModel {
+    public static modelName = 'Task'
     public static servicePath: string = 'tasks'
     public static test: boolean = true
   }
@@ -156,12 +159,12 @@ function makeAutoRemoveContext() {
   }
 }
 
-describe('Service Module', function() {
+describe('Service Module', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('registers a vuex plugin and Model for the service', function() {
+  it('registers a vuex plugin and Model for the service', function () {
     const { makeServicePlugin, ServiceTodo, BaseModel } = makeContext()
     const serviceName = 'service-todos'
     const feathersService = feathersClient.service(serviceName)
@@ -193,8 +196,8 @@ describe('Service Module', function() {
     assert(store.state[serviceName])
   })
 
-  describe('Models', function() {
-    beforeEach(function() {
+  describe('Models', function () {
+    beforeEach(function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -228,7 +231,7 @@ describe('Service Module', function() {
       this.ServiceTodo = ServiceTodo
     })
 
-    it('allows creating model clones', function() {
+    it('allows creating model clones', function () {
       const { ServiceTodo } = this
       const serviceTodoClone = this.serviceTodo.clone()
 
@@ -242,7 +245,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows modifying clones without affecting the original', function() {
+    it('allows modifying clones without affecting the original', function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -254,7 +257,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows commiting changes back to the original in the store', function() {
+    it('allows commiting changes back to the original in the store', function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -267,7 +270,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('performs a shallow merge when commiting back to the original record', function() {
+    it('performs a shallow merge when commiting back to the original record', function () {
       const { serviceTodo, owners } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -290,7 +293,7 @@ describe('Service Module', function() {
       )
     })
 
-    it(`no longer changes original if you don't use the return value of commit()`, function() {
+    it(`no longer changes original if you don't use the return value of commit()`, function () {
       const { serviceTodo, owners } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -310,7 +313,7 @@ describe('Service Module', function() {
       )
     })
 
-    it(`changes the original if you modify return value of a commit`, function() {
+    it(`changes the original if you modify return value of a commit`, function () {
       const { serviceTodo, owners } = this
       let serviceTodoClone = serviceTodo.clone()
 
@@ -330,7 +333,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows reseting copy changes back to match the original', function() {
+    it('allows reseting copy changes back to match the original', function () {
       const { serviceTodo } = this
       let serviceTodoClone = serviceTodo.clone()
 
@@ -347,7 +350,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('adds additional properties to model instances when more data arrives for the same id', function() {
+    it('adds additional properties to model instances when more data arrives for the same id', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -366,7 +369,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('ignores when new data with matching id has fewer props than current record', function() {
+    it('ignores when new data with matching id has fewer props than current record', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -385,7 +388,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('updates the new record when non-null, non-undefined values do not match', function() {
+    it('updates the new record when non-null, non-undefined values do not match', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -408,9 +411,10 @@ describe('Service Module', function() {
   })
 
   describe('Setting Up', () => {
-    it('service stores have global defaults', function() {
+    it('service stores have global defaults', function () {
       const { makeServicePlugin, BaseModel, Task } = makeContext()
       class Todo extends BaseModel {
+        public static modelName = 'Todo'
         public static test: boolean = true
       }
       const store = new Vuex.Store<RootState>({
@@ -432,7 +436,7 @@ describe('Service Module', function() {
       assert(state.todos, 'uses `short` nameStyle by default')
     })
 
-    it('can customize the idField for each service', function() {
+    it('can customize the idField for each service', function () {
       const { makeServicePlugin, Test, Person } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -460,7 +464,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows enabling autoRemove', function() {
+    it('allows enabling autoRemove', function () {
       const { makeServicePlugin, Test } = makeContext()
       const autoRemove = true
       const store = new Vuex.Store<RootState>({
@@ -479,7 +483,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('can switch to path name as namespace', function() {
+    it('can switch to path name as namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const plugin = makeServicePlugin({
         Model: Test,
@@ -497,7 +501,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('can explicitly provide a namespace', function() {
+    it('can explicitly provide a namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const store = new Vuex.Store<RootState>({
@@ -512,7 +516,7 @@ describe('Service Module', function() {
       assert(store.state.blah, 'the namespace option was used as the namespace')
     })
 
-    it('prioritizes the explicit namespace', function() {
+    it('prioritizes the explicit namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const nameStyle = 'path'
@@ -531,7 +535,7 @@ describe('Service Module', function() {
   })
 
   describe('Basics', () => {
-    it('populates default store', function() {
+    it('populates default store', function () {
       const {
         makeServicePlugin,
         feathers,
@@ -592,7 +596,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('throws an error if no service is provided', function() {
+    it('throws an error if no service is provided', function () {
       const { makeServicePlugin } = makeContext()
       try {
         new Vuex.Store({
@@ -608,12 +612,12 @@ describe('Service Module', function() {
       }
     })
 
-    describe('Auto-Remove Items', function() {
-      beforeEach(function() {
+    describe('Auto-Remove Items', function () {
+      beforeEach(function () {
         clearModels()
       })
 
-      it(`removes missing items when pagination is off`, function(done) {
+      it(`removes missing items when pagination is off`, function (done) {
         const {
           makeServicePlugin,
           Todo,
@@ -663,7 +667,7 @@ describe('Service Module', function() {
           })
       })
 
-      it(`does not remove missing items when pagination is on`, function(done) {
+      it(`does not remove missing items when pagination is on`, function (done) {
         const {
           makeServicePlugin,
           Task,
@@ -714,7 +718,7 @@ describe('Service Module', function() {
           })
       })
 
-      it(`does not remove missing items when autoRemove is off`, function(done) {
+      it(`does not remove missing items when autoRemove is off`, function (done) {
         const {
           makeServicePlugin,
           Todo,
@@ -765,8 +769,8 @@ describe('Service Module', function() {
     })
   })
 
-  describe('Customizing Service Stores', function() {
-    it('allows adding custom state', function() {
+  describe('Customizing Service Stores', function () {
+    it('allows adding custom state', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
 
       const customState = {
@@ -792,7 +796,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows custom mutations', function() {
+    it('allows custom mutations', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const state = { test: true }
       const customMutations = {
@@ -818,7 +822,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows custom getters', function() {
+    it('allows custom getters', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const customGetters = {
         oneTwoThree(state) {
@@ -841,7 +845,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows adding custom actions', function() {
+    it('allows adding custom actions', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const config = {
         state: {
@@ -876,12 +880,12 @@ describe('Service Module', function() {
     })
   })
 
-  describe.skip('Updates the Store on Events', function() {
+  describe.skip('Updates the Store on Events', function () {
     const fv = feathersVuex(feathersSocketioClient, {
       serverAlias: 'updates-store-on-events'
     })
 
-    it('created', function(done) {
+    it('created', function (done) {
       const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -903,7 +907,7 @@ describe('Service Module', function() {
       feathersSocketioClient.service('things').create({ test: true })
     })
 
-    it('patched', function(done) {
+    it('patched', function (done) {
       const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -927,7 +931,7 @@ describe('Service Module', function() {
       feathersSocketioClient.service('things').patch(1, { test: true })
     })
 
-    it('updated', function(done) {
+    it('updated', function (done) {
       const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -951,7 +955,7 @@ describe('Service Module', function() {
       feathersSocketioClient.service('things').update(1, { test: true })
     })
 
-    it('removed', function(done) {
+    it('removed', function (done) {
       const { Thing } = this
       const store = new Vuex.Store<RootState>({
         plugins: [
