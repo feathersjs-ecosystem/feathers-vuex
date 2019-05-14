@@ -56,6 +56,12 @@ describe('makeServicePlugin', function () {
       copiesById: {},
       diffOnPatch: true,
       enableEvents: true,
+      enabledEvents: {
+        created: () => true,
+        updated: () => true,
+        patched: () => true,
+        removed: () => true,
+      },
       errorOnCreate: null,
       errorOnFind: null,
       errorOnGet: null,

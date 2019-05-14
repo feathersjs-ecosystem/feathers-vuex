@@ -119,6 +119,12 @@ const state = {
     debug: false,
     diffOnPatch: true,
     enableEvents: true,
+    enabledEvents: {
+      created: () => true,
+      updated: () => true,
+      patched: () => true,
+      removed: () => true,
+    },
     idField: 'id',
     keepCopiesInStore: false,
     modelName: 'Todo',

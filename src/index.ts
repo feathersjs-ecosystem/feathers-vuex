@@ -22,6 +22,12 @@ const defaultOptions: FeathersVuexOptions = {
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
   diffOnPatch: true, // Only send changed data on patch. Sends the full object if set to false.
   enableEvents: true, // Listens to socket.io events when available
+  enabledEvents: {
+      created: () => true,
+      updated: () => true,
+      patched: () => true,
+      removed: () => true,
+  },
   idField: 'id', // The field in each record that will contain the id
   tempIdField: '__id',
   debug: false, // Set to true to enable logging messages.

@@ -9,6 +9,7 @@ export interface FeathersVuexOptions {
   debug?: boolean
   diffOnPatch?: boolean
   enableEvents?: boolean
+  enabledEvents?: EnabledEventsOptions,
   idField?: string
   tempIdField?: string
   keepCopiesInStore?: boolean
@@ -20,12 +21,20 @@ export interface FeathersVuexOptions {
   whitelist?: string[]
 }
 
+export interface EnabledEventsOptions {
+  created?: Function;
+  updated?: Function;
+  patched?: Function;
+  removed?: Function;
+}
+
 export interface MakeServicePluginOptions {
   Model: any
   service: any
   addOnUpsert?: boolean
   diffOnPatch?: boolean
   enableEvents?: boolean
+  enabledEvents?: EnabledEventsOptions
   idField?: string
   tempIdField?: string
   nameStyle?: string

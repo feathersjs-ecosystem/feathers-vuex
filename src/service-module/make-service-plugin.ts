@@ -89,18 +89,26 @@ export default function prepareMakeServicePlugin(
       // (3^) Setup real-time events
       if (options.enableEvents) {
         // Listen to socket events when available.
-        service.on('created', item =>
-          store.commit(`${options.namespace}/addItem`, item)
-        )
-        service.on('updated', item =>
-          store.commit(`${options.namespace}/updateItem`, item)
-        )
-        service.on('patched', item =>
-          store.commit(`${options.namespace}/updateItem`, item)
-        )
-        service.on('removed', item =>
-          store.commit(`${options.namespace}/removeItem`, item)
-        )
+        service.on('created', item => {
+          if (options.enabledEvents.created(item)) {
+            store.commit(`${options.namespace}/addItem`, item)
+          }
+        })
+        service.on('updated', item => {
+          if (options.enabledEvents.updated(item)) {
+            store.commit(`${options.namespace}/updateItem`, item)
+          }
+        })
+        service.on('patched', item => {
+          if (options.enabledEvents.patched(item)) {
+            store.commit(`${options.namespace}/updateItem`, item)
+          }
+        })
+        service.on('removed', item => {
+          if (options.enabledEvents.removed(item)) {
+            store.commit(`${options.namespace}/removeItem`, item)
+          }
+        })
       }
     }
   }
