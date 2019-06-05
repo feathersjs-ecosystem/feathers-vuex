@@ -11,6 +11,7 @@ describe('Service Module - Bad Client Setup', () => {
       serverAlias: 'misconfigured'
     })
     class MisconfiguredTask extends BaseModel {
+      public static modelName = 'MisconfiguredTask'
       public static test: boolean = true
     }
 

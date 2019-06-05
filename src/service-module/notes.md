@@ -406,6 +406,7 @@ const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
 })
 
 const Todo extends BaseModel {
+  public static modelName = 'Todo'
   // The `setupInstance` method must be a static method
   static setupInstance(data, { models, store }) {
     const { User } = models.myServerAlias
@@ -451,6 +452,7 @@ const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
 })
 
 class Todo extends BaseModel {
+  public static modelName = 'Todo'
   public constructor(data, options?) {
     options.merge = false // Prevent the internal merge from occurring.
     super(data, options)
@@ -468,6 +470,7 @@ It's important to note that setting `merge: false` in the options will disable t
 
 ```ts
 class Todo extends BaseModel {
+  public static modelName = 'Todo'
   public constructor(data, options?) {
     options.merge = false // Prevent the internal merge from occurring.
     super(data, options)

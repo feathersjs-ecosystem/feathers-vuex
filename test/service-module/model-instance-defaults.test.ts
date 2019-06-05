@@ -121,6 +121,7 @@ describe('Models - Default Values', function () {
     // Since we're not using this NakedTodo model in a service plugin, it doesn't get
     // monkey patched with the store.
     class NakedTodo extends BaseModel {
+      public static modelName = 'NakedTodo'
       public static test: boolean = true
     }
     const todo = new NakedTodo()
@@ -323,6 +324,8 @@ describe('Models - Default Values', function () {
     })
 
     class Person extends BaseModel {
+      public static modelName = 'Person'
+
       public constructor(data?, options?) {
         super(data, options)
       }
@@ -392,6 +395,8 @@ describe('Models - Default Values', function () {
     })
 
     class Person extends BaseModel {
+      public static modelName = 'Person'
+
       public constructor(data?, options?) {
         super(data, options)
       }

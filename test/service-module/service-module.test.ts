@@ -42,6 +42,7 @@ function makeContext() {
   })
 
   class ServiceTodo extends BaseModel {
+    public static modelName = 'ServiceTodo'
     public id
     public description: string
 
@@ -50,17 +51,21 @@ function makeContext() {
     }
   }
   class HotspotMedia extends BaseModel {
+    public static modelName = 'HotspotMedia'
     public id
     public description: string
   }
   class Media extends BaseModel {
+    public static modelName = 'Media'
     public id
     public description: string
   }
   class Person extends BaseModel {
+    public static modelName = 'Person'
     public static test: boolean = true
   }
   class Item extends BaseModel {
+    public static modelName = 'Item'
     public static test: boolean = true
   }
   class Task extends BaseModel {
@@ -68,15 +73,19 @@ function makeContext() {
     public static test: boolean = true
   }
   class Car extends BaseModel {
+    public static modelName = 'Car'
     public static test: boolean = true
   }
   class Group extends BaseModel {
+    public static modelName = 'Group'
     public static test: boolean = true
   }
   class Test extends BaseModel {
+    public static modelName = 'Test'
     public static test: boolean = true
   }
   class Thing extends BaseModel {
+    public static modelName = 'Thing'
     public static test: boolean = true
   }
 
@@ -103,6 +112,8 @@ function makeContextWithState() {
     serverAlias: 'basics'
   })
   class ServiceTodo extends BaseModel {
+    public static modelName = 'ServiceTodo'
+
     public static test: boolean = true
   }
 
