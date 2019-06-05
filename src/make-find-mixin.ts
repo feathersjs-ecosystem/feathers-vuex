@@ -77,8 +77,10 @@ export default function makeFindMixin(options) {
         }
       },
       [FIND_GETTER]() {
-        return params =>
-          this.$store.getters[`${this[SERVICE_NAME]}/find`](params)
+        return params => {
+          const serviceName = this[SERVICE_NAME]
+          return this.$store.getters[`${serviceName}/find`](params)
+        }
       }
     },
     methods: {
@@ -106,9 +108,9 @@ export default function makeFindMixin(options) {
               if (qid) {
                 paramsToUse.qid = qid
               }
-
+              const serviceName = this[SERVICE_NAME]
               return this.$store
-                .dispatch(`${this[SERVICE_NAME]}/find`, paramsToUse)
+                .dispatch(`${serviceName}/find`, paramsToUse)
                 .then(response => {
                   this[IS_FIND_PENDING] = false
                   return response
@@ -160,7 +162,8 @@ export default function makeFindMixin(options) {
 
   if (qid) {
     mixin.computed[PAGINATION] = function() {
-      return this.$store.state[this[SERVICE_NAME]].pagination[qid]
+      const serviceName = this[SERVICE_NAME]
+      return this.$store.state[serviceName].pagination[qid]
     }
   }
 
