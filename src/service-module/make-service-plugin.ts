@@ -84,6 +84,9 @@ export default function prepareMakeServicePlugin(
         setupInstance,
         preferUpdate
       })
+      if (!Model.modelName) {
+        throw new Error('The modelName property is required for Feathers-Vuex Models')
+      }
       addModel(Model)
 
       // (3^) Setup real-time events
