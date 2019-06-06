@@ -71,7 +71,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public data: Record<string, any>
 
     public static merge = mergeWithAccessors
-    public static modelName
+    public static modelName = 'BaseModel'
 
     public constructor(data, options: BaseModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
