@@ -6,7 +6,7 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "target": "es6",
-    "sourceMap": true
+    "sourceMap": false
   },
   "include": [
     "src/**/*"
