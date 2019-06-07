@@ -184,8 +184,7 @@ export default function makeFindMixin(options) {
     } else if (typeof value === 'string') {
       mixin.computed[NAME] = function() {
         // If the specified computed prop wasn't found, display an error.
-        if (returnTheValue) {
-        } else {
+        if (!returnTheValue) {
           if (!hasSomeAttribute(this, value, NAME)) {
             throw new Error(
               `Value for ${NAME} was not found on the component at '${value}'.`
