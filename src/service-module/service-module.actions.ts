@@ -150,6 +150,7 @@ export default function makeServiceActions(service) {
     },
 
     patch({ commit, dispatch, state }, [id, data, params]) {
+      // eslint-disable-next-line no-unused-vars
       const { idField, diffOnPatch } = state
 
       commit('setPending', 'patch')
@@ -259,7 +260,7 @@ export default function makeServiceActions(service) {
       return response
     },
     handleFindError({ commit }, { params, error }) {
-      commit('setError', { method: 'find', error })
+      commit('setError', { method: 'find', params, error })
       commit('unsetPending', 'find')
       return Promise.reject(error)
     },
