@@ -138,6 +138,12 @@ export default new Vuex.Store({
 
 With the above configuration, when you create a [`Todo` instance](./model-classes.md), it will have the attributes provided as `instanceDefaults`.  This is especially useful for binding to form data.  If the attributes aren't defined while binding, the automatic Vue reactivity won't work.  Remember to not set any of the attributes to `undefined`, but instead use `null`.  If not, the reactivity breaks, and you might spend some time wondering why your form is broken.
 
+### A Word Of Warning
+
+One thing to be aware of when using `instanceDefaults` as an object is that values can persist between instances and mutate separate instances. For example, when including an `Array`, changes made to one instance will affect any other instances of this model too.
+
+Using `instanceDefaults` as an object will be deprecated in the next major version of `feathers-vuex` so it's best to stick to the function option below.
+
 ## instanceDefaults | Function  <Badge text="1.7.0+" /> <Badge text="recommended" type="warn"/>
 
 A much more powerful API is available when you provide `instanceDefaults` as a function.  The function will be called with the following arguments and should return an instanceDefaults object.
