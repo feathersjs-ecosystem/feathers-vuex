@@ -79,7 +79,7 @@ describe('Find Mixin', function () {
       vm.todosQid === 'default',
       'the default query identifier is in place'
     )
-    assert(vm.todosQueryWhen() === true, 'the default queryWhen is true')
+    assert(vm.todosQueryWhen === true, 'the default queryWhen is true')
     // assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
     assert(
       vm.todosParams === undefined,
