@@ -201,7 +201,7 @@ export default function makeFindMixin(options) {
   setupAttribute(SERVICE_NAME, service, 'computed', true)
   setupAttribute(PARAMS, params)
   setupAttribute(FETCH_PARAMS, fetchQuery)
-  setupAttribute(QUERY_WHEN, queryWhen, 'methods')
+  setupAttribute(QUERY_WHEN, queryWhen, 'computed')
   setupAttribute(LOCAL, local)
 
   return mixin
