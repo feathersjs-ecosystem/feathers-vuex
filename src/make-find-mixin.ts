@@ -52,11 +52,15 @@ export default function makeFindMixin(options) {
   const QUERY_WHEN = `${prefix}QueryWhen`
   const FIND_ACTION = `find${capitalized}`
   const FIND_GETTER = `find${capitalized}InStore`
+  const HAVE_ITEMS_BEEN_REQUESTED_ONCE = `have${capitalized}BeenRequestedOnce`
+  const HAVE_ITEMS_LOADED_ONCE = `have${capitalized}LoadedOnce`
   const PAGINATION = `${prefix}PaginationData`
   const LOCAL = `${prefix}Local`
   const QID = `${prefix}Qid`
   const data = {
     [IS_FIND_PENDING]: false,
+    [HAVE_ITEMS_BEEN_REQUESTED_ONCE]: false,
+    [HAVE_ITEMS_LOADED_ONCE]: false,
     [WATCH]: watch,
     [QID]: qid
   }

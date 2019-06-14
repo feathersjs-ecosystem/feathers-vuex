@@ -51,6 +51,8 @@ describe('Find Mixin', function () {
       todos: []
       todosServiceName: string
       isFindTodosPending: boolean
+      haveTodosBeenRequestedOnce: boolean
+      haveTodosLoadedOnce: boolean
       findTodos: Function
       todosLocal: boolean
       todosQid: string
@@ -73,6 +75,8 @@ describe('Find Mixin', function () {
     )
     assert(vm.todosServiceName === 'todos', 'service name was correct')
     assert(vm.isFindTodosPending === false, 'loading boolean is in place')
+    assert(vm.haveTodosBeenRequestedOnce === false, 'requested once boolean is in place')
+    assert(vm.haveTodosLoadedOnce === false, 'loaded once boolean is in place')
     assert(typeof vm.findTodos === 'function', 'the find action is in place')
     assert(vm.todosLocal === false, 'local boolean is false by default')
     assert(
