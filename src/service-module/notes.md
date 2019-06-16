@@ -320,6 +320,35 @@ Where `instanceDefaults` props get replaced by instance data, the props returned
 Object.assign({}, instanceDefaults(data), data, setupInstance(data))
 ```
 
+## ES5 accessors are specified as properties of the model classes
+
+In the previous version of feathers-vuex, es5 getters and setters would commonly be put in the `instanceDefaults`.  They are now specified in the model class definition:
+
+```js
+class User extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  static modelName = 'User'
+  static instanceDefaults() {
+    return {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      roles: []
+    }
+  }
+  // Getters
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`
+  }
+  set primalName(val) {
+    this.name = 'Gorilla Dan'
+  }
+}
+```
+
 ## Define Relationships and Modify Data with `setupInstance`
 
 The new `setupInstance` method allows a lot of flexibility in creating new instances.  It has the exact same API as the `instanceDefaults` method.  The only difference is the order in which they are applied to the instance data.
