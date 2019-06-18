@@ -345,9 +345,21 @@ export function mergeWithAccessors(
     // If we're dealing with a Vue Observable, just assign the values.
     if (destIsVueObservable || sourceIsVueObservable) {
       if (_isObject(source[key])) {
-        dest[key] = fastCopy(source[key])
+        try {
+          dest[key] = fastCopy(source[key])
+        } catch (err) {
+          if(!err.message.includes('getter')) {
+            throw err
+          }
+        }
       } else {
-        dest[key] = source[key]
+        try {
+          dest[key] = source[key]
+        } catch(err) {
+          if(!err.message.includes('getter')) {
+            throw err
+          }
+        }
       }
       return
     }
