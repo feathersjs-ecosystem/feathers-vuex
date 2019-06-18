@@ -4,6 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "outDir": "dist",
+    "moduleResolution": "node",
     "target": "es6",
     "sourceMap": false
   },
