@@ -170,6 +170,28 @@ export function assignTempId(state, item) {
   return newId
 }
 
+/**
+ * Get the id from a record in this order:
+ *   1. id
+ *   2. _id
+ *   3. the `idField`
+ * @param item
+ */
+export function getId(item, idField) {
+  if (!item) {
+    return
+  }
+  if (item.hasOwnProperty('id')) {
+    return item.id
+  }
+  if (item.hasOwnProperty('_id')) {
+    return item._id
+  }
+  if (item.hasOwnProperty(idField)) {
+    return item[idField]
+  }
+}
+
 // Creates a Model class name from the last part of the servicePath
 export function getModelName(Model) {
   // If the Model.name has been customized, use it.
@@ -216,10 +238,10 @@ export function getServiceCapitalization(servicePath) {
   return name
 }
 
-export function updateOriginal(newData, existingItem) {
+export function updateOriginal(original, newData) {
   Object.keys(newData).forEach(key => {
     const newProp = newData[key]
-    const oldProp = existingItem[key]
+    const oldProp = original[key]
     let shouldCopyProp = false
 
     if (newProp === oldProp) {
@@ -227,7 +249,7 @@ export function updateOriginal(newData, existingItem) {
     }
 
     // If the old item doesn't already have this property, update it
-    if (!existingItem.hasOwnProperty(key)) {
+    if (!original.hasOwnProperty(key)) {
       shouldCopyProp = true
       // If the old prop is null or undefined, and the new prop is neither
     } else if (
@@ -249,10 +271,10 @@ export function updateOriginal(newData, existingItem) {
     }
 
     if (shouldCopyProp) {
-      if (existingItem.hasOwnProperty(key)) {
-        existingItem[key] = newProp
+      if (original.hasOwnProperty(key)) {
+        original[key] = newProp
       } else {
-        Vue.set(existingItem, key, newProp)
+        Vue.set(original, key, newProp)
       }
     }
   })
