@@ -188,7 +188,7 @@ export function getId(item, idField) {
     return item._id
   }
   if (item.hasOwnProperty(idField)) {
-    return item[idField]
+    return getId(item, idField)
   }
 }
 
@@ -323,7 +323,7 @@ export function randomString(length) {
 export function createRelatedInstance({ item, Model, idField, store }) {
   // Create store instances (if data contains an idField)
   const model = new Model(item)
-  const id = model[idField]
+  const id = getId(model, idField)
   const storedModel = store.state[model.constructor.namespace].keyedById[id]
 
   return { model, storedModel }

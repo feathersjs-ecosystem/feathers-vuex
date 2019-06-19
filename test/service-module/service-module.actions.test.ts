@@ -10,7 +10,7 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import Vuex, { mapActions } from 'vuex'
 import memory from 'feathers-memory'
 import { clearModels } from '../../src/service-module/global-models'
-import { makeStore } from '../test-utils'
+import { makeStore, makeStoreWithAtypicalIds} from '../test-utils'
 
 interface RootState {
   'my-todos': ServiceState
@@ -45,7 +45,7 @@ function makeContext() {
     'no-ids',
     // @ts-ignore
     memory({
-      store: makeStore(),
+      store: makeStoreWithAtypicalIds(),
       paginate: {
         default: 10,
         max: 50

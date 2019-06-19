@@ -87,7 +87,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         getFromStore,
         _commit
       } = this.constructor as typeof BaseModel
-      const id = data && (data[idField] || data[tempIdField])
+      const id = getId(data, idField)
       const hasValidId = id !== null && id !== undefined
 
       data = data || {}
@@ -134,7 +134,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
     public static getId(record: Record<string, any>): string {
       const { idField } = this.constructor as typeof BaseModel
-      return record[idField]
+      return getId(record, idField)
     }
 
     public static find(params) {
@@ -213,7 +213,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id = this[idField] || this[tempIdField]
+      const id = getId(this, idField) || this[tempIdField]
       return this._clone(id)
     }
 
@@ -236,8 +236,9 @@ export default function makeModel(options: FeathersVuexOptions) {
     public reset() {
       const { idField, tempIdField, _commit } = this
         .constructor as typeof BaseModel
+
       if (this.__isClone) {
-        const id = this[idField] || this[tempIdField]
+        const id = getId(this, idField) || this[tempIdField]
         _commit.call(this.constructor, 'resetCopy', id)
         return this
       } else {
@@ -252,7 +253,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
-        const id = this[idField] || this[tempIdField]
+        const id = getId(this, idField) || this[tempIdField]
         _commit.call(this.constructor, 'commitCopy', id)
 
         return _getters.call(this.constructor, 'get', id)
@@ -267,7 +268,7 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public save(params) {
       const { idField, preferUpdate } = this.constructor as typeof BaseModel
-      const id = this[idField]
+      const id = getId(this, idField)
       if (id) {
         return preferUpdate ? this.update(params) : this.patch(params)
       } else {
@@ -293,17 +294,18 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public patch(params?) {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
+      const id = getId(this, idField)
 
-      if (!this[idField]) {
+      if (!id) {
         const error = new Error(
           `Missing ${
-          options.idField
+          idField
           } property. You must create the data before you can patch with this data`
         )
         return Promise.reject(error)
       }
       return _dispatch.call(this.constructor, 'patch', [
-        this[idField],
+        id,
         this,
         params
       ])
@@ -315,17 +317,18 @@ export default function makeModel(options: FeathersVuexOptions) {
      */
     public update(params) {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
+      const id = getId(this, idField)
 
-      if (!this[idField]) {
+      if (!id) {
         const error = new Error(
           `Missing ${
-          options.idField
+          idField
           } property. You must create the data before you can update with this data`
         )
         return Promise.reject(error)
       }
       return _dispatch.call(this.constructor, 'update', [
-        this[idField],
+        id,
         this,
         params
       ])
@@ -338,15 +341,13 @@ export default function makeModel(options: FeathersVuexOptions) {
     public remove(params) {
       const { idField, tempIdField, _dispatch, _commit } = this
         .constructor as typeof BaseModel
+      const id = getId(this, idField)
 
-      if (this.hasOwnProperty(idField)) {
+      if (id) {
         if (params && params.eager) {
-          _commit.call(this.constructor, 'removeItem', this[idField])
+          _commit.call(this.constructor, 'removeItem', id)
         }
-        return _dispatch.call(this.constructor, 'remove', [
-          this[idField],
-          params
-        ])
+        return _dispatch.call(this.constructor, 'remove', [ id, params ])
       } else {
         _commit.call(this.constructor, 'removeTemps', [this[tempIdField]])
         return Promise.resolve(this)

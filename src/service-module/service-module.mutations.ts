@@ -5,7 +5,7 @@ eslint
 */
 import Vue from 'vue'
 import serializeError from 'serialize-error'
-import { updateOriginal, mergeWithAccessors, assignTempId } from '../utils'
+import { updateOriginal, mergeWithAccessors, assignTempId, getId } from '../utils'
 import { globalModels as models } from './global-models'
 import { get as _get, isObject as _isObject, omit as _omit } from 'lodash'
 
@@ -19,7 +19,7 @@ export default function makeServiceMutations() {
     const newTempsById = { ...state.tempsById }
 
     for (let item of items) {
-      const id = item[idField]
+      const id = getId(item, idField)
       const isTemp = id === null || id === undefined
 
       // If the response contains a real id, remove isTemp
@@ -53,9 +53,10 @@ export default function makeServiceMutations() {
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert, serverAlias, modelName } = state
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
+    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
     for (let item of items) {
-      let id = item[idField]
+      const id = getId(item, idField)
 
       // If the response contains a real id, remove isTemp
       if (id) {
@@ -64,6 +65,18 @@ export default function makeServiceMutations() {
 
       // Update the record
       if (id !== null && id !== undefined) {
+
+
+
+
+        // if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
+        //   item = new Model(item)
+        // }
+
+
+
+
+
         if (state.ids.includes(id)) {
           // Completely replace the item
           if (replaceItems) {
@@ -73,7 +86,8 @@ export default function makeServiceMutations() {
             Vue.set(state.keyedById, id, item)
             // Merge in changes
           } else {
-            updateOriginal(item, state.keyedById[id])
+            const original = state.keyedById[id]
+            updateOriginal(original, item)
           }
 
           // if addOnUpsert then add the record into the state, else discard it.
@@ -105,7 +119,7 @@ export default function makeServiceMutations() {
 
     removeItem(state, item) {
       const { idField } = state
-      const idToBeRemoved = _isObject(item) ? item[idField] : item
+      const idToBeRemoved = _isObject(item) ? getId(item, idField) : item
       const isIdOk = idToBeRemoved !== null && idToBeRemoved !== undefined
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
@@ -131,7 +145,7 @@ export default function makeServiceMutations() {
       // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && _isObject(items[0])
       const idsToRemove = containsObjects
-        ? items.map(item => item[idField])
+        ? items.map(item => getId(item, idField))
         : items
       const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
         map[id] = true
@@ -250,7 +264,7 @@ export default function makeServiceMutations() {
       const { data, limit, skip, total } = response
       const { idField } = state
       const ids = data.map(item => {
-        return item[idField]
+        return getId(item, idField)
       })
       const queriedAt = new Date().getTime()
       Vue.set(state.pagination, qid, {

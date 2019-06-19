@@ -9,6 +9,8 @@ import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 import { clearModels } from '../../src/service-module/global-models'
+import memory from 'feathers-memory'
+import { makeStore } from '../test-utils'
 
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -31,6 +33,33 @@ function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
     serverAlias: 'model-methods'
   })
+
+  const serialize = context => {
+    context.data = JSON.parse(JSON.stringify(context.data))
+  }
+  const deserialize = context => {
+    context.result = JSON.parse(JSON.stringify(context.result))
+  }
+
+  feathersClient.use( 'letters', memory() )
+
+  const lettersService = feathersClient.service('letters')
+
+  // Setup hooks on letters service to simulate toJSON serialization that occurs
+  // with a remote API request.
+  lettersService.hooks({
+    before: {
+      create: [ serialize ],
+      update: [ serialize ],
+      patch: [ serialize ]
+    },
+    after: {
+      create: [ deserialize ],
+      patch: [ deserialize ],
+      update: [ deserialize ]
+    }
+  })
+
   class Task extends BaseModel {
     public static modelName = 'Task'
     public static servicePath: 'tasks'
@@ -45,6 +74,14 @@ function makeContext() {
       super(data, options)
     }
   }
+
+  class Letter extends BaseModel {
+    public static modelName = 'Letter'
+    public constructor(data?, options?) {
+      super(data, options)
+    }
+  }
+
   const store = new Vuex.Store<RootState>({
     strict: true,
     plugins: [
@@ -56,6 +93,11 @@ function makeContext() {
       makeServicePlugin({
         Model: Todo,
         service: feathersClient.service('todos')
+      }),
+      makeServicePlugin({
+        Model: Letter,
+        servicePath: 'letters',
+        service: feathersClient.service('letters')
       })
     ]
   })
@@ -63,6 +105,8 @@ function makeContext() {
     BaseModel,
     Task,
     Todo,
+    Letter,
+    lettersService,
     store
   }
 }
@@ -98,9 +142,9 @@ describe('Models - Methods', function () {
 
   it('instance.save calls create with correct arguments', function () {
     const { Task } = makeContext()
-    const module = new Task({ test: true })
+    const task = new Task({ test: true })
 
-    Object.defineProperty(module, 'create', {
+    Object.defineProperty(task, 'create', {
       value(params) {
         assert(arguments.length === 1, 'should have only called with params')
         assert(
@@ -110,7 +154,7 @@ describe('Models - Methods', function () {
       }
     })
 
-    module.save()
+    task.save()
   })
 
   it('instance.save passes params to create', function () {
@@ -175,6 +219,21 @@ describe('Models - Methods', function () {
 
     // @ts-ignore
     assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
+  })
+
+  it('instance methods still available in store data after updateItem mutation (or socket event)', async function () {
+    const { Letter, store, lettersService } = makeContext()
+    let letter = new Letter({ name: 'Garmadon', age: 1025 })
+
+    letter = await letter.save()
+
+    assert.equal(typeof letter.save, 'function', 'saved instance has a save method')
+
+    store.commit('letters/updateItem', { id: letter.id, name: 'Garmadon / Dad', age: 1026 })
+
+    const letter2 = new Letter({ id: letter.id, name: 'Just Garmadon', age: 1027 })
+
+    assert.equal(typeof letter2.save, 'function', 'new instance has a save method')
   })
 
   it('instance.toJSON', function () {

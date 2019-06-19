@@ -5,6 +5,7 @@ eslint
 */
 import { observableDiff, applyChange } from 'deep-diff'
 import fastCopy from 'fast-copy'
+import { getId } from '../utils'
 
 export default function makeServiceActions(service) {
   const serviceActions = {
@@ -51,10 +52,7 @@ export default function makeServiceActions(service) {
         return service
           .get(id, params)
           .then(item => {
-            const id = item[idField]
-
             dispatch('addOrUpdate', item)
-
             commit('unsetPending', 'get')
             return state.keyedById[id]
           })
@@ -105,12 +103,12 @@ export default function makeServiceActions(service) {
           if (Array.isArray(response)) {
             dispatch('addOrUpdateList', response)
             response = response.map(item => {
-              const id = item[idField]
+              const id = getId(item, idField)
 
               return state.keyedById[id]
             })
           } else {
-            const id = response[idField]
+            const id = getId(response, idField)
 
             dispatch('addOrUpdate', response)
 
@@ -137,7 +135,6 @@ export default function makeServiceActions(service) {
       return service
         .update(id, data, params)
         .then(item => {
-          const id = item[idField]
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
@@ -176,8 +173,6 @@ export default function makeServiceActions(service) {
       return service
         .patch(id, data, params)
         .then(item => {
-          const id = item[idField]
-
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
@@ -237,7 +232,7 @@ export default function makeServiceActions(service) {
       commit('unsetPending', 'find')
 
       const mapItemFromState = item => {
-        const id = item[idField]
+        const id = getId(item, idField)
 
         return state.keyedById[id]
       }
@@ -274,7 +269,7 @@ export default function makeServiceActions(service) {
       const { idField, autoRemove } = state
 
       list.forEach(item => {
-        let id = item[idField]
+        let id = getId(item, idField)
         let existingItem = state.keyedById[id]
 
         if (id !== null && id !== undefined) {
@@ -287,7 +282,7 @@ export default function makeServiceActions(service) {
         state.ids.forEach(id => {
           if (
             id !== state.currentId &&
-            !list.some(item => item[idField] === id)
+            !list.some(item => getId(item, idField) === id)
           ) {
             toRemove.push(state.keyedById[id])
           }
@@ -308,7 +303,7 @@ export default function makeServiceActions(service) {
     },
     addOrUpdate({ state, commit }, item) {
       const { idField } = state
-      let id = item[idField]
+      let id = getId(item, idField)
       let existingItem = state.keyedById[id]
 
       const isIdOk = id !== null && id !== undefined
