@@ -315,7 +315,6 @@ export default function makeServiceActions(service) {
 
       if (
         service.FeathersVuexModel &&
-        !existingItem &&
         !item.isFeathersVuexInstance
       ) {
         item = new service.FeathersVuexModel(item)
