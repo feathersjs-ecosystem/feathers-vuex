@@ -429,21 +429,6 @@ export function cloneWithAccessors(obj) {
   return clone
 }
 
-export function separateAccessors(props) {
-  return Object.keys(props).reduce(
-    ({ accessors, values }, key) => {
-      const desc = Object.getOwnPropertyDescriptor(props, key)
-      if (typeof desc.get === 'function' || typeof desc.set === 'function') {
-        Object.defineProperty(accessors, key, desc)
-      } else {
-        Object.defineProperty(values, key, desc)
-      }
-      return { accessors, values }
-    },
-    { accessors: {}, values: {} }
-  )
-}
-
 export function checkNamespace(namespace, item) {
   if (!namespace) {
     console.error(

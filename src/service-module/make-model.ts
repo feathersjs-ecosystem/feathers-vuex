@@ -112,9 +112,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       // Setup instanceDefaults, separate out accessors
       if (instanceDefaults && typeof instanceDefaults === 'function') {
         const defaults = instanceDefaults.call(this, data, { models, store }) || data
-        const { accessors, values } = separateAccessors(defaults)
-        mergeWithAccessors(this, accessors)
-        mergeWithAccessors(this, values)
+        mergeWithAccessors(this, defaults)
       }
 
       // Handles Vue objects or regular ones. We can't simply assign or return
