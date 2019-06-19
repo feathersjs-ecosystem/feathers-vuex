@@ -84,6 +84,16 @@ created () {
 }
 ```
 
+## Common idField support
+
+Since `id` and `_id` are the most commonly-used idField options, both are supported without additional configuration.  The idField is detected in this order:
+
+1. `item.id`
+2. `item._id`
+3. `item[idField]`
+
+This solves a common issue that occurs when the `idField` is not provided.  This also means that the only time you must specify an `idField` is when your data does not contain an `id` or `_id` field.
+
 ## Support for Temporary Records
 
 Feathers-Vuex 2.0 supports tracking temporary items and automatically assigns a temporary id (customizable using the `options.tempIdField`) and adds the records to the `state.tempsById` field.
