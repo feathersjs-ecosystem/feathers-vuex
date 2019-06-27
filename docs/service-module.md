@@ -283,16 +283,22 @@ store.dispatch('todos/get', [1, params])
 
 Make sure your returned records have a unique field that matches the `idField` option for the service plugin.
 
-### `create(data)`
+### `create(data|ParamArray)`
 
-Create one or multiple records.
+Create one or multiple records.  Note that the method is overloaded to accept two types of arguments.  If you want a consistent interface for creating single or multiple records, use the array syntax, described below.  Creating multiple records requires using the `paramArray` syntax.
 
-- `data {Object|Array}` - if an object is provided, a single record will be created. If an array of objects is provided, multiple records will be created.
+- `data {Object|ParamArray}` - if an object is provided, a single record will be created.
 
 ```js
 let newTodo = {description: 'write good tests'}
 store.dispatch('todos/create', newTodo)
 ```
+
+- `data {ParamArray}` - if an array is provided, it is assumed to have this structure:
+
+- `ParamArray {Array}` - array containing the two parameters that Feathers' `service.create` method accepts.
+  - `data {Object|Array}` - the data to create. Providing an object creates a single record. Providing an array of objects creates multiple records.
+  - `params {Object}` - optional - an object containing a `query` object. Can be useful in rare situations.
 
 Make sure your returned records have a unique field that matches the `idField` option for the service plugin.
 
@@ -300,7 +306,7 @@ Make sure your returned records have a unique field that matches the `idField` o
 
 Update (overwrite) a record.
 
-- `paramArray {Array}` - array containing the three parameters update takes.
+- `paramArray {Array}` - array containing the three parameters update accepts.
   - `id {Number|String}` - the `id` of the existing record being requested from the API server.
   - `data {Object}` - the data that will overwrite the existing record
   - `params {Object}` - An object containing a `query` object.
