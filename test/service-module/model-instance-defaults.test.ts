@@ -14,6 +14,7 @@ import {
   feathersSocketioClient
 } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
+import { makeContext as makeLetterContext } from './model-methods.test'
 
 interface TodoState extends ServiceState {
   test: any
@@ -460,5 +461,20 @@ describe('Models - Default Values', function () {
       'Scooby Doo',
       'Setter is in place'
     )
+  })
+
+  it('instanceDefaults in place after patch', async function () {
+    const { Letter, store, lettersService } = makeLetterContext()
+    let letter = new Letter({ name: 'Garmadon', age: 1025 })
+
+    letter = await letter.save()
+
+    assert.equal(typeof letter.to, 'string', 'default to field still in place')
+    assert.equal(typeof letter.status, 'string', 'accessor prop still in place')
+
+    letter = await letter.save()
+
+    assert.equal(typeof letter.to, 'string', 'default to field still in place')
+    assert.equal(typeof letter.status, 'string', 'accessor prop still in place')
   })
 })

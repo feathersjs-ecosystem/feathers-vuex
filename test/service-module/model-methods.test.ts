@@ -76,9 +76,18 @@ function makeContext() {
   }
 
   class Letter extends BaseModel {
-    public static modelName = 'Letter'
     public constructor(data?, options?) {
       super(data, options)
+    }
+    public static modelName = 'Letter'
+    public static instanceDefaults(data, { models, store }) {
+      return {
+        to: '',
+        from: ''
+      }
+    }
+    public get status() {
+      return 'pending'
     }
   }
 
@@ -110,6 +119,8 @@ function makeContext() {
     store
   }
 }
+
+export { makeContext }
 
 describe('Models - Methods', function () {
   beforeEach(() => {
