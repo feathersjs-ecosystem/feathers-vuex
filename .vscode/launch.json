@@ -28,26 +28,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha Tests",
-      "cwd": "${workspaceRoot}",
-      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
-      "windows": {
-        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha.cmd"
-      },
-      "runtimeArgs": [
-        "--opts",
-        "mocha.opts",
-        "-u",
-        "tdd",
-        "--timeout",
-        "999999",
-        "--colors"
-      ],
-      "internalConsoleOptions":"openOnFirstSessionStart"
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceRoot}/lib/",
       "cwd": "${workspaceRoot}"
