@@ -2,6 +2,14 @@
 title: Common Patterns
 ---
 
+## Set the `idField`
+
+If you have a "WTF this isn't working" moment while setting up a new service, make sure you've set the `idField` property on your service.  In `feathers-vuex@1.x`, the `id` is the default `idField`.  You have to manually set `_id`.  Starting in `feathers-vuex@2.x`, both the `id` and `_id` fields are supported without any configuration, so you only set the `idField` when your service uses something else.
+
+## Enable debugging
+
+You can set `debug: true` in the options to enable some logging to assist with debugging.
+
 ## Use the `<feathers-vuex-find>` and `<feathers-vuex-get>` components
 
 Using the new `<feathers-vuex-find>` and `<feathers-vuex-get>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.md) docs for more details.
