@@ -16,9 +16,6 @@ export default function makeFindMixin (options) {
   if (typeof service === 'function' && !name) {
     name = 'service'
   }
-  if (typeof qid === 'function') {
-    qid = qid()
-  }
 
   const nameToUse = (name || service).replace('-', '_')
   const prefix = getServicePrefix(nameToUse)
@@ -40,8 +37,7 @@ export default function makeFindMixin (options) {
   const QID = `${prefix}Qid`
   const data = {
     [IS_FIND_PENDING]: false,
-    [WATCH]: watch,
-    [QID]: qid
+    [WATCH]: watch
   }
 
   const mixin = {
@@ -79,7 +75,7 @@ export default function makeFindMixin (options) {
               paramsToUse.query = paramsToUse.query || {}
 
               if (qid) {
-                paramsToUse.qid = qid
+                paramsToUse.qid = this[QID]
               }
 
               return this.$store.dispatch(`${this[SERVICE_NAME]}/find`, paramsToUse)
@@ -127,11 +123,12 @@ export default function makeFindMixin (options) {
 
   if (qid) {
     mixin.computed[PAGINATION] = function () {
-      return this.$store.state[this[SERVICE_NAME]].pagination[qid]
+      return this.$store.state[this[SERVICE_NAME]].pagination[this[QID]]
     }
   }
 
   setupAttribute(SERVICE_NAME, service, 'computed', true)
+  setupAttribute(QID, qid, 'computed', true)
   setupAttribute(PARAMS, params)
   setupAttribute(FETCH_PARAMS, fetchQuery)
   setupAttribute(QUERY_WHEN, queryWhen, 'methods')
