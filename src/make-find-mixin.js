@@ -1,8 +1,8 @@
 import { getServicePrefix, getServiceCapitalization } from './utils'
 
 export default function makeFindMixin (options) {
-  const { service, params, fetchQuery, queryWhen = () => true, local = false, qid = 'default', items, debug } = options
-  let { name, watch = [] } = options
+  const { service, params, fetchQuery, queryWhen = () => true, local = false, items, debug } = options
+  let { name, qid = 'default', watch = [] } = options
 
   if (typeof watch === 'string') {
     watch = [watch]
@@ -15,6 +15,9 @@ export default function makeFindMixin (options) {
   }
   if (typeof service === 'function' && !name) {
     name = 'service'
+  }
+  if (typeof qid === 'function') {
+    qid = qid()
   }
 
   const nameToUse = (name || service).replace('-', '_')
