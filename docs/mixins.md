@@ -27,7 +27,7 @@ export default {
     makeFindMixin({ service: 'todos' })
   ],
   computed: {
-    // It's going to automatically look for a prop named `todosPanos`
+    // It's going to automatically look for a prop named `todosParams`
     // This is based on the camelCased service name
     todosParams () {
       return { query: {} }
