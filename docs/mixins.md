@@ -76,7 +76,7 @@ The `makeFindMixin` and `makeGetMixin` utilities share the following options in 
 
 The `makeFindMixin` has these unique options:
 
-- **qid {String}** - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
+- **qid {String|Function}** - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
 
 ### Options for only `makeGetMixin`
 
@@ -216,5 +216,27 @@ const mixedInDataFromAboveExample = {
     // The mixin will expect to find this. This won't be created automatically.
     serviceQuery () {}
   }
+}
+```
+
+## Using a dynamic qid
+
+It's also possible to set your qid dynamically. For example, if yout want to query for the coments of a post:
+
+```js
+export default {
+  props: {
+    postId: {
+      type: String,
+      required: true
+    }
+  },
+  mixins: [
+    makeFindMixin({
+      service: 'posts',
+      name: 'postComments',
+      qid () { return `${this.postId}_coments` }
+    })
+  ]
 }
 ```
