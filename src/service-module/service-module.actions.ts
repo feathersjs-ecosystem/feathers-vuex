@@ -3,7 +3,6 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { observableDiff, applyChange } from 'deep-diff'
 import fastCopy from 'fast-copy'
 import { getId } from '../utils'
 
@@ -154,21 +153,9 @@ export default function makeServiceActions(service) {
 
       params = fastCopy(params)
 
-      // This needs to be re-built, since we've removed state.copy
-      // if (diffOnPatch) {
-      //   let diff = {}
-
-      //   observableDiff(state.keyedById[id], data, function(d) {
-      //     if (d.path && d.path.length) {
-      //       // Apply all changes except to the id property...
-      //       if (d.path[d.path.length - 1] !== idField) {
-      //         applyChange(diff, data, d)
-      //       }
-      //     }
-      //   })
-
-      //   data = diff
-      // }
+      if (service.FeathersVuexModel) {
+        data = diffOnPatch(data)
+      }
 
       return service
         .patch(id, data, params)

@@ -43,7 +43,7 @@ export default function makeDefaultState(servicePath, options) {
 
   if (options.Model) {
     // @ts-ignore
-    state.modelName = options.Model.name
+    state.modelName = options.Model.modelName
   }
 
   const startingState = _omit(options, nonStateProps)

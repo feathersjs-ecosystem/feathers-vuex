@@ -20,7 +20,6 @@ import { FeathersVuex } from './vue-plugin/vue-plugin'
 const defaultOptions: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
-  diffOnPatch: true, // Only send changed data on patch. Sends the full object if set to false.
   enableEvents: true, // Listens to socket.io events when available
   idField: 'id', // The field in each record that will contain the id
   tempIdField: '__id',

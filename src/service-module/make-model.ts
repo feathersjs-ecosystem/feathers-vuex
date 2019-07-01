@@ -54,6 +54,9 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static setupInstance(data, { models, store }) {
       return data
     }
+    public static diffOnPatch(data) {
+      return data
+    }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
     public static store: Record<string, any>
