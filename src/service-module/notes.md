@@ -2,7 +2,7 @@
 
 The biggest change in Feathers-Vuex 2.0 is that it has been refactored with TypeScript!  (It's mostly ES6, still)
 
-Your project does NOT require to be written in TypeScript.  The `dist` is now set to compile to ES6.
+Your project does NOT require to be written in TypeScript.  The `dist` is compiled to ES6.
 
 ## Trying it out
 
@@ -119,10 +119,14 @@ const {
 })
 
 class Todo extends BaseModel {
+  // required
   constructor (data, options) {
     super(data, options)
   }
+  // required
   static modelName = 'Todo'
+
+  // optional, but useful
   static instanceDefaults(data) {
     return {
       name: '',
@@ -131,6 +135,8 @@ class Todo extends BaseModel {
       user: null // populated on the server
     }
   }
+
+  // optional, but useful
   static setupInstance(data) {
     if (data.user) {
       data.user = new models.myApi.User(data.user)
