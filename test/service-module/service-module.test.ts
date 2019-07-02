@@ -567,7 +567,6 @@ describe('Service Module', function () {
         autoRemove: false,
         copiesById: {},
         debug: false,
-        diffOnPatch: true,
         enableEvents: true,
         errorOnCreate: null,
         errorOnGet: null,

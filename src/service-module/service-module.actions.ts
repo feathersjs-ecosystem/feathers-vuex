@@ -147,14 +147,14 @@ export default function makeServiceActions(service) {
 
     patch({ commit, dispatch, state }, [id, data, params]) {
       // eslint-disable-next-line no-unused-vars
-      const { idField, diffOnPatch } = state
+      const { idField } = state
 
       commit('setPending', 'patch')
 
       params = fastCopy(params)
 
       if (service.FeathersVuexModel) {
-        data = diffOnPatch(data)
+        data = service.FeathersVuexModel.diffOnPatch(data)
       }
 
       return service

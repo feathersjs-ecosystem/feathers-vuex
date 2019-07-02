@@ -54,7 +54,6 @@ describe('makeServicePlugin', function () {
       autoRemove: false,
       debug: false,
       copiesById: {},
-      diffOnPatch: true,
       enableEvents: true,
       errorOnCreate: null,
       errorOnFind: null,

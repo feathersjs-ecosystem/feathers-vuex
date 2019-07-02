@@ -7,7 +7,6 @@ export interface FeathersVuexOptions {
   addOnUpsert?: boolean
   autoRemove?: boolean
   debug?: boolean
-  diffOnPatch?: boolean
   enableEvents?: boolean
   idField?: string
   tempIdField?: string
@@ -24,7 +23,6 @@ export interface MakeServicePluginOptions {
   Model: any
   service: any
   addOnUpsert?: boolean
-  diffOnPatch?: boolean
   enableEvents?: boolean
   idField?: string
   tempIdField?: string
