@@ -84,7 +84,7 @@ export default function makeFindMixin(options) {
           if (this[QUERY_WHEN]) {
             this[IS_GET_PENDING] = true
 
-            if (idToUse) {
+            if (idToUse != null) {
               return this.$store
                 .dispatch(`${this[SERVICE_NAME]}/get`, [idToUse, paramsToUse])
                 .then(response => {

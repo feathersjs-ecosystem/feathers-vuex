@@ -23,7 +23,7 @@ export default function makeServiceMutations() {
       const isTemp = id === null || id === undefined
 
       // If the response contains a real id, remove isTemp
-      if (id) {
+      if (id != null) {
         delete item.__isTemp
       }
 
@@ -59,7 +59,7 @@ export default function makeServiceMutations() {
       const id = getId(item, idField)
 
       // If the response contains a real id, remove isTemp
-      if (id) {
+      if (id != null) {
         delete item.__isTemp
       }
 

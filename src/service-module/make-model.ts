@@ -272,7 +272,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public save(params) {
       const { idField, preferUpdate } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
-      if (id) {
+      if (id != null) {
         return preferUpdate ? this.update(params) : this.patch(params)
       } else {
         return this.create(params)
@@ -299,7 +299,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
-      if (!id) {
+      if (id == null) {
         const error = new Error(
           `Missing ${
           idField
@@ -346,7 +346,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
       const id = getId(this, idField)
 
-      if (id) {
+      if (id != null) {
         if (params && params.eager) {
           _commit.call(this.constructor, 'removeItem', id)
         }
