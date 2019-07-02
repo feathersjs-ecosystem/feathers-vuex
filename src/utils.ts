@@ -431,8 +431,8 @@ export function cloneWithAccessors(obj) {
   return clone
 }
 
-export function checkNamespace(namespace, item) {
-  if (!namespace) {
+export function checkNamespace(namespace, item, debug) {
+  if (!namespace && debug) {
     // eslint-disable-next-line no-console
     console.error(
       'A `namespace` was not available on the Model for this item:',

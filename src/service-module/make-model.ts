@@ -171,7 +171,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static _getters(name: string, payload?: any) {
       const { namespace, store } = this
 
-      if (checkNamespace(namespace, this)) {
+      if (checkNamespace(namespace, this, options.debug)) {
         if (!store.getters.hasOwnProperty(`${namespace}/${name}`)) {
           throw new Error(`Could not find getter named ${namespace}/${name}`)
         }
@@ -190,7 +190,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static _commit(method: string, payload: any): void {
       const { namespace, store } = this
 
-      if (checkNamespace(namespace, this)) {
+      if (checkNamespace(namespace, this, options.debug)) {
         store.commit(`${namespace}/${method}`, payload)
       }
     }
@@ -202,7 +202,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static _dispatch(method: string, payload: any) {
       const { namespace, store } = this
 
-      if (checkNamespace(namespace, this)) {
+      if (checkNamespace(namespace, this, options.debug)) {
         return store.dispatch(`${namespace}/${method}`, payload)
       }
     }
