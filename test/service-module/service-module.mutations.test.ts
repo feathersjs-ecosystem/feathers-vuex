@@ -283,6 +283,7 @@ describe('Service Module - Mutations', function() {
         },
         watch: {
           'item.getter'() {
+            // eslint-disable-next-line no-console
             console.log(state.keyedById)
             throw new Error('this should never happen')
           }

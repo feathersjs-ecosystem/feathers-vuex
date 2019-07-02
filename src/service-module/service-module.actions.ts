@@ -24,7 +24,6 @@ export default function makeServiceActions(service) {
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
     get({ state, getters, commit, dispatch }, args) {
-      const { idField } = state
       let id
       let params
       let skipRequestIfExists
@@ -125,7 +124,6 @@ export default function makeServiceActions(service) {
     },
 
     update({ commit, dispatch, state }, [id, data, params]) {
-      const { idField } = state
 
       commit('setPending', 'update')
 
@@ -146,9 +144,6 @@ export default function makeServiceActions(service) {
     },
 
     patch({ commit, dispatch, state }, [id, data, params]) {
-      // eslint-disable-next-line no-unused-vars
-      const { idField } = state
-
       commit('setPending', 'patch')
 
       params = fastCopy(params)

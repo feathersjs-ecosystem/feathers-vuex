@@ -81,6 +81,7 @@ describe('feathers-vuex:auth', () => {
         accessToken: 'q34twershtdyfhgmj'
       })
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.log(err)
     }
   })

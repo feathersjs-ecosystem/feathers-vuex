@@ -1,5 +1,6 @@
 /*
 eslint
+no-console: 0,
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
@@ -23,6 +24,7 @@ export function prepareAddModel(options: FeathersVuexOptions) {
     }
     const name = Model.modelName || Model.name
     if (globalModels[serverAlias][name] && options.debug) {
+      // eslint-disable-next-line no-console
       console.error(`Overwriting Model: models[${serverAlias}][${name}].`)
     }
     globalModels[serverAlias][name] = Model

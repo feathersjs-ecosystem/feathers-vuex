@@ -53,7 +53,7 @@ export default function makeServiceMutations() {
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert, serverAlias, modelName } = state
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
+    // const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
     for (let item of items) {
       const id = getId(item, idField)

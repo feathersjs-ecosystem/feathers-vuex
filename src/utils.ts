@@ -22,6 +22,7 @@ export function stripSlashes(location: string) {
 //  From feathers-plus/feathers-hooks-common
 export function setByDot(obj, path, value, ifDelete?) {
   if (ifDelete) {
+    // eslint-disable-next-line no-console
     console.log(
       'DEPRECATED. Use deleteByDot instead of setByDot(obj,path,value,true). (setByDot)'
     )
@@ -163,6 +164,7 @@ export const initAuth = function initAuth(options) {
 export function assignTempId(state, item) {
   const { debug, tempIdField } = state
   if (debug) {
+    // eslint-disable-next-line no-console
     console.info('assigning temporary id to item', item)
   }
   const newId = new ObjectID().toHexString()
@@ -431,6 +433,7 @@ export function cloneWithAccessors(obj) {
 
 export function checkNamespace(namespace, item) {
   if (!namespace) {
+    // eslint-disable-next-line no-console
     console.error(
       'A `namespace` was not available on the Model for this item:',
       item,

@@ -107,6 +107,7 @@ export default {
         ) {
           return this.getData()
         } else {
+          // eslint-disable-next-line no-console
           console.log(
             `No query and no id provided, so no data will be fetched.`
           )

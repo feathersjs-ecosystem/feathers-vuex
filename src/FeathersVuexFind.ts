@@ -89,6 +89,7 @@ export default {
           return this.findData()
         } else {
           // TODO: access debug boolean from from the store config, somehow.
+          // eslint-disable-next-line no-console
           console.log(
             `No query and no id provided, so no data will be fetched.`
           )

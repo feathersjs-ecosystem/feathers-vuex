@@ -85,7 +85,6 @@ export default function makeModel(options: FeathersVuexOptions) {
         models,
         instanceDefaults,
         idField,
-        tempIdField,
         setupInstance,
         getFromStore,
         _commit
