@@ -216,7 +216,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id = getId(this, idField) || this[tempIdField]
+      const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
       return this._clone(id)
     }
 
@@ -241,7 +241,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
 
       if (this.__isClone) {
-        const id = getId(this, idField) || this[tempIdField]
+        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
         _commit.call(this.constructor, 'resetCopy', id)
         return this
       } else {
@@ -256,7 +256,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
-        const id = getId(this, idField) || this[tempIdField]
+        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
         _commit.call(this.constructor, 'commitCopy', id)
 
         return _getters.call(this.constructor, 'get', id)
