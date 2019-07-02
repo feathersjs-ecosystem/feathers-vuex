@@ -105,9 +105,7 @@ export default {
     }
     if (!this.$store.state[this.service]) {
       throw new Error(
-        `The '${
-          this.service
-        }' plugin cannot be found. Did you register the service with feathers-vuex?`
+        `The '${ this.service }' plugin not registered with feathers-vuex`
       )
     }
 
