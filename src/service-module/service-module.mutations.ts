@@ -5,7 +5,13 @@ eslint
 */
 import Vue from 'vue'
 import serializeError from 'serialize-error'
-import { updateOriginal, mergeWithAccessors, assignTempId, getId } from '../utils'
+import {
+  updateOriginal,
+  mergeWithAccessors,
+  assignTempId,
+  getId,
+  getQueryInfo
+} from '../utils'
 import { globalModels as models } from './global-models'
 import { get as _get, isObject as _isObject, omit as _omit } from 'lodash'
 
@@ -261,20 +267,53 @@ export default function makeServiceMutations() {
      * (qid) The qid must be manually assigned to `params.qid`
      */
     updatePaginationForQuery(state, { qid, response, query }) {
-      const { data, limit, skip, total } = response
+      const { data, total } = response
       const { idField } = state
-      const ids = data.map(item => {
-        return getId(item, idField)
-      })
+      const ids = data.map(i => i[idField])
       const queriedAt = new Date().getTime()
-      Vue.set(state.pagination, qid, {
-        limit,
-        skip,
-        total,
-        ids,
+      const {
+        queryId,
+        queryParams,
+        pageId,
+        pageParams
+      } = getQueryInfo({ qid, query }, response)
+
+      if (!state.pagination[qid]) {
+        Vue.set(state.pagination, qid, {})
+      }
+      if (!query.hasOwnProperty('$limit') && response.hasOwnProperty('limit')) {
+        Vue.set(state.pagination, 'defaultLimit', response.limit)
+      }
+      if (!query.hasOwnProperty('$skip') && response.hasOwnProperty('skip')) {
+        Vue.set(state.pagination, 'defaultSkip', response.skip)
+      }
+
+      const mostRecent = {
         query,
+        queryId,
+        queryParams,
+        pageId,
+        pageParams,
         queriedAt
-      })
+      }
+
+      const qidData = state.pagination[qid] || {}
+      Object.assign(qidData, { mostRecent })
+      qidData[queryId] = qidData[queryId] || {}
+      const queryData = {
+        total,
+        queryParams
+      }
+      Object.assign(qidData[queryId], queryData)
+
+      const pageData = {
+        [pageId]: { pageParams, ids, queriedAt }
+      }
+      Object.assign(qidData[queryId], pageData)
+
+      const newState = Object.assign({}, state.pagination[qid], qidData)
+
+      Vue.set(state.pagination, qid, newState)
     },
 
     setPending(state, method: string): void {

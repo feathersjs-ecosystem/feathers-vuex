@@ -594,7 +594,10 @@ describe('Service Module', function () {
         servicePath: 'service-todos',
         tempIdField: '__id',
         tempsById: {},
-        pagination: {},
+        pagination: {
+          defaultLimit: null,
+          defaultSkip: null
+        },
         paramsForServer: [],
         whitelist: []
       }

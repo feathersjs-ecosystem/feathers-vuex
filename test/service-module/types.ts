@@ -35,7 +35,8 @@ export interface PaginationState {
   limit: number
   skip: number
   ip: number
-  total: number
+  total: number,
+  mostRecent: any
 }
 
 export interface Location {

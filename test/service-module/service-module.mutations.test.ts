@@ -10,6 +10,10 @@ import makeServiceState from '../../src/service-module/service-module.state'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import fakeData from '../fixtures/fake-data'
+import { getQueryInfo } from '../../src/utils'
+import { diff as deepDiff } from 'deep-object-diff'
+import omitDeep from 'omit-deep-lodash'
 
 Vue.use(Vuex)
 
@@ -853,28 +857,265 @@ describe('Service Module - Mutations', function() {
   })
 
   describe('Pagination', function() {
-    it('updatePaginationForQuery', function() {
+    it('updatePaginationForQuery', function () {
+      this.timeout(600000)
       const state = this.state
-      const qid = 'query-identifier'
-      const query = { limit: 2 }
-      const response = {
-        data: [{ _id: 1, test: true }],
-        limit: 2,
-        skip: 0,
-        total: 1
-      }
+      const qid = 'main-list'
+      const decisionTable = [
+        {
+          description: 'initial query empty',
+          query: {},
+          response: {
+            data: fakeData.transactions.slice(0, 10),
+            limit: 10,
+            skip: 0,
+            total: fakeData.transactions.length
+          },
+          makeResult(props) {
+            const {
+              query,
+              queryId,
+              queryParams,
+              pageId,
+              pageParams,
+              queriedAt
+            } = props
 
-      updatePaginationForQuery(state, { qid, response, query })
+            return {
+              defaultLimit: 10,
+              defaultSkip: 0,
+              'main-list': {
+                mostRecent: {
+                  query,
+                  queryId,
+                  queryParams,
+                  pageId,
+                  pageParams,
+                  queriedAt
+                },
+                '{}': {
+                  total: fakeData.transactions.length,
+                  queryParams: {},
+                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                    pageParams,
+                    ids: fakeData.transactions
+                      .slice(0, 10)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          description: 'initial query, limit 10, skip 0',
+          query: { $limit: 10 },
+          response: {
+            data: fakeData.transactions.slice(0, 10),
+            limit: 10,
+            skip: 0,
+            total: fakeData.transactions.length
+          },
+          makeResult(props) {
+            const {
+              query,
+              queryId,
+              queryParams,
+              pageId,
+              pageParams,
+              queriedAt
+            } = props
 
-      const pageData = state.pagination[qid]
-      assert(
-        pageData.ids.length === 1,
-        `the _id was added to the pagination ids`
-      )
-      assert(pageData.limit === 2, 'the limit was correct')
-      assert(pageData.skip === 0, 'the skip was correct')
-      assert(pageData.total === 1, 'the total was correct')
-      assert.deepEqual(pageData.query, query, 'the query was stored')
+            return {
+              defaultLimit: 10,
+              defaultSkip: 0,
+              'main-list': {
+                mostRecent: {
+                  query,
+                  queryId,
+                  queryParams,
+                  pageId,
+                  pageParams,
+                  queriedAt
+                },
+                '{}': {
+                  total: fakeData.transactions.length,
+                  queryParams: {},
+                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                    pageParams,
+                    ids: fakeData.transactions
+                      .slice(0, 10)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          description: 'initial query, limit 10, skip 10',
+          query: { $limit: 10, $skip: 10 },
+          response: {
+            data: fakeData.transactions.slice(10, 20),
+            limit: 10,
+            skip: 10,
+            total: fakeData.transactions.length
+          },
+          makeResult(props) {
+            const {
+              query,
+              queryId,
+              queryParams,
+              pageId,
+              pageParams,
+              queriedAt
+            } = props
+
+            return {
+              defaultLimit: 10,
+              defaultSkip: 0,
+              'main-list': {
+                mostRecent: {
+                  query,
+                  queryId,
+                  queryParams,
+                  pageId,
+                  pageParams,
+                  queriedAt
+                },
+                '{}': {
+                  total: fakeData.transactions.length,
+                  queryParams: {},
+                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                    pageParams: {
+                      $limit: 10,
+                      $skip: 0
+                    },
+                    ids: fakeData.transactions
+                      .slice(0, 10)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  },
+                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                    pageParams: {
+                      $limit: 10,
+                      $skip: 10
+                    },
+                    ids: fakeData.transactions
+                      .slice(10, 20)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          description: 'separate query, limit 10, skip 10',
+          query: { test: true, $limit: 10, $skip: 10 },
+          response: {
+            data: fakeData.transactions.slice(10, 20),
+            limit: 10,
+            skip: 10,
+            total: fakeData.transactions.length
+          },
+          makeResult(props) {
+            const {
+              query,
+              queryId,
+              queryParams,
+              pageId,
+              pageParams,
+              queriedAt
+            } = props
+
+            return {
+              defaultLimit: 10,
+              defaultSkip: 0,
+              'main-list': {
+                mostRecent: {
+                  query,
+                  queryId,
+                  queryParams,
+                  pageId,
+                  pageParams,
+                  queriedAt
+                },
+                '{}': {
+                  total: fakeData.transactions.length,
+                  queryParams: {},
+                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                    pageParams: {
+                      $limit: 10,
+                      $skip: 0
+                    },
+                    ids: fakeData.transactions
+                      .slice(0, 10)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  },
+                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                    pageParams: {
+                      $limit: 10,
+                      $skip: 10
+                    },
+                    ids: fakeData.transactions
+                      .slice(10, 20)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  }
+                },
+                '{"test":true}': {
+                  total: fakeData.transactions.length,
+                  queryParams: { test: true },
+                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                    pageParams: {
+                      $limit: 10,
+                      $skip: 10
+                    },
+                    ids: fakeData.transactions
+                      .slice(10, 20)
+                      .map(i => i[state.idField]),
+                    queriedAt
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+
+      decisionTable.forEach(({ description, query, response, makeResult }) => {
+        const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
+          { qid, query },
+          response
+        )
+        const queriedAt = new Date().getTime()
+        const expectedResult = makeResult({
+          query,
+          queryId,
+          queryParams,
+          pageId,
+          pageParams,
+          queriedAt
+        })
+
+        updatePaginationForQuery(state, { qid, response, query })
+
+        const diff = deepDiff(
+          omitDeep(state.pagination, 'queriedAt'),
+          omitDeep(expectedResult, 'queriedAt')
+        )
+
+        assert.deepEqual(
+          omitDeep(state.pagination, 'queriedAt'),
+          omitDeep(expectedResult, 'queriedAt'),
+          description
+        )
+      })
     })
   })
 

@@ -1,10 +1,12 @@
 import { assert } from 'chai'
 import { AuthState } from '../src/auth-module/types'
 import { isNode, isBrowser } from '../src/utils'
+import { diff as deepDiff } from 'deep-object-diff'
 import {
   initAuth,
   getServicePrefix,
-  getServiceCapitalization
+  getServiceCapitalization,
+  getQueryInfo
 } from '../src/utils'
 import feathersVuex from '../src/index'
 import { feathersSocketioClient as feathersClient } from './fixtures/feathers-client'
@@ -122,5 +124,79 @@ describe('Utils', function () {
     it('sets isBrowser to false', () => {
       assert(!isBrowser, 'isBrowser was false')
     })
+  })
+})
+
+describe('Pagination', function () {
+  it('getQueryInfo', function () {
+    const params = {
+      qid: 'main-list',
+      query: {
+        test: true,
+        $limit: 10,
+        $skip: 0
+      }
+    }
+    const response = {
+      data: [],
+      limit: 10,
+      skip: 0,
+      total: 500
+    }
+    const info = getQueryInfo(params, response)
+    const expected = {
+      'qid': 'main-list',
+      'query': {
+        'test': true,
+        '$limit': 10,
+        '$skip': 0
+      },
+      'queryId': '{"test":true}',
+      'queryParams': {
+        'test': true
+      },
+      'pageParams': {
+        '$limit': 10,
+        '$skip': 0
+      },
+      'pageId': '{"$limit":10,"$skip":0}'
+    }
+    const diff = deepDiff(info, expected)
+
+    assert.deepEqual(info, expected, 'query info formatted correctly')
+  })
+
+  it('getQueryInfo no limit or skip', function () {
+    const params = {
+      qid: 'main-list',
+      query: {
+        test: true
+      }
+    }
+    const response = {
+      data: [],
+      limit: 10,
+      skip: 0,
+      total: 500
+    }
+    const info = getQueryInfo(params, response)
+    const expected = {
+      'qid': 'main-list',
+      'query': {
+        'test': true
+      },
+      'queryId': '{"test":true}',
+      'queryParams': {
+        'test': true
+      },
+      'pageParams': {
+        '$limit': 10,
+        '$skip': 0
+      },
+      'pageId': '{"$limit":10,"$skip":0}'
+    }
+    const diff = deepDiff(info, expected)
+
+    assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 })

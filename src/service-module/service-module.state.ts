@@ -24,7 +24,10 @@ export default function makeDefaultState(servicePath, options) {
     keyedById: {},
     copiesById: {},
     tempsById: {},
-    pagination: {},
+    pagination: {
+      defaultLimit: null,
+      defaultSkip: null
+    },
 
     isFindPending: false,
     isGetPending: false,

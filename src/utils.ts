@@ -10,10 +10,13 @@ import fastCopy from 'fast-copy'
 import {
   isPlainObject as _isPlainObject,
   isObject as _isObject,
-  trim as _trim
+  trim as _trim,
+  omit as _omit,
+  get as _get
 } from 'lodash'
 import ObjectID from 'bson-objectid'
 import { models } from './index'
+import stringify from 'fast-json-stable-stringify'
 
 export function stripSlashes(location: string) {
   return _trim(location, '/')
@@ -280,6 +283,51 @@ export function updateOriginal(original, newData) {
       }
     }
   })
+}
+
+export function getQueryInfo(params = {}, response = {}) {
+  // @ts-ignore
+  const query = params.query || {}
+  // @ts-ignore
+  const qid = params.qid || 'default'
+  // @ts-ignore
+  const $limit = (response.limit !== null && response.limit !== undefined)
+  // @ts-ignore
+    ? response.limit
+    : query.$limit
+  // @ts-ignore
+  const $skip = (response.skip !== null && response.skip !== undefined)
+  // @ts-ignore
+    ? response.skip
+    : query.$skip
+
+  // @ts-ignore
+  const queryParams = _omit(query, ['$limit', '$skip'])
+  // @ts-ignore
+  const queryId = stringify(queryParams)
+  const pageParams = $limit !== undefined ? { $limit, $skip } : undefined
+  // @ts-ignore
+  const pageId = pageParams ? stringify(pageParams) : undefined
+
+  return {
+    qid,
+    query,
+    queryId,
+    queryParams,
+    pageParams,
+    pageId
+  }
+}
+
+export function getItemsFromQueryInfo(pagination, queryInfo, keyedById) {
+  const { queryId, pageId } = queryInfo
+  // @ts-ignore
+  const ids = _get(pagination, `[${queryId}][${pageId}].ids`)
+  if (ids && ids.length) {
+    return ids.map(id => keyedById[id])
+  } else {
+    return []
+  }
 }
 
 export function makeNamespace(namespace, servicePath, nameStyle) {

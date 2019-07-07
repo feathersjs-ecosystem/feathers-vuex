@@ -75,7 +75,10 @@ describe('makeServicePlugin', function () {
       modelName: 'Todo',
       nameStyle: 'short',
       namespace: 'todos',
-      pagination: {},
+      pagination: {
+        defaultLimit: null,
+        defaultSkip: null
+      },
       paramsForServer: [],
       preferUpdate: false,
       replaceItems: false,

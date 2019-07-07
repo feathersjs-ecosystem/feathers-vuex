@@ -363,16 +363,25 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('my-tasks', ['find'])
 
         actions.find.call({ $store: store }, { query: {} }).then(() => {
-          const { ids, limit, skip, total } = store.state[
-            'my-tasks'
-          ].pagination.default
-          assert(ids.length === 10, 'ten ids were returned in this page')
-          assert(
-            limit === 10,
-            'limit matches the default pagination limit on the server'
-          )
-          assert(skip === 0, 'skip was correct')
-          assert(total === 10, 'total was correct')
+          const { default: d } = store.state['my-tasks'].pagination
+          assert(d.mostRecent)
+          assert(d.mostRecent.queriedAt)
+          assert(d.mostRecent.query)
+          assert(d.mostRecent.queryId === '{}')
+          assert(d.mostRecent.queryParams)
+          assert(d.mostRecent.pageId === '{"$limit":10,"$skip":0}')
+          assert.deepEqual(d.mostRecent.pageParams, { $limit: 10, $skip: 0 })
+          assert(d['{}'])
+          assert(d['{}'].queryParams)
+          assert(d['{}'].total === 10)
+          assert(d['{}']['{"$limit":10,"$skip":0}'])
+          assert(d['{}']['{"$limit":10,"$skip":0}'].ids.length === 10)
+          assert(d['{}']['{"$limit":10,"$skip":0}'].queriedAt)
+          assert.deepEqual(d['{}']['{"$limit":10,"$skip":0}'].pageParams, {
+            $limit: 10,
+            $skip: 0
+          })
+
           done()
         })
       })
@@ -392,16 +401,10 @@ describe('Service Module - Actions', () => {
         const qid = 'component-name'
 
         actions.find.call({ $store: store }, { query: {}, qid }).then(() => {
-          const { ids, limit, skip, total } = store.state[
+          const qidPaginationState = store.state[
             'my-tasks'
           ].pagination[qid]
-          assert(ids.length === 10, 'ten ids were returned in this page')
-          assert(
-            limit === 10,
-            'limit matches the default pagination limit on the server'
-          )
-          assert(skip === 0, 'skip was correct')
-          assert(total === 10, 'total was correct')
+          assert(qidPaginationState, 'got pagination state for qid')
           done()
         })
       })
@@ -422,17 +425,12 @@ describe('Service Module - Actions', () => {
 
         actions.find
           .call({ $store: store }, { query: { $limit: 5, $skip: 2 }, qid })
-          .then(() => {
-            const { ids, limit, skip, total } = store.state[
-              'my-tasks'
-            ].pagination[qid]
-            assert(ids.length === 5, 'ten ids were returned in this page')
-            assert(
-              limit === 5,
-              'limit matches the default pagination limit on the server'
+          .then(response => {
+            assert(store.state['my-tasks'].pagination[qid])
+            assert.deepEqual(
+              store.state['my-tasks'].pagination[qid].mostRecent.query,
+              { $limit: 5, $skip: 2 }
             )
-            assert(skip === 2, 'skip was correct')
-            assert(total === 10, 'total was correct')
             done()
           })
       })
@@ -452,22 +450,14 @@ describe('Service Module - Actions', () => {
         const qids = ['component-query-zero', 'component-query-one']
 
         actions.find
+        actions.find
           .call({ $store: store }, { query: {}, qid: qids[0] })
-          .then(() =>
+          .then(response =>
             actions.find.call({ $store: store }, { query: {}, qid: qids[1] })
           )
-          .then(() => {
+          .then(response => {
             qids.forEach(qid => {
-              const { ids, limit, skip, total } = store.state[
-                'my-tasks'
-              ].pagination[qid]
-              assert(ids.length === 10, 'ten ids were returned in this page')
-              assert(
-                limit === 10,
-                'limit matches the default pagination limit on the server'
-              )
-              assert(skip === 0, 'skip was correct')
-              assert(total === 10, 'total was correct')
+              assert(store.state['my-tasks'].pagination[qid])
             })
 
             done()

@@ -364,7 +364,7 @@ store.dispatch('todos/remove', 1)
 
 Make sure your returned records have a unique field that matches the `idField` option for the service plugin.
 
-## Querying with Find & Pagination
+## Pagination and the `find` action
 
 Both the `find` action and the `find` getter support pagination.  There are differences in how they work.
 
@@ -372,51 +372,174 @@ Both the `find` action and the `find` getter support pagination.  There are diff
 
 The `find` action queries data from the remote server.  It returns a promise that resolves to the response from the server.  The presence of pagination data will be determined by the server.
 
-`feathers-vuex@1.0.0` can store pagination data on a per-query basis.  The `pagination` store attribute maps queries to their most-recent pagination data.  It's an empty object by default, but after performing a single query (with pagination in the response), it will have a `default` property.  This property stores pagination information for the query.  Here's what it will look like:
+`feathers-vuex@1.0.0` can store pagination data on a per-query basis.  The `pagination` store attribute maps queries to their most-recent pagination data.  The default pagination state looks like this:
+
+```js
+{
+  pagination: {
+    defaultLimit: null,
+    defaultSkip: null
+  }
+}
+```
+
+There's not a lot going on, by default.  The `defaultLimit` and `defaultSkip` properties are null until a query is made on the service without `$limit` or `$skip`.  In other words, they remain `null` until an empty query comes through, like the this one:
 
 **`params = { query: {} }`**
 
 ```js
 {
-  pagination: {
+  pagination : {
+    defaultLimit: 25,
+    defaultSkip: 0,
     default: {
-      query: {}, // Same as params.query
-      queriedAt: 1538594642481, // The timestamp when the query returned
-      ids: [0, 1, 2], // the ids in the store for the records that were returned from the server
-      limit: 0, // the response.limit
-      skip: 0, // the response.skip
-      total: 3 // the response.total
+      mostRecent: {
+        query: {},
+        queryId: '{}',
+        queryParams: {},
+        pageId: '{$limit:25,$skip:0}',
+        pageParams: { $limit: 25, $skip: 0 },
+        queriedAt: 1538594642481
+      },
+      '{}': {
+        total: 155,
+        queryParams: {},
+        '{$limit:25,$skip:0}': {
+          pageParams: { $limit: 25, $skip: 0 },
+          ids: [ 1, 2, 3, 4, '...etc', 25 ],
+          queriedAt: 1538594642481
+        }
+      }
     }
   }
 }
 ```
 
-It's possible that you'll want to store pagination information for more than one query.  This might be for different components making queries against the same service, for example.  You can use the `params.qid` (query identifier) property to assign a name to the query.  If you set a `qid` of `mainListView`, for example, the pagination for this query will show up under `pagination.mainListView`.  The `pagination.default` property will be used any time a `params.qid` is not provided.  Here's an example of what this might look like:
+It looks like a lot just happened, so let's walk through it.  First, notice that we have values for `defaultLimit` and `defaultSkip`.  These come in handy for the `find` getter, which will be covered later.
 
-**`params = { query: { $limit: 1 }, qid: 'mainListView' }`**
+### The `qid`
+
+The state now also contains a property called `default`.  This is the default `qid`, which is a "query identifier" that you choose.  Unless you're building a small demo, your app will require to storing pagination information for more than one query.  For example, two components could make two distinct queries against this service.  You can use the `params.qid` (query identifier) property to assignn identifier to the query.  If you set a `qid` of `mainListView`, for example, the pagination for this query will show up under `pagination.mainListView`.  The `pagination.default` property will be used any time a `params.qid` is not provided.  Here's an example of what this might look like:
+
+**`params = { query: {}, qid: 'mainListView' }`**
 
 ```js
 // Data in the store
 {
-  pagination: {
+  pagination : {
+    defaultLimit: 25,
+    defaultSkip: 0,
     mainListView: {
-      query: { $limit: 1 }, // Same as params.query
-      queriedAt: 1538594642481, // The timestamp when the query returned
-      ids: [0], // the ids in the store for the records that were returned from the server
-      limit: 1, // the response.limit
-      skip: 0, // the response.skip
-      total: 3 // the response.total
+      mostRecent: {
+        query: {},
+        queryId: '{}',
+        queryParams: {},
+        pageId: '{$limit:25,$skip:0}',
+        pageParams: { $limit: 25, $skip: 0 },
+        queriedAt: 1538594642481
+      },
+      '{}': {
+        total: 155,
+        queryParams: {},
+        '{$limit:25,$skip:0}': {
+          pageParams: { $limit: 25, $skip: 0 },
+          ids: [ 1, 2, 3, 4, '...etc', 25 ],
+          queriedAt: 1538594642481
+        }
+      }
     }
   }
 }
 ```
 
-> Note: The `find` action no longer returns reactive lists.  The list data will still be reactive, but new matches that arrive from the server do NOT get automatically added to lists.  There are two solutions to this:
+The above example is almost exactly the same as the previous one.  The only difference is that the `default` key is now called `mainListView`.  This is because we provided that value as the `qid` in the params.  Let's move on to the properties under the `qid`.
 
-- Use the `find` action to pull in data from the server.  Use the `find` getter to pull a reactive list from the store.
-- Configure the `feathers-reactive` plugin with RxJS on your Feathers Client instance.  [Read the docs for implementation details.](https://github.com/feathers-plus/feathers-reactive)
+### The `mostRecent` object
 
-### The `find` getter
+The `mostRecent` propery contains information about the most recent query.  These properties provide insight into how pagination works.  The two most important properties are the `queryId` and the `pageId`.
+
+- The `queryId` describes the set of data we're querying.  It's a stable, stringified version of all of the query params **except** for `$limit` and `$skip`.
+- The `pageId` holds information about the current "page" (as in "page-ination").  A page is described using `$limit` and `$skip`.
+
+The `queryParams` and `pageParams` are the non-stringified `queryId` and `pageId`.  The `query` attribute is the original query that was provided in the request params.  Finally, the `queriedAt` is a timestamp of when the query was performed.
+
+### The `queryId` and `pageId` tree
+
+The rest of the `qid` object is keyed by `queryId` strings.  Currently, we only have a single `queryId` of `'{}'`.  In the `queryId` object we have the `total` numer of records (as reported by the server) and the `pageId` of `'{$limit:25,$skip:0}'`
+
+```js
+'{}': { // queryId
+  total: 155,
+  queryParams: {},
+  '{$limit:25,$skip:0}': { // pageId
+    pageParams: { $limit: 25, $skip: 0 },
+    ids: [ 1, 2, 3, 4, '...etc', 25 ],
+    queriedAt: 1538594642481
+  }
+}
+```
+
+The `pageId` object contains the `queriedAt` timestamp of when we last queried this page of data.  It also contains an array of `ids`, holding only the `ids` of the records returned from the server.
+
+### Additional Queries and Pages
+
+As more queries are made, the pagination data will grow to represent what we have in the store.  In the following example, we've made an additional query for sorted data in the `mainListView` `qid`.  We haven't filtered the list down any, so the `total` is the same as before.  We have sorted the data by the `isComplete` attribute, which changes the `queryId`.  You can see the second `queryId` object added to the `mainListView` `qid`:
+
+**`params = { query: {}, qid: 'mainListView' }`**<br/>
+**`params = { query: { $limit: 10, $sort: { isCompleted: 1 } }, qid: 'mainListView' }`**
+
+```js
+// Data in the store
+{
+  pagination : {
+    defaultLimit: 25,
+    defaultSkip: 0,
+    mainListView: {
+      mostRecent: {
+        query: { $sort: { isCompleted: 1 } },
+        queryId: '{$sort:{isCompleted:1}}',
+        queryParams: { $sort: { isCompleted: 1 } },
+        pageId: '{$limit:10,$skip:0}',
+        pageParams: { $limit: 10, $skip: 0 },
+        queriedAt: 1538595856481
+      },
+      '{}': {
+        total: 155,
+        queryParams: {},
+        '{$limit:25,$skip:0}': {
+          pageParams: { $limit: 25, $skip: 0 },
+          ids: [ 1, 2, 3, 4, '...etc', 25 ],
+          queriedAt: 1538594642481
+        }
+      },
+      '{$sort:{isCompleted:1}}': {
+        total: 155,
+        queryParams: {},
+        '{$limit:10,$skip:0}': {
+          pageParams: { $limit: 10, $skip: 0 },
+          ids: [ 4, 21, 19, 29, 1, 95, 62, 21, 67, 125 ],
+          queriedAt: 1538594642481
+        }
+      }
+    }
+  }
+}
+```
+
+In summary, any time a query param other than `$limit` and `$skip` changes, we get a new `queryId`.  Whenever `$limit` and `$skip` change, we get a new `pageId` inside the current `queryId`.
+
+### Why use this pagination structure
+
+Now that we've reviewed how pagination tracking works under the hood, you might be asking "Why?"  There are a few reasons:
+
+1. Improve performance with cacheing.  It's now possible to skip making a query if we already have valid data for the current query.  The [`makeFindMixin`](./mixins.md) mixin makes this very easy with its built-in `queryWhen` feature.
+2. Allow fall-through cacheing of paginated data.  A common challenge occurs when you provide the same query params to the `find` action and the `find` getter.  As you'll learn in the next section, the `find` getter allows you to make queries against the Vuex store as though it were a Feathers database adapter.  But what happens when you pass `{ $limit: 10, $skip: 10 }` to the action and getter?<br/>
+First, lets review what happens with the `find` action.  The database is aware of all 155 records, so it skips the first 10 and returns the next 10 records.  Those records get populated in the store, so the store now has 10 records.  Now we pass the query to the `find` getter and tell it to `$skip: 10`.  It skips the only 10 records that are in the store and returns an empty array!  That's definitely not what we wanted.<br/>
+Since we're now storing this pagination structure, we can build a utility around the `find` getter which will allow us to return the same data with the same query.  The data is still reactive and will automatically update when a record changes.
+
+There's one limitation to this solution.  What happens when you add a new record that matches the current query?  Depending on where the new record would be sorted into the current query, part or all of the cache is no longer valid.  It will stay this way until a new query is made.  To get live (reactive) lists, you have to use the `find` getter with its own distinct query, removing the `$limit` and `$skip` values.  This way, when a new record is created, it will automatically get added to the array in the proper place.
+
+## Pagination and the `find` getter
 
 The `find` getter queries data from the local store using the same Feathers query syntax as on the server.  It is synchronous and returns the results of the query with pagination.  Pagination cannot be disabled.  It accepts a params object with a `query` attribute.  It does not use any other special attributes.  The returned object looks just like a paginated result that you would receive from the server:
 

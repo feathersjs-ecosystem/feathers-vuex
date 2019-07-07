@@ -4,7 +4,13 @@ no-console: 0,
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { getServicePrefix, getServiceCapitalization } from './utils'
+import {
+  getServicePrefix,
+  getServiceCapitalization,
+  getQueryInfo,
+  getItemsFromQueryInfo
+} from './utils'
+import { get as _get } from 'lodash'
 
 export default function makeFindMixin(options) {
   const {
@@ -56,6 +62,7 @@ export default function makeFindMixin(options) {
   const HAVE_ITEMS_BEEN_REQUESTED_ONCE = `have${capitalized}BeenRequestedOnce`
   const HAVE_ITEMS_LOADED_ONCE = `have${capitalized}LoadedOnce`
   const PAGINATION = `${prefix}PaginationData`
+  const MOST_RECENT_QUERY = `${prefix}LatestQuery`
   const LOCAL = `${prefix}Local`
   const QID = `${prefix}Qid`
   const data = {
@@ -63,7 +70,17 @@ export default function makeFindMixin(options) {
     [HAVE_ITEMS_BEEN_REQUESTED_ONCE]: false,
     [HAVE_ITEMS_LOADED_ONCE]: false,
     [WATCH]: watch,
-    [QID]: qid
+    [QID]: qid,
+    [MOST_RECENT_QUERY]: null
+  }
+  const getParams = (providedParams, params, fetchParams) => {
+    if (providedParams) {
+      return providedParams
+    } else if (fetchParams || fetchParams === null) {
+      return fetchParams
+    } else {
+      return params
+    }
   }
 
   const mixin = {
@@ -72,8 +89,31 @@ export default function makeFindMixin(options) {
     },
     computed: {
       [ITEMS]() {
-        return this[PARAMS] ? this[FIND_GETTER](this[PARAMS]).data : []
+        const paramsToUse = getParams(undefined, this[PARAMS], this[FETCH_PARAMS])
+        if (!paramsToUse) {
+          return []
+        }
+        const pagination = this[PAGINATION][paramsToUse.qid] || {}
+        const { defaultSkip: skip, defaultLimit: limit } = pagination
+        const response = (
+          skip !== null &&
+          skip !== undefined &&
+          limit !== null &&
+          limit !== undefined
+        ) ? { limit, skip } : {}
+        const queryInfo = getQueryInfo(paramsToUse, response)
+        const { keyedById } = this.$store.state[this[SERVICE_NAME]]
+        const items = getItemsFromQueryInfo(pagination, queryInfo, keyedById)
+
+        if (this[LOCAL] && this[PARAMS]) {
+          return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
+        } else if (items && items.length) {
+          return items
+        } else {
+          return []
+        }
       },
+      // Queries the Vuex store with the exact same query that was sent to the API server.
       [ITEMS_FETCHED]() {
         if (this[FETCH_PARAMS]) {
           return this[FIND_GETTER](this[FETCH_PARAMS]).data
@@ -81,6 +121,7 @@ export default function makeFindMixin(options) {
           return this[ITEMS]
         }
       },
+      // Exposes `findItemsInStore
       [FIND_GETTER]() {
         return params => {
           const serviceName = this[SERVICE_NAME]
@@ -90,39 +131,48 @@ export default function makeFindMixin(options) {
     },
     methods: {
       [FIND_ACTION](params) {
-        let paramsToUse
-        if (params) {
-          paramsToUse = params
-        } else if (this[FETCH_PARAMS] || this[FETCH_PARAMS] === null) {
-          paramsToUse = this[FETCH_PARAMS]
-        } else {
-          paramsToUse = this[PARAMS]
-        }
+        const paramsToUse = getParams(params, this[PARAMS], this[FETCH_PARAMS])
 
         if (!this[LOCAL]) {
-          if (
-            typeof this[QUERY_WHEN] === 'function'
-              ? this[QUERY_WHEN](paramsToUse)
-              : this[QUERY_WHEN]
-          ) {
+          const shouldExecuteQuery = typeof this[QUERY_WHEN] === 'function'
+            ? this[QUERY_WHEN](paramsToUse)
+            : this[QUERY_WHEN]
+
+          if (shouldExecuteQuery) {
             this[IS_FIND_PENDING] = true
 
             if (paramsToUse) {
               paramsToUse.query = paramsToUse.query || {}
+              paramsToUse.qid = paramsToUse.qid || this[QID]
+              this[QID] = paramsToUse.qid
 
-              if (qid) {
-                paramsToUse.qid = qid
-              }
               const serviceName = this[SERVICE_NAME]
               return this.$store
                 .dispatch(`${serviceName}/find`, paramsToUse)
                 .then(response => {
+                  const queryInfo = getQueryInfo(paramsToUse, response)
+                  // @ts-ignore
+                  queryInfo.response = response
+                  // @ts-ignore
+                  queryInfo.isOutdated = false
+
+                  this[MOST_RECENT_QUERY] = queryInfo
                   this[IS_FIND_PENDING] = false
                   return response
                 })
             }
+          } else {
+            this[MOST_RECENT_QUERY].isOutdated = true
           }
         }
+      },
+      getPaginationForQuery(params = {}) {
+        const pagination = this[PAGINATION]
+        const { qid, queryId, pageId } = getQueryInfo(params)
+        const queryInfo = _get(pagination, `[${qid}][${queryId}]`) || {}
+        const pageInfo = _get(pagination, `[${qid}][${queryId}][${pageId}]`) || {}
+
+        return { queryInfo, pageInfo }
       }
     },
     created() {
@@ -165,6 +215,8 @@ export default function makeFindMixin(options) {
     }
   }
 
+  // This might need to come out.  I removed it in the pagination branch, but it seems to
+  // me like it should be here.
   if (qid) {
     mixin.computed[PAGINATION] = function() {
       const serviceName = this[SERVICE_NAME]
