@@ -2,6 +2,7 @@
 title: Models & Instances API
 ---
 
+<!-- markdownlint-disable MD002 MD033 MD041 -->
 Every service now includes a new `FeathersVuexModel` Class and new records are instantiated with that class before getting added to the store.
 
 ## Model attributes
@@ -63,6 +64,7 @@ created () {
 ```
 
 ## Creating instances
+
 The [FeathersVuex plugin for Vue](./vue-plugin.md) allow convenient access to all Model constructors. You can create a Model instance by getting a reference to a Model class from the `$FeathersVuex` object:
 
 ```js

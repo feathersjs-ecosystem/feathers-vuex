@@ -3,6 +3,7 @@ title: Auth Module API
 ---
 
 The Auth module helps setup your app for login / logout.  It includes the following state by default:
+
 ```js
 {
   accessToken: undefined, // The JWT
@@ -20,13 +21,15 @@ The Auth module helps setup your app for login / logout.  It includes the follow
 ```
 
 ### Actions
+
 The following actions are included in the `auth` module:
+
 - `authenticate`: use instead of `feathersClient.authenticate()`
 - `logout`: use instead of `feathersClient.logout()`
 The Vuex auth store may not update if you use the feathers client version.
 
-
 ### Configuration
+
 You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
 
 ```js

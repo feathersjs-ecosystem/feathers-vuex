@@ -35,15 +35,16 @@ title: API Overview
 
 ## Installation
 
-```console
+```bash
 npm install feathers-vuex --save
 ```
 
 ## Use
+
 To setup `feathers-vuex`, we first need to setup a Feathers Client.  Here's an example using the latest `@feathersjs` npm packages.
 
-**feathers-client.js:**
 ```js
+// feathers-client.js
 import feathers from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
@@ -60,8 +61,8 @@ export default feathersClient
 
 And here's how you would integrate the Feathers Client into the Vuex store:
 
-**store/index.js:**
 ```js
+// store/index.js
 import Vue from 'vue'
 import Vuex from 'vuex'
 import feathersVuex from 'feathers-vuex'
@@ -123,8 +124,8 @@ The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains
 
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathers-plus/feathers-chat-vuex).
 
-
 ## Note about feathers-reactive
+
 Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required or supported.
 
 ## Global Configuration
@@ -146,9 +147,9 @@ Each service module can also be individually configured.
 ## The Vuex modules
 
 There are two modules included:
+
 1. The [Service module](./service-module.md) adds a Vuex store for new services.
 2. The [Auth module](./auth-module.md) sets up the Vuex store for authentication / logout.
-
 
 ## License
 

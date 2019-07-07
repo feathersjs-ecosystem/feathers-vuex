@@ -42,4 +42,3 @@ created () {
   // `todo` is now a model instance
 }
 ```
-

@@ -10,20 +10,20 @@ One note about trying it out.  Because I accidentally published `feathers-vuex@2
 
 To try the latest code.
 
-```console
+```bash
 npm view feathers-vuex
 ```
 
 The end of the output looks something like this:
 
-```console
+```bash
 dist-tags:
 latest: 1.7.0         next: 1.7.0-pre.37    pegasus: 1.7.0-pre.1  pre: 2.0.0-pre.45
 ```
 
 Now use the latest `pre` tag:
 
-```console
+```bash
 npm i feathers-vuex@2.0.0-pre.45
 
 # or with yarn

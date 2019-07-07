@@ -53,11 +53,11 @@ Notice in the above example, I've added a `publicPages` property to the auth sta
 
 In your Nuxt project, create the file `/middleware/auth.js`.  Then edit the `nuxt.config.js` and add after the `head` property, add a string that references this routing middleware so it looks like this:
 
-*// nuxt.config.js*
 ```js
+// nuxt.config.js
 router: {
   middleware: ['auth']
-},
+}
 ```
 
 Now open the middleware and paste the following content.  All it does is redirect the page if there's no auth data in the store.
@@ -82,7 +82,7 @@ Since Nuxt is running both client- and server side, it has limits on the availab
 
 When you configure the auth module in your feathers-client, use [cookie-storage](https://www.npmjs.com/package/cookie-storage) instead of `window.localStorage` to store the authentication data inside a cookie.
 
-```
+```js
 import { CookieStorage } from 'cookie-storage'
 
 const feathersClient = feathers()

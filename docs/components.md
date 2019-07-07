@@ -107,7 +107,6 @@ The `<FeathersVuexFind>` and `FeathersVuexGet>` components share the following p
 
 - **qid {String}** - The query identifier used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The default value is a random 10-character string.  This means that by default, in theory, no two components will share the same pagination data, nor will they overwrite each other's pagination data.  You can, of course, force them to use the same pagination data by giving them both the same `qid`, if there's a use case for that.  **Default: randomString(10)**
 
-
 ## Props for `<FeathersVuexGet>`
 
 The `<FeathersVuexGet>` component has these unique props.
