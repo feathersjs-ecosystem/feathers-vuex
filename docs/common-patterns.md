@@ -10,9 +10,9 @@ If you have a "WTF this isn't working" moment while setting up a new service, ma
 
 You can set `debug: true` in the options to enable some logging to assist with debugging.
 
-## Use the `<feathers-vuex-find>` and `<feathers-vuex-get>` components
+## Use the `<FeathersVuexFind>` and `<FeathersVuexGet>` components
 
-Using the new `<feathers-vuex-find>` and `<feathers-vuex-get>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.md) docs for more details.
+Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.md) docs for more details.
 
 ## Use the `makeFindMixin` and `makeGetMixin` utilities
 

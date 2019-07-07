@@ -15,8 +15,8 @@ export const FeathersVuex = {
     Vue.prototype.$FeathersVuex = globalModels
 
     if (shouldSetupComponents) {
-      Vue.component('feathers-vuex-find', FeathersVuexFind)
-      Vue.component('feathers-vuex-get', FeathersVuexGet)
+      Vue.component('FeathersVuexFind', FeathersVuexFind)
+      Vue.component('FeathersVuexGet', FeathersVuexGet)
     }
   }
 }

@@ -118,7 +118,7 @@ export default {
   created() {
     if (!this.$FeathersVuex) {
       throw new Error(
-        `You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-get' component.`
+        `You must first Vue.use the FeathersVuex plugin before using the 'FeathersVuexGet' component.`
       )
     }
     if (!this.$store.state[this.service]) {

@@ -40,6 +40,13 @@ export default {
       default() {
         return randomString(10)
       }
+    },
+    /**
+     * Set `temps` to true to include temporary records from the store.
+     */
+    temps: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
@@ -47,9 +54,10 @@ export default {
   }),
   computed: {
     items() {
-      const { query, service, $store } = this
+      const { query, service, $store, temps } = this
+      const params = { query, temps }
 
-      return query ? $store.getters[`${service}/find`]({ query }).data : []
+      return query ? $store.getters[`${service}/find`](params).data : []
     },
     pagination() {
       return this.$store.state[this.service].pagination[this.qid]
@@ -100,7 +108,7 @@ export default {
   created() {
     if (!this.$FeathersVuex) {
       throw new Error(
-        `You must first Vue.use the FeathersVuex plugin before using the 'feathers-vuex-find' component.`
+        `You must first Vue.use the FeathersVuex plugin before using the 'FeathersVuexFind' component.`
       )
     }
     if (!this.$store.state[this.service]) {
