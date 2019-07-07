@@ -26,7 +26,7 @@ export default function makeServiceGetters() {
       params = params || {}
 
       // Set params.temps to false to not include the tempsById records
-      params.temps = params.hasOwnProperty('temps') ? params.temps : true
+      params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
       const { paramsForServer, whitelist } = state
       const q = _omit(params.query || {}, paramsForServer)
