@@ -9,38 +9,43 @@ FeathersVuex mixins provide quick and easy best practices directly inside a comp
 1. You can do lots of them together. Handle multiple queries against multiple services at the same time.  The Renderless Data Components aren't capable of handling more than one query without doing ugly nesting.
 2. They bring the data directly into the component's actual viewModel.  The Renderless Data Components only pull the data into the template scope, so the only clean way to get access to the data was by passing it to a component as props.  This is a great solution until you run into number 1, above.
 
-Here's an example of how to use a mixin.
+  Here are the steps to using it:
 
-```html
-<template>
-  <div class="test-mixin">
-    {{todos}}
-  </div>
-</template>
+1. Import the `makeFindMixin` utility from FeathersVuex.
+2. Register it in a component's mixins once for each query to be made in the component.
+3. Provide a set of params in a computed property (getter only)
+4. Iterate over the computed "items" prop named after the service.
 
+```vue
 <script>
-import { makeFindMixin } from 'feathers-vuex'
+import { makeFindMixin } from 'feathers-vuex' // Step 1
 
 export default {
-  name: 'test-mixins',
-  mixins: [
-    makeFindMixin({ service: 'todos' })
-  ],
+  name: 'ServerTaskList',
+  mixins: [ makeFindMixin({ service: 'server-tasks' })], // Step 2
   computed: {
-    // It's going to automatically look for a prop named `todosPanos`
-    // This is based on the camelCased service name
-    todosParams () {
-      return { query: {} }
+    serverTasksParams() {
+      return { query: {} } // Step 3
     }
   }
 }
 </script>
 
-<style lang="scss">
-</style>
+<template>
+  <div>
+    <ul>
+      <!-- Step 4 -->
+      <li v-for="task in serverTasks" :key="task._id">
+        {{task.name}}
+      </li>
+    </ul>
+  </div>
+</template>
 ```
 
-Notice in the above example that using the mixin automatically makes the `todos` available in the template.  The mixins automatically setup a few properties in the viewModel based on the camelCased name of the service.  You can also provide a `name` attribute.
+In the above example, any records returned from the server will automatically show up when they become available.  It also automatically responds to realtime events when you're using one of FeathersJS's realtime transports, like Socket.io.
+
+Notice in the above example that using the mixin automatically makes the `serverTasks` available in the template.  The mixins automatically setup a few properties in the viewModel based on the camelCased name of the service.  You can also provide a `name` attribute to override the defaults:
 
 ## Options
 
@@ -77,8 +82,6 @@ The `makeFindMixin` and `makeGetMixin` utilities share the following options in 
 The `makeFindMixin` has these unique options:
 
 - **qid {String}** - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
-
-**Important: For the built in pagination features to work, you must not directly manipulate the `context.params` object in any hooks.**
 
 ### Options for only `makeGetMixin`
 
@@ -220,6 +223,117 @@ const mixedInDataFromAboveExample = {
   }
 }
 ```
+
+## Pagination with fall-through cacheing
+
+The `makeFindMixin` in `feathers-vuex@2.x` features a great new, high performance, fall-through cacheing feature, which only uses a single query!  Read the service module documentation for details of how it works under the hood.  It really makes easy work of high-performance pagination.  To use the pagination, provide `$limit` and `$skip` attributes in `params.query`.  This is exactly the same way you would normally do with any FeathersJS query.  So this is completely transparent to how you'd normally do it.
+
+Let's extend the first example on this page to support pagination.  We'll do the following:
+
+1. Setup the `makeFindMixin` to use the `watch` property.
+2. Add a `data` attribute to the component with `limit` and `skip` properties.
+3. Reference the `limit` and `skip` in `params.query`.
+4. Add methods for `previousPage` and `nextPage`
+5. Create buttons for changing the limit and skip.
+
+```vue
+<script>
+import { makeFindMixin } from 'feathers-vuex'
+
+export default {
+  name: 'ServerTaskList',
+  mixins: [ makeFindMixin({ service: 'server-tasks', watch: true })], // Step 1
+  data: () => ({ // Step 2
+    limit: 5,
+    skip: 0
+  }),
+  computed: {
+    serverTasksParams() {
+      return { query: { $limit: this.limit, $skip: this.skip } } // Step 3
+    }
+  },
+  methods: { // Step 4
+    previousPage() {
+      this.skip = this.skip - this.limit
+    },
+    nextPage() {
+      this.skip = this.skip + this.limit
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <ul>
+      <li v-for="task in serverTasks" :key="task._id">
+        {{task.name}}
+      </li>
+    </ul>
+    <!-- Step 5 -->
+    <button @click="previousPage">Previous Page</button>
+    <button @click="">Next Page</button>
+  </div>
+</template>
+```
+
+In the above example, since we've enabled the `watch` attribute on the makeFindMixin, every time the params change, the query will run again.  `feathers-vuex` will keep track of the queries and the pages that are visited, noting which records are returned on each page.  When a page is revisited, the data in the store will *immedately* display to the user.  The query will (by default) go out to the API server, and data will be updated in the background when the response arrives.
+
+## Enabling live lists with pagination
+
+The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Fixing this will be a top priority after 2.x ships.
+
+If you would like to enable live lists again, you'll need to do it manually, the way it has always been done: Use the `find` getter and pass a query to it.  To accomplish this goal, we'll override the items property in the component in order to
+
+1. Provide a new query without the pagination properties.
+2. Create a new query just for the local records.
+3. Use the new `find&lt;Resource&gt;InStore` method (where Resource is the PascalCased name of the items)
+
+```vue
+<script>
+import { makeFindMixin } from 'feathers-vuex'
+
+export default {
+  name: 'ServerTaskList',
+  mixins: [ makeFindMixin({ service: 'server-tasks', watch: true })],
+  data: () => ({
+    limit: 5,
+    skip: 0
+  }),
+  computed: {
+    serverTasks() { // Step 1
+      const query = { $sort: { name: 1 } }
+      return this.findServerTasksInStore({ query })
+    },
+    serverTasksParams() {
+      return { query: { $limit: this.limit, $skip: this.skip } }
+    }
+  },
+  methods: { // Step 4
+    previousPage() {
+      this.skip = this.skip - this.limit
+    },
+    nextPage() {
+      this.skip = this.skip + this.limit
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <ul>
+      <li v-for="task in serverTasks" :key="task._id">
+        {{task.name}}
+      </li>
+    </ul>
+    <button @click="previousPage">Previous Page</button>
+    <button @click="">Next Page</button>
+  </div>
+</template>
+```
+
+In the above example, since we provided the `serverTasks` attribute, the `makeFindMixin` will not set one up to overwrite it.  This allows us to create our own query and call the alias for the `find` getter.  When we create this new query, let's remember to not use the same `$skip` and `$sort` as the API query. Otherwise, it's likely that no records from the Vuex store will show.
 
 ## Debugging the makeFindMixin
 
