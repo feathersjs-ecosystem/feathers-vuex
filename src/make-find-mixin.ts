@@ -10,7 +10,7 @@ import {
   getQueryInfo,
   getItemsFromQueryInfo
 } from './utils'
-import { get as _get } from 'lodash'
+import { get as _get, debounce } from 'lodash'
 
 export default function makeFindMixin(options) {
   const {
@@ -99,7 +99,7 @@ export default function makeFindMixin(options) {
           return []
         }
         const { defaultSkip: skip, defaultLimit: limit } = serviceState.pagination
-        const pagination = this[PAGINATION][paramsToUse.qid] || {}
+        const pagination = this[PAGINATION][paramsToUse.qid || this[QID]] || {}
         const response = (
           skip !== null &&
           skip !== undefined &&
@@ -134,6 +134,21 @@ export default function makeFindMixin(options) {
       }
     },
     methods: {
+      [`${FIND_ACTION}DebouncedProxy`](params) {
+        const paramsToUse = getParams(params, this[PARAMS], this[FETCH_PARAMS])
+        if (paramsToUse && paramsToUse.debounce) {
+          const cachedDebounceFunction = this[`${FIND_ACTION}Debounced`]
+          const mostRecentTime = this[`${FIND_ACTION}MostRecentDebounceTime`]
+
+          if (!cachedDebounceFunction || mostRecentTime != paramsToUse.debounce) {
+            this[`${FIND_ACTION}MostRecentDebounceTime`] = paramsToUse.debounce
+            this[`${FIND_ACTION}Debounced`] = debounce(this[FIND_ACTION], paramsToUse.debounce)
+          }
+          return this[`${FIND_ACTION}Debounced`](paramsToUse)
+        } else {
+          return this[FIND_ACTION](paramsToUse)
+        }
+      },
       [FIND_ACTION](params) {
         const paramsToUse = getParams(params, this[PARAMS], this[FETCH_PARAMS])
 
@@ -202,7 +217,7 @@ export default function makeFindMixin(options) {
             }
           }
           this.$watch(prop, function() {
-            return this[FIND_ACTION]()
+            return this[`${FIND_ACTION}DebouncedProxy`]()
           })
         })
 
