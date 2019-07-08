@@ -88,13 +88,18 @@ export default function makeFindMixin(options) {
       return data
     },
     computed: {
+      [PAGINATION]() {
+        return this.$store.state[this[SERVICE_NAME]].pagination
+      },
       [ITEMS]() {
+        const serviceName = this[SERVICE_NAME]
+        const serviceState = this.$store.state[serviceName]
         const paramsToUse = getParams(undefined, this[PARAMS], this[FETCH_PARAMS])
         if (!paramsToUse) {
           return []
         }
+        const { defaultSkip: skip, defaultLimit: limit } = serviceState.pagination
         const pagination = this[PAGINATION][paramsToUse.qid] || {}
-        const { defaultSkip: skip, defaultLimit: limit } = pagination
         const response = (
           skip !== null &&
           skip !== undefined &&
@@ -102,8 +107,7 @@ export default function makeFindMixin(options) {
           limit !== undefined
         ) ? { limit, skip } : {}
         const queryInfo = getQueryInfo(paramsToUse, response)
-        const { keyedById } = this.$store.state[this[SERVICE_NAME]]
-        const items = getItemsFromQueryInfo(pagination, queryInfo, keyedById)
+        const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
 
         if (this[LOCAL] && this[PARAMS]) {
           return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
@@ -212,15 +216,6 @@ export default function makeFindMixin(options) {
           )
         }
       }
-    }
-  }
-
-  // This might need to come out.  I removed it in the pagination branch, but it seems to
-  // me like it should be here.
-  if (qid) {
-    mixin.computed[PAGINATION] = function() {
-      const serviceName = this[SERVICE_NAME]
-      return this.$store.state[serviceName].pagination[qid]
     }
   }
 

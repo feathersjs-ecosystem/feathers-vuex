@@ -78,6 +78,8 @@ The `makeFindMixin` has these unique options:
 
 - **qid {String}** - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
 
+**Important: For the built in pagination features to work, you must not directly manipulate the `context.params` object in any hooks.**
+
 ### Options for only `makeGetMixin`
 
 The `makeGetMixin` has these unique options:
@@ -218,3 +220,11 @@ const mixedInDataFromAboveExample = {
   }
 }
 ```
+
+## Debugging the makeFindMixin
+
+**Important: For the built in pagination features to work, you must not directly manipulate the `context.params` object in any hooks.**
+
+If the makeFindMixin is not returning any results, but you can see the results coming in across the websocket  or rest transport, make sure you're not directly modifying the `context.params` object in a hook, as mentioned in bold, above. ;)  The best place to debug if this is your issue is in `make-find-mixin` in the `[ITEMS]` computed property.  Set a breakpoint at `const items = getItemsFromQueryInfo(pagination, queryInfo, keyedById)`.  Maybe even make it a conditional breakpoint around the `serviceName` variable: `serviceName === 'assets' && Object.keys(keyedById).length > 0`.
+
+When you hit the above breakpoint, check the `keyedById` variable.  If it has records, but the `items` is an empty array, there may be a problem with the `queryInfo` not matching from the `context.params` getting modified.

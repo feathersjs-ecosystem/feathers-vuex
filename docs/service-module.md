@@ -368,6 +368,8 @@ Make sure your returned records have a unique field that matches the `idField` o
 
 Both the `find` action and the `find` getter support pagination.  There are differences in how they work.
 
+Important: For the built in pagination features to work, you must not directly manipulate the `context.params` object in any before hooks.  You can still use before hooks as long as you clone the params object, then make changes to the clone.
+
 ### The `find` action
 
 The `find` action queries data from the remote server.  It returns a promise that resolves to the response from the server.  The presence of pagination data will be determined by the server.
@@ -382,6 +384,8 @@ The `find` action queries data from the remote server.  It returns a promise tha
   }
 }
 ```
+
+You should never manually change these values.  They are managed internally.
 
 There's not a lot going on, by default.  The `defaultLimit` and `defaultSkip` properties are null until a query is made on the service without `$limit` or `$skip`.  In other words, they remain `null` until an empty query comes through, like the this one:
 
