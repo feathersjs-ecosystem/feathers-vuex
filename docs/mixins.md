@@ -279,11 +279,87 @@ export default {
 
 In the above example, since we've enabled the `watch` attribute on the makeFindMixin, every time the params change, the query will run again.  `feathers-vuex` will keep track of the queries and the pages that are visited, noting which records are returned on each page.  When a page is revisited, the data in the store will *immedately* display to the user.  The query will (by default) go out to the API server, and data will be updated in the background when the response arrives.
 
+## Debouncing requests
+
+What happens when a query with a watcher is attached to an attribute that might change rapidly?  A lot of API requests can get sent in succession.  If too many are sent, some of them will start to fail (a.k.a. bounce).  The `makeFindMixin` has a built-in utility for debouncing requests.  Enabling it makes it so requests only are sent after a specific amount of time has passed.  To enable it, pass a `debounce` attribute in the `params`, as shown in the next example.
+
+Let's build on our previous example by adding a `search` feature where the user can type some input.  Here are the steps:
+
+1. Add an attribute to the data to which we will bind user input. We'll call it `search`.
+2. Modify params to include the `search` attribute in a supportive way.
+3. Enable the the debounce feature.
+4. Add an `input:text` to the template which binds to the attribute in step 1.
+
+```vue
+<script>
+import { makeFindMixin } from 'feathers-vuex'
+
+export default {
+  name: 'ServerTaskList',
+  mixins: [ makeFindMixin({ service: 'server-tasks', watch: true })],
+  data: () => ({
+    limit: 5,
+    skip: 0,
+    search: '' // Step 1
+  }),
+  computed: {
+    serverTasksParams() {
+      return {
+        query: {
+          $limit: this.limit,
+          $skip: this.skip,
+          name: { $regex: this.search, $options: 'igm' } // Step 2
+        },
+        debounce: 500 // Step 3
+      }
+    }
+  },
+  methods: {
+    previousPage() {
+      this.skip = this.skip - this.limit
+    },
+    nextPage() {
+      this.skip = this.skip + this.limit
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <!-- Step 4 -->
+    <label for="server-task-search">
+      Search Server Tasks by Name
+    </label>
+    <input
+      v-model="search"
+      id="server-task-search"
+      type="text"
+      placeholder="Enter a task name"
+    />
+
+    <ul>
+      <li v-for="task in serverTasks" :key="task._id">
+        {{task.name}}
+      </li>
+    </ul>
+    <button @click="previousPage">Previous Page</button>
+    <button @click="">Next Page</button>
+  </div>
+</template>
+```
+
+Notice a couple of things in the above example.  We enabled the internal `debounce` feature by simply adding `debounce: 500` to the params (outside the query).  This means that as the user types, requests will be queued inside a 500 ms interval.  The request will be sent as soon as the user stops typing for 500 milliseconds.  For example, if the user types a single character, waits ~400ms, then types a second character, the first request will be cancelled and another request will be sent 500ms after typing the second character.  It's more likely that these requests will not bounce. :)
+
+We also added a `$regex` search to the params.  This is a MongoDB feature, which naturally also works with Mongoose services (since Mongoose is a tool built for MongoDB).  If you're using another type of service, you will need to come up with a solution for performing searches safely.  The solution will vary depending on the database used.
+
+Feel free to make a PR for using something else that could be useful to the community!  We love those!
+
 ## Enabling live lists with pagination
 
 The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Fixing this will be a top priority after 2.x ships.
 
-If you would like to enable live lists again, you'll need to do it manually, the way it has always been done: Use the `find` getter and pass a query to it.  To accomplish this goal, we'll override the items property in the component in order to
+If you would like to enable live lists again, it requires manual setup, meaning the way it has always been done in `1.x`: Use the `find` getter and pass a query to it.  To accomplish this goal, we'll override the items property in the component in order to
 
 1. Provide a new query without the pagination properties.
 2. Create a new query just for the local records.
