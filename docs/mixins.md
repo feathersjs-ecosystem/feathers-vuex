@@ -357,40 +357,27 @@ Feel free to make a PR for using something else that could be useful to the comm
 
 ## Enabling live lists with pagination
 
-The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Fixing this will be a top priority after 2.x ships.
+The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Coming up with a solution for this will be a top priority after 2.x ships.  In the meantime, here are some alternatives.
 
-If you would like to enable live lists again, it requires manual setup, meaning the way it has always been done in `1.x`: Use the `find` getter and pass a query to it.  To accomplish this goal, we'll override the items property in the component in order to
+### Refresh the current query after changes
 
-1. Provide a new query without the pagination properties.
-2. Create a new query just for the local records.
-3. Use the new `find&lt;Resource&gt;InStore` method (where Resource is the PascalCased name of the items)
+This is a simplistic approach. In some cases, when you expect the data to have changed in whatever list you are currently showing to the user, you can simply call the find action for that list and get new data from the server.  In the below example, whenever the `TodoEntryForm` component emits the `created` event, it triggers the `findTodos` method.  Note: you wouldn't want to do `@created="findTodos` because that would potentially pass the new todo as the params like `findTodos(newTodo)` instead of `findTodos()`.  Passing no params will automatically use the `todosParams` for the query.
 
 ```vue
 <script>
 import { makeFindMixin } from 'feathers-vuex'
 
 export default {
-  name: 'ServerTaskList',
-  mixins: [ makeFindMixin({ service: 'server-tasks', watch: true })],
-  data: () => ({
-    limit: 5,
-    skip: 0
-  }),
+  name: 'SomeExampleComponent',
+  mixins: [makeFindMixin({ service: 'todos', watch: true })]
   computed: {
-    serverTasks() { // Step 1
-      const query = { $sort: { name: 1 } }
-      return this.findServerTasksInStore({ query })
-    },
-    serverTasksParams() {
-      return { query: { $limit: this.limit, $skip: this.skip } }
+    todosParams() {
+      return { query: {} }
     }
   },
-  methods: { // Step 4
-    previousPage() {
-      this.skip = this.skip - this.limit
-    },
-    nextPage() {
-      this.skip = this.skip + this.limit
+  methods: {
+    refresh() {
+      this.findTodos()
     }
   }
 }
@@ -398,18 +385,59 @@ export default {
 
 <template>
   <div>
-    <ul>
-      <li v-for="task in serverTasks" :key="task._id">
-        {{task.name}}
-      </li>
-    </ul>
-    <button @click="previousPage">Previous Page</button>
-    <button @click="">Next Page</button>
+    <TodosList :items="todos"></TodosList>
+    <TodoEntryForm @created="refresh"></TodoEntryForm>
   </div>
 </template>
 ```
 
-In the above example, since we provided the `serverTasks` attribute, the `makeFindMixin` will not set one up to overwrite it.  This allows us to create our own query and call the alias for the `find` getter.  When we create this new query, let's remember to not use the same `$skip` and `$sort` as the API query. Otherwise, it's likely that no records from the Vuex store will show.
+### Use the "FetchQuery" params
+
+Let's suppose we have a todos service that we're mixing into our component:
+
+```js
+makeFindMixin({ service: 'todos', watch: true })
+```
+
+The `makeFindMixin` by default will look for a single set of params called `todosParams`. If it finds only this set of params, the params will be used for fetching data and pulling it from the Vuex store.  However, if another set of params, called the `todosFetchParams`, this new set of params will be used to fetch data and the `todosParams` will be used against the internal store.  In this scenario, the internal pagination tracking is also turned off, which allows you to make queries directly against the Vuex store again.
+
+```vue
+<script>
+import { makeFindMixin } from 'feathers-vuex'
+
+export default {
+  name: 'SomeExampleComponent',
+  mixins: [makeFindMixin({ service: 'todos', watch: true })]
+  computed: {
+    // This query will retrieve all records from the local Vuex store.
+    todosParams() {
+      return { query: {} }
+    },
+    // This query will retrieve 10 records from the API server.
+    todosFetchParams() {
+      return {
+        query: {
+          $limit: 10,
+          $skip: 0
+        }
+      }
+    }
+  },
+  methods: {
+    refresh() {
+      this.findTodos()
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <TodosList :items="todos"></TodosList>
+    <TodoEntryForm @created="refresh"></TodoEntryForm>
+  </div>
+</template>
+```
 
 ## Debugging the makeFindMixin
 
