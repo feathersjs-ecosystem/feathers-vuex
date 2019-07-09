@@ -321,8 +321,10 @@ export function getQueryInfo(params = {}, response = {}) {
 
 export function getItemsFromQueryInfo(pagination, queryInfo, keyedById) {
   const { queryId, pageId } = queryInfo
-  // @ts-ignore
-  const ids = _get(pagination, `[${queryId}][${pageId}].ids`)
+  const queryLevel = pagination[queryId]
+  const pageLevel = queryLevel && queryLevel[pageId]
+  const ids = pageLevel && pageLevel.ids
+
   if (ids && ids.length) {
     return ids.map(id => keyedById[id])
   } else {
