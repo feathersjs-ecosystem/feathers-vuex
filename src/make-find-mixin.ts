@@ -73,13 +73,13 @@ export default function makeFindMixin(options) {
     [QID]: qid,
     [MOST_RECENT_QUERY]: null
   }
-  const getParams = (providedParams, params, fetchParams) => {
+  // Should only be used with actual fetching API calls.
+  const getParams = ({ providedParams, params, fetchParams }) => {
     if (providedParams) {
       return providedParams
-    } else if (fetchParams || fetchParams === null) {
-      return fetchParams
     } else {
-      return params
+      // Returning null fetchParams allows the query to be skipped.
+      return (fetchParams || fetchParams === null) ? fetchParams : params
     }
   }
 
@@ -94,28 +94,32 @@ export default function makeFindMixin(options) {
       [ITEMS]() {
         const serviceName = this[SERVICE_NAME]
         const serviceState = this.$store.state[serviceName]
-        const paramsToUse = getParams(undefined, this[PARAMS], this[FETCH_PARAMS])
-        if (!paramsToUse) {
-          return []
-        }
-        const { defaultSkip: skip, defaultLimit: limit } = serviceState.pagination
-        const pagination = this[PAGINATION][paramsToUse.qid || this[QID]] || {}
-        const response = (
-          skip !== null &&
-          skip !== undefined &&
-          limit !== null &&
-          limit !== undefined
-        ) ? { limit, skip } : {}
-        const queryInfo = getQueryInfo(paramsToUse, response)
-        const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
 
-        if (this[LOCAL] && this[PARAMS]) {
+        // If both queries are provided, we're not using fall-through pagination.
+        if (this[FETCH_PARAMS] && this[PARAMS]) {
           return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
-        } else if (items && items.length) {
-          return items
-        } else {
-          return []
         }
+
+        const params = this[PARAMS]
+        // Check for pagination data for this query.
+        if (params) {
+          const { defaultSkip: skip, defaultLimit: limit } = serviceState.pagination
+          const pagination = this[PAGINATION][params.qid || this[QID]] || {}
+          const response = (
+            skip !== null &&
+            skip !== undefined &&
+            limit !== null &&
+            limit !== undefined
+          ) ? { limit, skip } : {}
+          const queryInfo = getQueryInfo(params, response)
+          const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
+
+          if (items && items.length) {
+            return items
+          }
+        }
+
+        return []
       },
       // Queries the Vuex store with the exact same query that was sent to the API server.
       [ITEMS_FETCHED]() {
@@ -135,7 +139,11 @@ export default function makeFindMixin(options) {
     },
     methods: {
       [`${FIND_ACTION}DebouncedProxy`](params) {
-        const paramsToUse = getParams(params, this[PARAMS], this[FETCH_PARAMS])
+        const paramsToUse = getParams({
+          providedParams: params,
+          params: this[PARAMS],
+          fetchParams: this[FETCH_PARAMS]
+        })
         if (paramsToUse && paramsToUse.debounce) {
           const cachedDebounceFunction = this[`${FIND_ACTION}Debounced`]
           const mostRecentTime = this[`${FIND_ACTION}MostRecentDebounceTime`]
@@ -150,7 +158,11 @@ export default function makeFindMixin(options) {
         }
       },
       [FIND_ACTION](params) {
-        const paramsToUse = getParams(params, this[PARAMS], this[FETCH_PARAMS])
+        const paramsToUse = getParams({
+          providedParams: params,
+          params: this[PARAMS],
+          fetchParams: this[FETCH_PARAMS]
+        })
 
         if (!this[LOCAL]) {
           const shouldExecuteQuery = typeof this[QUERY_WHEN] === 'function'
