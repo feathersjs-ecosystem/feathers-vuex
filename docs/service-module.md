@@ -1,9 +1,8 @@
-<!-- markdownlint-disable MD002 MD033 MD041 -->
-
 ---
 title: Service Module API
-
 ---
+
+<!-- markdownlint-disable MD002 MD033 MD041 -->
 
 The `Service Module` creates plugins which can be used to connect a Feathers service to the Vuex store.  Once you create the plugin, you must register it in the `plugins` section of your store setup:
 
