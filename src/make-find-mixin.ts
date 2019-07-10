@@ -104,14 +104,11 @@ export default function makeFindMixin(options) {
         const params = this[PARAMS]
         // Check for pagination data for this query.
         if (params) {
-          const { defaultSkip: skip, defaultLimit: limit } = serviceState.pagination
+          const { defaultSkip, defaultLimit } = serviceState.pagination
+          const skip = params.query.$skip || defaultSkip
+          const limit = params.query.$limit || defaultLimit
           const pagination = this[PAGINATION][params.qid || this[QID]] || {}
-          const response = (
-            skip !== null &&
-            skip !== undefined &&
-            limit !== null &&
-            limit !== undefined
-          ) ? { limit, skip } : {}
+          const response = skip != null && limit != null ? { limit, skip } : {}
           const queryInfo = getQueryInfo(params, response)
           const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
 
