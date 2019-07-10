@@ -266,7 +266,7 @@ export default function makeServiceMutations() {
      * Stores pagination data on state.pagination based on the query identifier
      * (qid) The qid must be manually assigned to `params.qid`
      */
-    updatePaginationForQuery(state, { qid, response, query }) {
+    updatePaginationForQuery(state, { qid, response, query = {} }) {
       const { data, total } = response
       const { idField } = state
       const ids = data.map(i => i[idField])
