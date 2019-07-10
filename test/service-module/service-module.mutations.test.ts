@@ -891,7 +891,8 @@ describe('Service Module - Mutations', function() {
                   queryParams,
                   pageId,
                   pageParams,
-                  queriedAt
+                  queriedAt,
+                  total: 155
                 },
                 '{}': {
                   total: fakeData.transactions.length,
@@ -937,7 +938,8 @@ describe('Service Module - Mutations', function() {
                   queryParams,
                   pageId,
                   pageParams,
-                  queriedAt
+                  queriedAt,
+                  total: 155
                 },
                 '{}': {
                   total: fakeData.transactions.length,
@@ -983,7 +985,8 @@ describe('Service Module - Mutations', function() {
                   queryParams,
                   pageId,
                   pageParams,
-                  queriedAt
+                  queriedAt,
+                  total: 155
                 },
                 '{}': {
                   total: fakeData.transactions.length,
@@ -1042,7 +1045,8 @@ describe('Service Module - Mutations', function() {
                   queryParams,
                   pageId,
                   pageParams,
-                  queriedAt
+                  queriedAt,
+                  total: 155
                 },
                 '{}': {
                   total: fakeData.transactions.length,
