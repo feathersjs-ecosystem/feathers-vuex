@@ -228,6 +228,8 @@ const mixedInDataFromAboveExample = {
 
 The `makeFindMixin` in `feathers-vuex@2.x` features a great new, high performance, fall-through cacheing feature, which only uses a single query!  Read the service module documentation for details of how it works under the hood.  It really makes easy work of high-performance pagination.  To use the pagination, provide `$limit` and `$skip` attributes in `params.query`.  This is exactly the same way you would normally do with any FeathersJS query.  So this is completely transparent to how you'd normally do it.
 
+> Note: By default, the pagination feature is turned on.  To simplify updating existing apps using `feathers-vuex`, you can turn this feature off in any part of your app by passing `paginate: false` in the params for that particular query.  This will completely restore the previous behavior and re-enable live lists.
+
 Let's extend the first example on this page to support pagination.  We'll do the following:
 
 1. Setup the `makeFindMixin` to use the `watch` property.
@@ -358,6 +360,43 @@ Feel free to make a PR for using something else that could be useful to the comm
 ## Enabling live lists with pagination
 
 The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Coming up with a solution for this will be a top priority after 2.x ships.  In the meantime, here are some alternatives.
+
+### Use `paginate:false` in the params
+
+Restore the previous default behavior by putting `paginate:false` in the params.  This is the easiest way to upgrade existing apps using the `makeFindMixin`.  Look at the `todosParams` in this example:
+
+```vue
+<script>
+import { makeFindMixin } from 'feathers-vuex'
+
+export default {
+  name: 'SomeExampleComponent',
+  mixins: [makeFindMixin({ service: 'todos', watch: true })]
+  computed: {
+    todosParams() {
+      return {
+        query: {},
+        paginate: false // This restores previous functionality
+      }
+    }
+  },
+  methods: {
+    refresh() {
+      this.findTodos()
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <TodosList :items="todos"></TodosList>
+    <TodoEntryForm @created="refresh"></TodoEntryForm>
+  </div>
+</template>
+```
+
+The `paginate` property will not be sent to the server, but it will locally disable the pagination and enable the live lists from the `find` getter.
 
 ### Refresh the current query after changes
 
