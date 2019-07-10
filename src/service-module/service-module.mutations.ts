@@ -294,7 +294,8 @@ export default function makeServiceMutations() {
         queryParams,
         pageId,
         pageParams,
-        queriedAt
+        queriedAt,
+        total
       }
 
       const qidData = state.pagination[qid] || {}
