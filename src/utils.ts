@@ -193,7 +193,7 @@ export function getId(item, idField) {
     return item._id
   }
   if (item.hasOwnProperty(idField)) {
-    return getId(item, idField)
+    return item[idField]
   }
 }
 
