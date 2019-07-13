@@ -191,7 +191,9 @@ export default function makeFindMixin(options) {
                 })
             }
           } else {
-            this[MOST_RECENT_QUERY].isOutdated = true
+            if (this[MOST_RECENT_QUERY]) {
+              this[MOST_RECENT_QUERY].isOutdated = true
+            }
           }
         }
       },
