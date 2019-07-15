@@ -53,6 +53,7 @@ export default function makeFindMixin(options) {
   const WATCH = `${prefix}Watch`
   const QUERY_WHEN = `${prefix}QueryWhen`
   const GET_ACTION = `get${capitalized}`
+  const GET_GETTER = `get${capitalized}FromStore`
   const LOCAL = `${prefix}Local`
   const QID = `${prefix}Qid`
   const ID = `${prefix}Id`
@@ -74,6 +75,13 @@ export default function makeFindMixin(options) {
       },
       [QUERY_WHEN]() {
         return true
+      },
+      // Exposes `get<Item>FromStore`
+      [GET_GETTER]() {
+        return id => {
+          const serviceName = this[SERVICE_NAME]
+          return this.$store.getters[`${serviceName}/get`](id)
+        }
       }
     },
     methods: {
