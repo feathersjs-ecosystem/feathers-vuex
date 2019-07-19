@@ -8,6 +8,7 @@ export default function setupAuthState({ userService }) {
     accessToken: null, // The JWT
     payload: null, // The JWT payload
     entityIdField: 'userId',
+    responseEntityField: 'user',
 
     isAuthenticatePending: false,
     isLogoutPending: false,

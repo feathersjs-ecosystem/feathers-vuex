@@ -34,8 +34,11 @@ export default function makeAuthActions(feathersClient) {
           .then(payload => {
             commit('setPayload', payload)
 
-            // Populate the user if the userService was provided
-            if (
+            // If a user was returned in the authenticate response, use that user.
+            if (response[state.responseEntityField]) {
+              commit('setUser', response[state.responseEntityField])
+              // Populate the user if the userService was provided
+            } else if (
               state.userService &&
               payload.hasOwnProperty(state.entityIdField)
             ) {

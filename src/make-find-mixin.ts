@@ -98,7 +98,7 @@ export default function makeFindMixin(options) {
         // If both queries are provided, we're not using fall-through pagination.
         // User can pass `paginate: false` to force old behavior with a single query.
         if (this[FETCH_PARAMS] && this[PARAMS] || this[PARAMS] && this[PARAMS].paginate === false) {
-          return this.$store.getters[`${this[SERVICE_NAME]}/find`](this[PARAMS]).data
+          return this.$store.getters[`${serviceName}/find`](this[PARAMS]).data
         }
 
         const params = this[PARAMS]
