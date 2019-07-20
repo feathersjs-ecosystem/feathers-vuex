@@ -3,6 +3,8 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+import { models } from '../index'
+
 export default function makeAuthActions(feathersClient) {
   return {
     authenticate(store, data) {
@@ -34,9 +36,19 @@ export default function makeAuthActions(feathersClient) {
           .then(payload => {
             commit('setPayload', payload)
 
+            let user = response[state.responseEntityField]
+
             // If a user was returned in the authenticate response, use that user.
-            if (response[state.responseEntityField]) {
-              commit('setUser', response[state.responseEntityField])
+            if (user) {
+              if (state.serverAlias && state.userService) {
+                const Model = Object.keys(models[state.serverAlias])
+                  .map(modelName => models[state.serverAlias][modelName])
+                  .find(model => model.servicePath === state.userService)
+                if (Model) {
+                  user = new Model(user)
+                }
+              }
+              commit('setUser', user)
               // Populate the user if the userService was provided
             } else if (
               state.userService &&

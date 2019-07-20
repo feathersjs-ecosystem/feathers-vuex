@@ -11,6 +11,8 @@ import setupActions from './auth-module.actions'
 const defaults = {
   namespace: 'auth',
   userService: '', // Set this to automatically populate the user (using an additional request) on login success.
+  serverAlias: null,
+  debug: false,
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
@@ -28,6 +30,11 @@ export default function authPluginInit(feathersClient) {
     if (!feathersClient.authenticate) {
       throw new Error(
         'You must register the @feathersjs/authentication-client plugin before using the feathers-vuex auth module'
+      )
+    }
+    if (options.debug && options.userService && !options.serverAlias) {
+      console.warn(
+        'A userService was provided, but no serverAlias was provided. To make sure the user record is an instance of the User model, a serverAlias must be provided.'
       )
     }
 
