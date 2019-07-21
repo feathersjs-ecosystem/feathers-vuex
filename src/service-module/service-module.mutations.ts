@@ -59,7 +59,7 @@ export default function makeServiceMutations() {
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert, serverAlias, modelName } = state
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    // const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
+    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
     for (let item of items) {
       const id = getId(item, idField)
@@ -71,18 +71,6 @@ export default function makeServiceMutations() {
 
       // Update the record
       if (id !== null && id !== undefined) {
-
-
-
-
-        // if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
-        //   item = new Model(item)
-        // }
-
-
-
-
-
         if (state.ids.includes(id)) {
           // Completely replace the item
           if (replaceItems) {
@@ -92,6 +80,16 @@ export default function makeServiceMutations() {
             Vue.set(state.keyedById, id, item)
             // Merge in changes
           } else {
+            /**
+             * If we have a Model class, calling new Model(incomingData) will call update
+             * the original record with the accessors and setupInstance data.
+             * This means that date objects and relationships will be preserved.
+             *
+             * If there's no Model class, just call updateOriginal on the incoming data.
+             */
+            if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
+              item = new Model(item)
+            }
             const original = state.keyedById[id]
             updateOriginal(original, item)
           }
@@ -106,7 +104,17 @@ export default function makeServiceMutations() {
     }
   }
 
+  function mergeInstance(state, item) {
+    const { serverAlias, idField, tempIdField, modelName } = state
+    const id = getId(item, idField)
+    const existingItem = state.keyedById[id]
+    if (existingItem) {
+      mergeWithAccessors(existingItem, item)
+    }
+  }
+
   return {
+    mergeInstance,
     addItem(state, item) {
       addItems(state, [item])
     },

@@ -8,7 +8,7 @@ import { getId } from '../utils'
 
 export default function makeServiceActions(service) {
   const serviceActions = {
-    find({ commit, dispatch }, params) {
+    async find({ commit, dispatch }, params) {
       params = params || {}
       params = fastCopy(params)
 
@@ -23,7 +23,7 @@ export default function makeServiceActions(service) {
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    get({ state, getters, commit, dispatch }, args) {
+    async get({ state, getters, commit, dispatch }, args) {
       let id
       let params
       let skipRequestIfExists
@@ -49,8 +49,8 @@ export default function makeServiceActions(service) {
         commit('setPending', 'get')
         return service
           .get(id, params)
-          .then(item => {
-            dispatch('addOrUpdate', item)
+          .then(async item => {
+            await dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
           })
@@ -62,15 +62,14 @@ export default function makeServiceActions(service) {
       }
 
       // If the records is already in store, return it
-      const existedItem = getters.get(id, params)
-      if (existedItem) {
-        if (!skipRequestIfExists) getFromRemote()
-        return Promise.resolve(existedItem)
+      const existingItem = getters.get(id, params)
+      if (existingItem && skipRequestIfExists) {
+        return Promise.resolve(existingItem)
       }
       return getFromRemote()
     },
 
-    create({ commit, dispatch, state }, dataOrArray) {
+    async create({ commit, dispatch, state }, dataOrArray) {
       const { idField, tempIdField } = state
       let data
       let params
@@ -97,9 +96,9 @@ export default function makeServiceActions(service) {
 
       return service
         .create(data, params)
-        .then(response => {
+        .then(async response => {
           if (Array.isArray(response)) {
-            dispatch('addOrUpdateList', response)
+            await dispatch('addOrUpdateList', response)
             response = response.map(item => {
               const id = getId(item, idField)
 
@@ -108,7 +107,7 @@ export default function makeServiceActions(service) {
           } else {
             const id = getId(response, idField)
 
-            dispatch('addOrUpdate', response)
+            await dispatch('addOrUpdate', response)
 
             response = state.keyedById[id]
           }
@@ -123,7 +122,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    update({ commit, dispatch, state }, [id, data, params]) {
+    async update({ commit, dispatch, state }, [id, data, params]) {
 
       commit('setPending', 'update')
 
@@ -131,8 +130,8 @@ export default function makeServiceActions(service) {
 
       return service
         .update(id, data, params)
-        .then(item => {
-          dispatch('addOrUpdate', item)
+        .then(async item => {
+          await dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
         })
@@ -143,7 +142,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    patch({ commit, dispatch, state }, [id, data, params]) {
+    async patch({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'patch')
 
       params = fastCopy(params)
@@ -154,8 +153,8 @@ export default function makeServiceActions(service) {
 
       return service
         .patch(id, data, params)
-        .then(item => {
-          dispatch('addOrUpdate', item)
+        .then(async item => {
+          await dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
         })
@@ -166,7 +165,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    remove({ commit }, idOrArray) {
+    async remove({ commit }, idOrArray) {
       let id
       let params
 
@@ -206,11 +205,11 @@ export default function makeServiceActions(service) {
      *         Feathers client.  The client modifies the params object.
      *   @param response
      */
-    handleFindResponse({ state, commit, dispatch }, { params, response }) {
+    async handleFindResponse({ state, commit, dispatch }, { params, response }) {
       const { qid = 'default', query } = params
       const { idField } = state
 
-      dispatch('addOrUpdateList', response)
+      await dispatch('addOrUpdateList', response)
       commit('unsetPending', 'find')
 
       const mapItemFromState = item => {
@@ -232,17 +231,22 @@ export default function makeServiceActions(service) {
           : (response = mappedFromState)
       }
 
-      dispatch('afterFind', response)
+      response = await await dispatch('afterFind', response)
 
       return response
     },
-    handleFindError({ commit }, { params, error }) {
+
+    async handleFindError({ commit }, { params, error }) {
       commit('setError', { method: 'find', params, error })
       commit('unsetPending', 'find')
       return Promise.reject(error)
     },
-    afterFind() {},
-    addOrUpdateList({ state, commit }, response) {
+
+    async afterFind({}, response) {
+      return response
+    },
+
+    async addOrUpdateList({ state, commit }, response) {
       const list = response.data || response
       const isPaginated = response.hasOwnProperty('total')
       const toAdd = []
@@ -282,8 +286,11 @@ export default function makeServiceActions(service) {
 
       commit('addItems', toAdd)
       commit('updateItems', toUpdate)
+
+      return response
     },
-    addOrUpdate({ state, commit }, item) {
+
+    async addOrUpdate({ state, commit }, item) {
       const { idField } = state
       let id = getId(item, idField)
       let existingItem = state.keyedById[id]
@@ -300,8 +307,12 @@ export default function makeServiceActions(service) {
       if (isIdOk) {
         existingItem ? commit('updateItem', item) : commit('addItem', item)
       }
+      return item
     }
   }
+  /**
+   * Only add a method to the store if the service actually has that same method.
+   */
   Object.keys(serviceActions).map(method => {
     if (service[method] && typeof service[method] === 'function') {
       actions[method] = serviceActions[method]

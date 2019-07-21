@@ -552,7 +552,7 @@ describe('Service Module - Actions', () => {
   })
 
   describe('Get', function () {
-    it('updates store list state on service success', done => {
+    it('updates store list state on service success', async () => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -571,68 +571,47 @@ describe('Service Module - Actions', () => {
       assert(todoState.isGetPending === false)
       assert(todoState.idField === 'id')
 
-      actions.get.call({ $store: store }, 0).then(() => {
-        assert(todoState.ids.length === 1, 'only one item is in the store')
-        assert(todoState.errorOnGet === null, 'there was no errorOnGet')
-        assert(todoState.isGetPending === false, 'isGetPending is set to false')
+      const todo1 = await actions.get.call({ $store: store }, 0)
+      assert(todoState.ids.length === 1, 'only one item is in the store')
+      assert(todoState.errorOnGet === null, 'there was no errorOnGet')
+      assert(todoState.isGetPending === false, 'isGetPending is set to false')
 
-        let expectedKeyedById: NumberedList = {
-          0: { id: 0, description: 'Do the first' }
-        }
-        assert.deepEqual(
-          JSON.parse(JSON.stringify(todoState.keyedById)),
-          expectedKeyedById
-        )
+      let expectedKeyedById: NumberedList = {
+        0: { id: 0, description: 'Do the first' }
+      }
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(todoState.keyedById)),
+        expectedKeyedById
+      )
 
-        // Make a request with the array syntax that allows passing params
-        actions.get.call({ $store: store }, [1, {}]).then(response2 => {
-          expectedKeyedById = {
-            0: { id: 0, description: 'Do the first' },
-            1: { id: 1, description: 'Do the second' }
-          }
-          assert(response2.description === 'Do the second')
-          assert.deepEqual(
-            JSON.parse(JSON.stringify(todoState.keyedById)),
-            expectedKeyedById
-          )
+      // Make a request with the array syntax that allows passing params
+      const response2 = await actions.get.call({ $store: store }, [1, {}])
+      expectedKeyedById = {
+        0: { id: 0, description: 'Do the first' },
+        1: { id: 1, description: 'Do the second' }
+      }
+      assert(response2.description === 'Do the second')
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(todoState.keyedById)),
+        expectedKeyedById
+      )
 
-          // Make a request to an existing record and return the existing data first, then update `keyedById`
-          todoState.keyedById = {
-            0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
-            1: { id: 1, description: 'Do the second' }
-          }
-          actions.get.call({ $store: store }, [0, {}]).then(response3 => {
-            expectedKeyedById = {
-              0: { id: 0, description: 'Do the FIRST' },
-              1: { id: 1, description: 'Do the second' }
-            }
-            assert(response3.description === 'Do the FIRST')
-            assert.deepEqual(
-              JSON.parse(JSON.stringify(todoState.keyedById)),
-              expectedKeyedById
-            )
+    // Edit the first record in the store so the data is different.
+    // Make a request for the first record again, and it should be updated.
+      const clone1 = todo1.clone()
+      clone1.description = 'MODIFIED IN THE VUEX STORE'
+      clone1.commit()
 
-            // Wait for the remote data to arriive
-            setTimeout(() => {
-              expectedKeyedById = {
-                0: { id: 0, description: 'Do the first' },
-                1: { id: 1, description: 'Do the second' }
-              }
-              assert.deepEqual(
-                JSON.parse(JSON.stringify(todoState.keyedById)),
-                expectedKeyedById
-              )
-              done()
-            }, 100)
-          })
-        })
-      })
+      assert.strictEqual(todoState.keyedById[0].description, clone1.description, 'the store instance was updated')
 
-      // Make sure proper state changes occurred before response
-      assert(todoState.ids.length === 0)
-      assert(todoState.errorOnCreate === null)
-      assert(todoState.isGetPending === true)
-      assert.deepEqual(todoState.keyedById, {})
+      const response3 = await actions.get.call({ $store: store }, [0, {}])
+      const todo0 = Todo.getFromStore(0)
+      assert(response3.description === 'Do the first')
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(todoState.keyedById)),
+        expectedKeyedById,
+        'The data is back as it was on the API server'
+      )
     })
 
     it('does not make remote call when skipRequestIfExists=true', done => {

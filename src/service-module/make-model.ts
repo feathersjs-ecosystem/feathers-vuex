@@ -94,13 +94,15 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       data = data || {}
 
+      const existingItem = hasValidId && !options.clone
+        ? getFromStore.call(this.constructor, id)
+        : null
+
       // If it already exists, update the original and return
-      if (hasValidId && !options.clone) {
-        const existingItem = getFromStore.call(this.constructor, id)
-        if (existingItem) {
-          _commit.call(this.constructor, 'updateItem', data)
-          return existingItem
-        }
+      if (existingItem) {
+        data = setupInstance.call(this, data, { models, store }) || data
+        _commit.call(this.constructor, 'mergeInstance', data)
+        return existingItem
       }
 
       // Mark as a clone
@@ -111,7 +113,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         })
       }
 
-      // Setup instanceDefaults, separate out accessors
+      // Setup instanceDefaults
       if (instanceDefaults && typeof instanceDefaults === 'function') {
         const defaults = instanceDefaults.call(this, data, { models, store }) || data
         mergeWithAccessors(this, defaults)
