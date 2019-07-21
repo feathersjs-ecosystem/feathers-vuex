@@ -11,6 +11,7 @@ import Vuex from 'vuex'
 import { clearModels } from '../../src/service-module/global-models'
 import memory from 'feathers-memory'
 import { makeStore } from '../test-utils'
+import { isDate } from 'date-fns'
 
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -85,6 +86,12 @@ function makeContext() {
         to: '',
         from: ''
       }
+    }
+    public static setupInstance(data, { models }) {
+      if (typeof data.createdAt === 'string') {
+        data.createdAt = new Date(data.createdAt) // just assuming the date is formatted correctly ;)
+      }
+      return data
     }
     public get status() {
       return 'pending'
@@ -245,6 +252,19 @@ describe('Models - Methods', function () {
     const letter2 = new Letter({ id: letter.id, name: 'Just Garmadon', age: 1027 })
 
     assert.equal(typeof letter2.save, 'function', 'new instance has a save method')
+  })
+
+  it('Dates remain as dates after changes', async function () {
+    const { Letter, store, lettersService } = makeContext()
+    let letter = new Letter({ name: 'Garmadon', age: 1025, createdAt: new Date().toString() })
+
+    assert(isDate(letter.createdAt), 'createdAt should be a date')
+
+    letter = await letter.save()
+    assert(isDate(letter.createdAt), 'createdAt should be a date')
+
+    letter = await letter.save()
+    assert(isDate(letter.createdAt), 'createdAt should be a date')
   })
 
   it('instance.toJSON', function () {
