@@ -465,6 +465,68 @@ export default new Vuex.Store({
 })
 ```
 
+## Form Binding
+
+Use the Model classes to reduce the boilerplate required to work with forms and Vuex, even in strict mode!  Every model instance has a `.clone()` method which can be used to get a fully-reactive copy of the record in the store.  Here is a very simple version of how you could bind to a form and submit new data to the server.
+
+```vue
+<template>
+  <div class="bg-white h-full p-6">
+    <h1>Create Todo</h1>
+
+    <form @submit.prevent="createTodo">
+      <input v-model="clone.name" type="text" class="form-input" />
+      <button
+        type="submit"
+        class="bg-blue-500 px-4 py-2 rounded text-white ml-2"
+      >
+        Create Todo
+      </button>
+    </form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Todos',
+  mixins: [makeFindMixin({ service: 'todos', watch: true })],
+  data: () => ({
+    todo: null,
+    clone: null
+  }),
+  computed: {
+    todosParams() {
+      return {
+        query: {},
+        paginate: false
+      }
+    }
+  },
+  created() {
+    const { Todo } = this.$FeathersVuex.myApi
+    this.todo = new Todo({})
+    this.clone = this.todo.clone()
+  },
+  methods: {
+    async createTodo() {
+      try {
+        const todo = await this.clone.save()
+        console.log(todo)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    updateTodo(ev, todo) {
+      todo.isComplete = ev.target.checked
+      todo.save()
+    }
+  }
+}
+</script>
+
+<style lang="postcss"></style>
+```
+
 ## Multiple Copies
 
 The previous version of `feathers-vuex` was hard-coded to allow for a single `current` record and one copy.  It was pretty easy to hit that limit.  This new release allows for keeping many more copies, one copy per stored record.  To make it easier to comply with Vuex's `strict` mode, copies are not kept in the store by default, but are instead kept on `Model.copiesById`.  You can make changes to the copies without having to make custom mutations, then you can commit them back into the store:
