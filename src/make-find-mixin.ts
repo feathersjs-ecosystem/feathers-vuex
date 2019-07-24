@@ -156,6 +156,7 @@ export default function makeFindMixin(options) {
         }
       },
       [FIND_ACTION](params) {
+        const serviceName = this[SERVICE_NAME]
         const paramsToUse = getParams({
           providedParams: params,
           params: this[PARAMS],
@@ -168,17 +169,19 @@ export default function makeFindMixin(options) {
             : this[QUERY_WHEN]
 
           if (shouldExecuteQuery) {
-            this[IS_FIND_PENDING] = true
-
             if (paramsToUse) {
+              // Set the qid.
               paramsToUse.query = paramsToUse.query || {}
               paramsToUse.qid = paramsToUse.qid || this[QID]
               this[QID] = paramsToUse.qid
 
-              const serviceName = this[SERVICE_NAME]
+              this[IS_FIND_PENDING] = true
+              this[HAVE_ITEMS_BEEN_REQUESTED_ONCE] = true
+
               return this.$store
                 .dispatch(`${serviceName}/find`, paramsToUse)
                 .then(response => {
+                  this[HAVE_ITEMS_LOADED_ONCE] = true
                   const queryInfo = getQueryInfo(paramsToUse, response)
                   // @ts-ignore
                   queryInfo.response = response
