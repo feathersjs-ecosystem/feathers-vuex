@@ -136,7 +136,9 @@ export default function makeFindMixin(options) {
               prop.replace(PARAMS, FETCH_PARAMS)
             }
           }
-          this.$watch(prop, this[GET_ACTION])
+          this.$watch(prop, function () {
+            return this[GET_ACTION]()
+          })
         })
 
         return this[GET_ACTION]()
