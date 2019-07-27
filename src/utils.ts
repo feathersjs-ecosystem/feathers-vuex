@@ -463,24 +463,6 @@ export function mergeWithAccessors(
   return dest
 }
 
-export function cloneWithAccessors(obj) {
-  const clone = {}
-
-  const props = Object.getOwnPropertyNames(obj)
-  props.forEach(key => {
-    const desc = Object.getOwnPropertyDescriptor(obj, key)
-
-    // Do not allow sharing of deeply-nested objects between instances
-    if (_isPlainObject(desc.value)) {
-      desc.value = fastCopy(desc.value)
-    }
-
-    Object.defineProperty(clone, key, desc)
-  })
-
-  return clone
-}
-
 export function checkNamespace(namespace, item, debug) {
   if (!namespace && debug) {
     // eslint-disable-next-line no-console
