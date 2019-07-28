@@ -152,6 +152,9 @@ function makeContext() {
       super(data, options)
     }
   }
+  /**
+   * This Model demonstrates how to use a dynamic set of instanceDefaults based on incoming data.
+   */
   class Todo extends BaseModel {
     public static modelName = 'Todo'
     public static instanceDefaults(data) {
@@ -528,5 +531,72 @@ describe('Models - Relationships', function () {
     taskClone.commit()
 
     assert.equal(todo.task.isComplete, false, 'preserved after clone')
+  })
+
+  it('returns the same object when an instance is cloned twice', function () {
+    const { Todo } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+
+    const clone1 = todo.clone()
+    const clone2 = todo.clone()
+
+    assert(clone1 === clone2, 'there should only ever be one clone in memory for an instance with the same id')
+  })
+
+  it('on clone, nested instances do not get cloned', function () {
+    const { Todo } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+
+    const todoClone = todo.clone()
+
+    assert(todoClone.task.__isClone === undefined, 'todo.task should still be the original item and not the clone')
+  })
+
+  it('on nested commit in instance, original nested instances get updated', function () {
+    const { Todo } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+
+    const taskClone = todo.task.clone()
+
+    taskClone.description = 'changed'
+    taskClone.commit()
+
+    assert(todo.task.description === 'changed', 'the nested task should have been updated')
+  })
+
+  it('nested instances get updated in clones and original records', function () {
+    const { Todo } = makeContext()
+
+    const todo = new Todo({
+      task: {
+        id: 1,
+        description: 'test',
+        isComplete: true
+      }
+    })
+    const todoClone = todo.clone()
+
+    assert(todo.task === todoClone.task, 'the same task instance should be in both the original and clone')
   })
 })

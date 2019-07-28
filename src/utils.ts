@@ -419,10 +419,14 @@ export function mergeWithAccessors(
       return
     }
 
-    // If we're dealing with a Vue Observable, just assign the values.
+    // Handle Vue observable objects
     if (destIsVueObservable || sourceIsVueObservable) {
-      if (_isObject(source[key])) {
+      const isObject = _isObject(source[key])
+      const isFeathersVuexInstance = isObject && !!(source[key].constructor.modelName || source[key].constructor.namespace)
+      // Do not use fastCopy directly on a feathers-vuex BaseModel instance to keep from breaking reactivity.
+      if (isObject && !isFeathersVuexInstance) {
         try {
+          const sourceObject = source[key]
           dest[key] = fastCopy(source[key])
         } catch (err) {
           if(!err.message.includes('getter')) {

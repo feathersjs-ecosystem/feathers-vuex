@@ -49,6 +49,11 @@ function makeContext() {
     public constructor(data, options?) {
       super(data, options)
     }
+    public static instanceDefaults(data) {
+      return {
+        description: ''
+      }
+    }
   }
   class HotspotMedia extends BaseModel {
     public static modelName = 'HotspotMedia'
@@ -304,7 +309,42 @@ describe('Service Module', function () {
       )
     })
 
-    it(`no longer changes original if you don't use the return value of commit()`, function () {
+    it(`the object returned from clone is not the same as the original`, function () {
+      const { serviceTodo, owners } = this
+      const serviceTodoClone = serviceTodo.clone()
+
+      assert(serviceTodo !== serviceTodoClone, 'the objects are distinct')
+    })
+
+    it(`the object returned from commit is not the same as the clone`, function () {
+      const { serviceTodo, owners } = this
+      const serviceTodoClone = serviceTodo.clone()
+      const committedTodo = serviceTodoClone.commit()
+
+      assert(committedTodo !== serviceTodoClone, 'the objects are distinct')
+    })
+
+    it(`the object returned from commit is the same as the original`, function () {
+      const { serviceTodo, owners } = this
+      const serviceTodoClone = serviceTodo.clone()
+      const committedTodo = serviceTodoClone.commit()
+
+      assert(serviceTodo === committedTodo, 'the objects are the same')
+    })
+
+    it(`nested arrays are distinct after clone`, function () {
+      const { ServiceTodo } = this
+
+      const todo = new ServiceTodo({
+        description: 'test',
+        owners: ['Marshall', 'Mariah']
+      })
+      const clone = todo.clone()
+
+      assert(todo.owners !== clone.owners, 'the arrays are not the same in memory')
+    })
+
+    it.skip(`modifying a clone after calling commit() does not change the original `, function () {
       const { serviceTodo, owners } = this
       const serviceTodoClone = serviceTodo.clone()
 
