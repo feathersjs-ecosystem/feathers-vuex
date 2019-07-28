@@ -412,7 +412,10 @@ export function mergeWithAccessors(
     // if (!sourceDesc.enumerable) {
     //   return
     // }
-    if (blacklist.includes(key)) {
+
+    // If the destination is not writable, return. Also ignore blacklisted keys.
+    // Must explicitly check if writable is false
+    if (destDesc && destDesc.writable === false || blacklist.includes(key)) {
       return
     }
 
