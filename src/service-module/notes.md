@@ -360,6 +360,18 @@ created () {
 }
 ```
 
+## No more `instance.isFeathersVuexInstance` property
+
+The `isFeathersVuexInstance` property has been removed from all instances and clones.  This could be a breaking change in your project if you were specfically depending on the property to check for instances.  You can check if an object is an instance using `instanceof`:
+
+```js
+// Assuming you've already registered a few plugins with Model classes.
+import { models } from 'feathers-vuex'
+const todo = new models.myApi.Todo({ description: 'test' })
+
+assert(todo instanceof models.myApi.Todo) // <--- true
+```
+
 ## Better default `idField` support
 
 Since records are keyed by id, `feathers-vuex` needs to know what the `idField` is for each service.  In the last version, the default was `id`, and you had to specify something different.  This version supports `id` and `_id` with zero configuration.  You only need to set `idField` when you're using something other than `id` or `_id`.
