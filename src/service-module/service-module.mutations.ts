@@ -113,8 +113,13 @@ export default function makeServiceMutations() {
     }
   }
 
+  function merge(state, { dest, source }) {
+    mergeWithAccessors(dest, source)
+  }
+
   return {
     mergeInstance,
+    merge,
     addItem(state, item) {
       addItems(state, [item])
     },

@@ -46,6 +46,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
+    public static keepCopiesInStore = options.keepCopiesInStore
     // eslint-disable-next-line
     public static instanceDefaults(data, { models, store }) {
       return data
@@ -79,20 +80,30 @@ export default function makeModel(options: FeathersVuexOptions) {
     public constructor(data, options: BaseModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
       const originalData = data
+      data = data || {}
       options = Object.assign({}, defaultOptions, options)
+
       const {
         store,
+        keepCopiesInStore,
+        copiesById: copiesByIdOnModel,
         models,
         instanceDefaults,
         idField,
+        tempIdField,
         setupInstance,
         getFromStore,
+        namespace,
         _commit
       } = this.constructor as typeof BaseModel
       const id = getId(data, idField)
       const hasValidId = id !== null && id !== undefined
+      const tempId = data && data.hasOwnProperty(tempIdField) && data[tempIdField]
+      const hasValidTempId = tempId !== null && tempId !== undefined
+      const copiesById = keepCopiesInStore
+        ? store.state[namespace].copiesById
+        : copiesByIdOnModel
 
-      data = data || {}
 
       const existingItem = hasValidId && !options.clone
         ? getFromStore.call(this.constructor, id)
@@ -103,6 +114,16 @@ export default function makeModel(options: FeathersVuexOptions) {
         data = setupInstance.call(this, data, { models, store }) || data
         _commit.call(this.constructor, 'mergeInstance', data)
         return existingItem
+      }
+
+      // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
+      const existingClone = (hasValidId || hasValidTempId) && options.clone
+        ? copiesById[id] || copiesById[tempId]
+        : null
+      if (existingClone) {
+        // This must be done in a mutation to avoid Vuex errors.
+        _commit.call(this.constructor, 'merge', { dest: existingClone, source: data })
+        return existingClone
       }
 
       // Mark as a clone
