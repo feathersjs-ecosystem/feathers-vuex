@@ -239,6 +239,10 @@ describe('Models - Methods', function () {
     assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
   })
 
+  it.skip('instance.remove removes cloned records from the store', function () {})
+  it.skip('instance.remove removes cloned records from the Model.copiesById', function () {})
+  it.skip('removes clone and original upon calling clone.remove()', function () {})
+
   it('instance methods still available in store data after updateItem mutation (or socket event)', async function () {
     const { Letter, store, lettersService } = makeContext()
     let letter = new Letter({ name: 'Garmadon', age: 1025 })
