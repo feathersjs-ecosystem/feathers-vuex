@@ -57,6 +57,7 @@ export default function makeFindMixin(options) {
   const FETCH_PARAMS = `${prefix}FetchParams`
   const WATCH = `${prefix}Watch`
   const QUERY_WHEN = `${prefix}QueryWhen`
+  const ERROR = `${prefix}Error`
   const FIND_ACTION = `find${capitalized}`
   const FIND_GETTER = `find${capitalized}InStore`
   const HAVE_ITEMS_BEEN_REQUESTED_ONCE = `have${capitalized}BeenRequestedOnce`
@@ -71,7 +72,8 @@ export default function makeFindMixin(options) {
     [HAVE_ITEMS_LOADED_ONCE]: false,
     [WATCH]: watch,
     [QID]: qid,
-    [MOST_RECENT_QUERY]: null
+    [MOST_RECENT_QUERY]: null,
+    [ERROR]: null
   }
   // Should only be used with actual fetching API calls.
   const getParams = ({ providedParams, params, fetchParams }) => {
@@ -181,6 +183,9 @@ export default function makeFindMixin(options) {
               return this.$store
                 .dispatch(`${serviceName}/find`, paramsToUse)
                 .then(response => {
+                  // To prevent thrashing, only clear ERROR on response, not on initial request.
+                  this[ERROR] = null
+
                   this[HAVE_ITEMS_LOADED_ONCE] = true
                   const queryInfo = getQueryInfo(paramsToUse, response)
                   // @ts-ignore
@@ -191,6 +196,10 @@ export default function makeFindMixin(options) {
                   this[MOST_RECENT_QUERY] = queryInfo
                   this[IS_FIND_PENDING] = false
                   return response
+                })
+                .catch(error => {
+                  this[ERROR] = error
+                  return error
                 })
             }
           } else {
