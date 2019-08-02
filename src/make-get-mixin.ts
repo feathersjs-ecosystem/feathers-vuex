@@ -52,6 +52,7 @@ export default function makeFindMixin(options) {
   const FETCH_PARAMS = `${prefix}FetchParams`
   const WATCH = `${prefix}Watch`
   const QUERY_WHEN = `${prefix}QueryWhen`
+  const ERROR = `${prefix}Error`
   const GET_ACTION = `get${capitalized}`
   const GET_GETTER = `get${capitalized}FromStore`
   const LOCAL = `${prefix}Local`
@@ -60,7 +61,8 @@ export default function makeFindMixin(options) {
   const data = {
     [IS_GET_PENDING]: false,
     [WATCH]: watch,
-    [QID]: qid
+    [QID]: qid,
+    [ERROR]: null
   }
 
   const mixin = {
@@ -97,8 +99,15 @@ export default function makeFindMixin(options) {
               return this.$store
                 .dispatch(`${this[SERVICE_NAME]}/get`, [idToUse, paramsToUse])
                 .then(response => {
+                  // To prevent thrashing, only clear ERROR on response, not on initial request.
+                  this[ERROR] = null
+
                   this[IS_GET_PENDING] = false
                   return response
+                })
+                .catch(error => {
+                  this[ERROR] = error
+                  return error
                 })
             }
           }
