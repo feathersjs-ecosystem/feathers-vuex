@@ -9,8 +9,3 @@ services:
   - xvfb
 notifications:
   email: false
-before_script:
-  - npm install codeclimate-test-reporter
-  - alias codeclimate="./node_modules/codeclimate-test-reporter/bin/codeclimate.js"
-after_script:
-  - codeclimate-test-reporter < coverage/lcov.info
