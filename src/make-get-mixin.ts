@@ -126,6 +126,7 @@ export default function makeFindMixin(options) {
       const pType = Object.getPrototypeOf(this)
 
       if (
+        this.hasOwnProperty(ID) ||
         pType.hasOwnProperty(ID) ||
         pType.hasOwnProperty(PARAMS) ||
         pType.hasOwnProperty(FETCH_PARAMS)
