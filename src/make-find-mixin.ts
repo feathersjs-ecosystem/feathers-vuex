@@ -241,6 +241,16 @@ export default function makeFindMixin(options) {
             }
           }
           this.$watch(prop, function() {
+            // If the request is going to be debounced, set IS_FIND_PENDING to true.
+            // Without this, there's not a way to show a loading indicator during the debounce timeout.
+            const paramsToUse = getParams({
+              providedParams: null,
+              params: this[PARAMS],
+              fetchParams: this[FETCH_PARAMS]
+            })
+            if (paramsToUse.debounce) {
+              this[IS_FIND_PENDING] = true
+            }
             return this[`${FIND_ACTION}DebouncedProxy`]()
           })
         })
