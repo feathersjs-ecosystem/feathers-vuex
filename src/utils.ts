@@ -15,7 +15,7 @@ import {
   get as _get
 } from 'lodash'
 import ObjectID from 'bson-objectid'
-import { models } from './index'
+import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
 
 export function stripSlashes(location: string) {

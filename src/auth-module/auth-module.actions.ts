@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { models } from '../index'
+import { globalModels as models } from '../service-module/global-models'
 
 export default function makeAuthActions(feathersClient) {
   return {
