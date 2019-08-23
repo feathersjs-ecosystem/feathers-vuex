@@ -49,7 +49,7 @@ export default function makeServiceActions(service) {
         commit('setPending', 'get')
         return service
           .get(id, params)
-          .then(async item => {
+          .then(async function(item) {
             await dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
@@ -130,7 +130,7 @@ export default function makeServiceActions(service) {
 
       return service
         .update(id, data, params)
-        .then(async item => {
+        .then(async function(item) {
           await dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
@@ -153,7 +153,7 @@ export default function makeServiceActions(service) {
 
       return service
         .patch(id, data, params)
-        .then(async item => {
+        .then(async function(item) {
           await dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
