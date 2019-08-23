@@ -6,7 +6,8 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
-import { get as _get, merge as _merge } from 'lodash'
+import  _merge from 'lodash/merge'
+import _get from 'lodash/get'
 
 // A hack to prevent error with this.constructor.preferUpdate
 interface Function {

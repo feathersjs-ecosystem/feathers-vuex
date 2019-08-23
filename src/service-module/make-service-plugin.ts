@@ -7,7 +7,7 @@ import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
-import { get as _get } from 'lodash'
+import _get from 'lodash/get'
 
 const defaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.

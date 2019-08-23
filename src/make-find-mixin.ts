@@ -10,7 +10,8 @@ import {
   getQueryInfo,
   getItemsFromQueryInfo
 } from './utils'
-import { get as _get, debounce } from 'lodash'
+import debounce from 'lodash/debounce'
+import _get from 'lodash/get'
 
 export default function makeFindMixin(options) {
   const {

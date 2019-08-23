@@ -7,13 +7,11 @@ import decode from 'jwt-decode'
 import inflection from 'inflection'
 import Vue from 'vue'
 import fastCopy from 'fast-copy'
-import {
-  isPlainObject as _isPlainObject,
-  isObject as _isObject,
-  trim as _trim,
-  omit as _omit,
-  get as _get
-} from 'lodash'
+import _isPlainObject from 'lodash/isPlainObject'
+import _isObject from 'lodash/isObject'
+import _trim from 'lodash/trim'
+import _omit from 'lodash/omit'
+import _get from 'lodash/get'
 import ObjectID from 'bson-objectid'
 import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'

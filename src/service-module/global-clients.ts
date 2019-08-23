@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { get as _get } from 'lodash'
+import _get from 'lodash/get'
 
 /**
  * A global object that holds references to all Model Classes in the application.

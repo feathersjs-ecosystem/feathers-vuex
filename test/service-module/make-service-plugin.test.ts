@@ -10,7 +10,8 @@ import { clearModels } from '../../src/service-module/global-models'
 import { clients } from '../../src/service-module/global-clients'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
-import { pick as _pick, omit as _omit } from 'lodash'
+import _pick from 'lodash/pick'
+import _omit from 'lodash/omit'
 
 Vue.use(Vuex)
 

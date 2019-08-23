@@ -13,7 +13,9 @@ import {
   getQueryInfo
 } from '../utils'
 import { globalModels as models } from './global-models'
-import { get as _get, isObject as _isObject, omit as _omit } from 'lodash'
+import _omit from 'lodash/omit'
+import _get from 'lodash/get'
+import _isObject from 'lodash/isObject'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {

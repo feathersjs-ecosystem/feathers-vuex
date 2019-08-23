@@ -7,7 +7,7 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
-import { omit as _omit } from 'lodash'
+import _omit from 'lodash/omit'
 
 describe('Models - Serialize', function () {
   beforeEach(() => {
