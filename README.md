@@ -10,6 +10,17 @@
 
 `feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
 
+
+___________________________________
+
+> NOTICE: this module is almost (but not quite) fully compatible with Feathers V4.  The authentication module is written for Feathers V3.  If you're going to use Feathers V4, please search the [GitHub issues](https://github.com/feathers-plus/feathers-vuex/issues) for "feathers crow authentication" for workarounds you can implement until this module is properly updated.
+>
+> IN THE MEANTIME, it is highly recommended that you use the [pre-release version](https://github.com/feathers-plus/feathers-vuex/pull/216), which is production ready for Feathers V4.  A proper migration guide and updated documentation are currently in progress.
+
+___________________________________
+
+
+
 ## Features
 
 - Fully powered by Vuex & Feathers
