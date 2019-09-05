@@ -41,7 +41,7 @@ export default function makeServiceMutations() {
 
       if (isTemp) {
         let tempId = item[tempIdField];
-        if (!tempId) {
+        if (tempId == null) {
           tempId = assignTempId(state, item)
         }
         item.__isTemp = true
