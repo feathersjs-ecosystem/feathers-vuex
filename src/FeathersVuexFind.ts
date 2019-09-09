@@ -1,4 +1,5 @@
-import { randomString } from './utils'
+import { randomString, getQueryInfo } from './utils'
+import _get from 'lodash/get'
 
 export default {
   props: {
@@ -50,7 +51,9 @@ export default {
     }
   },
   data: () => ({
-    isFindPending: false
+    isFindPending: false,
+    queryId: null,
+    pageId: null
   }),
   computed: {
     items() {
@@ -62,9 +65,17 @@ export default {
     pagination() {
       return this.$store.state[this.service].pagination[this.qid]
     },
+    queryInfo() {
+      if (this.pagination == null || this.queryId == null) return {}
+      return _get(this.pagination, `[${this.queryId}]`) || {}
+    },
+    pageInfo() {
+      if (this.pagination == null || this.queryId == null || this.pageId == null) return {}
+      return _get(this.pagination, `[${this.queryId}][${this.pageId}]` || {}
+    },
     scope() {
-      const { items, isFindPending, pagination } = this
-      const defaultScope = { isFindPending, pagination, items }
+      const { items, isFindPending, pagination, queryInfo, pageInfo } = this
+      const defaultScope = { isFindPending, pagination, items, queryInfo, pageInfo }
 
       return this.editScope(defaultScope) || defaultScope
     }
@@ -85,8 +96,11 @@ export default {
 
           return this.$store
             .dispatch(`${this.service}/find`, params)
-            .then(() => {
+            .then((response) => {
               this.isFindPending = false
+              { queryId, pageId } = getQueryInfo(params, response)
+              this.queryId = queryId
+              this.pageId = pageId
             })
         }
       }
