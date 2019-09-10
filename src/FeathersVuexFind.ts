@@ -71,7 +71,7 @@ export default {
     },
     pageInfo() {
       if (this.pagination == null || this.queryId == null || this.pageId == null) return {}
-      return _get(this.pagination, `[${this.queryId}][${this.pageId}]` || {}
+      return _get(this.pagination, `[${this.queryId}][${this.pageId}]`) || {}
     },
     scope() {
       const { items, isFindPending, pagination, queryInfo, pageInfo } = this
@@ -98,7 +98,7 @@ export default {
             .dispatch(`${this.service}/find`, params)
             .then((response) => {
               this.isFindPending = false
-              { queryId, pageId } = getQueryInfo(params, response)
+              const { queryId, pageId } = getQueryInfo(params, response)
               this.queryId = queryId
               this.pageId = pageId
             })
