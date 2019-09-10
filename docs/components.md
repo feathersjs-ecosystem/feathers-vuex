@@ -315,6 +315,65 @@ export default {
 </script>
 ```
 
+### server-side pagination
+
+When you want to use server-side pagination you need to pass the ids from the server to vuex. It can be done by a combination of `query`, `fetchQuery` and `editScope` as described below. The `fetchQuery`-prop is only computed after items from the server arrived. The ids for the `find` getter as well as the total amount of available values `total` are extracted by the `edit-scope` function and stored in `data`:
+
+```html
+<template>
+  <FeathersVuexFind
+    :service="service"
+    :query="internalQuery"
+    :fetch-query="fetchQuery"
+    :edit-scope="getPaginationInfo"
+  >
+    <div slot-scope="{ items: todos }">
+      {{todos}}
+    </div>
+  </FeathersVuexFind>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      service: 'users',
+      ids: [],
+      query: {
+        isComplete: true
+      },
+      total: 0,
+      limit: 10,
+      skip: 0
+    };
+  },
+  computed: {
+    internalQuery() {
+      const { idField } = this.$store.state[this.service];
+      return {
+        [idField]: {
+          $in: this.ids
+        }
+      };
+    },
+    fetchQuery() {
+      return Object.assign({}, this.query, { $limit: this.limit, $skip: this.skip });
+    }
+  },
+  methods: {
+    getPaginationInfo (scope) {
+      const { queryInfo, pageInfo } = scope;
+
+      this.total = queryInfo.total;
+      if (pageInfo && pageInfo.ids) {
+        this.ids = pageInfo.ids;
+      }
+    }
+  }
+}
+</script>
+```
+
 ### Query when certain conditions are met
 
 Sometimes you only want to query the API server when certain conditions are met.  This example shows how to query the API server when the `userSearch` has as least three characters.  This property does not affect the internal `find` getter, so the `items` will still update when the `userSearch` property has fewer than three characters, just no API request will be made.  The `isFindPending` attribute is used to indicate when data is being loaded from the server.
