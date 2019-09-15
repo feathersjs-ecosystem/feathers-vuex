@@ -134,10 +134,17 @@ describe('Models - Methods', function () {
     clearModels()
   })
 
-  it('Model.find', function () {
+  it('Model.find is a function', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.find === 'function')
+  })
+
+  it('Model.find returns a Promise', function () {
+    const { Task } = makeContext()
+    const result = Task.find()
+    assert(typeof result.then !== 'undefined')
+    result.catch(err => { /* noop -- prevents UnhandledPromiseRejectionWarning */})
   })
 
   it('Model.findInStore', function () {
