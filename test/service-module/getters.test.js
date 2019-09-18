@@ -72,7 +72,6 @@ describe('Service Module - Getters', function () {
 
     assert(results.data.length === 1, 'the length was correct')
     assert(results.data[0]._id === 3, 'the correct record was returned')
-
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
     assert(results.total === 1, 'total was correct')
