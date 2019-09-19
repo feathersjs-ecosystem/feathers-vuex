@@ -164,7 +164,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     public static find(params) {
-      this._dispatch('find', params)
+      return this._dispatch('find', params)
     }
 
     public static findInStore(params) {
