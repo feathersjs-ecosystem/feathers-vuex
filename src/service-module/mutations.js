@@ -160,7 +160,7 @@ export default function makeServiceMutations (servicePath, { debug, globalModels
       }
       state.currentId = id
 
-      state.copy = new Model(item, { isClone: true })
+      state.copy = new Model(_merge({}, item), { isClone: true })
     },
 
     clearCurrent (state) {
