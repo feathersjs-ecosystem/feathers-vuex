@@ -149,4 +149,4 @@ Then open the resulting page in your browser and navigate to the test folder to 
 
 Copyright (c) Forever and Ever, or at least the current year.
 
-Licensed under the [MIT license](LICENSE).
+Licensed under the [MIT license](https://github.com/feathers-plus/feathers-vuex/blob/master/LICENSE).
