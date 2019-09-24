@@ -29,43 +29,36 @@ export default function makeAuthActions(feathersClient) {
     responseHandler({ commit, state, dispatch }, response) {
       if (response.accessToken) {
         commit('setAccessToken', response.accessToken)
+        commit('setPayload', response)
 
-        // Decode the token and set the payload, but return the response
-        return feathersClient.passport
-          .verifyJWT(response.accessToken)
-          .then(payload => {
-            commit('setPayload', payload)
+        // Handle when user is returned in the authenticate response
+        let user = response[state.responseEntityField]
 
-            let user = response[state.responseEntityField]
-
-            // If a user was returned in the authenticate response, use that user.
-            if (user) {
-              if (state.serverAlias && state.userService) {
-                const Model = Object.keys(models[state.serverAlias])
-                  .map(modelName => models[state.serverAlias][modelName])
-                  .find(model => model.servicePath === state.userService)
-                if (Model) {
-                  user = new Model(user)
-                }
-              }
-              commit('setUser', user)
-              // Populate the user if the userService was provided
-            } else if (
-              state.userService &&
-              payload.hasOwnProperty(state.entityIdField)
-            ) {
-              return dispatch(
-                'populateUser',
-                payload[state.entityIdField]
-              ).then(() => {
-                commit('unsetAuthenticatePending')
-                return response
-              })
-            } else {
-              commit('unsetAuthenticatePending')
+        if (user) {
+          if (state.serverAlias && state.userService) {
+            const Model = Object.keys(models[state.serverAlias])
+              .map(modelName => models[state.serverAlias][modelName])
+              .find(model => model.servicePath === state.userService)
+            if (Model) {
+              user = new Model(user)
             }
+          }
+          commit('setUser', user)
+          commit('unsetAuthenticatePending')
+        } else if (
+          state.userService &&
+          response.hasOwnProperty(state.entityIdField)
+        ) {
+          return dispatch(
+            'populateUser',
+            response[state.entityIdField]
+          ).then(() => {
+            commit('unsetAuthenticatePending')
             return response
           })
+        }
+        return response
+
         // If there was not an accessToken in the response, allow the response to pass through to handle two-factor-auth
       } else {
         return response
