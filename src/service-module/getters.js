@@ -55,7 +55,7 @@ export default function makeServiceGetters (servicePath) {
       return keyedById[id] ? select(params, idField)(keyedById[id]) : undefined
     },
     current (state) {
-      return state.currentId === null ? null : state.keyedById[state.currentId]
+      return state.currentId != null ? state.keyedById[state.currentId] : null
     },
     getCopy (state) {
       return state.copy ? state.copy : null
