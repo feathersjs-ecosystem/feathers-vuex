@@ -17,21 +17,26 @@ title: API Overview
 
 - Fully powered by Vuex & Feathers
 - Realtime By Default
-- Actions With Reactive Data *
+- Actions With Reactive Data
 - Local Queries
-- Fall-Through Caching *
-- Feathers Query Syntax
-- `$FeathersVuex` [Vue Plugin](./vue-plugin.md) *
 - Live Queries
+- Feathers Query Syntax
+- Vuex Strict Mode Support
+- Client-Side Pagination Support
+- Fall-Through Caching *
+- `$FeathersVuex` [Vue Plugin](./vue-plugin.md) *
 - [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults) *
 - Clone & Commit *
-- Simplified Auth
-- Vuex Strict Mode *
+- Simplified Auth *
 - Per-Record Defaults *
-- Data Level Computes *
-- Relation Support *
+- Data Level Computed Properties *
+- Improved Relation Support *
+- Renderless Data Components *
+- Powerful Mixins *
+- Server-Powered Pagination Support **
 
-`* New in v1.2.0`
+`* Improved in v2.0.0`<br />
+`** New in v2.0.0`
 
 ## Installation
 
