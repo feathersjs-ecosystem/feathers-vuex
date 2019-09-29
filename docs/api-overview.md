@@ -13,6 +13,8 @@ title: API Overview
 
 `feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
 
+These docs are for version 2.x.  For feathers-vuex@1.x, please go to [feathers-vuex-v1.netlify.com](feathers-vuex-v1.netlify.com).
+
 ## Features
 
 - Fully powered by Vuex & Feathers
