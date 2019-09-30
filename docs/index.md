@@ -1,7 +1,7 @@
 ---
 home: true
 heroImage: https://github.com/feathers-plus/feathers-vuex/raw/master/service-logo.png
-heroText: FeathersVuex
+heroText: FeathersVuex 2.x
 tagLine: Integration of FeathersJS, Vue, and Nuxt for the artisan developer
 actionText: Get Started
 actionLink: ./api-overview.md
