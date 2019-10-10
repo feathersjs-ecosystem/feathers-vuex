@@ -90,7 +90,7 @@
     "@feathersjs/client": "^3.7.7",
     "@feathersjs/feathers": "^3.3.1",
     "@feathersjs/rest-client": "^1.4.7",
-    "@feathersjs/socketio-client": "^1.2.1",
+    "@feathersjs/socketio-client": "^4.3.5",
     "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
