@@ -14,6 +14,7 @@ module.exports = {
       '/common-patterns.md',
       '/mixins.md',
       '/components.md',
+      '/feathers-vuex-form-wrapper.md',
       '/nuxt.md'
     ],
     serviceWorker: {

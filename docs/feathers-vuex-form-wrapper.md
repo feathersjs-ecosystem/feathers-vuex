@@ -1,7 +1,11 @@
-<!-- markdownlint-disable MD002 MD033 MD041 -->
-# FeathersVuexFormWrapper
+---
+title: Working with Forms
+sidebarDepth: 3
+---
 
-The `FeathersVuexFormWrapper` is a renderless component which assists in connecting your feathers-vuex data to a form.  Let's review why it exists by looking at a couple of common patterns.
+# Working with Forms
+
+The `FeathersVuexFormWrapper` is a renderless component which assists in connecting your feathers-vuex data to a form.  The next two sections review why it exists by looking at a couple of common patterns.  Proceed to the [FeathersVuexFormWrapper](#feathersvuexformwrapper) section to learn how to implement.
 
 ## The Mutation Multiplicity (anti) Pattern
 
@@ -23,7 +27,7 @@ The "Clone and Commit" pattern provides an alternative to using a lot of mutatio
 
 Send most edits through a single mutation can really simplify the way you work with Vuex data.  The Feathers-Vuex `BaseModel` class has `clone` and `commit` instance methods.  Those methods are used inside the FeathersVuexFormWrapper component.
 
-## Usage
+## FeathersVuexFormWrapper
 
 The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to connect a single record to a child form within its default slot.
 
@@ -32,10 +36,25 @@ The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to c
   <template v-slot="{ clone, save, reset, remove }">
     <SomeEditor
       :item="clone"
-      @save="save()"
+      @save="save"
       @reset="reset"
       @remove="remove"
     ></SomeEditor>
   </template>
 </FeathersVuexFormWrapper>
 ```
+
+### Props
+
+- `item`: {Object} a model instance from the Vuex store.
+- `watch`: {Boolean|Array} when enabled, if the original record is updated, the data will be re-cloned.  The newly-cloned data will overwrite the `clone` data (in the slot scope).  Default: `false`.
+- `eager`: {Boolean} While this is enabled, using the `save` method will first commit the result to the store then it will send a network request.  The UI display will update immediately, without waiting for any response from the API server.  Default: `true`.
+
+### Slot Scope
+
+The default slot contains only four attributes.  The `clone` data can be passed to the child component.  The `save`, `reset`, and `remove` are meant to be bound to events emitted from the child component.
+
+- `clone`: {Object} The cloned record.  Each record in the store can have a single clone.  The clones are stored on the service's model class, by default.
+- `save`: {Function} When called, it commits the data and saves the record (with eager updating, by default.  See the `eager` prop.).
+- `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
+- `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
