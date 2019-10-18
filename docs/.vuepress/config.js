@@ -1,6 +1,7 @@
 module.exports = {
   title: 'FeathersVuex',
   description: 'Integration of FeathersJS, Vue, and Nuxt for the artisan developer',
+  theme: 'default-prefers-color-scheme',
   themeConfig: {
     repo: 'feathers-plus/feathers-vuex',
     docsDir: 'docs',
