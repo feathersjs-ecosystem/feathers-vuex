@@ -13,7 +13,7 @@ module.exports = {
       '/model-classes.md',
       '/common-patterns.md',
       '/mixins.md',
-      '/components.md',
+      '/data-components.md',
       '/feathers-vuex-form-wrapper.md',
       '/nuxt.md'
     ],
