@@ -89,7 +89,7 @@ Check out the tests for the best documentation.  They've been reorganized.  This
 
 ## Changes to Initialization
 
-1. To assist in connecting with multiple FeathersJS API servers, a new `serverAlias` option is now required.  This requires a simple addition to the initial options.
+1. To assist in connecting with multiple FeathersJS API servers, a new `serverAlias` option is now available.  Starting with version `2.0.0-pre.79`, the default value is `api`, so you only need to provide this if you want to connect to a second API.
 2. The exports have changed.
    - (a) A new `BaseModel` is available.  This is the base `FeathersVuexModel` which contains the model methods. Feel free to extend it and make it fit your awesome services!
    - (b) The `service` method has been renamed to `makeServicePlugin`.
@@ -115,7 +115,7 @@ const {
   clients            // (2e)
 } = feathersVuex(feathers, {
   idField: '_id',
-  serverAlias: 'myApi' // (1)
+  serverAlias: 'api' // (1) optional as of version 2.0.0-pre.79
 })
 
 class Todo extends BaseModel {

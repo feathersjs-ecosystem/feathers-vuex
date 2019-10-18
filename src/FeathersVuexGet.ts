@@ -8,6 +8,13 @@ export default {
       required: true
     },
     /**
+     * Must match the `serverAlias` that was provided in the service's configuration.
+     */
+    serverAlias: {
+      type: String,
+      default: 'api'
+    },
+    /**
      * By default, `query` is used to get data from the Vuex store AND the API request.
      * If you specify a `fetchQuery`, then `query` will only be used for the Vuex store.
      */
@@ -121,20 +128,20 @@ export default {
       }
     },
     fetchData() {
-      if (!this.local) {
-        if (
-          this.id !== null &&
-          this.id !== undefined &&
-          !this.query &&
-          !this.fetchQuery
-        ) {
-          return this.getData()
-        } else {
-          // eslint-disable-next-line no-console
-          console.log(
-            `No query and no id provided, so no data will be fetched.`
-          )
-        }
+      if (this.local || this.id === 'new') {
+        return
+      } else if (
+        this.id !== null &&
+        this.id !== undefined &&
+        !this.query &&
+        !this.fetchQuery
+      ) {
+        return this.getData()
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(
+          `No query and no id provided, so no data will be fetched.`
+        )
       }
     }
   },
