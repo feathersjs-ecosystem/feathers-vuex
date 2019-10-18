@@ -13,7 +13,7 @@ title: API Overview
 
 `feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
 
-These docs are for version 2.x.  For feathers-vuex@1.x, please go to [feathers-vuex-v1.netlify.com](feathers-vuex-v1.netlify.com).
+These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://feathers-vuex-v1.netlify.com](feathers-vuex-v1.netlify.com).
 
 ## Features
 
@@ -26,15 +26,17 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [feathers-v
 - Vuex Strict Mode Support
 - Client-Side Pagination Support
 - Fall-Through Caching *
-- `$FeathersVuex` [Vue Plugin](./vue-plugin.md) *
+- [`$FeathersVuex` Plugin for Vue](./vue-plugin.md) *
 - [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults) *
 - Clone & Commit *
 - Simplified Auth *
 - Per-Record Defaults *
 - Data Level Computed Properties *
 - Improved Relation Support *
-- Renderless Data Components *
 - Powerful Mixins *
+- Renderless Data Components *
+- Renderless Form Component **
+- Temporary (Local-only) Record Support **
 - Server-Powered Pagination Support **
 
 `* Improved in v2.0.0`<br />
