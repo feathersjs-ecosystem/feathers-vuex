@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import setupAuthModule from './auth-module/auth-module'
+import setupAuthPlugin from './auth-module/auth-module'
 import FeathersVuexFind from './FeathersVuexFind'
 import FeathersVuexGet from './FeathersVuexGet'
 import makeFindMixin from './make-find-mixin'
@@ -56,7 +56,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   return {
     makeServicePlugin,
     BaseModel,
-    makeAuthPlugin: setupAuthModule(feathers),
+    makeAuthPlugin: setupAuthPlugin(feathers),
     FeathersVuex,
     models,
     clients

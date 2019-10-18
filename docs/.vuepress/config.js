@@ -9,8 +9,8 @@ module.exports = {
     sidebar: [
       '/api-overview.md',
       '/vue-plugin.md',
-      '/service-module.md',
-      '/auth-module.md',
+      '/service-plugin.md',
+      '/auth-plugin.md',
       '/model-classes.md',
       '/common-patterns.md',
       '/mixins.md',

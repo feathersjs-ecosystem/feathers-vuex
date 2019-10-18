@@ -12,11 +12,11 @@ You can set `debug: true` in the options to enable some logging to assist with d
 
 ## Use the `<FeathersVuexFind>` and `<FeathersVuexGet>` components
 
-Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.md) docs for more details.
+Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.html) docs for more details.
 
 ## Use the `makeFindMixin` and `makeGetMixin` utilities
 
-The mixin utilities provide the same functionality as the components, but with more power and flexibility.  Check out the [Mixin docs](./mixins.md) for more details.
+The mixin utilities provide the same functionality as the components, but with more power and flexibility.  Check out the [Mixin docs](./mixins.html) for more details.
 
 ## Working with TypeScript
 
@@ -28,7 +28,7 @@ The best solution is to simply refresh to clear memory.  The alternative to refr
 
 ## Accessing the store from hooks
 
-Because the service's Model [is available](./service-module.md#The-FeathersClient-Service) at `service.FeathersVuexModel`, you can access the store inside hooks.  This is especially handy if you have some custom attributes in a paginated server response.
+Because the service's Model [is available](./service-plugin.html#The-FeathersClient-Service) at `service.FeathersVuexModel`, you can access the store inside hooks.  This is especially handy if you have some custom attributes in a paginated server response.
 
 As an example, this `speeding-tickets` service has a `summary` attribute that comes back in the response.  We can
 
@@ -73,7 +73,7 @@ Sometimes your server response may contain more attributes than just database re
 
 Depending on what you need to do, you may be able to solve this by [accessing the store from hooks](#Accessing-the-store-from-hooks).  But that solution won't handle a scenario where you need the response data to be already populated in the store.
 
-If you need the response data to already be in the store, you can use the [`afterFind` action](./service-module.md#afterFind-response).  Here's what this looks like:
+If you need the response data to already be in the store, you can use the [`afterFind` action](./service-plugin.html#afterFind-response).  Here's what this looks like:
 
 ```js
 import feathersVuex from 'feathers-vuex'
@@ -289,7 +289,7 @@ In summary, you can plan on individual records in the action response data to be
 
 ## Basic Data Modeling with `instanceDefaults`
 
-See the [instanceDefaults API](./model-classes.md#instanceDefaults)
+See the [instanceDefaults API](./model-classes.html#instanceDefaults)
 
 ## Model-Specific Computed Properties
 
@@ -371,7 +371,7 @@ instanceDefaults: {
 }
 ```
 
-When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.md), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.  The following example specifies that Todo instances can have a `user` attribute that contains a `User` Model instance:
+When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.html), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.  The following example specifies that Todo instances can have a `user` attribute that contains a `User` Model instance:
 
 ```js
 import Vue from 'vue'

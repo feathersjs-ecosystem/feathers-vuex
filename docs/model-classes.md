@@ -1,5 +1,5 @@
 ---
-title: Models & Instances API
+title: Data Modeling
 ---
 
 <!-- markdownlint-disable MD002 MD033 MD041 -->
@@ -17,7 +17,7 @@ The following attributes are available on each model:
 
 ### Model.find(params)
 
-Model classes have a `find` method, which is a proxy to the [`find` action](./service-module.md#find-params). <Badge text="1.7.0+" />
+Model classes have a `find` method, which is a proxy to the [`find` action](./service-plugin.html#find-params). <Badge text="1.7.0+" />
 
 ```js
 // In your Vue component
@@ -29,7 +29,7 @@ created () {
 
 ### Model.findInStore(params)
 
-Model classes have a `findInStore` method, which is a proxy to the [`find` getter](./service-module.md#Service-Getters).  <Badge text="1.7.0+" />
+Model classes have a `findInStore` method, which is a proxy to the [`find` getter](./service-plugin.html#Service-Getters).  <Badge text="1.7.0+" />
 
 ```js
 // In your Vue component
@@ -41,7 +41,7 @@ created () {
 
 ### Model.get(id, params)
 
-Model classes have a `get` method, which is a proxy to the [`get` action](./service-module.md#get-id-or-get-id-params).   <Badge text="1.7.0+" />Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
+Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params).   <Badge text="1.7.0+" />Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
 
 ```js
 // In your Vue component
@@ -53,7 +53,7 @@ created () {
 
 ### Model.getFromStore(id, params)
 
-Model classes have a `getFromStore` method, which is a proxy to the [`get` getter](./service-module.md#Service-Getters).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
+Model classes have a `getFromStore` method, which is a proxy to the [`get` getter](./service-plugin.html#Service-Getters).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
 
 ```js
 // In your Vue component

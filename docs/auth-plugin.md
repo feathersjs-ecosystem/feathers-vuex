@@ -1,5 +1,5 @@
 ---
-title: Auth Module API
+title: Auth Plugin
 ---
 
 The Auth module helps setup your app for login / logout.  It includes the following state by default:

@@ -38,6 +38,7 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - Renderless Form Component **
 - Temporary (Local-only) Record Support **
 - Server-Powered Pagination Support **
+- [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs **
 
 `* Improved in v2.0.0`<br />
 `** New in v2.0.0`
@@ -48,22 +49,37 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 npm install feathers-vuex --save
 ```
 
+```bash
+yarn add feathers-vuex
+```
+
 ## Use
 
 Using Feathers-Vuex happens in these steps:
 
-1. Setup the Feathers client and Feathers-Vuex.
-2. Define a Model class and service plugin for each service.
-3. Register the plugins with the Vuex store.
+1. [Setup the Feathers client and Feathers-Vuex](#setup-the-feathers-client-and-feathers-vuex)
+2. [Define a Model class and service plugin for each service](#setup-one-or-more-service-plugins)
+3. [Setup the auth plugin](#setup-the-auth-plugin), if required.
+4. Register the plugins with the Vuex store.
 
 ### Setup the Feathers Client and Feathers-Vuex
 
 To setup `feathers-vuex`, we first need to setup the latest Feathers client.  We can also setup feathers-vuex in the same file.
 
+First, let's install dependencies.
+
+```bash
+npm i @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client feathers-hooks-common socket.io-client feathers-vuex --save
+```
+
+```bash
+yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client feathers-hooks-common socket.io-client feathers-vuex
+```
+
 Note that this example includes an app-level hook that removes attributes for handling temporary (local-only) records.
 
 ```js
-// feathers-client.js
+// src/feathers-client.js
 import feathers from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
@@ -92,8 +108,8 @@ export default feathersClient
 const { makeServicePlugin, makeAuthPlugin, BaseModel, models } = feathersVuex(
   feathersClient,
   {
-    serverAlias: 'api',
-    idField: '_id',
+    serverAlias: 'api', // optional for working with multiple APIs (this is the default value)
+    idField: '_id', // Must match the id field in your database table/collection
     whitelist: ['$regex', '$options']
   }
 )
@@ -103,10 +119,10 @@ export { makeAuthPlugin, makeServicePlugin, BaseModel, models }
 
 ### Setup one or more service plugins
 
-The following example creates a User class and registers it with the new `makeServicePlugin` utility function.
+The following example creates a User class and registers it with the new `makeServicePlugin` utility function.  This same file is also a great place to add your service-level hooks, so they're shown, too.
 
 ```js
-// services/users.js
+// src/store/services/users.js
 import { makeServicePlugin, BaseModel } from '../feathers-client'
 
 class User extends BaseModel {
@@ -129,11 +145,7 @@ const servicePlugin = makeServicePlugin({
   service: feathersClient.service(servicePath),
   servicePath
 })
-```
 
-This same file is also a great place to add your service-level hooks, so append the following.
-
-```js
 // Setup the client-side Feathers hooks.
 feathersClient.service(servicePath).hooks({
   before: {
@@ -166,67 +178,52 @@ feathersClient.service(servicePath).hooks({
 })
 
 export default servicePlugin
-
 ```
 
+### Setup the Auth Plugin
+
+If your application uses authentication, the Auth Plugin will probably come in handy.  It's a couple of lines to setup:
 
 ```js
-// store/index.js
+// src/store/store.auth.js
+import { makeAuthPlugin } from '../feathers-client'
+
+export default makeAuthPlugin({ userService: 'users' })
+```
+
+[Read more about the Auth Plugin](/auth-plugin.html).
+
+### Add the plugins to the Vuex store.
+
+```js
+// src/store/store.js
 import Vue from 'vue'
 import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+import { FeathersVuex } from '../feathers-client'
+import auth from './store.auth'
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
+const requireModule = require.context(
+  // The path where the service modules live
+  './services',
+  // Whether to look in subfolders
+  false,
+  // Only include .js files (prevents duplicate imports`)
+  /.js$/
+)
+const servicePlugins = requireModule
+  .keys()
+  .map(modulePath => requireModule(modulePath).default)
+
 export default new Vuex.Store({
-  plugins: [
-    service('todos'),
-
-    // Specify custom options per service
-    service('/v1/tasks', {
-      idField: '_id', // The field in each record that will contain the id
-      nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
-      namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
-      debug: true, // Enable some logging for debugging
-      autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
-      enableEvents: false, // Turn off socket event listeners. It's true by default
-      addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
-      replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
-      skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
-      modelName: 'OldTask' // Default modelName would have been 'Task'
-    })
-
-    // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
-    service('things', {
-      state: {},
-      getters: {},
-      mutations: {},
-      actions: {}
-    })
-
-    // Setup a service with defaults for Model instances
-    service('manufacturers', {
-      instanceDefaults: {
-        name: ''
-      }
-    })
-    // Setup a service with light-weight relational data
-    service('models', {
-      instanceDefaults: {
-        name: '',
-        manufacturerId: '',
-        manufacturer: 'Manufacturer' // Refers to data (populated on the server) that gets put in the `manufacturers` vuex store.
-      }
-    })
-
-    // Setup the auth plugin.
-    auth({ userService: 'users' })
-  ]
+  state: {},
+  mutations: {},
+  actions: {},
+  plugins: [...servicePlugins, auth]
 })
+
 ```
 
 The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
@@ -253,15 +250,15 @@ const defaultOptions = {
 
 Each service module can also be individually configured.
 
-## The Vuex modules
+## The Vuex Plugins
 
-There are two modules included:
+There are two plugins included:
 
-1. The [Service module](./service-module.md) adds a Vuex store for new services.
-2. The [Auth module](./auth-module.md) sets up the Vuex store for authentication / logout.
+1. The [Service Plugin](./service-plugin.md) adds a Vuex store for new services.
+2. The [Auth Plugin](./auth-plugin.md) sets up the Vuex store for authentication / logout.
 
 ## License
 
-Copyright (c) Forever and Ever, or at least the current year.
+Copyright (c) Forever, or at least the current year.
 
 Licensed under the [MIT license](LICENSE).
