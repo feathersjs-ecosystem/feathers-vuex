@@ -1,13 +1,23 @@
 export default {
   props: {
+    /**
+     * The path of the service from which to pull records.
+     */
     service: {
       type: String,
       required: true
     },
+    /**
+     * By default, `query` is used to get data from the Vuex store AND the API request.
+     * If you specify a `fetchQuery`, then `query` will only be used for the Vuex store.
+     */
     query: {
       type: Object,
       default: null
     },
+    /**
+     * When `queryWhen` evaluates to false, no API request will be made.
+     */
     queryWhen: {
       type: [Boolean, Function],
       default: true
@@ -17,21 +27,34 @@ export default {
       type: [Number, String],
       default: null
     },
-    // If a separate query is desired to fetch data, use fetchQuery
-    // The watchers will automatically be updated, so you don't have to write 'fetchQuery.propName'
+    /**
+     * If a separate query is desired to fetch data, use fetchQuery
+     * The watchers are automatically updated, so you don't have to write 'fetchQuery.propName'
+     */
     fetchQuery: {
       type: Object
     },
+    /**
+     * Specify which properties in the query to watch and re-trigger API requests.
+     */
     watch: {
       type: [String, Array],
       default() {
         return []
       }
     },
+    /**
+     * Set `local` to true to only requests from the Vuex data store and not make API requests.
+     */
     local: {
       type: Boolean,
       default: false
     },
+    /**
+     * This function is called by the getter and allows you to intercept the `item` in the
+     * response to pass it into the parent component's scope.  It's a dirty little cheater
+     * function (because it's called from a getter), but it actually works well  ;)
+     */
     editScope: {
       type: Function,
       default(scope) {
