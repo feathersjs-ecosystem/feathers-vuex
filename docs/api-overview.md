@@ -48,7 +48,17 @@ npm install feathers-vuex --save
 
 ## Use
 
-To setup `feathers-vuex`, we first need to setup a Feathers Client.  Here's an example using the latest `@feathersjs` npm packages.
+Using Feathers-Vuex happens in these steps:
+
+1. Setup the Feathers client and Feathers-Vuex.
+2. Define a Model class and service plugin for each service.
+3. Register the plugins with the Vuex store.
+
+### Setup the Feathers Client and Feathers-Vuex
+
+To setup `feathers-vuex`, we first need to setup the latest Feathers client.  We can also setup feathers-vuex in the same file.
+
+Note that this example includes an app-level hook that removes attributes for handling temporary (local-only) records.
 
 ```js
 // feathers-client.js
@@ -56,17 +66,107 @@ import feathers from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
 import io from 'socket.io-client'
+import { iff } from 'feathers-hooks-common'
 
 const socket = io('http://localhost:3030', {transports: ['websocket']})
 
 const feathersClient = feathers()
   .configure(socketio(socket))
   .configure(auth({ storage: window.localStorage }))
+  .hooks({
+    before: {
+      all: [
+        iff(
+          context => ['create', 'update', 'patch'].includes(context.method),
+          discard('__id', '__isTemp')
+        )
+      ]
+    }
+  })
 
 export default feathersClient
+
+// Setting up feathers-vuex
+const { makeServicePlugin, makeAuthPlugin, BaseModel, models } = feathersVuex(
+  feathersClient,
+  {
+    serverAlias: 'api',
+    idField: '_id',
+    whitelist: ['$regex', '$options']
+  }
+)
+
+export { makeAuthPlugin, makeServicePlugin, BaseModel, models }
 ```
 
-And here's how you would integrate the Feathers Client into the Vuex store:
+### Setup one or more service plugins
+
+The following example creates a User class and registers it with the new `makeServicePlugin` utility function.
+
+```js
+// services/users.js
+import { makeServicePlugin, BaseModel } from '../feathers-client'
+
+class User extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'User'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: ''
+    }
+  }
+}
+const servicePath = 'users'
+const servicePlugin = makeServicePlugin({
+  Model: User,
+  service: feathersClient.service(servicePath),
+  servicePath
+})
+```
+
+This same file is also a great place to add your service-level hooks, so append the following.
+
+```js
+// Setup the client-side Feathers hooks.
+feathersClient.service(servicePath).hooks({
+  before: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+})
+
+export default servicePlugin
+
+```
+
 
 ```js
 // store/index.js
