@@ -20,15 +20,18 @@ The Auth module helps setup your app for login / logout.  It includes the follow
 }
 ```
 
-### Actions
+## Breaking Changes in 2.0
 
-The following actions are included in the `auth` module:
+The following breaking changes were made between 1.x and 2.0:
 
-- `authenticate`: use instead of `feathersClient.authenticate()`
-- `logout`: use instead of `feathersClient.logout()`
-The Vuex auth store may not update if you use the feathers client version.
+- The `auth` method is now called `makeAuthPlugin`.
 
-### Configuration
+## Setup
+
+See the [Auth Setup](/api-overview.html#auth-plugin) section for an example of how to setup the Auth Plugin.
+
+## Configuration
+
 
 You can provide a `userService` in the auth plugin's options to automatically populate the user upon successful login.
 
@@ -41,7 +44,22 @@ const { auth } = feathersVuex(feathersClient, { idField: '_id' })
 
 const store = new Vuex.Store({
   plugins: [
-    auth({ userService: 'users' }) // if your user service endpoint is named 'users'
+    auth({
+      userService: 'users', // if your user service endpoint is named 'users'
+      state: {}, // Custom state
+      getters: {}, // Custom getters
+      mutations: {}, // Custom mutations
+      actions: {} // Custom actions
+    })
   ]
 })
 ```
+
+## Actions
+
+The following actions are included in the `auth` module:
+
+- `authenticate`: use instead of `feathersClient.authenticate()`
+- `logout`: use instead of `feathersClient.logout()`
+
+> Node: The Vuex auth store may not update if you use the feathers client version of the above methods.
