@@ -38,7 +38,18 @@ export default new Vuex.Store({
 
 ## Using the Vue Plugin
 
-Once registered, you'll have access to the `this.$FeathersVuex` object, which contains references to the Model classes, keyed by name.  The name of the model class is automatically inflected to singular, initial caps, based on the last section of the service path (split by `/`).  Here are some examples of what this looks like:
+Once registered, you'll have access to the `this.$FeathersVuex` object.  *In version 2.0, there is a breaking change to this object's structure.*  Instead of directly containing references to the Model classes, the top level is keyed by `serverAlias`.  Each `serverAlias` then contains the Models, keyed by name.  This allows Feathers-Vuex 2.0 to support multiple FeathersJS servers in the same app.  This new API means that the following change is required wherever you reference a Model class:
+
+```js
+// 1.x way
+new this.$FeathersVuex.User({})
+
+// 2.x way
+new this.$FeathersVuex.api.User({}) // Assuming default serverAlias of `api`.
+new this.$FeathersVuex.myApi.user({}) // If you customized the serverAlias to be `myApi`.
+```
+
+The name of the model class is automatically inflected to singular, initial caps, based on the last section of the service path (split by `/`).  Here are some examples of what this looks like:
 
 | Service Name              | Model Name in `$FeathersVuex` |
 | ------------------------- | ----------------------------- |
@@ -55,6 +66,18 @@ created () {
   const todo = new this.$FeathersVuex.Todo({ description: 'Do something!' })
   // `todo` is now a model instance
 }
+```
+
+## New in 2.0
+
+In Feathers-Vuex 2.0, the $FeathersVuex object is available as the 'models' export in the global package scope. This means you can do the following anywhere in your app:
+
+```js
+import { models } from 'feathers-vuex'
+
+const user = new models.api.User({
+  email: 'test@test.com'
+})
 ```
 
 ## Included Components
