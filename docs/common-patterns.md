@@ -20,6 +20,8 @@ The mixin utilities provide the same functionality as the components, but with m
 
 ## Working with TypeScript
 
+As of version 2.0, Feathers-Vuex has been rewritten in TypeScript.
+
 See [this issue](https://github.com/feathers-plus/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
 
 ## Clearing data upon user logout
