@@ -4,45 +4,17 @@ title: Service Plugin
 
 <!-- markdownlint-disable MD002 MD033 MD041 -->
 
-The `Service Module` creates plugins which can be used to connect a Feathers service to the Vuex store.  Once you create the plugin, you must register it in the `plugins` section of your store setup:
+The `Service Plugin` creates a vuex plugin which connects a Feathers service to the Vuex store.  Once you create the plugin, you must register it in the `plugins` section of your store setup:
 
-Here's a basic example of creating a service plugin:
+See the [setup documentation](/api-overview.html#service-plugins) to learn the basics of setting up a Service Plugin.
 
-```js
-// src/services/users.js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
+## New in Feathers-Vuex 2.0
 
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
+Feathers-Vuex 2.0 includes a few breaking changes to the service plugin.  Some of these changes are being made to prepare for future compatibility beyond FeathersJS
 
-const servicePath = 'users'
-const servicePlugin = service(servicePath)
-
-export default servicePlugin
-```
-
-The above code block demonstrates setting up a service plugin, but the plugin doesn't run until you register it with Vuex, as shown in this next example:
-
-```js
-// src/store.js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../feathers-client'
-import usersPlugin from './services/users'
-
-const { auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
-
-export default new Vuex.Store({
-  plugins: [
-    users: usersPlugin,
-    auth({ userService: 'users' })
-  ]
-})
-```
+- The `service` method is now called `makeServicePlugin`
+- The Feathers Client service is no longer created, internally, so a Feathers service object must be provided instead of just the path string.
+- A Model class is now required. The `instanceDefaults` API has been moved into the Model class.  You can find a basic example of a minimal Model class in the [Data Modeling](/model-classes.html) docs.
 
 Old example from the api-overview page:
 
@@ -68,6 +40,9 @@ export default new Vuex.Store({
       nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
       namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
       debug: true, // Enable some logging for debugging
+      servicePath: '', // Not all Feathers service plugins expose the service path, so it can be manually specified when missing.
+      instanceDefaults: () => ({}), // Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
+      setupInstance: instance => instance, // Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
       autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
       enableEvents: false, // Turn off socket event listeners. It's true by default
       addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
