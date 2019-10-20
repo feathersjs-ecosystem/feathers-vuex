@@ -24,7 +24,7 @@ export default function makeServiceGetters() {
     find: state => params => {
       params = params || {}
 
-      // Set params.temps to false to not include the tempsById records
+      // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
       const { paramsForServer, whitelist } = state
