@@ -42,7 +42,7 @@
     "test": "mocha --require ts-node/register test/**/*.test.ts",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
-    "docs:dev": "vuepress dev docs",
+    "docs:serve": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
   "prettier": {
