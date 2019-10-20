@@ -1,5 +1,6 @@
 ---
 title: API Overview
+sidebarDepth: 3
 ---
 
 <!--- Usage ------------------------------------------------------------------------------------ -->
@@ -53,7 +54,31 @@ npm install feathers-vuex --save
 yarn add feathers-vuex
 ```
 
-## Use
+### With feathers-socketio
+
+A realtime-transport like Socket.io or Primus is required in order to take advantage of the real-time socket events built into Feathers-Vuex. The `feathers-hooks-common` package, specified below, is not required to work with Feathers-Vuex.
+
+```bash
+npm i @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client feathers-vuex feathers-hooks-common --save
+```
+
+```bash
+yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client feathers-vuex feathers-hooks-common
+```
+
+### With feathers-rest
+
+Feathers-Vuex works with Feathers-Rest, but keep in mind that the `feathers-rest` client does not listen to socket events. The `feathers-hooks-common` package, specified below, is not required to work with Feathers-Vuex.
+
+```bash
+npm i @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client feathers-hooks-common feathers-vuex --save
+```
+
+```bash
+yarn add @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client feathers-hooks-common feathers-vuex
+```
+
+## Setup
 
 Using Feathers-Vuex happens in these steps:
 
@@ -62,19 +87,9 @@ Using Feathers-Vuex happens in these steps:
 3. [Setup the auth plugin](#setup-the-auth-plugin), if required.
 4. Register the plugins with the Vuex store.
 
-### Setup the Feathers Client and Feathers-Vuex
+### Feathers Client & Feathers-Vuex
 
-To setup `feathers-vuex`, we first need to setup the latest Feathers client.  We can also setup feathers-vuex in the same file.
-
-First, let's install dependencies.
-
-```bash
-npm i @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client feathers-hooks-common socket.io-client feathers-vuex --save
-```
-
-```bash
-yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client feathers-hooks-common socket.io-client feathers-vuex
-```
+To setup `feathers-vuex`, we first need to setup the latest Feathers client.  We can also setup feathers-vuex in the same file.  Depending on your requirements, you'll need to install the feathers-client dependencies, as shown, above.
 
 Note that this example includes an app-level hook that removes attributes for handling temporary (local-only) records.
 
@@ -117,7 +132,7 @@ const { makeServicePlugin, makeAuthPlugin, BaseModel, models } = feathersVuex(
 export { makeAuthPlugin, makeServicePlugin, BaseModel, models }
 ```
 
-### Setup one or more service plugins
+### Service Plugins
 
 The following example creates a User class and registers it with the new `makeServicePlugin` utility function.  This same file is also a great place to add your service-level hooks, so they're shown, too.
 
@@ -180,7 +195,7 @@ feathersClient.service(servicePath).hooks({
 export default servicePlugin
 ```
 
-### Setup the Auth Plugin
+### Auth Plugin
 
 If your application uses authentication, the Auth Plugin will probably come in handy.  It's a couple of lines to setup:
 
@@ -193,7 +208,7 @@ export default makeAuthPlugin({ userService: 'users' })
 
 [Read more about the Auth Plugin](/auth-plugin.html).
 
-### Add the plugins to the Vuex store.
+### Vuex store
 
 ```js
 // src/store/store.js
@@ -223,18 +238,20 @@ export default new Vuex.Store({
   actions: {},
   plugins: [...servicePlugins, auth]
 })
-
 ```
 
-The new `feathers-vuex` API is more Vuex-like.  All of the functionality remains the same, but it is no longer configured like a FeathersJS plugin.  While the previous functionality was nice for prototyping, it didn't work well in SSR scenarios, like with Nuxt.
+## Begin Using Feathers-Vuex
+
+There are a couple of ways to use Feathers-Vuex.  Version 2.0 heavily focuses on abstracting away the Vuex syntax in favor of using [Model classes](/model-classes.html).  The Model classes are a layer on top of the Vuex getters, mutations, and actions. You can, of course, also directly use the [service plugin's getters, mutations, and actions](/service-plugin.html).
+
+There are two plugins included:
+
+1. The [Service Plugin](./service-plugin.md) adds a Vuex store for new services.
+2. The [Auth Plugin](./auth-plugin.md) sets up the Vuex store for authentication / logout.
 
 To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathers-plus/feathers-chat-vuex).
 
-## Note about feathers-reactive
-
-Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required or supported.
-
-## Global Configuration
+### Global Configuration
 
 The following default options are available for configuration:
 
@@ -248,17 +265,15 @@ const defaultOptions = {
 }
 ```
 
+### Note about feathers-reactive
+
+Previous versions of this plugin required both RxJS and `feathers-reactive` to receive realtime updates.  `feathers-vuex@1.0.0` has socket messaging support built in and takes advantage of Vuex reactivity, so RxJS and `feathers-reactive` are no longer required or supported.
+
 Each service module can also be individually configured.
-
-## The Vuex Plugins
-
-There are two plugins included:
-
-1. The [Service Plugin](./service-plugin.md) adds a Vuex store for new services.
-2. The [Auth Plugin](./auth-plugin.md) sets up the Vuex store for authentication / logout.
 
 ## License
 
-Copyright (c) Forever, or at least the current year.
-
 Licensed under the [MIT license](LICENSE).
+
+Feathers-Vuex is developed and maintained by [Marshall Thompson](https://www.github.com/marshallswain).
+
