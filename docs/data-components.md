@@ -2,9 +2,9 @@
 title: Renderless Data Components
 ---
 
-Currently in `feathers-vuex@next`, a set of new, renderless data provider components -- `<FeathersVuexFind>` and `<FeathersVuexGet>` -- simplify performing queries against the store and/or the API server. They make the data available inside the component's default slot.
+There are two new renderless data provider components: `<FeathersVuexFind>` and `<FeathersVuexGet>`. They simplify performing queries against the store and/or the API server. They make the data available inside each component's default slot.
 
-This first version does not assist with server-side pagination, but you can use it with your own pagination logic using the `query` or `fetchQuery` attributes, described later. To see why you might want to use these components, here are two example components that are functionally equivalent.
+To see why you might want to use these components, below are two example components that are functionally equivalent.
 
 Here's what it looks like to use the new component:
 
@@ -22,9 +22,6 @@ export default {
   name: 'admin-categories'
 }
 </script>
-
-<style lang="scss">
-</style>
 ```
 
 The above example is functionally equivalent to this much longer example which doesn't use the new component:
@@ -59,12 +56,28 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-</style>
 ```
 
 > To level up your skills, consider this content by Adam Wathan.  He wrote a terrific *free* article about [Renderless Components in Vue.js](https://adamwathan.me/renderless-components-in-vuejs/). I highly recommend you read it. He also created the *paid/premium* [Advanced Vue Component Design](https://adamwathan.me/advanced-vue-component-design/) course. His material influenced the creation of this component.
+
+## FeathersVuexFind
+
+The `FeathersVuexFind` component retrieves data fomr the APi server, puts it in the Vuex store, then transparently retrieves the live, reactive data from the store and displays it to the user.
+
+```vue
+<FeathersVuexFind service="users" :query="{}" watch="query">
+  <section slot-scope="{ items: users }">
+    {{users}}
+  </section>
+</FeathersVuexFind>
+```
+
+### Props
+
+- `service`: The path of the service
+- `query`: Only the query object from the `find` params.
+
+## FeathersVuexGet
 
 ## A note about the internal architecture
 
