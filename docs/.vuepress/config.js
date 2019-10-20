@@ -16,7 +16,8 @@ module.exports = {
       '/mixins.md',
       '/data-components.md',
       '/feathers-vuex-form-wrapper.md',
-      '/nuxt.md'
+      '/nuxt.md',
+      '/2.0-major-release.md'
     ],
     serviceWorker: {
       updatePopup: true
