@@ -1,9 +1,10 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "1.7.2",
-  "homepage": "https://github.com/feathersjs/feathers-vuex",
-  "main": "lib/",
+  "version": "2.0.0-pre.78",
+  "homepage": "https:feathers-vuex.feathers-plus.com",
+  "main": "dist/",
+  "module": "dist/",
   "keywords": [
     "feathers",
     "feathers-plugin"
@@ -11,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/feathersjs/feathers-vuex.git"
+    "url": "git://github.com/feathers-plus/feathers-vuex.git"
   },
   "author": {
     "name": "Marshall Thompson",
@@ -20,35 +21,63 @@
   },
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/feathersjs/feathers-vuex/issues"
+    "url": "https://github.com/feathers-plus/feathers-vuex/issues"
   },
   "engines": {
     "node": ">= 4.6.0"
   },
   "scripts": {
-    "prepare": "npm run compile",
     "prepublish": "npm run compile",
     "publish": "git push origin --tags && git push origin",
+    "release:pre": "npm version prerelease && npm publish --tag pre",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
-    "compile": "shx rm -rf lib/ && babel -d lib/ src/",
+    "compile": "shx rm -rf lib/ && tsc && npm run lint-dist",
+    "lint-dist": "prettier --write \"dist/**/*.js\"",
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "test": "npm run lint && npm run test-node && npm run testee",
-    "test-node": "mocha --opts mocha.opts",
+    "test": "mocha --require ts-node/register test/**/*.test.ts",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
-    "docs:dev": "vuepress dev docs",
+    "docs:serve": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
-  "standard": {
-    "sourceType": "module",
-    "env": [
-      "mocha"
-    ]
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "none",
+    "tabWidth": 2
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "warn",
+        {
+          "fix": true,
+          "singleQuote": true,
+          "semi": false,
+          "trailingComma": "none"
+        }
+      ]
+    },
+    "parserOptions": {
+      "parser": "@typescript-eslint/parser",
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+    }
   },
   "steal": {
     "map": {
@@ -71,26 +100,42 @@
     "@feathersjs/adapter-commons": "^2.0.0",
     "@feathersjs/commons": "^4.0.0",
     "@feathersjs/errors": "^3.3.6",
+    "@types/feathersjs__feathers": "^3.1.1",
+    "@types/inflection": "^1.5.28",
+    "@types/lodash": "^4.14.123",
+    "@types/npm": "^2.0.30",
+    "bson-objectid": "^1.2.4",
     "debug": "^4.1.1",
-    "deep-diff": "^1.0.2",
-    "fast-copy": "^1.2.3",
+    "fast-copy": "^1.2.4",
+    "fast-json-stable-stringify": "^2.0.0",
     "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
+    "lodash": "^4.17.15",
     "lodash.isobject": "^3.0.2",
     "lodash.isplainobject": "^4.0.6",
     "lodash.merge": "^4.6.1",
     "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
     "lodash.trim": "^4.5.1",
     "serialize-error": "^3.0.0",
-    "sift": "^7.0.1"
+    "sift": "^7.0.1",
+    "steal-typescript": "^0.5.0",
+    "vuepress-theme-default-prefers-color-scheme": "^1.0.3"
   },
   "devDependencies": {
-    "@feathersjs/authentication-client": "^1.0.10",
-    "@feathersjs/authentication-jwt": "^2.0.9",
-    "@feathersjs/client": "^3.7.7",
+    "@feathersjs/authentication-client": "^1.0.11",
+    "@feathersjs/authentication-jwt": "^2.0.10",
+    "@feathersjs/client": "^3.7.8",
     "@feathersjs/feathers": "^3.3.1",
     "@feathersjs/rest-client": "^1.4.7",
     "@feathersjs/socketio-client": "^1.2.1",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@typescript-eslint/eslint-plugin": "^1.5.0",
+    "@typescript-eslint/parser": "^1.5.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "@vue/eslint-config-typescript": "^4.0.0",
+    "@vue/test-utils": "^1.0.0-beta.29",
     "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -101,17 +146,29 @@
     "body-parser": "^1.18.3",
     "can-fixture-socket": "^2.0.0",
     "chai": "^4.2.0",
-    "feathers-memory": "^3.0.1",
+    "date-fns": "^2.0.0-beta.2",
+    "deep-object-diff": "^1.1.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-vue": "^5.2.2",
+    "feathers-memory": "^3.0.2",
     "istanbul": "^1.1.0-alpha.1",
+    "jsdom": "^14.0.0",
+    "jsdom-global": "^3.0.2",
     "mocha": "^5.2.0",
+    "omit-deep-lodash": "^1.1.4",
+    "prettier": "^1.16.4",
     "shx": "^0.3.2",
     "socket.io-client": "^2.2.0",
     "standard": "^12.0.1",
-    "steal": "^2.1.13",
+    "steal": "^2.2.1",
     "steal-mocha": "^2.0.1",
-    "testee": "^0.9.1",
-    "vue": "^2.5.22",
-    "vuepress": "^0.14.9",
-    "vuex": "^3.0.1"
+    "testee": "^0.9.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.4.1",
+    "vue": "^2.6.10",
+    "vuepress": "^1.0.2",
+    "vuex": "^3.1.0"
   }
 }

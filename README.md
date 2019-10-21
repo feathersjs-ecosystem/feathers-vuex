@@ -46,7 +46,7 @@ See [https://feathers-vuex.feathers-plus.com/index.html](https://feathers-vuex.f
 
 ## Installation
 
-```console
+```bash
 npm install feathers-vuex --save
 ```
 

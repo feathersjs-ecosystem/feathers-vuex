@@ -1,6 +1,7 @@
 module.exports = {
   title: 'FeathersVuex',
   description: 'Integration of FeathersJS, Vue, and Nuxt for the artisan developer',
+  theme: 'default-prefers-color-scheme',
   themeConfig: {
     repo: 'feathers-plus/feathers-vuex',
     docsDir: 'docs',
@@ -8,13 +9,15 @@ module.exports = {
     sidebar: [
       '/api-overview.md',
       '/vue-plugin.md',
-      '/service-module.md',
-      '/auth-module.md',
+      '/service-plugin.md',
+      '/auth-plugin.md',
       '/model-classes.md',
       '/common-patterns.md',
       '/mixins.md',
-      '/components.md',
-      '/nuxt.md'
+      '/data-components.md',
+      '/feathers-vuex-form-wrapper.md',
+      '/nuxt.md',
+      '/2.0-major-release.md'
     ],
     serviceWorker: {
       updatePopup: true

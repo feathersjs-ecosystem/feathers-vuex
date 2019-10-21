@@ -10,15 +10,17 @@ If you have a "WTF this isn't working" moment while setting up a new service, ma
 
 You can set `debug: true` in the options to enable some logging to assist with debugging.
 
-## Use the `<feathers-vuex-find>` and `<feathers-vuex-get>` components
+## Use the `<FeathersVuexFind>` and `<FeathersVuexGet>` components
 
-Using the new `<feathers-vuex-find>` and `<feathers-vuex-get>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.md) docs for more details.
+Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.html) docs for more details.
 
 ## Use the `makeFindMixin` and `makeGetMixin` utilities
 
-The mixin utilities provide the same functionality as the components, but with more power and flexibility.  Check out the [Mixin docs](./mixins.md) for more details.
+The mixin utilities provide the same functionality as the components, but with more power and flexibility.  Check out the [Mixin docs](./mixins.html) for more details.
 
 ## Working with TypeScript
+
+As of version 2.0, Feathers-Vuex has been rewritten in TypeScript.
 
 See [this issue](https://github.com/feathers-plus/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
 
@@ -28,22 +30,32 @@ The best solution is to simply refresh to clear memory.  The alternative to refr
 
 ## Accessing the store from hooks
 
-Because the service's Model [is available](./service-module.md#The-FeathersClient-Service) at `service.FeathersVuexModel`, you can access the store inside hooks.  This is especially handy if you have some custom attributes in a paginated server response.
+Because the service's Model [is available](./service-plugin.html#The-FeathersClient-Service) at `service.FeathersVuexModel`, you can access the store inside hooks.  This is especially handy if you have some custom attributes in a paginated server response.
 
 As an example, this `speeding-tickets` service has a `summary` attribute that comes back in the response.  We can
 
 ```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
+import { makeServicePlugin, BaseModel } from '../feathers-client'
 
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
+class SpeedingTicket extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'SpeedingTicket'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      vin: '',
+      plateState: ''
+    }
+  }
+}
 const servicePath = 'speeding-tickets'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    vin: '',
-    plateState: ''
-  },
+const servicePlugin = makeServicePlugin({
+  Model: SpeedingTicket,
+  service: feathersClient.service(servicePath),
+  servicePath,
   mutations: {
     handleSummaryData (state, summaryData) {
       state.mostRecentSummary = summaryData
@@ -67,26 +79,36 @@ feathersClient.service(servicePath)
   })
 ```
 
-## Handling custom server responses.
+## Handling custom server responses
 
 Sometimes your server response may contain more attributes than just database records and pagination data.  You could handle this directly in a component, if it's only needed in that one component,  But, if you need it in multiple components, there are better options.
 
 Depending on what you need to do, you may be able to solve this by [accessing the store from hooks](#Accessing-the-store-from-hooks).  But that solution won't handle a scenario where you need the response data to be already populated in the store.
 
-If you need the response data to already be in the store, you can use the [`afterFind` action](./service-module.md#afterFind-response).  Here's what this looks like:
+If you need the response data to already be in the store, you can use the [`afterFind` action](./service-plugin.html#afterFind-response).  Here's what this looks like:
 
 ```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
+import { makeServicePlugin, BaseModel } from '../feathers-client'
 
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
+class SpeedingTicket extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'SpeedingTicket'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      vin: '',
+      plateState: ''
+    }
+  }
+}
 const servicePath = 'speeding-tickets'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    vin: '',
-    plateState: ''
-  },
+const servicePlugin = makeServicePlugin({
+  Model: SpeedingTicket,
+  service: feathersClient.service(servicePath),
+  servicePath,
   actions: {
     afterFind ({ commit, dispatch, getters, state }, response) {
       if (response.summary) {
@@ -103,7 +125,8 @@ const servicePlugin = service(servicePath, {
 ```
 
 ## Reactive Lists with Live Queries
-Using Live Queries will greatly simplify app development.  The `find` getter enables this feature.  Here's how you might setup a component to take advantage of them.  For the below example, let's create two live-query lists using two getters.
+
+Using Live Queries will greatly simplify app development.  The `find` getter enables this feature.  Here is how you might setup a component to take advantage of them.  The next example shows how to setup two live-query lists using two getters.
 
 ```js
 import { mapState, mapGetters, mapActions } from 'vuex'
@@ -143,101 +166,46 @@ export default {
 in the above example of component code, the `upcomingAppointments` and `pastAppointments` will automatically update.  If a new item is sent from the server, it will get added to one of the lists, automatically.  `feathers-vuex` listens to socket events automatically, so you don't have to manually wire any of this up!
 
 ## Organizing the services in your project
+
 You can use the file system to organize each service into its own module. This is especially useful in organizing larger-sized projects.  Here's an example `store.js`.  It uses Webpack's require.context feature save repetitive imports:
 
 ```js
 import Vue from 'vue'
 import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../feathers-client'
-
-const { auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+import { FeathersVuex } from '../feathers-client'
+import auth from './store.auth'
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
 const requireModule = require.context(
-  // The relative path holding the service modules
+  // The path where the service modules live
   './services',
   // Whether to look in subfolders
   false,
-  // Only include .js files (prevents duplicate imports)
+  // Only include .js files (prevents duplicate imports`)
   /.js$/
 )
-const servicePlugins = requireModule.keys().map(modulePath => requireModule(modulePath).default)
+const servicePlugins = requireModule
+  .keys()
+  .map(modulePath => requireModule(modulePath).default)
 
 export default new Vuex.Store({
   state: {},
-  getters: {},
   mutations: {},
-  modules: {},
-  plugins: [
-    // Use the spread operator to register all of the imported plugins
-    ...servicePlugins,
-
-    auth({ userService: 'users' })
-  ]
+  actions: {},
+  plugins: [...servicePlugins, auth]
 })
 ```
 
-With the `store.js` file in place, we can start adding services to the `services` folder.  Here's an example user service.  Notice that this format is a clean way to use hooks, as well.
+With the `store.js` file in place, we can start adding services to the `services` folder.
 
-```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
-
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
-const servicePath = 'users'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    email: '',
-    password: '',
-    roles: [],
-    firstName: '',
-    lastName: '',
-    get fullName () {
-      return `${this.firstName} ${this.lastName}`
-    }
-  }
-})
-
-feathersClient.service(servicePath)
-  .hooks({
-    before: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    },
-    after: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    },
-    error: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    }
-  })
-
-export default servicePlugin
-```
-
+- [Learn how to setup a Vuex plugin for a Feathers service.](/api-overview.html#service-plugins)
+- [Learn how to setup the feathers-client.js file](/api-overview.html)
+- [Learn how to setup the auth plugin](/api-overview.html#auth-plugin)
 
 ## Actions return reactive store records
+
 Previously, when you directly used the response from an action, the individual records were not reactive.  This meant that these plain objects wouldn't update when you updated the matching record in the store.
 
 ```js
@@ -285,38 +253,36 @@ In the above example, the computed `todos` will be a reactive list.  This means 
 
 In summary, you can plan on individual records in the action response data to be reactive, but if you need the actual arrays to be reactive to live queries, use the 'find' getter.
 
-
 ## Basic Data Modeling with `instanceDefaults`
 
-See the [instanceDefaults API](./model-classes.md#instanceDefaults)
+See the [instanceDefaults API](./model-classes.html#instancedefaults)
 
 ## Model-Specific Computed Properties
 
-You may find yourself in a position where model-specific computed properties would be very useful. (github issue)[https://github.com/feathers-plus/feathers-vuex/issues/163]  This is already possible using es5 accessors. You can use both getters and setters inside `instanceDefaults`:
+You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathers-plus/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
 
 ```js
-export default new Vuex.Store({
-  plugins: [
-    service('post', {
-      instanceDefaults: {
-        description: '',
-        isComplete: false,
-        comments: [],
-        get numberOfCommenters () {
-            // Put your logic here.
-        },
-        set someOtherProp () {
-            //  Setters also work
-        }
-      }
-    })
-  ]
-})
+class Post extends BaseModel {
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'Post'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      description: '',
+      isComplete: false,
+      comments: [],
+    }
+  }
+
+  // Specify computed properties as regular class properties
+  get numberOfCommenters () {
+      // Put your logic here.
+  },
+  set someOtherProp () {
+      //  Setters also work
+  }
+}
 ```
-
-
-
-
 
 ## Relationships for Populated Data
 
@@ -333,6 +299,7 @@ A common task with almost any API is properly handling relationships between end
 ```
 
 And a user response looks like this:
+
 ```js
 // GET users/5
 {
@@ -362,109 +329,102 @@ Suppose a requirement is put on the `/todos` service to populate the `user` in t
 
 Can you see the problem that will occur with this response?  When this record is put into the `/todos` store, it will contain a copy of the user record.  But we already have the user record in the `/users` store.  And what happens when the user data changes?  Now it's out of sync.  To keep it in sync, you might have to manually listen for `users updated` & `users patched` events.  Then you might have to write a custom mutation to update the user record attached to every applicable `todo` record.  This gets messy, fast!
 
-There's an easier way to solve this problem. The introduction of `instanceDefaults` allowed for another awesome feature: Model Relationships!  To setup a relationship, specify a Model name, as a string, to any property, like this:
+There's an easier way to solve this problem. Use the new [`setupInstance` method on Model classes](/model-classes.html#setupinstance).
 
 ```js
-instanceDefaults: {
-  description: '',
-  complete: false,
-  userId: null,
-  user: 'User'
+import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
+
+class Todo extends BaseModel {
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'Todo'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: ''
+    }
+  }
+  // Updates `data.user` to be an instance of the `User` class.
+  static setupInstance(data, { models }) {
+    if (data.user) {
+      data.user = new models.api.User(data.user)
+    }
+    return data
+  }
 }
-```
 
-When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.md), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.  The following example specifies that Todo instances can have a `user` attribute that contains a `User` Model instance:
-
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('todos', {
-      instanceDefaults: {
-        description: '',
-        complete: false,
-        userId: null,
-        user: 'User'
-      }
-    }),
-    service('users', {
-      instanceDefaults: {
-        email: '',
-        name: ''
-      }
-    })
-  ]
+const servicePath = 'todos'
+const servicePlugin = makeServicePlugin({
+  Model: Todo,
+  service: feathersClient.service(servicePath),
+  servicePath
 })
 ```
+
+When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.html), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.
 
 There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
 
-It's worth noting that this feature also supports arrays. Suppose you had `/users` and `/todos` services, and your `/users` service also returned a `todos` attribute on each record.  The setup would look like this:
+## Form Binding
 
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
+Use the Model classes to reduce the boilerplate required to work with forms and Vuex, even in strict mode!  Every model instance has a `.clone()` method which can be used to get a fully-reactive copy of the record in the store.  Here is a very simple version of how you could bind to a form and submit new data to the server.
 
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+```vue
+<template>
+  <div class="bg-white h-full p-6">
+    <h1>Create Todo</h1>
 
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
+    <form @submit.prevent="createTodo">
+      <input v-model="clone.name" type="text" class="form-input" />
+      <button
+        type="submit"
+        class="bg-blue-500 px-4 py-2 rounded text-white ml-2"
+      >
+        Create Todo
+      </button>
+    </form>
+  </div>
+</template>
 
-export default new Vuex.Store({
-  plugins: [
-    service('todos', {
-      instanceDefaults: {
-        description: '',
-        isComplete: false
+<script>
+export default {
+  name: 'Todos',
+  mixins: [makeFindMixin({ service: 'todos', watch: true })],
+  data: () => ({
+    todo: null,
+    clone: null
+  }),
+  computed: {
+    todosParams() {
+      return {
+        query: {},
+        paginate: false
       }
-    }),
-    service('users', {
-      instanceDefaults: {
-        email: '',
-        name: '',
-        todos: 'Todo'
+    }
+  },
+  created() {
+    const { Todo } = this.$FeathersVuex.myApi
+    this.todo = new Todo({})
+    this.clone = this.todo.clone()
+  },
+  methods: {
+    async createTodo() {
+      try {
+        const todo = await this.clone.save()
+        console.log(todo)
+      } catch (error) {
+        console.log(error)
       }
-    })
-  ]
-})
-```
+    },
+    updateTodo(ev, todo) {
+      todo.isComplete = ev.target.checked
+      todo.save()
+    }
+  }
+}
+</script>
 
-With the `instanceDefaults` shown above, any `todos` returned on the `users` service would be stored in the `/todos` service store and would always be Todo instances.
-
-
-## Reactive User Data in Auth Store
-The `user` record in the auth store is now fully reactive and will automatically update with real-time events.  In fact, the record in the auth store is the record in the users store.  Please note that if you configure the `userService` option on the `auth` plugin, you must also use the `service` plugin for the `/users` service.  The paths must match:
-
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('users'),
-    auth({
-      userService: 'users'
-    })
-  ]
-})
+<style lang="postcss"></style>
 ```
 
 ## Multiple Copies
@@ -523,10 +483,4 @@ export default new Vuex.Store({
 
 ## Enable Debug Logging
 
-If items aren't not getting added to the store properly, try setting the `debug` option on the service.  It enables some additional logging that may be useful:
-
-```
-service('todos', {
-  debug: true
-})
-```
+If items aren't not getting added to the store properly, try setting the `debug` option on the `makeServicePlugin` to `true`.  It enables some additional logging that may be useful for troubleshooting.

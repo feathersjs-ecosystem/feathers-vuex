@@ -11,24 +11,24 @@ const baseUrl = 'http://localhost:3030'
 
 // These are fixtures used in the service-modulet.test.js under socket events.
 let id = 0
-mockServer.on('things::create', function (data) {
+mockServer.on('things::create', function(data) {
   data.id = id
   id++
   mockServer.emit('things created', data)
 })
-mockServer.on('things::patch', function (id, data) {
+mockServer.on('things::patch', function(id, data) {
   Object.assign(data, { id, test: true })
   mockServer.emit('things patched', data)
 })
-mockServer.on('things::update', function (id, data) {
+mockServer.on('things::update', function(id, data) {
   Object.assign(data, { id, test: true })
   mockServer.emit('things updated', data)
 })
-mockServer.on('things::remove', function (id, data) {
+mockServer.on('things::remove', function(id) {
   mockServer.emit('things removed', { id, test: true })
 })
 
-export function makeFeathersSocketClient () {
+export function makeFeathersSocketClient(baseUrl) {
   const socket = io(baseUrl)
 
   return feathers()
@@ -36,7 +36,7 @@ export function makeFeathersSocketClient () {
     .configure(auth())
 }
 
-export function makeFeathersRestClient () {
+export function makeFeathersRestClient(baseUrl) {
   return feathers()
     .configure(rest(baseUrl).axios(axios))
     .configure(auth())
