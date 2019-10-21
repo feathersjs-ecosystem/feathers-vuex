@@ -46,8 +46,8 @@ class SpeedingTicket extends BaseModel {
   // Define default properties here
   static instanceDefaults() {
     return {
-      email: '',
-      password: ''
+      vin: '',
+      plateState: ''
     }
   }
 }
@@ -55,7 +55,12 @@ const servicePath = 'speeding-tickets'
 const servicePlugin = makeServicePlugin({
   Model: SpeedingTicket,
   service: feathersClient.service(servicePath),
-  servicePath
+  servicePath,
+  mutations: {
+    handleSummaryData (state, summaryData) {
+      state.mostRecentSummary = summaryData
+    }
+  }
 })
 
 feathersClient.service(servicePath)
