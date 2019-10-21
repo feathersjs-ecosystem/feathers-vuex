@@ -88,17 +88,27 @@ Depending on what you need to do, you may be able to solve this by [accessing th
 If you need the response data to already be in the store, you can use the [`afterFind` action](./service-plugin.html#afterFind-response).  Here's what this looks like:
 
 ```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
+import { makeServicePlugin, BaseModel } from '../feathers-client'
 
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
+class SpeedingTicket extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'SpeedingTicket'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      vin: '',
+      plateState: ''
+    }
+  }
+}
 const servicePath = 'speeding-tickets'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    vin: '',
-    plateState: ''
-  },
+const servicePlugin = makeServicePlugin({
+  Model: SpeedingTicket,
+  service: feathersClient.service(servicePath),
+  servicePath,
   actions: {
     afterFind ({ commit, dispatch, getters, state }, response) {
       if (response.summary) {
@@ -112,11 +122,10 @@ const servicePlugin = service(servicePath, {
     }
   }
 })
-```
 
 ## Reactive Lists with Live Queries
 
-Using Live Queries will greatly simplify app development.  The `find` getter enables this feature.  Here's how you might setup a component to take advantage of them.  For the below example, let's create two live-query lists using two getters.
+Using Live Queries will greatly simplify app development.  The `find` getter enables this feature.  Here is how you might setup a component to take advantage of them.  The next example shows how to setup two live-query lists using two getters.
 
 ```js
 import { mapState, mapGetters, mapActions } from 'vuex'
@@ -162,93 +171,37 @@ You can use the file system to organize each service into its own module. This i
 ```js
 import Vue from 'vue'
 import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../feathers-client'
-
-const { auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
+import { FeathersVuex } from '../feathers-client'
+import auth from './store.auth'
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
 const requireModule = require.context(
-  // The relative path holding the service modules
+  // The path where the service modules live
   './services',
   // Whether to look in subfolders
   false,
-  // Only include .js files (prevents duplicate imports)
+  // Only include .js files (prevents duplicate imports`)
   /.js$/
 )
-const servicePlugins = requireModule.keys().map(modulePath => requireModule(modulePath).default)
+const servicePlugins = requireModule
+  .keys()
+  .map(modulePath => requireModule(modulePath).default)
 
 export default new Vuex.Store({
   state: {},
-  getters: {},
   mutations: {},
-  modules: {},
-  plugins: [
-    // Use the spread operator to register all of the imported plugins
-    ...servicePlugins,
-
-    auth({ userService: 'users' })
-  ]
+  actions: {},
+  plugins: [...servicePlugins, auth]
 })
 ```
 
-With the `store.js` file in place, we can start adding services to the `services` folder.  Here's an example user service.  Notice that this format is a clean way to use hooks, as well.
+With the `store.js` file in place, we can start adding services to the `services` folder.
 
-```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
-
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
-const servicePath = 'users'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    email: '',
-    password: '',
-    roles: [],
-    firstName: '',
-    lastName: '',
-    get fullName () {
-      return `${this.firstName} ${this.lastName}`
-    }
-  }
-})
-
-feathersClient.service(servicePath)
-  .hooks({
-    before: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    },
-    after: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    },
-    error: {
-      all: [],
-      find: [],
-      get: [],
-      create: [],
-      update: [],
-      patch: [],
-      remove: []
-    }
-  })
-
-export default servicePlugin
-```
+- [Learn how to setup a Vuex plugin for a Feathers service.](/api-overview.html#service-plugins)
+- [Learn how to setup the feathers-client.js file](/api-overview.html)
+- [Learn how to setup the auth plugin](/api-overview.html#auth-plugin)
 
 ## Actions return reactive store records
 
