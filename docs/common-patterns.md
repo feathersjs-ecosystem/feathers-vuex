@@ -255,30 +255,33 @@ In summary, you can plan on individual records in the action response data to be
 
 ## Basic Data Modeling with `instanceDefaults`
 
-See the [instanceDefaults API](./model-classes.html#instanceDefaults)
+See the [instanceDefaults API](./model-classes.html#instancedefaults)
 
 ## Model-Specific Computed Properties
 
-You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathers-plus/feathers-vuex/issues/163)  This is already possible using es5 accessors. You can use both getters and setters inside `instanceDefaults`:
+You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathers-plus/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
 
 ```js
-export default new Vuex.Store({
-  plugins: [
-    service('post', {
-      instanceDefaults: {
-        description: '',
-        isComplete: false,
-        comments: [],
-        get numberOfCommenters () {
-            // Put your logic here.
-        },
-        set someOtherProp () {
-            //  Setters also work
-        }
-      }
-    })
-  ]
-})
+class Post extends BaseModel {
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'Post'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      description: '',
+      isComplete: false,
+      comments: [],
+    }
+  }
+
+  // Specify computed properties as regular class properties
+  get numberOfCommenters () {
+      // Put your logic here.
+  },
+  set someOtherProp () {
+      //  Setters also work
+  }
+}
 ```
 
 ## Relationships for Populated Data
@@ -326,110 +329,41 @@ Suppose a requirement is put on the `/todos` service to populate the `user` in t
 
 Can you see the problem that will occur with this response?  When this record is put into the `/todos` store, it will contain a copy of the user record.  But we already have the user record in the `/users` store.  And what happens when the user data changes?  Now it's out of sync.  To keep it in sync, you might have to manually listen for `users updated` & `users patched` events.  Then you might have to write a custom mutation to update the user record attached to every applicable `todo` record.  This gets messy, fast!
 
-There's an easier way to solve this problem. The introduction of `instanceDefaults` allowed for another awesome feature: Model Relationships!  To setup a relationship, specify a Model name, as a string, to any property, like this:
+There's an easier way to solve this problem. Use the new [`setupInstance` method on Model classes](/model-classes.html#setupinstance).
 
 ```js
-instanceDefaults: {
-  description: '',
-  complete: false,
-  userId: null,
-  user: 'User'
+import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
+
+class Todo extends BaseModel {
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'Todo'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: ''
+    }
+  }
+  // Updates `data.user` to be an instance of the `User` class.
+  static setupInstance(data, { models }) {
+    if (data.user) {
+      data.user = new models.api.User(data.user)
+    }
+    return data
+  }
 }
-```
 
-When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.html), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.  The following example specifies that Todo instances can have a `user` attribute that contains a `User` Model instance:
-
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('todos', {
-      instanceDefaults: {
-        description: '',
-        complete: false,
-        userId: null,
-        user: 'User'
-      }
-    }),
-    service('users', {
-      instanceDefaults: {
-        email: '',
-        name: ''
-      }
-    })
-  ]
+const servicePath = 'todos'
+const servicePlugin = makeServicePlugin({
+  Model: Todo,
+  service: feathersClient.service(servicePath),
+  servicePath
 })
 ```
+
+When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.html), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.
 
 There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
-
-It's worth noting that this feature also supports arrays. Suppose you had `/users` and `/todos` services, and your `/users` service also returned a `todos` attribute on each record.  The setup would look like this:
-
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('todos', {
-      instanceDefaults: {
-        description: '',
-        isComplete: false
-      }
-    }),
-    service('users', {
-      instanceDefaults: {
-        email: '',
-        name: '',
-        todos: 'Todo'
-      }
-    })
-  ]
-})
-```
-
-With the `instanceDefaults` shown above, any `todos` returned on the `users` service would be stored in the `/todos` service store and would always be Todo instances.
-
-## Reactive User Data in Auth Store
-
-The `user` record in the auth store is now fully reactive and will automatically update with real-time events.  In fact, the record in the auth store is the record in the users store.  Please note that if you configure the `userService` option on the `auth` plugin, you must also use the `service` plugin for the `/users` service.  The paths must match:
-
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from './feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(FeathersVuex)
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('users'),
-    auth({
-      userService: 'users'
-    })
-  ]
-})
-```
 
 ## Form Binding
 
@@ -549,10 +483,4 @@ export default new Vuex.Store({
 
 ## Enable Debug Logging
 
-If items aren't not getting added to the store properly, try setting the `debug` option on the service.  It enables some additional logging that may be useful for troubleshooting:
-
-```js
-service('todos', {
-  debug: true
-})
-```
+If items aren't not getting added to the store properly, try setting the `debug` option on the `makeServicePlugin` to `true`.  It enables some additional logging that may be useful for troubleshooting.
