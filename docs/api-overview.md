@@ -211,6 +211,8 @@ export default makeAuthPlugin({ userService: 'users' })
 
 ### Vuex store
 
+This example uses Webpack's `require.context` feature.  If you're not using Webpack, you'll need to manually import each module and list them in the `plugins` array.
+
 ```js
 // src/store/store.js
 import Vue from 'vue'
