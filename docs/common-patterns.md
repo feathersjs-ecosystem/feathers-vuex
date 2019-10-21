@@ -122,6 +122,7 @@ const servicePlugin = makeServicePlugin({
     }
   }
 })
+```
 
 ## Reactive Lists with Live Queries
 
