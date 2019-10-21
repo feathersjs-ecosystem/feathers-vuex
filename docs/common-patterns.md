@@ -35,22 +35,27 @@ Because the service's Model [is available](./service-plugin.html#The-FeathersCli
 As an example, this `speeding-tickets` service has a `summary` attribute that comes back in the response.  We can
 
 ```js
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../../feathers-client'
+import { makeServicePlugin, BaseModel } from '../feathers-client'
 
-const { service } = feathersVuex(feathersClient, { idField: '_id' })
-
-const servicePath = 'speeding-tickets'
-const servicePlugin = service(servicePath, {
-  instanceDefaults: {
-    vin: '',
-    plateState: ''
-  },
-  mutations: {
-    handleSummaryData (state, summaryData) {
-      state.mostRecentSummary = summaryData
+class SpeedingTicket extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'SpeedingTicket'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: ''
     }
   }
+}
+const servicePath = 'speeding-tickets'
+const servicePlugin = makeServicePlugin({
+  Model: SpeedingTicket,
+  service: feathersClient.service(servicePath),
+  servicePath
 })
 
 feathersClient.service(servicePath)
