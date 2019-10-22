@@ -127,7 +127,7 @@
     "@feathersjs/authentication-jwt": "^2.0.10",
     "@feathersjs/client": "^3.7.8",
     "@feathersjs/feathers": "^4.3.7",
-    "@feathersjs/rest-client": "^1.4.7",
+    "@feathersjs/rest-client": "^4.3.7",
     "@feathersjs/socketio-client": "^4.3.7",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
