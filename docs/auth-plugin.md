@@ -9,7 +9,6 @@ The Auth module helps setup your app for login / logout.  It includes the follow
   accessToken: undefined, // The JWT
   payload: undefined, // The JWT payload
 
-  // entityIdField is only in v1.7.0-pre.41 or later
   entityIdField: 'userId', // The property in the payload storing the user id
   responseEntityField: 'user', // The property in the payload storing the user
 
@@ -47,6 +46,8 @@ const store = new Vuex.Store({
   plugins: [
     auth({
       userService: 'users', // if your user service endpoint is named 'users'
+      entityIdField: 'userId', // The property in the payload storing the user id
+      responseEntityField: 'user', // The property in the payload storing the user
       state: {}, // Custom state
       getters: {}, // Custom getters
       mutations: {}, // Custom mutations
