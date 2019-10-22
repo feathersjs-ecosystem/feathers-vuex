@@ -11,6 +11,7 @@ The Auth module helps setup your app for login / logout.  It includes the follow
 
   // entityIdField is only in v1.7.0-pre.41 or later
   entityIdField: 'userId', // The property in the payload storing the user id
+  responseEntityField: 'user', // The property in the payload storing the user
 
   isAuthenticatePending: false,
   isLogoutPending: false,
