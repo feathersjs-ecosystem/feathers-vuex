@@ -106,7 +106,7 @@
     "@types/npm": "^2.0.30",
     "bson-objectid": "^1.2.4",
     "debug": "^4.1.1",
-    "fast-copy": "^1.2.4",
+    "fast-copy": "^2.0.3",
     "fast-json-stable-stringify": "^2.0.0",
     "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
