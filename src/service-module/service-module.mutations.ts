@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import Vue from 'vue'
-import serializeError from 'serialize-error'
+import { serializeError } from 'serialize-error'
 import {
   updateOriginal,
   mergeWithAccessors,
