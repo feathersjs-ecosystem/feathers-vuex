@@ -3,6 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+import { FeathersVuexOptions } from '../service-module/types'
 import setupState from './auth-module.state'
 import setupGetters from './auth-module.getters'
 import setupMutations from './auth-module.mutations'
@@ -19,13 +20,13 @@ const defaults = {
   actions: {} // for custom actions
 }
 
-export default function authPluginInit(feathersClient) {
+export default function authPluginInit(feathersClient, globalOptions: FeathersVuexOptions) {
   if (!feathersClient || !feathersClient.service) {
     throw new Error('You must pass a Feathers Client instance to feathers-vuex')
   }
 
-  return function createAuthModule(options) {
-    options = Object.assign({}, defaults, options)
+  return function makeAuthPlugin(options) {
+    options = Object.assign({}, defaults, { serverAlias: globalOptions.serverAlias }, options)
 
     if (!feathersClient.authenticate) {
       throw new Error(
