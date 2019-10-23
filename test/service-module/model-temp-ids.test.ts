@@ -8,7 +8,7 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
-import memory from 'feathers-memory'
+import { Service as MemoryService } from 'feathers-memory'
 import Vuex from 'vuex'
 import { makeStore } from '../test-utils'
 import ObjectID from 'bson-objectid'
@@ -17,15 +17,16 @@ interface RootState {
   transactions: ServiceState
 }
 
-class ComicService extends memory.Service {
-  public create(data, params, callback) {
-    return super.create(data, params, callback).then(response => {
+class ComicService extends MemoryService {
+  public create(data, params) {
+    return super.create(data, params).then(response => {
       delete response.__id
       delete response.__isTemp
       return response
     })
   }
-  public update(id, data, params, callback) {
+  // @ts-ignore
+  public update(id, data, params) {
     data.createdAt = new Date()
     // this._super(data, params, callback)
   }
