@@ -4,9 +4,35 @@ title: Service Plugin
 
 <!-- markdownlint-disable MD002 MD033 MD041 -->
 
-The `Service Plugin` creates a vuex plugin which connects a Feathers service to the Vuex store.  Once you create the plugin, you must register it in the `plugins` section of your store setup:
+The `makeServicePlugin` method creates a vuex plugin which connects a Feathers service to the Vuex store.  Once you create a plugin, you must register it in the Vuex store's `plugins` section.
 
 See the [setup documentation](/api-overview.html#service-plugins) to learn the basics of setting up a Service Plugin.
+
+## Configuration
+
+The following options are supported on `makeServicePlugin`.
+
+```js
+{
+  idField: '_id', // The field in each record that will contain the id
+  nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
+  namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
+  debug: true, // Enable some logging for debugging
+  servicePath: '', // Not all Feathers service plugins expose the service path, so it can be manually specified when missing.
+  instanceDefaults: () => ({}), // Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
+  setupInstance: instance => instance, // Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
+  autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
+  enableEvents: false, // Turn off socket event listeners. It's true by default
+  addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
+  replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
+  skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
+  modelName: 'OldTask' // Default modelName would have been 'Task'
+}
+```
+
+## Realtime by Default
+
+Service plugins automatically listen to all socket messages received by the Feathers Client.  This can be disabled by setting `enableEvents: false` in the options, as shown above.
 
 ## New in Feathers-Vuex 2.0
 
@@ -15,70 +41,6 @@ Feathers-Vuex 2.0 includes a few breaking changes to the service plugin.  Some o
 - The `service` method is now called `makeServicePlugin`
 - The Feathers Client service is no longer created, internally, so a Feathers service object must be provided instead of just the path string.
 - A Model class is now required. The `instanceDefaults` API has been moved into the Model class.  You can find a basic example of a minimal Model class in the [Data Modeling](/model-classes.html) docs.
-
-Old example from the api-overview page:
-
-```js
-// store/index.js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import feathersVuex from 'feathers-vuex'
-import feathersClient from '../feathers-client'
-
-const { service, auth, FeathersVuex } = feathersVuex(feathersClient, { idField: '_id' })
-
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
-
-export default new Vuex.Store({
-  plugins: [
-    service('todos'),
-
-    // Specify custom options per service
-    service('/v1/tasks', {
-      idField: '_id', // The field in each record that will contain the id
-      nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
-      namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
-      debug: true, // Enable some logging for debugging
-      servicePath: '', // Not all Feathers service plugins expose the service path, so it can be manually specified when missing.
-      instanceDefaults: () => ({}), // Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
-      setupInstance: instance => instance, // Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
-      autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
-      enableEvents: false, // Turn off socket event listeners. It's true by default
-      addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
-      replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
-      skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
-      modelName: 'OldTask' // Default modelName would have been 'Task'
-    })
-
-    // Add custom state, getters, mutations, or actions, if needed.  See example in another section, below.
-    service('things', {
-      state: {},
-      getters: {},
-      mutations: {},
-      actions: {}
-    })
-
-    // Setup a service with defaults for Model instances
-    service('manufacturers', {
-      instanceDefaults: {
-        name: ''
-      }
-    })
-    // Setup a service with light-weight relational data
-    service('models', {
-      instanceDefaults: {
-        name: '',
-        manufacturerId: '',
-        manufacturer: 'Manufacturer' // Refers to data (populated on the server) that gets put in the `manufacturers` vuex store.
-      }
-    })
-
-    // Setup the auth plugin.
-    auth({ userService: 'users' })
-  ]
-})
-```
 
 ## The FeathersClient Service
 
@@ -103,7 +65,6 @@ Each service comes loaded with the following default state:
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
     replaceItems: false, // When set to true, updates and patches will replace the record in the store instead of merging changes
     paginate: false, // Indicates if pagination is enabled on the Feathers service.
-
 
     paramsForServer: [], // Custom query operators that are ignored in the find getter, but will pass through to the server.
     whitelist: [], // Custom query operators that will be allowed in the find getter.
