@@ -8,7 +8,7 @@ import { getId } from '../utils'
 
 export default function makeServiceActions(service) {
   const serviceActions = {
-    async find({ commit, dispatch }, params) {
+    find({ commit, dispatch }, params) {
       params = params || {}
       params = fastCopy(params)
 
@@ -23,7 +23,7 @@ export default function makeServiceActions(service) {
     // Two query syntaxes are supported, since actions only receive one argument.
     //   1. Just pass the id: `get(1)`
     //   2. Pass arguments as an array: `get([null, params])`
-    async get({ state, getters, commit, dispatch }, args) {
+    get({ state, getters, commit, dispatch }, args) {
       let id
       let params
       let skipRequestIfExists
@@ -69,7 +69,7 @@ export default function makeServiceActions(service) {
       return getFromRemote()
     },
 
-    async create({ commit, dispatch, state }, dataOrArray) {
+    create({ commit, dispatch, state }, dataOrArray) {
       const { idField, tempIdField } = state
       let data
       let params
@@ -122,7 +122,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    async update({ commit, dispatch, state }, [id, data, params]) {
+    update({ commit, dispatch, state }, [id, data, params]) {
 
       commit('setPending', 'update')
 
@@ -142,7 +142,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    async patch({ commit, dispatch, state }, [id, data, params]) {
+    patch({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'patch')
 
       params = fastCopy(params)
@@ -165,7 +165,7 @@ export default function makeServiceActions(service) {
         })
     },
 
-    async remove({ commit }, idOrArray) {
+    remove({ commit }, idOrArray) {
       let id
       let params
 
