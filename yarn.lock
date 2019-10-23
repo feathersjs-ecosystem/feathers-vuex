@@ -853,9 +853,9 @@
   integrity sha512-TJtwsqZ39pqcljJpajeoofYRfeZ7/I/OMUQ5pR4q5wOKf2ocrUvBAZUMhWsOvKx3dVc/aaV5GluBivt0sWqA5A==
 
 "@types/npm@^2.0.30":
-  version "2.0.30"
-  resolved "https://registry.yarnpkg.com/@types/npm/-/npm-2.0.30.tgz#871ce96be7c3a89687e240569f382bc687488600"
-  integrity sha512-juetEKXQJZlVrhRg3Z8WAKFeUr2sRapp8IGOxOaWI07rrrt0T0lgLiv7NtpqoP6Ul/If5vD0/17C0Q84saiwBg==
+  version "2.0.31"
+  resolved "https://registry.yarnpkg.com/@types/npm/-/npm-2.0.31.tgz#aad3aef7e165f2911a052abf548fbcc1bb468577"
+  integrity sha512-v4JpUx83wVGItleYsnYeZrM8NTLSnYDfTE/iGm4owy6zZPNFNmnsvvrxiYtG3cVHt/XutzTjUBQ9Bh8bnvEkCw==
   dependencies:
     "@types/node" "*"
 
