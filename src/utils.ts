@@ -184,13 +184,13 @@ export function getId(item, idField) {
   if (!item) {
     return
   }
-  if (item.hasOwnProperty('id')) {
+  if (item.id != null || item.hasOwnProperty('id')) {
     return item.id
   }
-  if (item.hasOwnProperty('_id')) {
+  if (item._id != null || item.hasOwnProperty('_id')) {
     return item._id
   }
-  if (item.hasOwnProperty(idField)) {
+  if (item[idField] != null || item.hasOwnProperty(idField)) {
     return item[idField]
   }
 }
