@@ -92,7 +92,6 @@ Each service comes loaded with the following default state:
 {
     ids: [],
     keyedById: {}, // A hash map, keyed by id of each item
-    currentId: undefined, // The id of the item marked as current
     idField: 'id',
     servicePath: 'v1/todos' // The full service path
     autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
@@ -123,8 +122,6 @@ The following attributes are available in each service module's state:
 
 - `ids {Array}` - an array of plain ids representing the ids that belong to each object in the `keyedById` map.
 - `keyedById {Object}` - a hash map keyed by the id of each item.
-- `currentId {Number|String}` - the id of the item marked as current.
-- `copy {Object}` - a deep copy of the current item at the moment it was marked as current. You can make changes to the copy without modifying the `current`.  You can then use the `commitCopy` mutation to save the changes as the `current` or `resetCopy` to revert `copy` to once again match `current`.  You may prefer to use the new [clone API](./common-patterns.md#Multiple-Copies) for [managing multiple copies with model instances](./common-patterns.md#Multiple-Copies).
 - `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `modelName {String}` - the key in the $FeathersVuex plugin where the model will be found.
 - `autoRemove {Boolean` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
@@ -160,8 +157,6 @@ Service modules include the following getters:
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
-- `current {Object}` - the object representing the `currentId`. It's pulled from the `keyedById` state.
-- `getCopy {Object}` - An alias to the `state.copy`.
 
 ## Service Mutations
 
@@ -203,20 +198,6 @@ Removes a single item.  `item` can be
 Removes the passed in items or ids from the store.
 
 - `items {Array}` - An array of ids or of objects with ids that will be removed from the data store.
-
-### `commitCopy(state)`
-
-Saves changes from the `copy` to the `current` item.
-
-### `resetCopy(state)`
-
-Re-copies the data from `current` to `copy`, restoring the original copy.
-
-### `clearCurrent(state)`
-
-> Removed in 2.0
-
-Clears the `current` item, which also clears the copy.
 
 ### `clearList(state)`
 
