@@ -156,7 +156,7 @@
     "istanbul": "^1.1.0-alpha.1",
     "jsdom": "^14.0.0",
     "jsdom-global": "^3.0.2",
-    "mocha": "^5.2.0",
+    "mocha": "^6.2.2",
     "omit-deep-lodash": "^1.1.4",
     "prettier": "^1.16.4",
     "shx": "^0.3.2",
