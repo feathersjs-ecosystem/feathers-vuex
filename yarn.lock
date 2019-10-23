@@ -740,15 +740,17 @@
   resolved "https://registry.yarnpkg.com/@feathersjs/errors/-/errors-4.3.7.tgz#ee576d06f5dfc502aa2ed1a0ee13380fa30d71e5"
   integrity sha512-OGyPZpq5qkr6TjG5aqFBNgpsK3pwhMRxHPjHkGXBKfseRACTS//ma3kJhRiGxhFetu5IsIsAYBpLRhyTbiBi8w==
   dependencies:
-    "@feathersjs/commons" "^4.3.7"
     debug "^4.1.1"
-    events "^3.0.0"
-    uberproto "^2.0.4"
 
 "@feathersjs/feathers@^4.3.7":
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/@feathersjs/feathers/-/feathers-4.3.7.tgz#ac4be01427b3db88947359e6b605f48d6805335d"
   integrity sha512-gpxWG4B4I3M1C+es2jFh4AEF0L5zcSGhK7zMCB0nZp8R3VJClSJ7qtGcmIrOWPjYVKPcZYqAdFZgFn2T0+tvAA==
+  dependencies:
+    "@feathersjs/commons" "^4.3.7"
+    debug "^4.1.1"
+    events "^3.0.0"
+    uberproto "^2.0.4"
 
 "@feathersjs/rest-client@^4.3.7":
   version "4.3.7"
