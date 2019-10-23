@@ -54,6 +54,8 @@ npm install feathers-vuex --save
 yarn add feathers-vuex
 ```
 
+IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes.  If your project uses Babel, it must be configured properly.  See the [Project Configuration](#projectconfiguration) section for more information.
+
 ### With feathers-socketio
 
 A realtime-transport like Socket.io or Primus is required in order to take advantage of the real-time socket events built into Feathers-Vuex. The `feathers-hooks-common` package, specified below, is not required to work with Feathers-Vuex.
@@ -77,6 +79,39 @@ npm i @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-cl
 ```bash
 yarn add @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client feathers-hooks-common feathers-vuex
 ```
+
+## Project Configuration
+
+### Vue-CLI
+
+If your project runs on Vue-CLI, add the following to your `vue.config.js` file:
+
+```js
+module.exports = {
+  transpileDependencies: ['feathers-vuex']
+}
+```
+
+## Quasar
+
+For Quasar apps, `transpileDependencies` can be updated in `quasar.conf.js` under build as
+
+```
+build: {
+  transpileDependencies: ['feathers-vuex']
+}
+```
+
+## Nuxt
+
+If your project uses Nuxt, add the following to your `nuxt.config.js` file:
+
+```
+build: {
+  transpile: ['feathers-vuex'],
+}
+```
+
 
 ## Setup
 
