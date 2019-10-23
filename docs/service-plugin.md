@@ -84,6 +84,12 @@ export default new Vuex.Store({
 
 Once the service plugin has been registered with Vuex, the FeathersClient Service will have a new `service.FeathersVuexModel` property.  This provides access to the service's [Model class](./model-classes.md).
 
+```js
+import { models } from 'feathers-vuex'
+
+feathersClient.service('todos').FeathersVuexModel === models.api.Todo // true
+```
+
 ## Service State
 
 Each service comes loaded with the following default state:
