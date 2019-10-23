@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import serializeError from 'serialize-error'
+import { serializeError } from 'serialize-error'
 
 export default function makeAuthMutations() {
   return {
