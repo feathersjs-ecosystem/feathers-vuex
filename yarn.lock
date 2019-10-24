@@ -689,15 +689,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@feathersjs/adapter-commons@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@feathersjs/adapter-commons/-/adapter-commons-2.0.0.tgz#59f174df0ba92087c43c79a28690d275c4064d86"
-  integrity sha512-Fyb2RpV3pZWscjeSQnuvSfksixipwsY0ObpHbz8k0bdfbjpqT59MWTzVcvYsIJzCCHfD0KcsloiZ6jhW5wL9sg==
-  dependencies:
-    "@feathersjs/commons" "^4.0.0"
-    "@feathersjs/errors" "^3.3.6"
-
-"@feathersjs/adapter-commons@^4.3.6":
+"@feathersjs/adapter-commons@^4.3.6", "@feathersjs/adapter-commons@^4.3.8":
   version "4.3.8"
   resolved "https://registry.yarnpkg.com/@feathersjs/adapter-commons/-/adapter-commons-4.3.8.tgz#eaf452cad6834dd41d62bfac01b219c3522c5148"
   integrity sha512-JuwQHyKNeSZRvkYH9o9141YpN6uv1op5pfGhnlcbGN7LK4DIRXnMjVSKtamGNt/00a3Uq1Hh+IXPjj+yslYLCQ==

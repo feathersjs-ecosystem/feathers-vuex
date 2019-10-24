@@ -97,7 +97,7 @@
     "lib": "lib"
   },
   "dependencies": {
-    "@feathersjs/adapter-commons": "^2.0.0",
+    "@feathersjs/adapter-commons": "^4.3.8",
     "@feathersjs/commons": "^4.0.0",
     "@feathersjs/errors": "^4.3.7",
     "@types/feathersjs__feathers": "^3.1.1",
