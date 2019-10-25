@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/feathers-plus/feathers-vuex.png?branch=master)](https://travis-ci.org/feathers-plus/feathers-vuex)
 [![Dependency Status](https://img.shields.io/david/feathers-plus/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
-[![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
+[![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex) [![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs-ecosystem/feathers-vuex.svg)](https://greenkeeper.io/)
 
 ![feathers-vuex service logo](./service-logo.png)
 
