@@ -154,7 +154,7 @@
     "eslint-plugin-vue": "^5.2.2",
     "feathers-memory": "^4.1.0",
     "istanbul": "^1.1.0-alpha.1",
-    "jsdom": "^14.0.0",
+    "jsdom": "^15.2.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^6.2.2",
     "omit-deep-lodash": "^1.1.4",
