@@ -161,7 +161,7 @@
     "prettier": "^1.16.4",
     "shx": "^0.3.2",
     "socket.io-client": "^2.2.0",
-    "standard": "^12.0.1",
+    "standard": "^14.3.1",
     "steal": "^2.2.1",
     "steal-mocha": "^2.0.1",
     "testee": "^0.9.0",
