@@ -723,10 +723,10 @@
     long-timeout "^0.1.1"
     uuid "^3.3.3"
 
-"@feathersjs/client@^3.7.8":
-  version "3.7.8"
-  resolved "https://registry.yarnpkg.com/@feathersjs/client/-/client-3.7.8.tgz#a17e8c241e91a6d80dedf5c187443b416a3e7c82"
-  integrity sha512-SsLVU6wq1PToBCC3XAvMRV18RBqCG1Ipt0G0+cyNKvYpcKW238Prvw7uYyAxPyQw+JL1c0xHkyDId03Duu6ZTA==
+"@feathersjs/client@^4.3.7":
+  version "4.3.7"
+  resolved "https://registry.yarnpkg.com/@feathersjs/client/-/client-4.3.7.tgz#addc01107a4aaca2705975028032326b0b1d0c85"
+  integrity sha512-3S+M+Z6X2qya9xSuiSLbewYBfT1cogwZtMcseBk4Wcd+lT2pt0j5asc+/i0ECtq8K/iTxEH16H55sL9pfvE5Vg==
 
 "@feathersjs/commons@^4.0.0", "@feathersjs/commons@^4.3.0", "@feathersjs/commons@^4.3.7":
   version "4.3.7"
