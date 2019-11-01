@@ -1,6 +1,6 @@
 # feathers-vuex
 
-[![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex.png?branch=master)](https://travis-ci.org/feathers-plus/feathers-vuex)
+[![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex.png?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex)
 [![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
@@ -14,7 +14,7 @@
 
 [Demo](https://codesandbox.io/s/xk52mqm7o)
 
-See [https://feathers-vuex.netlify.com/index.html](https://feathers-vuex.netlify.com) for full documentation.
+See [https://feathers-vuex.netlify.com](https://feathers-vuex.netlify.com) for full documentation.
 
 ## Installation
 
@@ -26,7 +26,7 @@ npm install feathers-vuex --save
 yarn add feathers-vuex
 ```
 
-IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes.  If your project uses Babel, it must be configured properly.  See the [Project Configuration](#projectconfiguration) section for more information.
+IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes.  If your project uses Babel, it must be configured properly.  See the [Project Configuration](https://feathers-vuex.netlify.com/api-overview.html#project-configuration) section for more information.
 
 ## Contributing
 
@@ -36,4 +36,4 @@ This repo is pre-configured to work with the Visual Studio Code debugger.  After
 
 Copyright (c) Forever and Ever, or at least the current year.
 
-Licensed under the [MIT license](https://github.com/feathers-plus/feathers-vuex/blob/master/LICENSE).
+Licensed under the [MIT license](https://github.com/feathersjs-ecosystem/feathers-vuex/blob/master/LICENSE).
