@@ -196,6 +196,36 @@ describe('Service Module - Actions', () => {
             assert(response.length === 1, 'only one record was returned')
             assert.deepEqual(
               returnedRecord,
+              { id: 0, description: 'Do the first', isComplete: false },
+              'the first record was returned'
+            )
+            done()
+          })
+      })
+
+      it('find with $select', done => {
+        const { makeServicePlugin, Todo } = makeContext()
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              servicePath: 'my-todos',
+              Model: Todo,
+              service: feathersClient.service('my-todos')
+            })
+          ]
+        })
+        const actions = mapActions('my-todos', ['find'])
+
+        actions.find
+          .call(
+            { $store: store },
+            { query: { $limit: 1, $select: ['id', 'description'] } }
+          )
+          .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
+            assert(response.length === 1, 'only one record was returned')
+            assert.deepEqual(
+              returnedRecord,
               { id: 0, description: 'Do the first' },
               'the first record was returned'
             )
@@ -223,7 +253,7 @@ describe('Service Module - Actions', () => {
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(
               returnedRecord,
-              { id: 9, description: 'Do the tenth' },
+              { id: 9, description: 'Do the tenth', isComplete: false },
               'the tenth record was returned'
             )
             done()
@@ -250,7 +280,7 @@ describe('Service Module - Actions', () => {
             assert(response.length === 1, 'one record was returned')
             assert.deepEqual(
               returnedRecord,
-              { id: 8, description: 'Do the ninth' },
+              { id: 8, description: 'Do the ninth', isComplete: false },
               'the ninth record was returned'
             )
             done()
@@ -274,6 +304,39 @@ describe('Service Module - Actions', () => {
 
         actions.find
           .call({ $store: store }, { query: { $limit: 1 } })
+          .then(response => {
+            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
+            assert(response.data.length === 1, 'only one record was returned')
+            assert.deepEqual(
+              returnedRecord,
+              { id: 0, description: 'Do the first', isComplete: false },
+              'the first record was returned'
+            )
+            assert(response.limit === 1, 'limit was correct')
+            assert(response.skip === 0, 'skip was correct')
+            assert(response.total === 10, 'total was correct')
+            done()
+          })
+      })
+
+      it('find with $select', done => {
+        const { makeServicePlugin, Task } = makeContext()
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              servicePath: 'my-tasks',
+              Model: Task,
+              service: feathersClient.service('my-tasks')
+            })
+          ]
+        })
+        const actions = mapActions('my-tasks', ['find'])
+
+        actions.find
+          .call(
+            { $store: store },
+            { query: { $limit: 1, $select: ['id', 'description'] } }
+          )
           .then(response => {
             const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
             assert(response.data.length === 1, 'only one record was returned')
@@ -309,7 +372,7 @@ describe('Service Module - Actions', () => {
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(
               returnedRecord,
-              { id: 9, description: 'Do the tenth' },
+              { id: 9, description: 'Do the tenth', isComplete: false },
               'the tenth record was returned'
             )
             assert(response.limit === 10, 'limit was correct')
@@ -339,7 +402,7 @@ describe('Service Module - Actions', () => {
             assert(response.data.length === 1, 'only one record was returned')
             assert.deepEqual(
               returnedRecord,
-              { id: 8, description: 'Do the ninth' },
+              { id: 8, description: 'Do the ninth', isComplete: false },
               'the ninth record was returned'
             )
             assert(response.limit === 1, 'limit was correct')
@@ -401,9 +464,7 @@ describe('Service Module - Actions', () => {
         const qid = 'component-name'
 
         actions.find.call({ $store: store }, { query: {}, qid }).then(() => {
-          const qidPaginationState = store.state[
-            'my-tasks'
-          ].pagination[qid]
+          const qidPaginationState = store.state['my-tasks'].pagination[qid]
           assert(qidPaginationState, 'got pagination state for qid')
           done()
         })
@@ -499,7 +560,7 @@ describe('Service Module - Actions', () => {
               service: feathersClient.service('no-ids'),
               idField: '_id',
               actions: {
-                afterFind({ }, response) {
+                afterFind({}, response) {
                   assert(
                     response.data.length === 10,
                     'records were still returned'
@@ -551,7 +612,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Get', function () {
+  describe('Get', function() {
     it('updates store list state on service success', async () => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -577,7 +638,7 @@ describe('Service Module - Actions', () => {
       assert(todoState.isGetPending === false, 'isGetPending is set to false')
 
       let expectedKeyedById: NumberedList = {
-        0: { id: 0, description: 'Do the first' }
+        0: { id: 0, description: 'Do the first', isComplete: false }
       }
       assert.deepEqual(
         JSON.parse(JSON.stringify(todoState.keyedById)),
@@ -587,8 +648,8 @@ describe('Service Module - Actions', () => {
       // Make a request with the array syntax that allows passing params
       const response2 = await actions.get.call({ $store: store }, [1, {}])
       expectedKeyedById = {
-        0: { id: 0, description: 'Do the first' },
-        1: { id: 1, description: 'Do the second' }
+        0: { id: 0, description: 'Do the first', isComplete: false },
+        1: { id: 1, description: 'Do the second', isComplete: false }
       }
       assert(response2.description === 'Do the second')
       assert.deepEqual(
@@ -596,13 +657,17 @@ describe('Service Module - Actions', () => {
         expectedKeyedById
       )
 
-    // Edit the first record in the store so the data is different.
-    // Make a request for the first record again, and it should be updated.
+      // Edit the first record in the store so the data is different.
+      // Make a request for the first record again, and it should be updated.
       const clone1 = todo1.clone()
       clone1.description = 'MODIFIED IN THE VUEX STORE'
       clone1.commit()
 
-      assert.strictEqual(todoState.keyedById[0].description, clone1.description, 'the store instance was updated')
+      assert.strictEqual(
+        todoState.keyedById[0].description,
+        clone1.description,
+        'the store instance was updated'
+      )
 
       const response3 = await actions.get.call({ $store: store }, [0, {}])
       const todo0 = Todo.getFromStore(0)
@@ -638,7 +703,7 @@ describe('Service Module - Actions', () => {
         assert(todoState.errorOnGet === null, 'there was no errorOnGet')
         assert(todoState.isGetPending === false, 'isGetPending is set to false')
         let expectedKeyedById: NumberedList = {
-          0: { id: 0, description: 'Do the first' }
+          0: { id: 0, description: 'Do the first', isComplete: false }
         }
         assert.deepEqual(
           JSON.parse(JSON.stringify(todoState.keyedById)),
@@ -648,8 +713,8 @@ describe('Service Module - Actions', () => {
         // Make a request with the array syntax that allows passing params
         actions.get.call({ $store: store }, [1, {}]).then(response2 => {
           expectedKeyedById = {
-            0: { id: 0, description: 'Do the first' },
-            1: { id: 1, description: 'Do the second' }
+            0: { id: 0, description: 'Do the first', isComplete: false },
+            1: { id: 1, description: 'Do the second', isComplete: false }
           }
           assert(response2.description === 'Do the second')
           assert.deepEqual(
@@ -659,15 +724,15 @@ describe('Service Module - Actions', () => {
 
           // Make a request to an existing record and return the existing data first, then update `keyedById`
           todoState.keyedById = {
-            0: { id: 0, description: 'Do the FIRST' }, // twist the data to see difference
-            1: { id: 1, description: 'Do the second' }
+            0: { id: 0, description: 'Do the FIRST', isComplete: false }, // twist the data to see difference
+            1: { id: 1, description: 'Do the second', isComplete: false }
           }
           actions.get
             .call({ $store: store }, [0, { skipRequestIfExists: true }])
             .then(response3 => {
               expectedKeyedById = {
-                0: { id: 0, description: 'Do the FIRST' },
-                1: { id: 1, description: 'Do the second' }
+                0: { id: 0, description: 'Do the FIRST', isComplete: false },
+                1: { id: 1, description: 'Do the second', isComplete: false }
               }
               assert(response3.description === 'Do the FIRST')
               assert.deepEqual(
@@ -678,8 +743,8 @@ describe('Service Module - Actions', () => {
               // The remote data will never arriive
               setTimeout(() => {
                 expectedKeyedById = {
-                  0: { id: 0, description: 'Do the FIRST' },
-                  1: { id: 1, description: 'Do the second' }
+                  0: { id: 0, description: 'Do the FIRST', isComplete: false },
+                  1: { id: 1, description: 'Do the second', isComplete: false }
                 }
                 assert.deepEqual(
                   JSON.parse(JSON.stringify(todoState.keyedById)),
