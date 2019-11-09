@@ -413,29 +413,33 @@ export function mergeWithAccessors(
 
     // If the destination is not writable, return. Also ignore blacklisted keys.
     // Must explicitly check if writable is false
-    if (destDesc && destDesc.writable === false || blacklist.includes(key)) {
+    if ((destDesc && destDesc.writable === false) || blacklist.includes(key)) {
       return
     }
 
     // Handle Vue observable objects
     if (destIsVueObservable || sourceIsVueObservable) {
       const isObject = _isObject(source[key])
-      const isFeathersVuexInstance = isObject && !!(source[key].constructor.modelName || source[key].constructor.namespace)
+      const isFeathersVuexInstance =
+        isObject &&
+        !!(
+          source[key].constructor.modelName || source[key].constructor.namespace
+        )
       // Do not use fastCopy directly on a feathers-vuex BaseModel instance to keep from breaking reactivity.
       if (isObject && !isFeathersVuexInstance) {
         try {
           const sourceObject = source[key]
           dest[key] = fastCopy(source[key])
         } catch (err) {
-          if(!err.message.includes('getter')) {
+          if (!err.message.includes('getter')) {
             throw err
           }
         }
       } else {
         try {
           dest[key] = source[key]
-        } catch(err) {
-          if(!err.message.includes('getter')) {
+        } catch (err) {
+          if (!err.message.includes('getter')) {
             throw err
           }
         }

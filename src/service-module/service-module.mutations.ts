@@ -40,7 +40,7 @@ export default function makeServiceMutations() {
       }
 
       if (isTemp) {
-        let tempId = item[tempIdField];
+        let tempId = item[tempIdField]
         if (tempId == null) {
           tempId = assignTempId(state, item)
         }
@@ -90,7 +90,11 @@ export default function makeServiceMutations() {
              *
              * If there's no Model class, just call updateOriginal on the incoming data.
              */
-            if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
+            if (
+              Model &&
+              !(item instanceof BaseModel) &&
+              !(item instanceof Model)
+            ) {
               item = new Model(item)
             }
             const original = state.keyedById[id]
@@ -287,12 +291,10 @@ export default function makeServiceMutations() {
       const { idField } = state
       const ids = data.map(i => i[idField])
       const queriedAt = new Date().getTime()
-      const {
-        queryId,
-        queryParams,
-        pageId,
-        pageParams
-      } = getQueryInfo({ qid, query }, response)
+      const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
+        { qid, query },
+        response
+      )
 
       if (!state.pagination[qid]) {
         Vue.set(state.pagination, qid, {})
