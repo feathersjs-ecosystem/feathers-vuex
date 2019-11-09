@@ -38,7 +38,6 @@ function makeContext() {
 
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public id
     public description: string
 
     public constructor(data = {}, options?) {
