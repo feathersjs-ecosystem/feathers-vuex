@@ -301,7 +301,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with sort ascending on integers', function () {
+  it('find with sort ascending on integers', function() {
     const { state } = this
     const params = {
       query: {
@@ -310,13 +310,15 @@ describe('Service Module - Getters', function() {
     }
     const results = find(state)(params)
 
-    results.data.map(i => i.age).reduce((oldest, current) => {
-      assert(current > oldest, 'age should have been older than previous')
-      return current
-    }, 0)
+    results.data
+      .map(i => i.age)
+      .reduce((oldest, current) => {
+        assert(current > oldest, 'age should have been older than previous')
+        return current
+      }, 0)
   })
 
-  it('find with sort descending on integers', function () {
+  it('find with sort descending on integers', function() {
     const { state } = this
     const params = {
       query: {
@@ -325,13 +327,15 @@ describe('Service Module - Getters', function() {
     }
     const results = find(state)(params)
 
-    results.data.map(i => i.age).reduce((oldest, current) => {
-      assert(current < oldest, 'age should have been younger than previous')
-      return current
-    }, 100)
+    results.data
+      .map(i => i.age)
+      .reduce((oldest, current) => {
+        assert(current < oldest, 'age should have been younger than previous')
+        return current
+      }, 100)
   })
 
-  it('find with sort ascending on floats', function () {
+  it('find with sort ascending on floats', function() {
     const { state } = this
     const params = {
       query: {
@@ -340,13 +344,18 @@ describe('Service Module - Getters', function() {
     }
     const results = find(state)(params)
 
-    results.data.map(i => i.teethRemaining).reduce((oldest, current) => {
-      assert(current > oldest, 'teethRemaining should have been older than previous')
-      return current
-    }, 0)
+    results.data
+      .map(i => i.teethRemaining)
+      .reduce((oldest, current) => {
+        assert(
+          current > oldest,
+          'teethRemaining should have been older than previous'
+        )
+        return current
+      }, 0)
   })
 
-  it('find with sort descending on floats', function () {
+  it('find with sort descending on floats', function() {
     const { state } = this
     const params = {
       query: {
@@ -355,9 +364,14 @@ describe('Service Module - Getters', function() {
     }
     const results = find(state)(params)
 
-    results.data.map(i => i.teethRemaining).reduce((oldest, current) => {
-      assert(current < oldest, 'teethRemaining should have been younger than previous')
-      return current
-    }, 100)
+    results.data
+      .map(i => i.teethRemaining)
+      .reduce((oldest, current) => {
+        assert(
+          current < oldest,
+          'teethRemaining should have been younger than previous'
+        )
+        return current
+      }, 100)
   })
 })
