@@ -60,7 +60,8 @@ describe('Utils', function() {
       commit: store.commit,
       req,
       moduleName: 'auth',
-      cookieName: 'feathers-jwt'
+      cookieName: 'feathers-jwt',
+      feathersClient
     })
       .then(() => {
         assert(
@@ -68,8 +69,7 @@ describe('Utils', function() {
           'the token was in place'
         )
         assert(store.state.auth.payload, 'the payload was set')
-        // @ts-ignore
-        return feathersClient.passport.getJWT()
+        return feathersClient.authentication.getAccessToken()
       })
       .then(token => {
         assert.isDefined(token, 'the feathers client storage was set')

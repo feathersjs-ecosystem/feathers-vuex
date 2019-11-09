@@ -174,7 +174,9 @@ export const initAuth = function initAuth(options) {
     commit(`${moduleName}/setAccessToken`, accessToken)
     commit(`${moduleName}/setPayload`, payload)
     if (feathersClient) {
-      return feathersClient.passport.setJWT(accessToken).then(() => payload)
+      return feathersClient.authentication
+        .setAccessToken(accessToken)
+        .then(() => payload)
     }
   }
   return Promise.resolve(payload)
