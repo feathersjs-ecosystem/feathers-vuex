@@ -99,7 +99,8 @@ export default function makeModel(options: FeathersVuexOptions) {
       } = this.constructor as typeof BaseModel
       const id = getId(data, idField)
       const hasValidId = id !== null && id !== undefined
-      const tempId = data && data.hasOwnProperty(tempIdField) && data[tempIdField]
+      const tempId =
+        data && data.hasOwnProperty(tempIdField) ? data[tempIdField] : undefined
       const hasValidTempId = tempId !== null && tempId !== undefined
       const copiesById = keepCopiesInStore
         ? store.state[namespace].copiesById
