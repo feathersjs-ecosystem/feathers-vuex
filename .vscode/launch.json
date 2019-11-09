@@ -13,7 +13,7 @@
         "--require",
         "ts-node/register",
         "-u",
-        "tdd",
+        "bdd",
         "--timeout",
         "999999",
         "--colors",
@@ -37,7 +37,6 @@
       "request": "attach",
       "name": "Attach to Process",
       "port": 5858
-    },
-
+    }
   ]
 }
