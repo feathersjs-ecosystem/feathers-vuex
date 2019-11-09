@@ -16,6 +16,29 @@ import ObjectID from 'bson-objectid'
 import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
 
+interface Query {
+  [key: string]: any
+}
+interface PaginationOptions {
+  default: number
+  max: number
+}
+interface Params {
+  query?: Query
+  paginate?: false | Pick<PaginationOptions, 'max'>
+  provider?: string
+  route?: { [key: string]: string }
+  headers?: { [key: string]: any }
+
+  [key: string]: any // (JL) not sure if we want this
+}
+interface Paginated<T> {
+  total: number
+  limit: number
+  skip: number
+  data: T[]
+}
+
 export function stripSlashes(location: string) {
   return _trim(location, '/')
 }
@@ -283,28 +306,22 @@ export function updateOriginal(original, newData) {
   })
 }
 
-export function getQueryInfo(params = {}, response = {}) {
-  // @ts-ignore
+//@ts-ignore
+export function getQueryInfo(params: Params = {}, response: Paginated = {}) {
   const query = params.query || {}
-  // @ts-ignore
   const qid = params.qid || 'default'
-  // @ts-ignore
-  const $limit = (response.limit !== null && response.limit !== undefined)
-  // @ts-ignore
-    ? response.limit
-    : query.$limit
-  // @ts-ignore
-  const $skip = (response.skip !== null && response.skip !== undefined)
-  // @ts-ignore
-    ? response.skip
-    : query.$skip
+  const $limit =
+    response.limit !== null && response.limit !== undefined
+      ? response.limit
+      : query.$limit
+  const $skip =
+    response.skip !== null && response.skip !== undefined
+      ? response.skip
+      : query.$skip
 
-  // @ts-ignore
   const queryParams = _omit(query, ['$limit', '$skip'])
-  // @ts-ignore
   const queryId = stringify(queryParams)
   const pageParams = $limit !== undefined ? { $limit, $skip } : undefined
-  // @ts-ignore
   const pageId = pageParams ? stringify(pageParams) : undefined
 
   return {
