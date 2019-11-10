@@ -167,7 +167,7 @@
     "steal-mocha": "^2.0.1",
     "testee": "^0.9.0",
     "ts-node": "^8.0.3",
-    "typescript": "^3.4.1",
+    "typescript": "^3.7.2",
     "vue": "^2.6.10",
     "vuepress": "^1.0.2",
     "vuex": "^3.1.0"
