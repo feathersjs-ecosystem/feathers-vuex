@@ -5,7 +5,7 @@
   "homepage": "https:feathers-vuex.feathers-plus.com",
   "main": "dist/",
   "module": "dist/",
-  "types": "src/",
+  "types": "dist/",
   "keywords": [
     "feathers",
     "feathers-plugin"
