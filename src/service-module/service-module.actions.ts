@@ -106,10 +106,14 @@ export default function makeServiceActions(service) {
             })
           } else {
             const id = getId(response, idField)
+            const tempId = tempIds[0]
 
-            await dispatch('addOrUpdate', response)
+            if (id != null && tempId != null) {
+              commit('updateTemp', { id, tempId })
+            }
+            response = await dispatch('addOrUpdate', response)
 
-            response = state.keyedById[id]
+            // response = state.keyedById[id]
           }
           commit('unsetPending', 'create')
           commit('removeTemps', tempIds)
@@ -204,7 +208,10 @@ export default function makeServiceActions(service) {
      *         Feathers client.  The client modifies the params object.
      *   @param response
      */
-    async handleFindResponse({ state, commit, dispatch }, { params, response }) {
+    async handleFindResponse(
+      { state, commit, dispatch },
+      { params, response }
+    ) {
       const { qid = 'default', query } = params
       const { idField } = state
 
@@ -289,6 +296,13 @@ export default function makeServiceActions(service) {
       return response
     },
 
+    /**
+     * Adds or updates an item. If a matching temp record is found in the store,
+     * the temp record will completely replace the existingItem. This is to work
+     * around the common scenario where the realtime `created` event arrives before
+     * the `create` response returns to create the record. The reference to the
+     * original temporary record must be maintained in order to preserve reactivity.
+     */
     async addOrUpdate({ state, commit }, item) {
       const { idField } = state
       let id = getId(item, idField)
@@ -296,17 +310,26 @@ export default function makeServiceActions(service) {
 
       const isIdOk = id !== null && id !== undefined
 
-      if (
-        service.FeathersVuexModel &&
-        !item.isFeathersVuexInstance
-      ) {
+      if (service.FeathersVuexModel && !item.isFeathersVuexInstance) {
         item = new service.FeathersVuexModel(item)
       }
 
-      if (isIdOk) {
-        existingItem ? commit('updateItem', item) : commit('addItem', item)
+      // If the item has a matching temp, update the temp and provide it as the new item.
+      const temp = state.tempsByNewId[id]
+      if (temp) {
+        commit('merge', { dest: temp, source: item })
+        commit('remove__isTemp', temp)
       }
-      return item
+      if (isIdOk) {
+        if (existingItem && temp) {
+          commit('replaceItemWithTemp', { item, temp })
+        } else {
+          existingItem
+            ? commit('updateItem', temp || item)
+            : commit('addItem', temp || item)
+        }
+      }
+      return temp || item
     }
   }
   /**

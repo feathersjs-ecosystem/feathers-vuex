@@ -143,6 +143,32 @@ export default function makeServiceMutations() {
       updateItems(state, items)
     },
 
+    // Adds an _id to a temp record so that that the addOrUpdate action
+    // can migrate the temp to the keyedById state.
+    updateTemp(state, { id, tempId }) {
+      const temp = state.tempsById[tempId]
+      if (state.tempsById) {
+        temp[state.idField] = id
+        state.tempsByNewId[id] = temp
+      }
+    },
+
+    /**
+     * Overwrites the item with matching id with the temp record.
+     * This is to preserve reactivity for temp records.
+     */
+    replaceItemWithTemp(state, { item, temp }) {
+      const id = item[state.idField]
+      if (state.keyedById[id]) {
+        state.keyedById[id] = temp
+        Vue.delete(state.keyedById[id], '__isTemp')
+      }
+    },
+
+    remove__isTemp(state, temp) {
+      Vue.delete(temp, '__isTemp')
+    },
+
     removeItem(state, item) {
       const { idField } = state
       const idToBeRemoved = _isObject(item) ? getId(item, idField) : item
@@ -155,8 +181,18 @@ export default function makeServiceMutations() {
       }
     },
 
-    // Removes temp records
+    // Removes temp records. Also cleans up tempsByNewId
     removeTemps(state, tempIds) {
+      const ids = tempIds.reduce((ids, id) => {
+        const temp = state.tempsById[id]
+        if (temp && temp[state.idField]) {
+          delete temp.__isTemp
+          Vue.delete(temp, '__isTemp')
+          ids.push(temp[state.idField])
+        }
+        return ids
+      }, [])
+      state.tempsByNewId = _omit(state.tempsByNewId, ids)
       state.tempsById = _omit(state.tempsById, tempIds)
     },
 

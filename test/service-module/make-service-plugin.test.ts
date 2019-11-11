@@ -87,6 +87,7 @@ describe('makeServicePlugin', function() {
       servicePath: 'todos',
       skipRequestIfExists: false,
       tempsById: {},
+      tempsByNewId: {},
       whitelist: []
     }
 

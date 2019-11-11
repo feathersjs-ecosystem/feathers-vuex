@@ -15,6 +15,7 @@ import ObjectID from 'bson-objectid'
 
 interface RootState {
   transactions: ServiceState
+  things: ServiceState
 }
 
 class ComicService extends MemoryService {
@@ -50,6 +51,7 @@ function makeContext() {
     }
   }
   const store = new Vuex.Store({
+    strict: true,
     plugins: [
       makeServicePlugin({
         Model: Comic,
@@ -147,7 +149,71 @@ describe('Models - Temp Ids', function() {
     assert(store.state.transactions.tempsById[txn.__id], 'it is in the store')
   })
 
-  it('clones into Model.copiesById', function () {
+  it('maintains reference to temp item after save', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    // Manually set the result in a hook to simulate the server request.
+    feathersClient.service('things').hooks({
+      before: {
+        create: [
+          // Testing removing the __id and __isTemp so they're not sent to the server.
+          context => {
+            delete context.data.__id
+            delete context.data.__isTemp
+          },
+          context => {
+            assert(!context.data.__id, '__id was not sent to API server')
+            assert(!context.data.__id, '__isTemp was not sent to API server')
+            context.result = {
+              id: 1,
+              description: 'Robb Wolf - the Paleo Solution',
+              website:
+                'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+              amount: 1.99
+            }
+            return context
+          }
+        ]
+      }
+    })
+
+    const thing = new Thing({
+      description: 'Robb Wolf - the Paleo Solution',
+      website:
+        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99
+    })
+
+    assert(store.state.things.tempsById[thing.__id], 'item is in the tempsById')
+
+    return thing.save().then(response => {
+      assert(response._id === 1)
+      assert(response.__id, 'the temp id is still intact')
+      assert(!store.state.things.tempsById[response.__id])
+      //@ts-ignore
+      assert(!Object.keys(store.state.things.tempsByNewId).length)
+      assert(response === thing, 'maintained the reference')
+    })
+  })
+
+  it('clones into Model.copiesById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
