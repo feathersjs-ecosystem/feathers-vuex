@@ -5,12 +5,11 @@ eslint
 */
 import sift from 'sift'
 import { _ } from '@feathersjs/commons'
-import dbCommons from '@feathersjs/adapter-commons'
+import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
 import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
 
-const { filterQuery, sorter, select } = dbCommons
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
 const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
 const additionalOperators = ['$elemMatch']
@@ -44,7 +43,7 @@ export default function makeServiceGetters() {
       }
 
       //@ts-ignore
-      values = sift(query, values)
+      values = values.filter(sift(query))
 
       const total = values.length
 
