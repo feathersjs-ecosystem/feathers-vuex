@@ -1,7 +1,7 @@
 # feathers-vuex
 
 [![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex.png?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex)
-[![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
+[![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs-ecosystem/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
 ![feathers-vuex service logo](./service-logo.png)
