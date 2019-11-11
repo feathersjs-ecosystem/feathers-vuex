@@ -2,7 +2,7 @@
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
   "version": "2.2.3",
-  "homepage": "https:feathers-vuex.feathers-plus.com",
+  "homepage": "https:feathers-vuex.feathersjs-ecosystem.com",
   "main": "dist/",
   "module": "dist/",
   "types": "dist/",
@@ -13,16 +13,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/feathers-plus/feathers-vuex.git"
+    "url": "git://github.com/feathersjs-ecosystem/feathers-vuex.git"
   },
   "author": {
     "name": "Marshall Thompson",
     "email": "marshall@creativeideal.net",
-    "url": "https://feathers-plus.github.io."
+    "url": "https://feathersjs-ecosystem.github.io."
   },
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/feathers-plus/feathers-vuex/issues"
+    "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"
   },
   "engines": {
     "node": ">= 4.6.0"

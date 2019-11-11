@@ -43,7 +43,6 @@ export function stripSlashes(location: string) {
   return _trim(location, '/')
 }
 
-//  From feathers-plus/feathers-hooks-common
 export function setByDot(obj, path, value, ifDelete?) {
   if (ifDelete) {
     // eslint-disable-next-line no-console
