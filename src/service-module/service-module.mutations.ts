@@ -285,9 +285,10 @@ export default function makeServiceMutations() {
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original = copy[state.idField]
-          ? state.keyedById[id]
-          : state.tempsById[id]
+        const original =
+          copy[state.idField] != null
+            ? state.keyedById[id]
+            : state.tempsById[id]
         mergeWithAccessors(copy, original)
       }
     },
@@ -304,9 +305,10 @@ export default function makeServiceMutations() {
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original = copy.__isTemp
-          ? state.tempsById[id]
-          : state.keyedById[id]
+        const original =
+          copy[state.idField] != null
+            ? state.keyedById[id]
+            : state.tempsById[id]
         mergeWithAccessors(original, copy)
       }
     },
