@@ -43,6 +43,7 @@ export default function makeServiceGetters() {
         values = values.concat(_.values(state.tempsById))
       }
 
+      //@ts-ignore
       values = sift(query, values)
 
       const total = values.length
