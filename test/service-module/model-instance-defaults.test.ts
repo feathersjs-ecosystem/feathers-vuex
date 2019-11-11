@@ -38,7 +38,6 @@ function makeContext() {
 
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public id
     public description: string
 
     public constructor(data = {}, options?) {
@@ -111,12 +110,12 @@ function makeContext() {
   }
 }
 
-describe('Models - Default Values', function () {
+describe('Models - Default Values', function() {
   beforeEach(() => {
     clearModels()
   })
 
-  it('models default to an empty object when there is no BaseModel.store', function () {
+  it('models default to an empty object when there is no BaseModel.store', function() {
     const { BaseModel } = makeContext()
 
     // Since we're not using this NakedTodo model in a service plugin, it doesn't get
@@ -130,7 +129,7 @@ describe('Models - Default Values', function () {
     assert.deepEqual(todo.toJSON(), {}, 'default model is an empty object')
   })
 
-  it('models have tempIds when there is a store', function () {
+  it('models have tempIds when there is a store', function() {
     const { Todo } = makeContext()
     const todo = new Todo()
 
@@ -143,7 +142,7 @@ describe('Models - Default Values', function () {
     )
   })
 
-  it('adds new instances containing an id to the store', function () {
+  it('adds new instances containing an id to the store', function() {
     const { Todo } = makeContext()
 
     const todo = new Todo({
@@ -156,7 +155,7 @@ describe('Models - Default Values', function () {
     assert.deepEqual(todoInStore, todo, 'task was added to the store')
   })
 
-  it('stores clones in Model.copiesById by default', function () {
+  it('stores clones in Model.copiesById by default', function() {
     const { Todo } = makeContext()
     const todo = new Todo({ id: 1, description: 'This is the original' })
 
@@ -179,7 +178,7 @@ describe('Models - Default Values', function () {
     )
   })
 
-  it('allows instance defaults, including getters and setters', function () {
+  it('allows instance defaults, including getters and setters', function() {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -215,7 +214,7 @@ describe('Models - Default Values', function () {
     assert.equal(car.combined, '1900 Tesla Roadster', 'setters work, too!')
   })
 
-  it('allows overriding default values in the constructor', function () {
+  it('allows overriding default values in the constructor', function() {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -239,7 +238,7 @@ describe('Models - Default Values', function () {
     assert.equal(car.make, 'Porsche', 'default make set')
   })
 
-  it(`uses the class defaults if you don't override them in the constructor`, function () {
+  it(`uses the class defaults if you don't override them in the constructor`, function() {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -283,7 +282,7 @@ describe('Models - Default Values', function () {
     assert.deepEqual(person1.location.coordinates, [0, 0], 'defaults won')
   })
 
-  it('does not share nested objects between instances when you override class defaults in the constructor', function () {
+  it('does not share nested objects between instances when you override class defaults in the constructor', function() {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -319,7 +318,7 @@ describe('Models - Default Values', function () {
     assert(!areSame, 'the locations are different objects')
   })
 
-  it('allows passing instanceDefaults in the service plugin options', function () {
+  it('allows passing instanceDefaults in the service plugin options', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -390,7 +389,7 @@ describe('Models - Default Values', function () {
     assert.equal(person2.lastName, 'Me', 'lastName was set')
   })
 
-  it('instanceDefault accessors stay intact with clone and commit', function () {
+  it('instanceDefault accessors stay intact with clone and commit', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
     })
@@ -463,7 +462,7 @@ describe('Models - Default Values', function () {
     )
   })
 
-  it('instanceDefaults in place after patch', async function () {
+  it('instanceDefaults in place after patch', async function() {
     const { Letter, store, lettersService } = makeLetterContext()
     let letter = new Letter({ name: 'Garmadon', age: 1025 })
 

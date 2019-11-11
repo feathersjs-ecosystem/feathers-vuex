@@ -1,10 +1,11 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "2.0.4",
-  "homepage": "https:feathers-vuex.feathers-plus.com",
+  "version": "2.2.3",
+  "homepage": "https:feathers-vuex.feathersjs-ecosystem.com",
   "main": "dist/",
   "module": "dist/",
+  "types": "dist/",
   "keywords": [
     "feathers",
     "feathers-plugin"
@@ -12,16 +13,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/feathers-plus/feathers-vuex.git"
+    "url": "git://github.com/feathersjs-ecosystem/feathers-vuex.git"
   },
   "author": {
     "name": "Marshall Thompson",
     "email": "marshall@creativeideal.net",
-    "url": "https://feathers-plus.github.io."
+    "url": "https://feathersjs-ecosystem.github.io."
   },
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/feathers-plus/feathers-vuex/issues"
+    "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"
   },
   "engines": {
     "node": ">= 4.6.0"
@@ -39,7 +40,7 @@
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "test": "mocha --require ts-node/register test/**/*.test.ts",
+    "test": "TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register test/**/*.test.ts",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
     "docs:serve": "vuepress dev docs",
@@ -166,7 +167,7 @@
     "steal-mocha": "^2.0.1",
     "testee": "^0.9.0",
     "ts-node": "^8.0.3",
-    "typescript": "^3.4.1",
+    "typescript": "^3.7.2",
     "vue": "^2.6.10",
     "vuepress": "^1.0.2",
     "vuex": "^3.1.0"

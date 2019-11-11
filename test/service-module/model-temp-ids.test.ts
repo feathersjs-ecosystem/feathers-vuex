@@ -15,6 +15,7 @@ import ObjectID from 'bson-objectid'
 
 interface RootState {
   transactions: ServiceState
+  things: ServiceState
 }
 
 class ComicService extends MemoryService {
@@ -50,6 +51,7 @@ function makeContext() {
     }
   }
   const store = new Vuex.Store({
+    strict: true,
     plugins: [
       makeServicePlugin({
         Model: Comic,
@@ -66,12 +68,12 @@ function makeContext() {
   }
 }
 
-describe('Models - Temp Ids', function () {
+describe('Models - Temp Ids', function() {
   beforeEach(() => {
     clearModels()
   })
 
-  it('adds tempIds for items without an [idField]', function () {
+  it('adds tempIds for items without an [idField]', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -105,7 +107,7 @@ describe('Models - Temp Ids', function () {
     assert(desc.enumerable, 'it is enumerable')
   })
 
-  it('allows specifying the value for the tempId', function () {
+  it('allows specifying the value for the tempId', function() {
     const context = makeContext()
     const Comic = context.Comic
     const oid = new ObjectID().toHexString()
@@ -116,7 +118,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(comic.__id, oid, 'the objectid was used')
   })
 
-  it('adds to state.tempsById', function () {
+  it('adds to state.tempsById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -147,7 +149,71 @@ describe('Models - Temp Ids', function () {
     assert(store.state.transactions.tempsById[txn.__id], 'it is in the store')
   })
 
-  it('clones into Model.copiesById', function () {
+  it('maintains reference to temp item after save', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    // Manually set the result in a hook to simulate the server request.
+    feathersClient.service('things').hooks({
+      before: {
+        create: [
+          // Testing removing the __id and __isTemp so they're not sent to the server.
+          context => {
+            delete context.data.__id
+            delete context.data.__isTemp
+          },
+          context => {
+            assert(!context.data.__id, '__id was not sent to API server')
+            assert(!context.data.__id, '__isTemp was not sent to API server')
+            context.result = {
+              id: 1,
+              description: 'Robb Wolf - the Paleo Solution',
+              website:
+                'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+              amount: 1.99
+            }
+            return context
+          }
+        ]
+      }
+    })
+
+    const thing = new Thing({
+      description: 'Robb Wolf - the Paleo Solution',
+      website:
+        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99
+    })
+
+    assert(store.state.things.tempsById[thing.__id], 'item is in the tempsById')
+
+    return thing.save().then(response => {
+      assert(response._id === 1)
+      assert(response.__id, 'the temp id is still intact')
+      assert(!store.state.things.tempsById[response.__id])
+      //@ts-ignore
+      assert(!Object.keys(store.state.things.tempsByNewId).length)
+      assert(response === thing, 'maintained the reference')
+    })
+  })
+
+  it('clones into Model.copiesById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -178,7 +244,7 @@ describe('Models - Temp Ids', function () {
     assert(Transaction.copiesById[txn.__id], 'it is in the copiesById')
   })
 
-  it('commits into store.tempsById', function () {
+  it('commits into store.tempsById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -213,7 +279,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(originalTemp.amount, 11.99, 'original was updated')
   })
 
-  it('can reset a temp clone', function () {
+  it('can reset a temp clone', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'temp-ids'
     })
@@ -245,7 +311,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(clone.amount, 1.99, 'clone was reset')
   })
 
-  it('returns the keyedById record after create, not the tempsById record', function (done) {
+  it('returns the keyedById record after create, not the tempsById record', function(done) {
     const { Comic, store } = makeContext()
 
     const comic = new Comic({

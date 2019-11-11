@@ -19,8 +19,8 @@ interface RootState {
   auth: AuthState
 }
 
-describe('Utils', function () {
-  before(function () {
+describe('Utils', function() {
+  before(function() {
     const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
       feathersClient,
       { serverAlias: 'utils' }
@@ -38,7 +38,7 @@ describe('Utils', function () {
       User
     })
   })
-  it('properly populates auth', function () {
+  it('properly populates auth', function() {
     const store = new Vuex.Store<RootState>({
       plugins: [
         this.makeServicePlugin({
@@ -60,7 +60,8 @@ describe('Utils', function () {
       commit: store.commit,
       req,
       moduleName: 'auth',
-      cookieName: 'feathers-jwt'
+      cookieName: 'feathers-jwt',
+      feathersClient
     })
       .then(() => {
         assert(
@@ -68,16 +69,15 @@ describe('Utils', function () {
           'the token was in place'
         )
         assert(store.state.auth.payload, 'the payload was set')
-        // @ts-ignore
-        return feathersClient.passport.getJWT()
+        return feathersClient.authentication.getAccessToken()
       })
       .then(token => {
         assert.isDefined(token, 'the feathers client storage was set')
       })
   })
 
-  describe('Inflections', function () {
-    it('properly inflects the service prefix', function () {
+  describe('Inflections', function() {
+    it('properly inflects the service prefix', function() {
       const decisionTable = [
         ['todos', 'todos'],
         ['TODOS', 'tODOS'],
@@ -96,7 +96,7 @@ describe('Utils', function () {
       })
     })
 
-    it('properly inflects the service capitalization', function () {
+    it('properly inflects the service capitalization', function() {
       const decisionTable = [
         ['todos', 'Todos'],
         ['TODOS', 'TODOS'],
@@ -127,8 +127,8 @@ describe('Utils', function () {
   })
 })
 
-describe('Pagination', function () {
-  it('getQueryInfo', function () {
+describe('Pagination', function() {
+  it('getQueryInfo', function() {
     const params = {
       qid: 'main-list',
       query: {
@@ -145,28 +145,28 @@ describe('Pagination', function () {
     }
     const info = getQueryInfo(params, response)
     const expected = {
-      'qid': 'main-list',
-      'query': {
-        'test': true,
-        '$limit': 10,
-        '$skip': 0
+      qid: 'main-list',
+      query: {
+        test: true,
+        $limit: 10,
+        $skip: 0
       },
-      'queryId': '{"test":true}',
-      'queryParams': {
-        'test': true
+      queryId: '{"test":true}',
+      queryParams: {
+        test: true
       },
-      'pageParams': {
-        '$limit': 10,
-        '$skip': 0
+      pageParams: {
+        $limit: 10,
+        $skip: 0
       },
-      'pageId': '{"$limit":10,"$skip":0}'
+      pageId: '{"$limit":10,"$skip":0}'
     }
     const diff = deepDiff(info, expected)
 
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 
-  it('getQueryInfo no limit or skip', function () {
+  it('getQueryInfo no limit or skip', function() {
     const params = {
       qid: 'main-list',
       query: {
@@ -181,19 +181,19 @@ describe('Pagination', function () {
     }
     const info = getQueryInfo(params, response)
     const expected = {
-      'qid': 'main-list',
-      'query': {
-        'test': true
+      qid: 'main-list',
+      query: {
+        test: true
       },
-      'queryId': '{"test":true}',
-      'queryParams': {
-        'test': true
+      queryId: '{"test":true}',
+      queryParams: {
+        test: true
       },
-      'pageParams': {
-        '$limit': 10,
-        '$skip': 0
+      pageParams: {
+        $limit: 10,
+        $skip: 0
       },
-      'pageId': '{"$limit":10,"$skip":0}'
+      pageId: '{"$limit":10,"$skip":0}'
     }
     const diff = deepDiff(info, expected)
 

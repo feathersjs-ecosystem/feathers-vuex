@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "outDir": "dist",
     "moduleResolution": "node",
+    "declaration": true,
     "target": "es6",
     "sourceMap": false
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.test.js"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.js"]
 }

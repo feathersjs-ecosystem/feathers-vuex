@@ -23,7 +23,8 @@ export default function makeDefaultState(servicePath, options) {
     ids: [],
     keyedById: {},
     copiesById: {},
-    tempsById: {},
+    tempsById: {}, // Really should be called tempsByTempId
+    tempsByNewId: {}, // temporary storage for temps while getting transferred from tempsById to keyedById
     pagination: {
       defaultLimit: null,
       defaultSkip: null

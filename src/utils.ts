@@ -16,11 +16,33 @@ import ObjectID from 'bson-objectid'
 import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
 
+interface Query {
+  [key: string]: any
+}
+interface PaginationOptions {
+  default: number
+  max: number
+}
+interface Params {
+  query?: Query
+  paginate?: false | Pick<PaginationOptions, 'max'>
+  provider?: string
+  route?: { [key: string]: string }
+  headers?: { [key: string]: any }
+
+  [key: string]: any // (JL) not sure if we want this
+}
+interface Paginated<T> {
+  total: number
+  limit: number
+  skip: number
+  data: T[]
+}
+
 export function stripSlashes(location: string) {
   return _trim(location, '/')
 }
 
-//  From feathers-plus/feathers-hooks-common
 export function setByDot(obj, path, value, ifDelete?) {
   if (ifDelete) {
     // eslint-disable-next-line no-console
@@ -151,7 +173,9 @@ export const initAuth = function initAuth(options) {
     commit(`${moduleName}/setAccessToken`, accessToken)
     commit(`${moduleName}/setPayload`, payload)
     if (feathersClient) {
-      return feathersClient.passport.setJWT(accessToken).then(() => payload)
+      return feathersClient.authentication
+        .setAccessToken(accessToken)
+        .then(() => payload)
     }
   }
   return Promise.resolve(payload)
@@ -283,28 +307,22 @@ export function updateOriginal(original, newData) {
   })
 }
 
-export function getQueryInfo(params = {}, response = {}) {
-  // @ts-ignore
+//@ts-ignore
+export function getQueryInfo(params: Params = {}, response: Paginated = {}) {
   const query = params.query || {}
-  // @ts-ignore
   const qid = params.qid || 'default'
-  // @ts-ignore
-  const $limit = (response.limit !== null && response.limit !== undefined)
-  // @ts-ignore
-    ? response.limit
-    : query.$limit
-  // @ts-ignore
-  const $skip = (response.skip !== null && response.skip !== undefined)
-  // @ts-ignore
-    ? response.skip
-    : query.$skip
+  const $limit =
+    response.limit !== null && response.limit !== undefined
+      ? response.limit
+      : query.$limit
+  const $skip =
+    response.skip !== null && response.skip !== undefined
+      ? response.skip
+      : query.$skip
 
-  // @ts-ignore
   const queryParams = _omit(query, ['$limit', '$skip'])
-  // @ts-ignore
   const queryId = stringify(queryParams)
   const pageParams = $limit !== undefined ? { $limit, $skip } : undefined
-  // @ts-ignore
   const pageId = pageParams ? stringify(pageParams) : undefined
 
   return {
@@ -413,29 +431,33 @@ export function mergeWithAccessors(
 
     // If the destination is not writable, return. Also ignore blacklisted keys.
     // Must explicitly check if writable is false
-    if (destDesc && destDesc.writable === false || blacklist.includes(key)) {
+    if ((destDesc && destDesc.writable === false) || blacklist.includes(key)) {
       return
     }
 
     // Handle Vue observable objects
     if (destIsVueObservable || sourceIsVueObservable) {
       const isObject = _isObject(source[key])
-      const isFeathersVuexInstance = isObject && !!(source[key].constructor.modelName || source[key].constructor.namespace)
+      const isFeathersVuexInstance =
+        isObject &&
+        !!(
+          source[key].constructor.modelName || source[key].constructor.namespace
+        )
       // Do not use fastCopy directly on a feathers-vuex BaseModel instance to keep from breaking reactivity.
       if (isObject && !isFeathersVuexInstance) {
         try {
           const sourceObject = source[key]
           dest[key] = fastCopy(source[key])
         } catch (err) {
-          if(!err.message.includes('getter')) {
+          if (!err.message.includes('getter')) {
             throw err
           }
         }
       } else {
         try {
           dest[key] = source[key]
-        } catch(err) {
-          if(!err.message.includes('getter')) {
+        } catch (err) {
+          if (!err.message.includes('getter')) {
             throw err
           }
         }

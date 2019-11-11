@@ -22,11 +22,11 @@ The mixin utilities provide the same functionality as the components, but with m
 
 As of version 2.0, Feathers-Vuex has been rewritten in TypeScript.
 
-See [this issue](https://github.com/feathers-plus/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
+See [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
 
 ## Clearing data upon user logout
 
-The best solution is to simply refresh to clear memory.  The alternative to refreshing would be to perform manual cleanup of the service stores.  Refreshing is much simpler, so it's the officially supported solution.  Feel free to read [this issue](https://github.com/feathers-plus/feathers-vuex/issues/10) for more suggestions.
+The best solution is to simply refresh to clear memory.  The alternative to refreshing would be to perform manual cleanup of the service stores.  Refreshing is much simpler, so it's the officially supported solution.  Feel free to read [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/10) for more suggestions.
 
 ## Accessing the store from hooks
 
@@ -259,7 +259,7 @@ See the [instanceDefaults API](./model-classes.html#instancedefaults)
 
 ## Model-Specific Computed Properties
 
-You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathers-plus/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
+You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
 
 ```js
 class Post extends BaseModel {

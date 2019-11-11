@@ -4,17 +4,17 @@ sidebarDepth: 3
 ---
 
 <!--- Usage ------------------------------------------------------------------------------------ -->
-[![Build Status](https://travis-ci.org/feathers-plus/feathers-vuex.png?branch=master)](https://travis-ci.org/feathers-plus/feathers-vuex)
-[![Dependency Status](https://img.shields.io/david/feathers-plus/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathers-plus/feathers-vuex)
+[![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex.png?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-vuex)
+[![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-vuex.svg?style=flat-square)](https://david-dm.org/feathersjs-ecosystem/feathers-vuex)
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 
-![feathers-vuex service logo](https://github.com/feathers-plus/feathers-vuex/raw/master/service-logo.png)
+![feathers-vuex service logo](https://github.com/feathersjs-ecosystem/feathers-vuex/raw/master/service-logo.png)
 
 > Integrate the Feathers Client into Vuex
 
 `feathers-vuex` is a first class integration of the Feathers Client and Vuex.  It implements many Redux best practices under the hood, eliminates *a lot* of boilerplate code, and still allows you to easily customize the Vuex store.
 
-These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://feathers-vuex-v1.netlify.com](feathers-vuex-v1.netlify.com).
+These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://feathers-vuex-v1.netlify.com](https://feathers-vuex-v1.netlify.com).
 
 ## Features
 
@@ -287,7 +287,7 @@ There are two plugins included:
 1. The [Service Plugin](./service-plugin.md) adds a Vuex store for new services.
 2. The [Auth Plugin](./auth-plugin.md) sets up the Vuex store for authentication / logout.
 
-To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathers-plus/feathers-chat-vuex).
+To see `feathers-vuex` in a working vue-cli application, check out [`feathers-chat-vuex`](https://github.com/feathersjs-ecosystem/feathers-chat-vuex).
 
 ### Global Configuration
 

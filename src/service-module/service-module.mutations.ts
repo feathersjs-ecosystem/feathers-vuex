@@ -40,7 +40,7 @@ export default function makeServiceMutations() {
       }
 
       if (isTemp) {
-        let tempId = item[tempIdField];
+        let tempId = item[tempIdField]
         if (tempId == null) {
           tempId = assignTempId(state, item)
         }
@@ -90,7 +90,11 @@ export default function makeServiceMutations() {
              *
              * If there's no Model class, just call updateOriginal on the incoming data.
              */
-            if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
+            if (
+              Model &&
+              !(item instanceof BaseModel) &&
+              !(item instanceof Model)
+            ) {
               item = new Model(item)
             }
             const original = state.keyedById[id]
@@ -139,6 +143,32 @@ export default function makeServiceMutations() {
       updateItems(state, items)
     },
 
+    // Adds an _id to a temp record so that that the addOrUpdate action
+    // can migrate the temp to the keyedById state.
+    updateTemp(state, { id, tempId }) {
+      const temp = state.tempsById[tempId]
+      if (state.tempsById) {
+        temp[state.idField] = id
+        state.tempsByNewId[id] = temp
+      }
+    },
+
+    /**
+     * Overwrites the item with matching id with the temp record.
+     * This is to preserve reactivity for temp records.
+     */
+    replaceItemWithTemp(state, { item, temp }) {
+      const id = item[state.idField]
+      if (state.keyedById[id]) {
+        state.keyedById[id] = temp
+        Vue.delete(state.keyedById[id], '__isTemp')
+      }
+    },
+
+    remove__isTemp(state, temp) {
+      Vue.delete(temp, '__isTemp')
+    },
+
     removeItem(state, item) {
       const { idField } = state
       const idToBeRemoved = _isObject(item) ? getId(item, idField) : item
@@ -151,8 +181,18 @@ export default function makeServiceMutations() {
       }
     },
 
-    // Removes temp records
+    // Removes temp records. Also cleans up tempsByNewId
     removeTemps(state, tempIds) {
+      const ids = tempIds.reduce((ids, id) => {
+        const temp = state.tempsById[id]
+        if (temp && temp[state.idField]) {
+          delete temp.__isTemp
+          Vue.delete(temp, '__isTemp')
+          ids.push(temp[state.idField])
+        }
+        return ids
+      }, [])
+      state.tempsByNewId = _omit(state.tempsByNewId, ids)
       state.tempsById = _omit(state.tempsById, tempIds)
     },
 
@@ -245,9 +285,10 @@ export default function makeServiceMutations() {
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original = copy.__isTemp
-          ? state.tempsById[id]
-          : state.keyedById[id]
+        const original =
+          copy[state.idField] != null
+            ? state.keyedById[id]
+            : state.tempsById[id]
         mergeWithAccessors(copy, original)
       }
     },
@@ -264,9 +305,10 @@ export default function makeServiceMutations() {
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original = copy.__isTemp
-          ? state.tempsById[id]
-          : state.keyedById[id]
+        const original =
+          copy[state.idField] != null
+            ? state.keyedById[id]
+            : state.tempsById[id]
         mergeWithAccessors(original, copy)
       }
     },
@@ -287,12 +329,10 @@ export default function makeServiceMutations() {
       const { idField } = state
       const ids = data.map(i => i[idField])
       const queriedAt = new Date().getTime()
-      const {
-        queryId,
-        queryParams,
-        pageId,
-        pageParams
-      } = getQueryInfo({ qid, query }, response)
+      const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
+        { qid, query },
+        response
+      )
 
       if (!state.pagination[qid]) {
         Vue.set(state.pagination, qid, {})

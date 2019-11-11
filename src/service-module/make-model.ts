@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
-import  _merge from 'lodash/merge'
+import _merge from 'lodash/merge'
 import _get from 'lodash/get'
 
 // A hack to prevent error with this.constructor.preferUpdate
@@ -99,16 +99,17 @@ export default function makeModel(options: FeathersVuexOptions) {
       } = this.constructor as typeof BaseModel
       const id = getId(data, idField)
       const hasValidId = id !== null && id !== undefined
-      const tempId = data && data.hasOwnProperty(tempIdField) && data[tempIdField]
+      const tempId =
+        data && data.hasOwnProperty(tempIdField) ? data[tempIdField] : undefined
       const hasValidTempId = tempId !== null && tempId !== undefined
       const copiesById = keepCopiesInStore
         ? store.state[namespace].copiesById
         : copiesByIdOnModel
 
-
-      const existingItem = hasValidId && !options.clone
-        ? getFromStore.call(this.constructor, id)
-        : null
+      const existingItem =
+        hasValidId && !options.clone
+          ? getFromStore.call(this.constructor, id)
+          : null
 
       // If it already exists, update the original and return
       if (existingItem) {
@@ -118,12 +119,16 @@ export default function makeModel(options: FeathersVuexOptions) {
       }
 
       // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
-      const existingClone = (hasValidId || hasValidTempId) && options.clone
-        ? copiesById[id] || copiesById[tempId]
-        : null
+      const existingClone =
+        (hasValidId || hasValidTempId) && options.clone
+          ? copiesById[id] || copiesById[tempId]
+          : null
       if (existingClone) {
         // This must be done in a mutation to avoid Vuex errors.
-        _commit.call(this.constructor, 'merge', { dest: existingClone, source: data })
+        _commit.call(this.constructor, 'merge', {
+          dest: existingClone,
+          source: data
+        })
         return existingClone
       }
 
@@ -137,7 +142,8 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Setup instanceDefaults
       if (instanceDefaults && typeof instanceDefaults === 'function') {
-        const defaults = instanceDefaults.call(this, data, { models, store }) || data
+        const defaults =
+          instanceDefaults.call(this, data, { models, store }) || data
         mergeWithAccessors(this, defaults)
       }
 
@@ -152,7 +158,7 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       // Add the item to the store
       // Make sure originalData wasn't an empty object.
-      if (!options.clone && options.commit !== false && store && originalData) {
+      if (!options.clone && options.commit !== false && store) {
         _commit.call(this.constructor, 'addItem', this)
       }
       return this
@@ -239,7 +245,8 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+      const id =
+        getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
       return this._clone(id)
     }
 
@@ -264,7 +271,10 @@ export default function makeModel(options: FeathersVuexOptions) {
         .constructor as typeof BaseModel
 
       if (this.__isClone) {
-        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+        const id =
+          getId(this, idField) != null
+            ? getId(this, idField)
+            : this[tempIdField]
         _commit.call(this.constructor, 'resetCopy', id)
         return this
       } else {
@@ -279,7 +289,10 @@ export default function makeModel(options: FeathersVuexOptions) {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
-        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+        const id =
+          getId(this, idField) != null
+            ? getId(this, idField)
+            : this[tempIdField]
         _commit.call(this.constructor, 'commitCopy', id)
 
         return _getters.call(this.constructor, 'get', id)
@@ -324,17 +337,11 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       if (id == null) {
         const error = new Error(
-          `Missing ${
-          idField
-          } property. You must create the data before you can patch with this data`
+          `Missing ${idField} property. You must create the data before you can patch with this data`
         )
         return Promise.reject(error)
       }
-      return _dispatch.call(this.constructor, 'patch', [
-        id,
-        this,
-        params
-      ])
+      return _dispatch.call(this.constructor, 'patch', [id, this, params])
     }
 
     /**
@@ -347,17 +354,11 @@ export default function makeModel(options: FeathersVuexOptions) {
 
       if (!id) {
         const error = new Error(
-          `Missing ${
-          idField
-          } property. You must create the data before you can update with this data`
+          `Missing ${idField} property. You must create the data before you can update with this data`
         )
         return Promise.reject(error)
       }
-      return _dispatch.call(this.constructor, 'update', [
-        id,
-        this,
-        params
-      ])
+      return _dispatch.call(this.constructor, 'update', [id, this, params])
     }
 
     /**
@@ -373,7 +374,7 @@ export default function makeModel(options: FeathersVuexOptions) {
         if (params && params.eager) {
           _commit.call(this.constructor, 'removeItem', id)
         }
-        return _dispatch.call(this.constructor, 'remove', [ id, params ])
+        return _dispatch.call(this.constructor, 'remove', [id, params])
       } else {
         _commit.call(this.constructor, 'removeTemps', [this[tempIdField]])
         return Promise.resolve(this)
