@@ -123,7 +123,6 @@ export default function makeServiceActions(service) {
     },
 
     update({ commit, dispatch, state }, [id, data, params]) {
-
       commit('setPending', 'update')
 
       params = fastCopy(params)

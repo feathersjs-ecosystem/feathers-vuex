@@ -15,7 +15,7 @@ import _omit from 'lodash/omit'
 
 Vue.use(Vuex)
 
-describe('makeServicePlugin', function () {
+describe('makeServicePlugin', function() {
   beforeEach(() => {
     clearModels()
   })
@@ -27,7 +27,7 @@ describe('makeServicePlugin', function () {
     assert(clients.byAlias['this is a test'], 'got a reference to the client.')
   })
 
-  it('registers the vuex module with options', function () {
+  it('registers the vuex module with options', function() {
     interface RootState {
       todos: {}
     }
@@ -93,7 +93,7 @@ describe('makeServicePlugin', function () {
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
   })
 
-  it('sets up Model.store && service.FeathersVuexModel', function () {
+  it('sets up Model.store && service.FeathersVuexModel', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
@@ -113,7 +113,7 @@ describe('makeServicePlugin', function () {
     assert.equal(service.FeathersVuexModel, Todo, 'Model accessible on service')
   })
 
-  it('allows accessing other models', function () {
+  it('allows accessing other models', function() {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',

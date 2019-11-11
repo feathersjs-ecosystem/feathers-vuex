@@ -66,12 +66,12 @@ function makeContext() {
   }
 }
 
-describe('Models - Temp Ids', function () {
+describe('Models - Temp Ids', function() {
   beforeEach(() => {
     clearModels()
   })
 
-  it('adds tempIds for items without an [idField]', function () {
+  it('adds tempIds for items without an [idField]', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -105,7 +105,7 @@ describe('Models - Temp Ids', function () {
     assert(desc.enumerable, 'it is enumerable')
   })
 
-  it('allows specifying the value for the tempId', function () {
+  it('allows specifying the value for the tempId', function() {
     const context = makeContext()
     const Comic = context.Comic
     const oid = new ObjectID().toHexString()
@@ -116,7 +116,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(comic.__id, oid, 'the objectid was used')
   })
 
-  it('adds to state.tempsById', function () {
+  it('adds to state.tempsById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -178,7 +178,7 @@ describe('Models - Temp Ids', function () {
     assert(Transaction.copiesById[txn.__id], 'it is in the copiesById')
   })
 
-  it('commits into store.tempsById', function () {
+  it('commits into store.tempsById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -213,7 +213,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(originalTemp.amount, 11.99, 'original was updated')
   })
 
-  it('can reset a temp clone', function () {
+  it('can reset a temp clone', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'temp-ids'
     })
@@ -245,7 +245,7 @@ describe('Models - Temp Ids', function () {
     assert.equal(clone.amount, 1.99, 'clone was reset')
   })
 
-  it('returns the keyedById record after create, not the tempsById record', function (done) {
+  it('returns the keyedById record after create, not the tempsById record', function(done) {
     const { Comic, store } = makeContext()
 
     const comic = new Comic({
