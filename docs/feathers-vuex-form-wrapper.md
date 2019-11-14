@@ -37,7 +37,7 @@ The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to c
     <template v-slot="{ clone, save, reset, remove }">
       <SomeEditor
         :item="clone"
-        @save="save({ /* params object */ }).then(handleSaveResponse)"
+        @save="save().then(handleSaveResponse)"
         @reset="reset"
         @remove="remove"
       ></SomeEditor>
