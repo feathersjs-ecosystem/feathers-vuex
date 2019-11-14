@@ -31,19 +31,79 @@ Send most edits through a single mutation can really simplify the way you work w
 
 The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to connect a single record to a child form within its default slot.
 
-```html
-<FeathersVuexFormWrapper :item="currentItem" watch>
-  <template v-slot="{ clone, save, reset, remove }">
-    <SomeEditor
-      :item="clone"
-      @save="save"
-      @reset="reset"
-      @remove="remove"
-    ></SomeEditor>
-  </template>
-</FeathersVuexFormWrapper>
+```vue
+<template>
+  <FeathersVuexFormWrapper :item="currentItem" watch>
+    <template v-slot="{ clone, save, reset, remove }">
+      <SomeEditor
+        :item="clone"
+        @save="save({ /* params object */ }).then(handleSaveResponse)"
+        @reset="reset"
+        @remove="remove"
+      ></SomeEditor>
+    </template>
+  </FeathersVuexFormWrapper>
+</template>
+
+<script>
+export default {
+  name: 'MyComponent',
+  props: {
+    currentItem: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    handleSaveReponse(savedItem) {
+      console.log(savedItem) // The item returned from the API call
+    }
+  }
+}
+</script>
 ```
 
+Here's another example of how you could use the form wrapper to both save the form and close a modal at the same time.  (The modal is not shown in the template markup.) Notice how the `@save` handler is an inline function that sets `isModalVisible` to false, then on a new line it calls save. This is handled perfectly by Vue.
+
+```vue
+<template>
+  <FeathersVuexFormWrapper :item="currentItem" watch>
+    <template v-slot="{ clone, save, reset, remove }">
+      <SomeEditor
+        :item="clone"
+        @save="
+          () => {
+            isModalVisible = false
+            save({ populateParams: {} })
+          }
+        "
+        @reset="reset"
+        @remove="remove"
+      ></SomeEditor>
+    </template>
+  </FeathersVuexFormWrapper>
+</template>
+
+<script>
+export default {
+  name: 'MyComponent',
+  props: {
+    currentItem: {
+      type: Object,
+      required: true
+    }
+  },
+  data: () => ({
+    isModalVisible: true
+  }),
+  methods: {
+    handleSaveReponse(savedItem) {
+      console.log(savedItem) // The item returned from the API call
+    }
+  }
+}
+</script>
+```
 ### Props
 
 - `item`: {Object} a model instance from the Vuex store.
@@ -55,6 +115,6 @@ The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to c
 The default slot contains only four attributes.  The `clone` data can be passed to the child component.  The `save`, `reset`, and `remove` are meant to be bound to events emitted from the child component.
 
 - `clone`: {Object} The cloned record.  Each record in the store can have a single clone.  The clones are stored on the service's model class, by default.
-- `save`: {Function} When called, it commits the data and saves the record (with eager updating, by default.  See the `eager` prop.).
+- `save`: {Function} When called, it commits the data and saves the record (with eager updating, by default.  See the `eager` prop.)  The save method calls `instance.save()`, internally, so you can pass a params object, if needed.
 - `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
 - `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
