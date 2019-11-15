@@ -62,7 +62,7 @@ export default {
 
 ## FeathersVuexFind
 
-The `FeathersVuexFind` component retrieves data fomr the APi server, puts it in the Vuex store, then transparently retrieves the live, reactive data from the store and displays it to the user.
+The `FeathersVuexFind` component retrieves data from the API server, puts it in the Vuex store, then transparently retrieves the live, reactive data from the store and displays it to the user.
 
 ```vue
 <FeathersVuexFind service="users" :query="{}" watch="query">
