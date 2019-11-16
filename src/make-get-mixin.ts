@@ -55,11 +55,15 @@ export default function makeFindMixin(options) {
   const ERROR = `${prefix}Error`
   const GET_ACTION = `get${capitalized}`
   const GET_GETTER = `get${capitalized}FromStore`
+  const HAS_ITEM_BEEN_REQUESTED_ONCE = `has${capitalized}BeenRequestedOnce`
+  const HAS_ITEM_LOADED_ONCE = `has${capitalized}LoadedOnce`
   const LOCAL = `${prefix}Local`
   const QID = `${prefix}Qid`
   const ID = `${prefix}Id`
   const data = {
     [IS_GET_PENDING]: false,
+    [HAS_ITEM_BEEN_REQUESTED_ONCE]: false,
+    [HAS_ITEM_LOADED_ONCE]: false,
     [WATCH]: watch,
     [QID]: qid,
     [ERROR]: null
@@ -94,6 +98,7 @@ export default function makeFindMixin(options) {
         if (!this[LOCAL]) {
           if (this[QUERY_WHEN]) {
             this[IS_GET_PENDING] = true
+            this[HAS_ITEM_BEEN_REQUESTED_ONCE] = true
 
             if (idToUse != null) {
               return this.$store
@@ -102,6 +107,7 @@ export default function makeFindMixin(options) {
                   // To prevent thrashing, only clear ERROR on response, not on initial request.
                   this[ERROR] = null
 
+                  this[HAS_ITEM_LOADED_ONCE] = true
                   this[IS_GET_PENDING] = false
                   return response
                 })
