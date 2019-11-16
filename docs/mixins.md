@@ -99,6 +99,8 @@ Based on what options you provide to each mixin, some dynamically-generated prop
 makeFindMixin({ service: 'videos' }) = {
   data: () => ({
     isFindVideosPending: false,
+    haveVideosBeenRequestedOnce: false,
+    haveVideosLoadedOnce: false,
     videosLocal: false,
     videosQid: 'default',
     videosQueryWhen: true,
@@ -131,6 +133,8 @@ If you were to handle two queries from the same service, you would use the `name
 makeFindMixin({ service: 'videos', name: 'myVideos' }) = {
   data: () => ({
     isFindMyVideosPending: false,
+    haveMyVideosBeenRequestedOnce: false,
+    haveMyVideosLoadedOnce: false,
     myVideosLocal: false,
     myVideosQid: 'default',
     myVideosQueryWhen: true,
