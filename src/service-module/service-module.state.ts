@@ -42,11 +42,11 @@ export default function makeDefaultState(servicePath, options) {
     errorOnCreate: null,
     errorOnUpdate: null,
     errorOnPatch: null,
-    errorOnRemove: null
+    errorOnRemove: null,
+    modelName: null as string | null
   }
 
   if (options.Model) {
-    // @ts-ignore
     state.modelName = options.Model.modelName
   }
 

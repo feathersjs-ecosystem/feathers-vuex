@@ -15,6 +15,7 @@ import _get from 'lodash/get'
 import ObjectID from 'bson-objectid'
 import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
+import { Service } from '@feathersjs/feathers'
 
 interface Query {
   [key: string]: any
@@ -307,10 +308,9 @@ export function updateOriginal(original, newData) {
   })
 }
 
-//@ts-ignore
-export function getQueryInfo(params: Params = {}, response: Paginated = {}) {
+export function getQueryInfo(params: Params = {}, response: Partial<Pick<Paginated<any>, 'limit' | 'skip'>> = {}) {
   const query = params.query || {}
-  const qid = params.qid || 'default'
+  const qid: string = params.qid || 'default'
   const $limit =
     response.limit !== null && response.limit !== undefined
       ? response.limit
@@ -331,7 +331,9 @@ export function getQueryInfo(params: Params = {}, response: Paginated = {}) {
     queryId,
     queryParams,
     pageParams,
-    pageId
+    pageId,
+    response: undefined,
+    isOutdated: undefined as boolean | undefined
   }
 }
 
@@ -362,17 +364,15 @@ export function makeNamespace(namespace, servicePath, nameStyle) {
  * @param service
  * @param modelName
  */
-export function getServicePath(service: any, Model: 'any') {
-  // @ts-ignore
+export function getServicePath(service: Service<any>, Model: any) {
   if (!service.name && !service.path && !Model.servicePath) {
     throw new Error(
       `Service for model named ${
-        // @ts-ignore
         Model.name
       } is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by adding a static servicePath =  passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
     )
   }
-  // @ts-ignore
+
   return service.path || service.name || Model.servicePath
 }
 
