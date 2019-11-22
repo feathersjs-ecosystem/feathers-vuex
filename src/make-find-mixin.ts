@@ -189,9 +189,7 @@ export default function makeFindMixin(options) {
 
                   this[HAVE_ITEMS_LOADED_ONCE] = true
                   const queryInfo = getQueryInfo(paramsToUse, response)
-                  // @ts-ignore
                   queryInfo.response = response
-                  // @ts-ignore
                   queryInfo.isOutdated = false
 
                   this[MOST_RECENT_QUERY] = queryInfo
