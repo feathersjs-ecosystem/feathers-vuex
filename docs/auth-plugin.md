@@ -53,7 +53,7 @@ If you provided a `userService` and have correctly configured your `entityIdFiel
 
 ## Example
 
-Here's a short example that implements the `authenticate` and `logout` actions:
+Here's a short example that implements the `authenticate` and `logout` actions.
 
 ```js
 export default {
@@ -77,3 +77,5 @@ export default {
   // ...
 }
 ```
+
+Note that if you customize the auth plugin's `namespace` then the `auth/` prefix in the above example would change to the provided namespace.
