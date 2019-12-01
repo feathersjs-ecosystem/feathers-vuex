@@ -50,3 +50,30 @@ The following actions are included in the `auth` module.  Login is accomplished 
 If you provided a `userService` and have correctly configured your `entityIdField` and `responseEntityField` (the defaults work with Feathers V4 out of the box), the `user` state will be updated with the logged-in user.  The record will also be reactive, which means when the user record updates (in the users service) the auth user will automatically update, as well.
 
 > Note: The Vuex auth store will not update if you use the feathers client version of the above methods.
+
+## Example
+
+Here's a short example that implements the `authenticate` and `logout` actions:
+
+```js
+export default {
+  // ...
+  methods: {
+
+    login() {
+      this.$store.dispatch('auth/authenticate' {
+        email: '...',
+        password: '...'
+      })
+    }
+
+    // ...
+
+    logout() {
+      this.$store.dispatch('auth/logout')
+    }
+
+  }
+  // ...
+}
+```
