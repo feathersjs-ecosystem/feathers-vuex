@@ -28,6 +28,7 @@ mockServer.on('things::remove', function(id) {
   mockServer.emit('things removed', { id, test: true })
 })
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function makeFeathersSocketClient(baseUrl) {
   const socket = io(baseUrl)
 
@@ -36,6 +37,7 @@ export function makeFeathersSocketClient(baseUrl) {
     .configure(auth())
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function makeFeathersRestClient(baseUrl) {
   return feathers()
     .configure(rest(baseUrl).axios(axios))
