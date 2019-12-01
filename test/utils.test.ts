@@ -145,6 +145,7 @@ describe('Pagination', function() {
     }
     const info = getQueryInfo(params, response)
     const expected = {
+      isOutdated: undefined,
       qid: 'main-list',
       query: {
         test: true,
@@ -159,10 +160,12 @@ describe('Pagination', function() {
         $limit: 10,
         $skip: 0
       },
-      pageId: '{"$limit":10,"$skip":0}'
+      pageId: '{"$limit":10,"$skip":0}',
+      response: undefined
     }
     const diff = deepDiff(info, expected)
 
+    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 
@@ -181,6 +184,7 @@ describe('Pagination', function() {
     }
     const info = getQueryInfo(params, response)
     const expected = {
+      isOutdated: undefined,
       qid: 'main-list',
       query: {
         test: true
@@ -193,10 +197,12 @@ describe('Pagination', function() {
         $limit: 10,
         $skip: 0
       },
-      pageId: '{"$limit":10,"$skip":0}'
+      pageId: '{"$limit":10,"$skip":0}',
+      response: undefined
     }
     const diff = deepDiff(info, expected)
 
+    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 })
