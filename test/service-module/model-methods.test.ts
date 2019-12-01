@@ -165,6 +165,21 @@ describe('Models - Methods', function () {
     assert(typeof Task.getFromStore === 'function')
   })
 
+  it('allows listening to Feathers events on Model', function (done) {
+    const { Letter } = makeContext()
+
+    Letter.on('created', data => {
+      assert(data.to === 'Santa', 'received event with data')
+      done()
+    })
+
+    // This should trigger an event from the bottom of make-service-plugin.ts
+    const letter = new Letter({
+      from: 'Me',
+      to: 'Santa'
+    }).save()
+  })
+
   it('instance.save calls create with correct arguments', function () {
     const { Task } = makeContext()
     const task = new Task({ test: true })

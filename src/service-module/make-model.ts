@@ -8,6 +8,7 @@ import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
+import EventEmitter from 'events'
 
 // A hack to prevent error with this.constructor.preferUpdate
 interface Function {
@@ -385,6 +386,10 @@ export default function makeModel(options: FeathersVuexOptions) {
       return _merge({}, this)
     }
   }
+  for (var n in EventEmitter.prototype) {
+    BaseModel[n] = EventEmitter.prototype[n]
+  }
+
   addModel(BaseModel)
   return BaseModel
 }

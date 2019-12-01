@@ -84,6 +84,22 @@ describe('makeModel / BaseModel', function () {
         `has ${method} method`
       )
     })
+
+    const eventMethods = [
+      'on',
+      'off',
+      'once',
+      'emit',
+      'addListener',
+      'removeListener',
+      'removeAllListeners'
+    ]
+    eventMethods.forEach(method => {
+      assert(
+        typeof BaseModel[method] === 'function',
+        `has ${method} method`
+      )
+    })
   })
 
   it('allows customization through the FeathersVuexOptions', function () {
