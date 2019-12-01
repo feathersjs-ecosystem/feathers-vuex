@@ -4,7 +4,15 @@ title: Nuxt
 
 ## Working with Auth & Nuxt
 
-`feathers-vuex@1.0.0` ships with utilities that help with Nuxt auth related to JSON Web Tokens (JWT).  The most important utility is the `initAuth` utility.  It's for use during Nuxt's `nuxtServerInit` method, and sets up auth data automatically.  Here's an example store that uses it:
+`feathers-vuex@1.0.0^` ships with utilities that help with Nuxt auth related to JSON Web Tokens (JWT).  The most important utility is the `initAuth` utility.  It's for use during Nuxt's `nuxtServerInit` method, and sets up auth data automatically.
+
+`initAuth` will do the following:
+1. Get the accessToken from the `req` passed in
+2. Get the payload from the token
+3. commit the token and payload to the store with `setAccessToken` and `setPayload`
+4. Set the access token on the feathers client instance so that the next time authenticate is called, it will have the JWT from the `req` to authenticate with the server.
+
+Here's an example store that uses it:
 
 ```js
 import Vuex from 'vuex'
@@ -27,6 +35,7 @@ const createStore = () => {
           commit,
           dispatch,
           req,
+          feathersClient,
           moduleName: 'auth',
           cookieName: 'feathers-jwt'
         })
