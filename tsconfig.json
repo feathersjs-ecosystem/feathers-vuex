@@ -4,9 +4,9 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "moduleResolution": "node",
-    "declaration": true,
     "target": "es6",
-    "sourceMap": false
+    "sourceMap": false,
+    "declaration": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.test.js"]
