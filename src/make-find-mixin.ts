@@ -247,7 +247,7 @@ export default function makeFindMixin(options) {
               params: this[PARAMS],
               fetchParams: this[FETCH_PARAMS]
             })
-            if (paramsToUse.debounce) {
+            if (paramsToUse && paramsToUse.debounce) {
               this[IS_FIND_PENDING] = true
             }
             return this[`${FIND_ACTION}DebouncedProxy`]()
