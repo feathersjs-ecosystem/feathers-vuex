@@ -145,7 +145,9 @@ Remove an event handler.
 
 ## Model Events <Badge text="2.3.0+" />
 
-Model classes are EventEmitter instances which emit service events when received (technically, EventEmitter methods are mixed onto each Model class).  All FeathersJS events are supported.  Here’s an example of how to use it in a component:
+Model classes are EventEmitter instances which emit service events when received (technically, EventEmitter methods are mixed onto each Model class).  All FeathersJS events are supported.  Oh, and one more thing: it works with `feathers-rest` (you won't receive socket events, but you can listen for when instances are created in other parts of the app.)
+
+Here’s an example of how to use it in a component:
 
 ```js
 export default {
