@@ -154,6 +154,9 @@ export default {
    created() {
       this.$FeathersVuex.api.Todo.on(‘created’, this.handleTodoCreated)
    },
+   destroyed() {
+      this.$FeathersVuex.api.Todo.off(‘created’, this.handleTodoCreated)
+   },
    methods: {
       handleTodoCreated(todo) {
          console.log(todo)
@@ -164,7 +167,7 @@ export default {
 
 Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom methods:
 
-```
+```js
 const { Todo } = this.$FeathersVuex.api
 
 Todo.on('custom-event', data => {
