@@ -131,6 +131,46 @@ A new `setupinstance` class method is now available in version 2.0.  The functio
   - `store` - The vuex store
   - `Models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
 
+### on <Badge text="2.3.0+" />
+
+Register event handlers to listen to events.
+
+### once <Badge text="2.3.0+" />
+
+Register an event handler that only occurs once.
+
+### off <Badge text="2.3.0+" />
+
+Remove an event handler.
+
+## Model Events <Badge text="2.3.0+" />
+
+Model classes are EventEmitter instances which emit service events when received (technically, EventEmitter methods are mixed onto each Model class).  All FeathersJS events are supported.  Here’s an example of how to use it in a component:
+
+```js
+export default {
+   created() {
+      this.$FeathersVuex.api.Todo.on(‘created’, this.handleTodoCreated)
+   },
+   methods: {
+      handleTodoCreated(todo) {
+         console.log(todo)
+      }
+   }
+}
+```
+
+Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom methods:
+
+```
+const { Todo } = this.$FeathersVuex.api
+
+Todo.on('custom-event', data => {
+  console.log(data) // { test: true }
+})
+
+Todo.emit('custom-event', { test: true })
+```
 
 ## Creating instances
 
