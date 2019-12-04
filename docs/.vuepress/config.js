@@ -13,6 +13,7 @@ module.exports = {
       '/auth-plugin.md',
       '/model-classes.md',
       '/common-patterns.md',
+      '/composition-api.md',
       '/mixins.md',
       '/data-components.md',
       '/feathers-vuex-form-wrapper.md',

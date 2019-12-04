@@ -26,23 +26,23 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - Feathers Query Syntax
 - Vuex Strict Mode Support
 - Client-Side Pagination Support
-- Fall-Through Caching *
-- [`$FeathersVuex` Plugin for Vue](./vue-plugin.md) *
-- [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults) *
-- Clone & Commit *
-- Simplified Auth *
-- Per-Record Defaults *
-- Data Level Computed Properties *
-- Improved Relation Support *
-- Powerful Mixins *
-- Renderless Data Components *
-- Renderless Form Component **
-- Temporary (Local-only) Record Support **
-- Server-Powered Pagination Support **
-- [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs **
+- Fall-Through Caching
+- [`$FeathersVuex` Plugin for Vue](./vue-plugin.md)
+- [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults)
+- Clone & Commit
+- Simplified Auth
+- Per-Record Defaults
+- Data Level Computed Properties
+- Improved Relation Support
+- Powerful Mixins
+- Renderless Data Components
+- Renderless Form Component *
+- Temporary (Local-only) Record Support *
+- Server-Powered Pagination Support *
+- [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs
+- New `useFind` and `useGet` [Vue Composition API] super powers! <Badge text="3.0.0+" />
 
-`* Improved in v2.0.0`<br />
-`** New in v2.0.0`
+`** Improved in v3.0.0`
 
 ## Installation
 
