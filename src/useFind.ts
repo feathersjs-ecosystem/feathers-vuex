@@ -36,7 +36,7 @@ export default function find(options) {
   const PAGINATION = `${prefix}PaginationData`
   const MOST_RECENT_QUERY = `${prefix}LatestQuery`
   const ERROR = `${prefix}Error`
-  const QID = qid
+  const QID = `${prefix}Qid`
 
   const getFetchParams = (providedParams?:object) => {
     if (providedParams) {
