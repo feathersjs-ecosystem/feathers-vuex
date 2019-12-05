@@ -3,7 +3,8 @@ import {
   getServicePrefix,
   getServiceCapitalization,
   getQueryInfo,
-  getItemsFromQueryInfo
+  getItemsFromQueryInfo,
+  Params
 } from './utils'
 import debounce from 'lodash/debounce'
 
@@ -49,15 +50,17 @@ export default function find(options) {
   }
 
   const state = reactive({
+    // The find getter
     [prefix]: computed(() => {
-      if (params.paginate) {
+      const getterParams:Params = isRef(params) ? { ...params.value } : { params }
+      if (getterParams.paginate) {
         const serviceState = model.store.state[model.servicePath]
         const { defaultSkip, defaultLimit } = serviceState.pagination
-        const skip = params.query.$skip || defaultSkip
-        const limit = params.query.$limit || defaultLimit
-        const pagination = state[PAGINATION][params.qid || state[QID]] || {}
+        const skip = getterParams.query.$skip || defaultSkip
+        const limit = getterParams.query.$limit || defaultLimit
+        const pagination = state[PAGINATION][getterParams.qid || state[QID]] || {}
         const response = skip != null && limit != null ? { limit, skip } : {}
-        const queryInfo = getQueryInfo(params, response)
+        const queryInfo = getQueryInfo(getterParams, response)
         const items = getItemsFromQueryInfo(
           pagination,
           queryInfo,
@@ -67,7 +70,7 @@ export default function find(options) {
           return items
         }
       } else {
-        return model.findInStore(params).data
+        return model.findInStore(getterParams).data
       }
     }),
     [QID]: qid,
