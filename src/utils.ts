@@ -40,6 +40,8 @@ interface Paginated<T> {
   data: T[]
 }
 
+export { Query, PaginationOptions, Params, Paginated }
+
 export function stripSlashes(location: string) {
   return _trim(location, '/')
 }
