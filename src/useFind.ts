@@ -52,6 +52,7 @@ export default function find(options) {
   const state = reactive({
     // The find getter
     [prefix]: computed(() => {
+      // @ts-ignore
       const getterParams:Params = isRef(params) ? { ...params.value } : { params }
       if (getterParams.paginate) {
         const serviceState = model.store.state[model.servicePath]
