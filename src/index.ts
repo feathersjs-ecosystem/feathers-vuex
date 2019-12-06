@@ -5,6 +5,7 @@ eslint
 */
 import FeathersVuexFind from './FeathersVuexFind'
 import FeathersVuexGet from './FeathersVuexGet'
+import FeathersVuexFormWrapper from './FeathersVuexFormWrapper'
 import makeFindMixin from './make-find-mixin'
 import makeGetMixin from './make-get-mixin'
 import { globalModels as models } from './service-module/global-models'
@@ -68,6 +69,7 @@ export {
   initAuth,
   FeathersVuexFind,
   FeathersVuexGet,
+  FeathersVuexFormWrapper,
   FeathersVuex,
   makeFindMixin,
   makeGetMixin,
