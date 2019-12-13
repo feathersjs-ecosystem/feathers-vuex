@@ -126,3 +126,122 @@ The default slot contains only four attributes.  The `clone` data can be passed 
 - `save`: {Function} When called, it commits the data and saves the record (with eager updating, by default.  See the `eager` prop.)  The save method calls `instance.save()`, internally, so you can pass a params object, if needed.
 - `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
 - `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
+
+## Example Usage: CRUD Form
+
+It's a pretty common scenario to have the same form handle editing and creating data.  Below is a basic example of how you could use the FeathersVuexFormWrapper for this.  A few things to notice about the example:
+
+1. It uses a `Todo` Model class to create and edit todos.  The `$FeathersVuex` object is available on `this` only when the [Feathers-Vuex Vue plugin](./vue-plugin.md) is used.
+2. It assumes that you have a route setup with an `:id` parameter.
+3. It assumes that the data has a MongoDB-style `_id` property, where an SQL-based service would probably use `id`.
+
+```vue
+<template>
+  <FeathersVuexFormWrapper :item="item" watch>
+    <template v-slot="{ clone, save, reset, remove }">
+      <TodoEditor
+        :item="clone"
+        @save="save().then(handleSaveResponse)"
+        @reset="reset"
+        @remove="remove"
+      ></TodoEditor>
+    </template>
+  </FeathersVuexFormWrapper>
+</template>
+
+<script>
+import { FeathersVuexFormWrapper } from 'feathers-vuex'
+import TodoEditor from './TodoEditor.vue'
+
+export default {
+  name: 'Todo',
+  components: {
+    FeathersVuexFormWrapper,
+    TodoEditor
+  },
+  props: {
+    currentItem: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    id() {
+      return this.$route.params.id
+    },
+    // Returns a new Todo if the route `id` is 'new', or returns an existing Todo.
+    item() {
+      const { Todo } = this.$FeathersVuex.api
+
+      return this.id === 'new' ? new Todo() : Todo.getFromStore(this.id)
+    },
+  },
+  watch: {
+    id: {
+      handler(val) {
+        // Early return if the route `:id` is 'new'
+        if (val === 'new') {
+          return
+        }
+        const { Todo } = this.$FeathersVuex.api
+        const existingRecord = Todo.getFromStore(val)
+
+        // If the record doesn't exist, fetch it from the API server
+        // The `item` getter will automatically update after the data arrives.
+        if (!existingRecord) {
+          Todo.get(val)
+        }
+      },
+      // We want the above handler handler to run immediately when the component is created.
+      immediate: true
+    }
+  },
+  methods: {
+    handleSaveReponse(savedTodo) {
+      // Redirect to the newly-saved item
+      if (this.id === 'new') {
+        this.$router.push({ params: { id: savedTodo._id } })
+      }
+    }
+  }
+}
+</script>
+```
+
+Here is a minimal example showing a 'TodoEditor' component.  A few things to notice about this component:
+
+1. It's minimal on purpose to show you the important parts of working with the `FeathersVuexFormWrapper`.
+1. It emits the `save`, `reset`, and `remove` events, which are connected to the `FeathersVuexFormWrapper` in the above code snippet.
+1. It's not styled to keep it simple.  You'll probably want to add some styles.  ;)
+1. The Delete button immediately emits remove, so the instance will be deleted immediately.  You probably want, instead, to show a prompt or confirmation dialog to ask the user to confirm deletion.
+1. This is HTML, so the button `type` is important.  If you forget to add `type="button"` to a button, it will default to `type="submit"`.  Clicking the button would submit the form and call the `@submit.prevent` handler on the `<form>` element.  This even applies to buttons inside child components of the form.  You definitely want to remember to put `type` attributes on all of your buttons.
+
+```vue
+<template>
+  <form @submit.prevent="$emit('save')">
+    <input type="checkbox" v-model="item.isComplete" />
+    <input type="text" v-model="item.description" />
+
+    <!-- Submits the form, see the @submit handler, above -->
+    <button type="submit">Save</button>
+
+    <!-- Emitting reset will restore the item back to the stored version. -->
+    <button type="button" @click="$emit('reset')>Reset</button>
+
+    <!-- Delete's the instance -->
+    <button type="button" @click="$emit('remove')>Delete</button>
+  </form>
+</template>
+
+<script>
+export default {
+  name: 'TodoEditor',
+  props: {
+    item: {
+      type: Object,
+      required: true
+    }
+  }
+}
+</script>
+```
