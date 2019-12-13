@@ -202,7 +202,7 @@ export default {
 }
 ```
 
-Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom methods:
+Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom event names:
 
 ```js
 const { Todo } = this.$FeathersVuex.api
