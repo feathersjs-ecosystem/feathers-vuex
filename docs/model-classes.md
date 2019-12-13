@@ -113,23 +113,60 @@ created () {
 
 `instanceDefaults(data, { store, Models })`
 
+The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app.  Depending on the complexity of the service's "business logic", it can save a lot of boilerplate.  Notice that it is similar to the `setupInstance` method added in 2.0.  The instanceDefaults method should ONLY be used to return default values for a new instance.  Use `setupInstance` to handle other transformations on the data.
+
 Starting with version 2.0, `instanceDefaults` must be provided as a function.  The function will be called with the following arguments and should return an object of default properties for new instances.
 
 - `data {Object}` - The instance data
 - An `utils` object containing these props:
   - `store` - The vuex store
-  - `Models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
+  - `models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
+
+As an example, a User model class might look like this:
+
+```js
+instanceDefaults(data, { store, models }) {
+  return {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    isAdmin: false
+  }
+}
+```
+
+With the above attributes in place, you no longer have to manually specify any of the listed attributes.  You can, however, provided data to replace them.  Calling `new User({ firstName: 'Marshall' })` will create the instance with the `firstName` filled in, already.
+
+One important note, the `isAdmin` attribute is specified in the above example in order to allow immediate binding in a form.  You would pretty much NEVER allow specifying `isAdmin` from the client and storing it on the server.  Attributes related to roles and app security should pretty much ALWAYS be written in hooks on the API server.
 
 ### setupInstance  <Badge text="2.0.0+" />
 
 `setupInstance(data, { store, Models })`
 
-A new `setupinstance` class method is now available in version 2.0.  The function will be called with the following arguments and should return an object of default properties for new instances.
+A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
+
+The function will be called with the following arguments and should return an object of default properties for new instances.
 
 - `data {Object}` - The instance data
-- An `utils` object containing these props:
+- A `utils` object containing these props:
   - `store` - The vuex store
-  - `Models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
+  - `models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
+
+For an example of how you might use `setupInstance`, suppose we have two services: Users and Posts.  Assume that the API request to get a user includes their `posts`, already populated on the data.  The `instanceDefaults` allows us to convert the array of `posts` into an array of `Post` instances.
+
+```js
+// The setupInstance method on an imaginary User model.
+setupInstance(data, { store, models }) {
+  if (data.posts) {
+    // Turn posts into an array of Post instances
+    data.posts = data.posts.map(p => new models.Todo(p))
+  }
+  return data
+}
+```
+
+With the above `setupInstance` method in place, each `User` instance now stores a direct reference to the `Post` records in the store.
 
 ### on <Badge text="2.3.0+" />
 
@@ -165,7 +202,7 @@ export default {
 }
 ```
 
-Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom methods:
+Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom event names:
 
 ```js
 const { Todo } = this.$FeathersVuex.api

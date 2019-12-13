@@ -112,6 +112,17 @@ build: {
 }
 ```
 
+## Vue DevTools
+
+Since Feathers-Vuex extensively uses Vuex under the hood, you'll want to make sure your VueJS developer tools are up to date AND setup properly.  Specifically, the "New Vuex Backend" needs to be enabled.  To setup the devtools
+
+1. Open the Vue tab of the developer tools while viewing your Vue project in the browser.
+1. Go to the Settings panel.
+1. Enable the new Vuex backend:
+
+![New Vuex Backend in Vue DevTools](/img/devtools.jpg)
+
+When the above setting is not enabled, the Vue Devtools will likely hang when you start working on a large project.
 
 ## Setup
 
