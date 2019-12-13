@@ -129,6 +129,8 @@ The default slot contains only four attributes.  The `clone` data can be passed 
 
 ## Example Usage: CRUD Form
 
+### TodoView
+
 It's a pretty common scenario to have the same form handle editing and creating data.  Below is a basic example of how you could use the FeathersVuexFormWrapper for this.  A few things to notice about the example:
 
 1. It uses a `Todo` Model class to create and edit todos.  The `$FeathersVuex` object is available on `this` only when the [Feathers-Vuex Vue plugin](./vue-plugin.md) is used.
@@ -154,7 +156,7 @@ import { FeathersVuexFormWrapper } from 'feathers-vuex'
 import TodoEditor from './TodoEditor.vue'
 
 export default {
-  name: 'Todo',
+  name: 'TodoView',
   components: {
     FeathersVuexFormWrapper,
     TodoEditor
@@ -208,7 +210,10 @@ export default {
 </script>
 ```
 
-Here is a minimal example showing a 'TodoEditor' component.  A few things to notice about this component:
+
+### TodoEditor
+
+Next let's look at a minimal example of a 'TodoEditor' component which is a child of the `FeathersVuexFormWrapper` in the above example.  A few things to notice about the below `TodoEditor` component:
 
 1. It's minimal on purpose to show you the important parts of working with the `FeathersVuexFormWrapper`.
 1. It emits the `save`, `reset`, and `remove` events, which are connected to the `FeathersVuexFormWrapper` in the above code snippet.
