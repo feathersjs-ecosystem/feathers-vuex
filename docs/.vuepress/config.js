@@ -1,6 +1,7 @@
 module.exports = {
   title: 'FeathersVuex',
   description: 'Integration of FeathersJS, Vue, and Nuxt for the artisan developer',
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   theme: 'default-prefers-color-scheme',
   themeConfig: {
     repo: 'feathersjs-ecosystem/feathers-vuex',
