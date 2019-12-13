@@ -46,8 +46,12 @@ The `FeathersVuexFormWrapper` component uses the "clone and commit" pattern to c
 </template>
 
 <script>
+
+import { FeathersVuexFormWrapper } from 'feathers-vuex'
+
 export default {
   name: 'MyComponent',
+  components: { FeathersVuexFormWrapper },
   props: {
     currentItem: {
       type: Object,
@@ -85,8 +89,12 @@ Here's another example of how you could use the form wrapper to both save the fo
 </template>
 
 <script>
+
+import { FeathersVuexFormWrapper } from 'feathers-vuex'
+
 export default {
   name: 'MyComponent',
+  components: { FeathersVuexFormWrapper },
   props: {
     currentItem: {
       type: Object,
