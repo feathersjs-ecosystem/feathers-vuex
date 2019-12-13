@@ -138,7 +138,7 @@ instanceDefaults(data, { store, models }) {
 
 With the above attributes in place, you no longer have to manually specify any of the listed attributes.  You can, however, provided data to replace them.  Calling `new User({ firstName: 'Marshall' })` will create the instance with the `firstName` filled in, already.
 
-One important note, the `isAdmin` attribute is specified in order to allow immediate binding in a form.  You would pretty much NEVER allow specifying `isAdmin` from the client and storing it on the server.  Attributes related to roles and app security should pretty much ALWAYS be written in hooks on the API server.
+One important note, the `isAdmin` attribute is specified in the above example in order to allow immediate binding in a form.  You would pretty much NEVER allow specifying `isAdmin` from the client and storing it on the server.  Attributes related to roles and app security should pretty much ALWAYS be written in hooks on the API server.
 
 ### setupInstance  <Badge text="2.0.0+" />
 
