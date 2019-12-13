@@ -92,7 +92,7 @@ module.exports = {
 }
 ```
 
-## Quasar
+### Quasar
 
 For Quasar apps, `transpileDependencies` can be updated in `quasar.conf.js` under build as
 
@@ -102,7 +102,7 @@ build: {
 }
 ```
 
-## Nuxt
+### Nuxt
 
 If your project uses Nuxt, add the following to your `nuxt.config.js` file:
 
