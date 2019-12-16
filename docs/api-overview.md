@@ -29,18 +29,18 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - Fall-Through Caching
 - [`$FeathersVuex` Plugin for Vue](./vue-plugin.md)
 - [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults)
-- Clone & Commit
+- [Clone & Commit](./feathers-vuex-form-wrapper.md#the-clone-and-commit-pattern)
 - Simplified Auth
-- Per-Record Defaults
-- Data Level Computed Properties
-- Improved Relation Support
-- Powerful Mixins
-- Renderless Data Components
-- Renderless Form Component *
-- Temporary (Local-only) Record Support *
+- [Per-Record Defaults](./model-classes.md#instancedefaults)
+- [Data Level Computed Properties](./2.0-major-release.md#getter-and-setter-props-go-on-the-model-classes)
+- [Improved Relation Support](./2.0-major-release.md#define-relationships-and-modify-data-with-setupinstance)
+- [Powerful Mixins](./mixins.md)
+- [Renderless Data Components](./data-components.md)
+- [Renderless Form Component](./feathers-vuex-form-wrapper.md#feathersvuexformwrapper) for Simplified Vuex Forms
+- [Temporary (Local-only) Record Support](./2.0-major-release.md#support-for-temporary-records) *
 - Server-Powered Pagination Support *
 - [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs
-- New `useFind` and `useGet` [Vue Composition API] super powers! <Badge text="3.0.0+" />
+- New `useFind` and `useGet` Vue Composition API super powers! <Badge text="3.0.0+" />
 
 `** Improved in v3.0.0`
 
