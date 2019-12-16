@@ -25,7 +25,7 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - Live Queries
 - Feathers Query Syntax
 - Vuex Strict Mode Support
-- Client-Side Pagination Support
+- [Client-Side Pagination Support](./service-plugin.md#pagination-and-the-find-getter)
 - Fall-Through Caching
 - [`$FeathersVuex` Plugin for Vue](./vue-plugin.md)
 - [Per-Service Data Modeling](./common-patterns.md#Basic-Data-Modeling-with-instanceDefaults)
@@ -38,7 +38,7 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - [Renderless Data Components](./data-components.md)
 - [Renderless Form Component](./feathers-vuex-form-wrapper.md#feathersvuexformwrapper) for Simplified Vuex Forms
 - [Temporary (Local-only) Record Support](./2.0-major-release.md#support-for-temporary-records) *
-- Server-Powered Pagination Support *
+- [Server-Powered Pagination Support](./service-plugin.md#pagination-and-the-find-action) *
 - [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs
 
 `* Improved in v2.0.0`<br />
