@@ -138,7 +138,7 @@
     "@typescript-eslint/parser": "^2.9.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.1",
-    "@vue/test-utils": "^1.0.0-beta.29",
+    "@vue/test-utils": "^1.0.0-beta.30",
     "axios": "^0.19.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -170,7 +170,8 @@
     "testee": "^0.9.1",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2",
-    "vue": "^2.6.10",
+    "vue": "^2.6.11",
+    "vue-template-compiler": "^2.6.11",
     "vuepress": "^1.2.0",
     "vuex": "^3.1.2"
   }
