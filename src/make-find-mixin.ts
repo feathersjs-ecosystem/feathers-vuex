@@ -82,7 +82,7 @@ export default function makeFindMixin(options) {
       return providedParams
     } else {
       // Returning null fetchParams allows the query to be skipped.
-      return (fetchParams || fetchParams === null) ? fetchParams : params
+      return fetchParams || fetchParams === null ? fetchParams : params
     }
   }
 
@@ -100,7 +100,10 @@ export default function makeFindMixin(options) {
 
         // If both queries are provided, we're not using fall-through pagination.
         // User can pass `paginate: false` to force old behavior with a single query.
-        if (this[FETCH_PARAMS] && this[PARAMS] || this[PARAMS] && this[PARAMS].paginate === false) {
+        if (
+          (this[FETCH_PARAMS] && this[PARAMS]) ||
+          (this[PARAMS] && this[PARAMS].paginate === false)
+        ) {
           return this.$store.getters[`${serviceName}/find`](this[PARAMS]).data
         }
 
@@ -113,7 +116,11 @@ export default function makeFindMixin(options) {
           const pagination = this[PAGINATION][params.qid || this[QID]] || {}
           const response = skip != null && limit != null ? { limit, skip } : {}
           const queryInfo = getQueryInfo(params, response)
-          const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
+          const items = getItemsFromQueryInfo(
+            pagination,
+            queryInfo,
+            serviceState.keyedById
+          )
 
           if (items && items.length) {
             return items
@@ -149,9 +156,15 @@ export default function makeFindMixin(options) {
           const cachedDebounceFunction = this[`${FIND_ACTION}Debounced`]
           const mostRecentTime = this[`${FIND_ACTION}MostRecentDebounceTime`]
 
-          if (!cachedDebounceFunction || mostRecentTime != paramsToUse.debounce) {
+          if (
+            !cachedDebounceFunction ||
+            mostRecentTime != paramsToUse.debounce
+          ) {
             this[`${FIND_ACTION}MostRecentDebounceTime`] = paramsToUse.debounce
-            this[`${FIND_ACTION}Debounced`] = debounce(this[FIND_ACTION], paramsToUse.debounce)
+            this[`${FIND_ACTION}Debounced`] = debounce(
+              this[FIND_ACTION],
+              paramsToUse.debounce
+            )
           }
           return this[`${FIND_ACTION}Debounced`](paramsToUse)
         } else {
@@ -167,9 +180,10 @@ export default function makeFindMixin(options) {
         })
 
         if (!this[LOCAL]) {
-          const shouldExecuteQuery = typeof this[QUERY_WHEN] === 'function'
-            ? this[QUERY_WHEN](paramsToUse)
-            : this[QUERY_WHEN]
+          const shouldExecuteQuery =
+            typeof this[QUERY_WHEN] === 'function'
+              ? this[QUERY_WHEN](paramsToUse)
+              : this[QUERY_WHEN]
 
           if (shouldExecuteQuery) {
             if (paramsToUse) {
@@ -212,7 +226,8 @@ export default function makeFindMixin(options) {
         const pagination = this[PAGINATION]
         const { qid, queryId, pageId } = getQueryInfo(params)
         const queryInfo = _get(pagination, `[${qid}][${queryId}]`) || {}
-        const pageInfo = _get(pagination, `[${qid}][${queryId}][${pageId}]`) || {}
+        const pageInfo =
+          _get(pagination, `[${qid}][${queryId}][${pageId}]`) || {}
 
         return { queryInfo, pageInfo }
       }

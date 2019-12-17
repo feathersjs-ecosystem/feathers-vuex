@@ -105,10 +105,10 @@ export function readCookie(cookies, name) {
   if (!cookies) {
     return undefined
   }
-  var nameEQ = name + '='
-  var ca = cookies.split(';')
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i]
+  const nameEQ = name + '='
+  const ca = cookies.split(';')
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i]
     while (c.charAt(0) === ' ') {
       c = c.substring(1, c.length)
     }
@@ -142,7 +142,7 @@ const authDefaults = {
 export function getValidPayloadFromToken(token) {
   if (token) {
     try {
-      var payload = decode(token)
+      const payload = decode(token)
       return payloadIsValid(payload) ? payload : undefined
     } catch (error) {
       return undefined
@@ -240,7 +240,7 @@ export function getModelName(Model) {
 
 export function registerModel(Model, globalModels, apiPrefix, servicePath) {
   const modelName = getModelName(Model)
-  let path = apiPrefix ? `${apiPrefix}.${modelName}` : modelName
+  const path = apiPrefix ? `${apiPrefix}.${modelName}` : modelName
 
   setByDot(globalModels, path, Model)
   globalModels.byServicePath[servicePath] = Model
@@ -284,7 +284,8 @@ export function updateOriginal(original, newData) {
       // If the old prop is null or undefined, and the new prop is neither
     } else if (
       (oldProp === null || oldProp === undefined) &&
-      (newProp !== null && newProp !== undefined)
+      newProp !== null &&
+      newProp !== undefined
     ) {
       shouldCopyProp = true
       // If both old and new are arrays
@@ -310,7 +311,10 @@ export function updateOriginal(original, newData) {
   })
 }
 
-export function getQueryInfo(params: Params = {}, response: Partial<Pick<Paginated<any>, 'limit' | 'skip'>> = {}) {
+export function getQueryInfo(
+  params: Params = {},
+  response: Partial<Pick<Paginated<any>, 'limit' | 'skip'>> = {}
+) {
   const query = params.query || {}
   const qid: string = params.qid || 'default'
   const $limit =
@@ -369,9 +373,7 @@ export function makeNamespace(namespace, servicePath, nameStyle) {
 export function getServicePath(service: Service<any>, Model: any) {
   if (!service.name && !service.path && !Model.servicePath) {
     throw new Error(
-      `Service for model named ${
-        Model.name
-      } is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by adding a static servicePath =  passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
+      `Service for model named ${Model.name} is missing a path or name property. The feathers adapter needs to be updated with a PR to expose this property. You can work around this by adding a static servicePath =  passing a 'servicePath' attribute in the options: makeServicePlugin({servicePath: '/path/to/my/service'})`
     )
   }
 
@@ -380,7 +382,7 @@ export function getServicePath(service: Service<any>, Model: any) {
 
 export function randomString(length) {
   let text = ''
-  let possible =
+  const possible =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
   for (let i = 0; i < length; i++) {
@@ -413,8 +415,8 @@ export function mergeWithAccessors(
 ) {
   const sourceProps = Object.getOwnPropertyNames(source)
   const destProps = Object.getOwnPropertyNames(dest)
-  let sourceIsVueObservable = sourceProps.includes('__ob__')
-  let destIsVueObservable = destProps.includes('__ob__')
+  const sourceIsVueObservable = sourceProps.includes('__ob__')
+  const destIsVueObservable = destProps.includes('__ob__')
   sourceProps.forEach(key => {
     const sourceDesc = Object.getOwnPropertyDescriptor(source, key)
     const destDesc = Object.getOwnPropertyDescriptor(dest, key)
@@ -505,7 +507,7 @@ export function checkNamespace(namespace, item, debug) {
 }
 
 export function assignIfNotPresent(Model, props): void {
-  for (let key in props) {
+  for (const key in props) {
     if (!Model.hasOwnProperty(key)) {
       Model[key] = props[key]
     }

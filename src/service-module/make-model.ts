@@ -386,7 +386,7 @@ export default function makeModel(options: FeathersVuexOptions) {
       return _merge({}, this)
     }
   }
-  for (var n in EventEmitter.prototype) {
+  for (const n in EventEmitter.prototype) {
     BaseModel[n] = EventEmitter.prototype[n]
   }
 
