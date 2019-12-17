@@ -13,21 +13,11 @@ import {
 import { getQueryInfo, getItemsFromQueryInfo, Params } from './utils'
 import debounce from 'lodash/debounce'
 
-const defaults = {
-  model: null,
-  params: null,
-  queryWhen: (): boolean => true,
-  qid: 'default',
-  local: false,
-  lazy: false
-}
-
 interface UseFindOptions {
   model: Function
   params: Params | Ref<Params>
   fetchParams?: Params | Ref<Params>
-  name?: string
-  queryWhen?: Function
+  queryWhen?: Ref<Function>
   qid?: string
   lazy?: boolean
 }
@@ -50,15 +40,20 @@ interface UseFindData {
   isLocal: Ref<boolean>
   qid: Ref<string>
   debounceTime: Ref<number>
-  find: Function
-  findInStore: Function
   latestQuery: Ref<object>
   paginationData: Ref<object>
-  queryWhen: Ref<boolean>
   error: Ref<Error>
 }
 
 export default function find(options: UseFindOptions): UseFindData {
+  const defaults = {
+    model: null,
+    params: null,
+    qid: 'default',
+    queryWhen: computed((): boolean => true),
+    local: false,
+    lazy: false
+  }
   const { model, params, queryWhen, qid, local, lazy } = Object.assign(
     {},
     defaults,
@@ -122,7 +117,6 @@ export default function find(options: UseFindOptions): UseFindData {
         return model.findInStore(getterParams).data
       }
     }),
-    queryWhen: computed<boolean>(() => queryWhen()),
     paginationData: computed(() => {
       return model.store.state[model.servicePath].pagination
     }),
@@ -131,7 +125,7 @@ export default function find(options: UseFindOptions): UseFindData {
 
   function find<T>(params: Params): T {
     params = isRef(params) ? params.value : params
-    if (computes.queryWhen.value) {
+    if (queryWhen.value && !state.isLocal) {
       state.isFindPending = true
       state.haveBeenRequestedOnce = true
 
@@ -181,8 +175,6 @@ export default function find(options: UseFindOptions): UseFindData {
 
   return {
     ...computes,
-    ...toRefs(state),
-    find: model.find,
-    findInStore: model.findInStore
+    ...toRefs(state)
   }
 }
