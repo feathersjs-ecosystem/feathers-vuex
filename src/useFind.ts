@@ -1,65 +1,111 @@
-import { reactive, computed, toRefs, isRef, watch } from '@vue/composition-api'
+/*
+eslint
+@typescript-eslint/no-explicit-any: 0
+*/
 import {
-  getServicePrefix,
-  getServiceCapitalization,
-  getQueryInfo,
-  getItemsFromQueryInfo,
-  Params
-} from './utils'
+  reactive,
+  computed,
+  toRefs,
+  isRef,
+  watch,
+  Ref
+} from '@vue/composition-api'
+import { getQueryInfo, getItemsFromQueryInfo, Params } from './utils'
 import debounce from 'lodash/debounce'
 
 const defaults = {
   model: null,
   params: null,
-  queryWhen: () => true,
-  qid: 'default'
+  queryWhen: (): boolean => true,
+  qid: 'default',
+  local: false
 }
 
-export default function find(options) {
-  const { model, params, name, queryWhen, qid } = Object.assign(
+interface UseFindOptions {
+  model: Function
+  params: Params | Ref<Params>
+  fetchParams?: Params | Ref<Params>
+  name?: string
+  queryWhen?: Function
+  qid?: string
+}
+interface UseFindState {
+  debounceTime: null | number
+  qid: string
+  isFindPending: boolean
+  haveBeenRequestedOnce: boolean
+  haveLoadedOnce: boolean
+  error: null | Error
+  latestQuery: null | object
+  isLocal: boolean
+}
+interface UseFindData {
+  items: Ref<any>
+  servicePath: Ref<string>
+  isFindPending: Ref<boolean>
+  haveBeenRequestedOnce: Ref<boolean>
+  haveLoadedOnce: Ref<boolean>
+  isLocal: Ref<boolean>
+  qid: Ref<string>
+  debounceTime: Ref<number>
+  find: Function
+  findInStore: Function
+  latestQuery: Ref<object>
+  paginationData: Ref<object>
+  queryWhen: Ref<boolean>
+  error: Ref<Error>
+}
+
+export default function find(options: UseFindOptions): UseFindData {
+  const { model, params, queryWhen, qid, local } = Object.assign(
     {},
     defaults,
     options
   )
 
-  const nameToUse = (name || model.servicePath).replace('-', '_')
-  const prefix = getServicePrefix(nameToUse)
-  const capitalized = getServiceCapitalization(nameToUse)
-  const IS_FIND_PENDING = `isFind${capitalized}Pending`
-  const QUERY_WHEN = `${prefix}QueryWhen`
-  const FIND_ACTION = `find${capitalized}`
-  const FIND_GETTER = `find${capitalized}InStore`
-  const DEBOUNCED = `${FIND_ACTION}Debounced`
-  const DEBOUNCE_TIME = `${FIND_ACTION}DebouncedTime`
-  const HAVE_ITEMS_BEEN_REQUESTED_ONCE = `have${capitalized}BeenRequestedOnce`
-  const HAVE_ITEMS_LOADED_ONCE = `have${capitalized}LoadedOnce`
-  const PAGINATION = `${prefix}PaginationData`
-  const MOST_RECENT_QUERY = `${prefix}LatestQuery`
-  const ERROR = `${prefix}Error`
-  const QID = `${prefix}Qid`
+  const getFetchParams = (providedParams?: object): Params => {
+    const provided = isRef(providedParams)
+      ? providedParams.value
+      : providedParams
 
-  const getFetchParams = (providedParams?:object) => {
-    if (providedParams) {
-      return providedParams
+    if (provided) {
+      return provided
     } else {
-      // Returning null fetchParams allows the query to be skipped.
-      return options.fetchParams || options.fetchParams === null
-        ? options.fetchParams
+      const fetchParams = isRef(options.fetchParams)
+        ? options.fetchParams.value
+        : options.fetchParams
+      const params = isRef(options.params)
+        ? options.params.value
         : options.params
+
+      // Returning null fetchParams allows the query to be skipped.
+      return fetchParams || fetchParams === null ? fetchParams : params
     }
   }
 
-  const state = reactive({
+  const state = reactive<UseFindState>({
+    qid,
+    isFindPending: false,
+    haveBeenRequestedOnce: false,
+    haveLoadedOnce: false,
+    error: null,
+    debounceTime: null,
+    latestQuery: null,
+    isLocal: local
+  })
+  const computes = {
     // The find getter
-    [prefix]: computed(() => {
-      // @ts-ignore
-      const getterParams:Params = isRef(params) ? { ...params.value } : { params }
+    items: computed<any[]>(() => {
+      const getterParams: Params = isRef(params)
+        ? Object.assign({}, params.value)
+        : { params }
       if (getterParams.paginate) {
         const serviceState = model.store.state[model.servicePath]
         const { defaultSkip, defaultLimit } = serviceState.pagination
         const skip = getterParams.query.$skip || defaultSkip
         const limit = getterParams.query.$limit || defaultLimit
-        const pagination = state[PAGINATION][getterParams.qid || state[QID]] || {}
+        const pagination =
+          computes.paginationData[getterParams.qid || state[qid]] || {}
         const response = skip != null && limit != null ? { limit, skip } : {}
         const queryInfo = getQueryInfo(getterParams, response)
         const items = getItemsFromQueryInfo(
@@ -74,52 +120,50 @@ export default function find(options) {
         return model.findInStore(getterParams).data
       }
     }),
-    [QID]: qid,
-    [QUERY_WHEN]: computed(() => queryWhen),
-    [IS_FIND_PENDING]: false,
-    [HAVE_ITEMS_BEEN_REQUESTED_ONCE]: false,
-    [HAVE_ITEMS_LOADED_ONCE]: false,
-    [ERROR]: null,
-    [PAGINATION]: computed(() => {
+    queryWhen: computed<boolean>(() => queryWhen()),
+    paginationData: computed(() => {
       return model.store.state[model.servicePath].pagination
     }),
-    [DEBOUNCED]: null,
-    [DEBOUNCE_TIME]: null
-  })
+    servicePath: computed<string>(() => model.servicePath)
+  }
 
-  function find(params) {
+  function find<T>(params: Params): T {
     params = isRef(params) ? params.value : params
-    if (state[QUERY_WHEN]) {
-      console.log('finding')
-      state[IS_FIND_PENDING] = true
-      state[HAVE_ITEMS_BEEN_REQUESTED_ONCE] = true
+    if (computes.queryWhen.value) {
+      state.isFindPending = true
+      state.haveBeenRequestedOnce = true
 
-      model.find(params).then(response => {
-        // To prevent thrashing, only clear ERROR on response, not on initial request.
-        state[ERROR] = null
-        state[HAVE_ITEMS_LOADED_ONCE] = true
+      return model.find(params).then(response => {
+        // To prevent thrashing, only clear error on response, not on initial request.
+        state.error = null
+        state.haveLoadedOnce = true
 
         const queryInfo = getQueryInfo(params, response)
         queryInfo.response = response
         queryInfo.isOutdated = false
 
-        state[MOST_RECENT_QUERY] = queryInfo
-        state[IS_FIND_PENDING] = false
+        state.latestQuery = queryInfo
+        state.isFindPending = false
         return response
       })
     }
   }
-  function findProxy(params?:object) {
+  const methods = {
+    findDebounced<Promise>(params?: Params): Promise {
+      return find(params)
+    }
+  }
+  function findProxy<T>(params?: Params): T {
     const paramsToUse = getFetchParams(params)
 
     if (paramsToUse && paramsToUse.debounce) {
-      if (paramsToUse.debounce !== state[DEBOUNCE_TIME]) {
-        state[DEBOUNCED] = debounce(find, paramsToUse.debounce)
-        state[DEBOUNCE_TIME] = paramsToUse.debounce
+      if (paramsToUse.debounce !== state.debounceTime) {
+        methods.findDebounced = debounce(find, paramsToUse.debounce)
+        state.debounceTime = paramsToUse.debounce
       }
-      return state[DEBOUNCED](paramsToUse)
+      return methods.findDebounced(paramsToUse)
     } else if (paramsToUse) {
-      find(paramsToUse)
+      return find(paramsToUse)
     } else {
       // Set error
     }
@@ -133,8 +177,9 @@ export default function find(options) {
   )
 
   return {
+    ...computes,
     ...toRefs(state),
-    [FIND_ACTION]: model.find,
-    [FIND_GETTER]: model.findInStore
+    find: model.find,
+    findInStore: model.findInStore
   }
 }
