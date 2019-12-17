@@ -7,11 +7,9 @@ import decode from 'jwt-decode'
 import inflection from 'inflection'
 import Vue from 'vue'
 import fastCopy from 'fast-copy'
-import _isPlainObject from 'lodash/isPlainObject'
 import _isObject from 'lodash/isObject'
 import _trim from 'lodash/trim'
 import _omit from 'lodash/omit'
-import _get from 'lodash/get'
 import ObjectID from 'bson-objectid'
 import { globalModels as models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
@@ -450,7 +448,6 @@ export function mergeWithAccessors(
       // Do not use fastCopy directly on a feathers-vuex BaseModel instance to keep from breaking reactivity.
       if (isObject && !isFeathersVuexInstance) {
         try {
-          const sourceObject = source[key]
           dest[key] = fastCopy(source[key])
         } catch (err) {
           if (!err.message.includes('getter')) {
@@ -486,8 +483,9 @@ export function mergeWithAccessors(
     // Assign values
     // Do not allow sharing of deeply-nested objects between instances
     // Potentially breaks accessors on nested data. Needs recursion if this is an issue
+    let value
     if (_isObject(sourceDesc.value) && !isBaseModelInstance(sourceDesc.value)) {
-      var value = fastCopy(sourceDesc.value)
+      value = fastCopy(sourceDesc.value)
     }
     dest[key] = value || sourceDesc.value
   })
