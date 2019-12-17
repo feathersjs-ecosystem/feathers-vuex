@@ -19,6 +19,7 @@ interface UseFindOptions {
   fetchParams?: Params | Ref<Params>
   queryWhen?: Ref<Function>
   qid?: string
+  local?: boolean
   lazy?: boolean
 }
 interface UseFindState {
@@ -43,6 +44,7 @@ interface UseFindData {
   latestQuery: Ref<object>
   paginationData: Ref<object>
   error: Ref<Error>
+  find: Function
 }
 
 export default function find(options: UseFindOptions): UseFindData {
@@ -175,6 +177,7 @@ export default function find(options: UseFindOptions): UseFindData {
 
   return {
     ...computes,
-    ...toRefs(state)
+    ...toRefs(state),
+    find
   }
 }

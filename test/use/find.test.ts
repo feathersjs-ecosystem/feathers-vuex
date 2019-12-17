@@ -4,22 +4,27 @@ eslint
 @typescript-eslint/no-explicit-any: 0,
 @typescript-eslint/no-empty-function: 0
 */
+import Vue from 'vue'
+import VueCompositionApi from '@vue/composition-api'
+Vue.use(VueCompositionApi)
+
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import useFind from '../../src/useFind'
-import Vue from 'vue/dist/vue'
-import VueCompositionApi from '@vue/composition-api'
 import Vuex from 'vuex'
 // import { shallowMount } from '@vue/test-utils'
 import { computed, isRef } from '@vue/composition-api'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
+Vue.use(Vuex)
+Vue.use(FeathersVuex)
+
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'make-find-mixin'
+    serverAlias: 'useFind'
   })
 
   class Instrument extends BaseModel {
@@ -37,10 +42,6 @@ function makeContext() {
   })
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
-
-Vue.use(VueCompositionApi)
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
 
 describe('use/find', function() {
   it('returns correct default data', function() {
@@ -60,8 +61,6 @@ describe('use/find', function() {
     const {
       debounceTime,
       error,
-      find,
-      findInStore,
       haveBeenRequestedOnce,
       haveLoadedOnce,
       isFindPending,
@@ -69,8 +68,7 @@ describe('use/find', function() {
       items,
       latestQuery,
       paginationData,
-      qid,
-      queryWhen
+      qid
     } = instrumentsData
 
     assert(isRef(debounceTime))
@@ -78,9 +76,6 @@ describe('use/find', function() {
 
     assert(isRef(error))
     assert(error.value === null)
-
-    assert(typeof find === 'function')
-    assert(typeof findInStore === 'function')
 
     assert(isRef(haveBeenRequestedOnce))
     assert(haveBeenRequestedOnce.value === true)
@@ -109,9 +104,6 @@ describe('use/find', function() {
 
     assert(isRef(qid))
     assert(qid.value === 'default')
-
-    assert(isRef(queryWhen))
-    assert(queryWhen.value === true)
   })
 
   it('allows passing {lazy:true} to not query immediately', function() {
@@ -132,5 +124,45 @@ describe('use/find', function() {
 
     assert(isRef(haveBeenRequestedOnce))
     assert(haveBeenRequestedOnce.value === false)
+  })
+
+  it('params can return null to prevent the query', function() {
+    const { Instrument } = makeContext()
+
+    const instrumentParams = computed(() => {
+      return null
+    })
+    const instrumentsData = useFind({
+      model: Instrument,
+      params: instrumentParams,
+      lazy: true
+    })
+    const { haveBeenRequestedOnce } = instrumentsData
+
+    assert(isRef(haveBeenRequestedOnce))
+    assert(haveBeenRequestedOnce.value === false)
+  })
+
+  it('allows using `local: true` to prevent API calls from being made', function() {
+    const { Instrument } = makeContext()
+
+    const instrumentParams = computed(() => {
+      return {
+        query: {}
+      }
+    })
+    const instrumentsData = useFind({
+      model: Instrument,
+      params: instrumentParams,
+      local: true
+    })
+    const { haveBeenRequestedOnce, find } = instrumentsData
+
+    assert(isRef(haveBeenRequestedOnce))
+    assert(haveBeenRequestedOnce.value === false, 'no request during init')
+
+    find()
+
+    assert(haveBeenRequestedOnce.value === false, 'no request after find')
   })
 })
