@@ -12,7 +12,12 @@ Before you can use the `useFind` and `useGet` composition functions, you'll need
 
 ## useFind <Badge text="3.0.0+" />
 
-If you have already used the `makeFindMixin`, the `useFind` composition function will be very familiar, since it offers the same functionality in a more powerful way.  The main difference is that instead of providing a service name, you provide a service Model from the `$FeathersVuex` Vue plugin.  Note that when using the component object syntax (aka the way components are made with Vue 2.0) the models are found in `this.$FeathersVuex`.  When using the Vue composition API, this object is now found in `context.root.$FeathersVuex`, as shown in the following example:
+If you have already used the `makeFindMixin`, the `useFind` composition function will be very familiar, since it offers the same functionality in a more powerful way.  There are a few differences, though.
+
+1. Instead of providing a service name, you provide a service Model from the `$FeathersVuex` Vue plugin.
+1. The default behavior of `useFind` is to immediately query the API server. The `makeFindMixin`, by default, would wait until the watcher noticed the change.  This is to match the default behavior of `watch` in the Vue Composition API.  You can pass `{ lazy: true }` in the `useFind` options, which will be passed directly to the internal `watch` on the params.
+
+Note that with the Vue Options API (aka the only way to write components in Vue 2.0) the models are found in `this.$FeathersVuex`.  With the Vue Composition API, this object is now at `context.root.$FeathersVuex`, as shown in the following example:
 
 ```html
 <template>

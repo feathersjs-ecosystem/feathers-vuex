@@ -114,5 +114,23 @@ describe('use/find', function() {
     assert(queryWhen.value === true)
   })
 
-  it.skip('allows passing {lazy:true} to not query immediately', function() {})
+  it('allows passing {lazy:true} to not query immediately', function() {
+    const { Instrument } = makeContext()
+
+    const instrumentParams = computed(() => {
+      return {
+        query: {},
+        paginate: false
+      }
+    })
+    const instrumentsData = useFind({
+      model: Instrument,
+      params: instrumentParams,
+      lazy: true
+    })
+    const { haveBeenRequestedOnce } = instrumentsData
+
+    assert(isRef(haveBeenRequestedOnce))
+    assert(haveBeenRequestedOnce.value === false)
+  })
 })

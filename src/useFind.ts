@@ -18,7 +18,8 @@ const defaults = {
   params: null,
   queryWhen: (): boolean => true,
   qid: 'default',
-  local: false
+  local: false,
+  lazy: false
 }
 
 interface UseFindOptions {
@@ -28,6 +29,7 @@ interface UseFindOptions {
   name?: string
   queryWhen?: Function
   qid?: string
+  lazy?: boolean
 }
 interface UseFindState {
   debounceTime: null | number
@@ -57,7 +59,7 @@ interface UseFindData {
 }
 
 export default function find(options: UseFindOptions): UseFindData {
-  const { model, params, queryWhen, qid, local } = Object.assign(
+  const { model, params, queryWhen, qid, local, lazy } = Object.assign(
     {},
     defaults,
     options
@@ -173,7 +175,8 @@ export default function find(options: UseFindOptions): UseFindData {
     () => getFetchParams(),
     () => {
       findProxy()
-    }
+    },
+    { lazy }
   )
 
   return {
