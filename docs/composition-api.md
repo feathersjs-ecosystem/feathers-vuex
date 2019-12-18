@@ -388,6 +388,52 @@ export default {
 }
 ```
 
+### Using queryWhen
+
+The `queryWhen` option for both `useFind` and `useGet` comes in handy when you want to, say, not query if an item already exists.  This next example shows how to stop the `get` request if you already have a patient with the current `id`.
+
+```html
+<template>
+  <div>
+    <div v-if="isPatientLoading">Loading</div>
+    <div v-else>{{ patient.name }}</div>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'PatientInfo',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Patient } = context.root.$FeathersVuex.api
+
+    const patientQueryWhen = computed(() => {
+      return !Patient.getFromStore(props.id)
+    })
+    const { item: patient, isPending: isPatientLoading } = useGet({
+      model: Patient,
+      id: props.id,
+      queryWhen: patientQueryWhen
+    })
+
+    return {
+      patient,
+      isPatientLoading
+    }
+  }
+}
+```
+
+In the above example, the `patientQueryWhen` computed property will return `true` if we don't already have a `Patient` record in the store with the current `props.id`.  While you could also achieve similar results by performing this logic inside of a `params` computed property, the `queryWhen` option works great as a "master override" to prevent unneeded queries.
+
 ## Conventions for Development
 
 ### Params are Computed
