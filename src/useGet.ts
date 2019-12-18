@@ -87,7 +87,7 @@ export default function get(options: UseGetOptions): UseGetData {
     const idToUse = isRef(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
 
-    if (idToUse != null && !state.isLocal) {
+    if (idToUse != null && queryWhen.value && !state.isLocal) {
       state.isPending = true
       state.hasBeenRequested = true
 
