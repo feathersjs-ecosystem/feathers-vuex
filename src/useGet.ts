@@ -55,7 +55,10 @@ export default function get(options: UseGetOptions): UseGetData {
     options
   )
 
-  const _id = computed(() => id)
+  function getId(): null | string | number {
+    return isRef(id) ? id.value : id || null
+  }
+
   const servicePath = computed<string>(() => model.servicePath)
   const state = reactive<UseGetState>({
     item: computed(() => {
@@ -80,7 +83,7 @@ export default function get(options: UseGetOptions): UseGetData {
     isLocal: local
   })
 
-  function get<T>(id, params): T {
+  function get<T>(id, params?: Params): T {
     const idToUse = isRef(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
 
@@ -108,9 +111,9 @@ export default function get(options: UseGetOptions): UseGetData {
   }
 
   watch(
-    () => [_id, params],
-    ([_id, params]) => {
-      get(_id, params)
+    () => [getId(), params],
+    ([id, params]) => {
+      get(id, params)
     },
     { lazy }
   )
