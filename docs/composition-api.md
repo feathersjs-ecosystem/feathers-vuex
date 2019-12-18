@@ -1,8 +1,9 @@
 ---
 title: Composition API
+sidebarDepth: 3
 ---
 
-# FeathersVuex Composition API <Badge text="3.0.0+" />
+# Feathers-Vuex Composition API <Badge text="3.0.0+" />
 
 In addition to the Renderless Components and the Mixins, Feathers-Vuex includes utilities that let you take advantage of the [Vue Composition API](https://github.com/vuejs/composition-api).
 
@@ -12,7 +13,9 @@ Before you can use the `useFind` and `useGet` composition functions, you'll need
 
 ## useFind <Badge text="3.0.0+" />
 
-The `useFind` utility reduces boilerplate for querying with fall-through cache and realtime updates.  To get started with it you provide a `model` class and a computed `params` object.  Let's use the example of creating a User Guide, where we need to pull in the various `Tutorial` records from our `tutorials` service.  We'll keep it simple in the template and just show a list of the names.  Assume that each `Tutorial` record has a `name` property.  We're not going to style any of this, so the `<style>` tags are removed from the examples.
+The `useFind` utility reduces boilerplate for querying with fall-through cache and realtime updates.  To get started with it you provide a `model` class and a computed `params` object.
+
+Let's use the example of creating a User Guide, where we need to pull in the various `Tutorial` records from our `tutorials` service.  We'll keep it simple in the template and just show a list of the names.
 
 ```html
 <template>
@@ -30,15 +33,19 @@ import { useFind } from 'feathers-vuex'
 export default {
   name: 'UserGuide',
   setup(props, context) {
+    // 1. Get a reference to the model class
     const { Tutorial } = context.root.$FeathersVuex.spark
 
+    // 2. Create a computed property for the params
     const tutorialsParams = computed(() => {
       return {
-        query: { isComplete: false }
+        query: {}
       }
     })
+    // 3. Provide the model and params in the options
     const tutorialsData = useFind({ model: Tutorial, params: tutorialsParams })
 
+    // 4. Return the data, named as you prefer
     return {
       tutorials: tutorialsData.items
     }
@@ -47,17 +54,26 @@ export default {
 </script>
 ```
 
+Let's review each of the numbered comments, above:
+
+1. Get a reference to the model class.  With the Vue Composition API, there's no `this` object.  It has been replaced by the context object.  So, only when using the composition API, the `$FeathersVuex` object is found at `context.root.$FeathersVuex`
+2. Create a computed property for the params. Return an object with a `query` object.
+
+### Detour: Reading  a TypeScript interface
+
+The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  If this is your first time, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
+
+- In the below exampe, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass them around like variables.
+- Each line of the interface describes a property.
+- The part before the `:` is the name of the property.
+- The part after the `:` describes what type of variable it can be.
+- You can look at any `|` after the `:` as a conditional "or"
+- Any property followed by a `?` is optional.
+- Any property not followed by a `?` is required.
+
 ### Options
 
-Let's look at the `UseFindOptions` TypeScript interface to see what else we can pass in the options.  If this is your first time, let's do a quick primer for the below interface as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
-
-- `UseFindOptions` is the name of the interface, similar to naming any other variable.
-- Each line of the interface documents a property.
-- The string before the `:` is the name of the property.
-- Everything after the `:` describes what type of variable it is.
-- You can look at any `|` after the `:` as a conditional "or"
-- Any property not followed by a `?` is required.
-- Any property followed by a `?` is optional.
+Since we learned in the previous section how to read a TypeScript interface, let's look at the TypeScript definition for the `UseFindOptions`.
 
 ```ts
 interface UseFindOptions {
@@ -70,22 +86,22 @@ interface UseFindOptions {
 }
 ```
 
-Let's look at each one individually:
+And here's a look at each individual property:
 
 - `model` must be a Feathers-Vuex Model class. The Model's `find` and `findInStore` methods are used to query data.
 - `params` is a FeathersJS Params object OR a Composition API `ref` (or `computed`, since they return a `ref` instance) which returns a Params object.
-  - When provided alone (without the options `fetchParams`), this same query is used for both the local data store and the API requests.
+  - When provided alone (without the optional `fetchParams`), this same query is used for both the local data store and the API requests.
   - Explicitly returning `null` will prevent an API request from being made.
-  - You can use `params.qid` to dynamically specify the query identifier for any API request.
+  - You can use `params.qid` to dynamically specify the query identifier for any API request. The `qid` is used for tracking pagination data and enabling the fall-through cache across multiple queries.
   - Set `params.paginate` to `true` to turn off realtime updates for the results and defer pagination to the API server.
   - Set `params.debounce` to an integer and the API requests will automatically be debounced by that many milliseconds.  For example, setting `debounce: 1000` will assure that the API request will be made at most every 1 second.
-= `fetchParams` This is a separate set of params that, when provided, will become the params sent to the API server.  The `params` will then only be used to query data from the local data store.
+- `fetchParams` This is a separate set of params that, when provided, will become the params sent to the API server.  The `params` will then only be used to query data from the local data store.
   - Explicitly returning `null` will prevent an API request from being made.
 - `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests *outside* of the `params`.
 - `qid` allows you to specify a query identifier (used in the pagination data in the store).  This can also be set dynamically by returning a `qid` in the params.
-- `lazy`, which is `false` by default, determines if the internal `watch` should fire immediately.  Set `lazy: true` and the query will not fire immediately.  It will only fire on subsequent changes in the params.
+- `lazy`, which is `false` by default, determines if the internal `watch` should fire immediately.  Set `lazy: true` and the query will not fire immediately.  It will only fire on subsequent changes to the params.
 
-### Returned Utilities
+### Returned Attributes
 
 Notice the `tutorialsData` in the previous example.  You can see that there's an `items` property, which is returned from the `setup` method as the `tutorials`.  There are many more attributes available in the object returned from `useFind`. We can learn more about the return values by looking at its TypeScript interface, below.
 
@@ -106,28 +122,154 @@ interface UseFindData {
 }
 ```
 
-Let's look at at what functionality each provides:
+Let's look at the functionality that each one provides:
 
-- `items` is the list of results
+- `items` is the list of results. By default, this list will be reactive, so if new items are created which match the query, they will show up in this list automagically.
+- `servicePath` is the FeathersJS service path that is used by the current model. This is mostly only useful for debugging.
+- `isFindPending` is a boolean that indicates if there is an active query.  It is set to `true` just before each outgoing request.  It is set to `false` after the response returns.  Bind to it in the UI to show an activity indicator to the user.
+- `haveBeenRequestedOnce` is a boolean that is set to `true` immediately before the first query is sent out.  It remains true throughout the life of the component.  This comes in handy for first-load scenarios in the UI.
+- `haveLoadedOnce` is a boolean that is set to true after the first API response.  It remains `true` for the life of the component. This also comes in handy for first-load scenarios in the UI.
+- `isLocal` is a boolean that is set to true if this data is local only.
+- `qid` is currently the primary `qid` provided in params.  It might become more useful in the future.
+- `debounceTime` is the current number of milliseconds used as the debounce interval.
+- `latestQuery` is an object that holds the latest query information.  It populates after each successful API response. The information it contains can be used to pull data from the `paginationData`.
+- `paginationData` is an object containing all of the pagination data for the current service.
+- `error` is null until an API error occurs. The error object will be serialized into a plain object and available here.
+- `find` is the find method used internally.  You can manually make API requests.  This is most useful for when you have `paginate: true` in the params.  You can manually query refreshed data from the server, when desired.
 
-### Renaming attributes
+### Working with Refs
 
-The `useFind` utility will always return an
-They can be renamed in the same way that you would do it with any object.
+Pay special attention to the properties of type `Ref`, in the TypeScript interface, above.  Those properties are Vue Composition API `ref` instances.  This means that you need to reference their value by using `.value`.  In the next example the `completeTodos` and `incompleteTodos` are derived from the `todos`, using `todos.value`
 
-### Compared to `makeFindMixin`
+```html
+<template>
+  <div>
+    <li v-for="tutorial in tutorials" :key="tutorial._id">
+      {{ tutorial.name }}
+    </li>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind } from 'feathers-vuex'
+
+export default {
+  name: 'UserGuide',
+  setup(props, context) {
+    const { Todo } = context.root.$FeathersVuex.spark
+
+    const todosParams = computed(() => {
+      return {
+        query: {}
+      }
+    })
+    const { items: todos } = useFind({ model: Todo, params: todosParams })
+    // Notice the "todos.value"
+    const completeTodos = todos.value.filter(todo => todo.isComplete)
+    const incompleteTodos = todos.value.filter(todo => !todo.isComplete)
+
+    return {
+      todos,
+      completeTodos,
+      incompleteTodos
+    }
+  }
+}
+</script>
+```
+
+### Comparison to `makeFindMixin`
 If you have already used the `makeFindMixin`, the `useFind` composition function will be very familiar, since it offers the same functionality in a more powerful way.  There are a few differences, though.
 
 1. `useFind` is more TypeScript friendly. Since the mixins depended on adding dynamic attribute names that wouldn't overlap, TypeScript tooling and autocomplete weren't very effective.  The attributes returned from `useFind` are always consistent.
 1. Instead of providing a service name, you provide a service Model from the `$FeathersVuex` Vue plugin.
 1. The default behavior of `useFind` is to immediately query the API server. The `makeFindMixin`, by default, would wait until the watcher noticed the change.  This is to match the default behavior of `watch` in the Vue Composition API.  You can pass `{ lazy: true }` in the `useFind` options, which will be passed directly to the internal `watch` on the params.
 
-Note that with the Vue Options API (aka the only way to write components in Vue 2.0) the models are found in `this.$FeathersVuex`.  With the Vue Composition API, this object is now at `context.root.$FeathersVuex`, as shown in the following example:
-
-Notice in the above example that the params are provided as a computed property.  For long-term maintainability, this is the recommended practice.  It encourages you to think about your queries declaratively.  Think of a declarative query as having all of the instructions it needs to pull in data from whatever sources are required to build the query object. Declaratively written queries will likely assist you in avoiding conflicting code as conditions for making queries become more complex.
-
-In contrast, an imperatively-written query would be a reactive object that you directly modify.  Think of imperative as pushing information into the query.  eg: `params.query.user = props.userId`.  When you have a lot of imperative code pushing parameters into the query, it's really easy to create conflicting logic.  So keep in mind that while Feathers-Vuex will definitely handle an imperative-style query, your code will probably be less maintainable over the long run.
+Note that with the Vue Options API (aka the only way to write components in Vue 2.0) the models are found in `this.$FeathersVuex`.  With the Vue Composition API, this object is now at `context.root.$FeathersVuex`.
 
 ## useGet <Badge text="3.0.0+" />
 
 The `useGet` utility is still being built.  Docs will be written when it becomes more complete.
+
+### Options
+
+### Returned Attributes
+
+## Pairing `useFind` with `useGet`
+
+## Conventions for Development
+
+### Params are Computed
+
+You might notice throughout these docs that the params are consistently shown as `computed` properties.  For long-term maintainability, this is the recommended practice.
+
+Computed properties are read-only, so you can't push changes into them. This encourages declarative programming.  Think of a declarative query as having all of the instructions it needs to pull in data from whatever sources are required to build the query object. Writing declarative params will assist you in avoiding complex conditional conflicts as queries become more complex.
+
+In contrast, an imperatively-written query would be a reactive object that you directly modify.  Think of imperative as pushing information into the query.  eg: `params.query.user = props.userId`.  When you have a lot of imperative code pushing parameters into the query, it's really easy to create conflicting logic.  So, keep in mind that while Feathers-Vuex will definitely handle an imperative-style query, your code will likely be less maintainable over the long run.
+
+### Naming Variables
+
+Having a variable naming convention can really assist the developer onboarding process and long run ease of use.  Here are some guidelines that could be useful while using the composition API utilities:
+
+- Params for `useFind` result in a list of records, and should therefore indicate plurality.
+- Params for `useGet` result in a single record, and should indicate singularity.
+
+```js
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'MyComponent',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Comment } = context.root.$FeathersVuex.api
+
+    // Plural "comments" in the params for useFind
+    const commentsParams = computed(() => {
+      return { query: {} }
+    })
+    const commentsData = useFind({
+      model: Comment,
+      params: commentsParams
+    })
+    const { items: comments } = commentsData
+
+    // Singular "comment" in the params for useGet
+    const commentParams = computed(() => {
+      return { query: {} }
+    })
+    const commentData = useGet({
+      model: Comment,
+      id: props.id,
+      params: commentParams
+    })
+    const { item: comment } = commentData
+
+    return {
+      comments,
+      comment
+    }
+  }
+}
+```
+
+Variable naming becomes even more important when one service consumes the results of a previous service to make a query.
+
+Note: the destructuring of `commentsData` and `commentData`, above, could happen on the same line as `useFind` and `useGet`, but it's a bit more clear in the example to split it into separate steps.  For users who are accustomed to destructuring, it makes perfect sense to do so:
+
+```js
+// Destructure and rename "item" to "comment" in the same line as the call to `useGet`
+const { item: comment } = useGet({
+  model: Comment,
+  id: props.id,
+  params: commentParams
+})
+
+return { comment }
+```

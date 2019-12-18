@@ -104,7 +104,7 @@ export default function find(options: UseFindOptions): UseFindData {
         const skip = getterParams.query.$skip || defaultSkip
         const limit = getterParams.query.$limit || defaultLimit
         const pagination =
-          computes.paginationData[getterParams.qid || state[qid]] || {}
+          computes.paginationData[getterParams.qid || state.qid] || {}
         const response = skip != null && limit != null ? { limit, skip } : {}
         const queryInfo = getQueryInfo(getterParams, response)
         const items = getItemsFromQueryInfo(

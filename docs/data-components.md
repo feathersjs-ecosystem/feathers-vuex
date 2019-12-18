@@ -2,6 +2,8 @@
 title: Renderless Data Components
 ---
 
+# Renderless Data Components
+
 There are two new renderless data provider components: `<FeathersVuexFind>` and `<FeathersVuexGet>`. They simplify performing queries against the store and/or the API server. They make the data available inside each component's default slot.
 
 To see why you might want to use these components, below are two example components that are functionally equivalent.
@@ -85,7 +87,7 @@ These components use Vuex getters (to query data from the local store) and actio
 
 ## Registering the components
 
-These components are automatically registered globally when using the FeathersVuex Vue plugin.
+These components are automatically registered globally when using the Feathers-Vuex Vue plugin.
 
 If you prefer to manually register the component, pass `{ components: false }` as options when using the FeathersVuex Vue plugin, then do the following:
 
