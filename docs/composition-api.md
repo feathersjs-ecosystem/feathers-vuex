@@ -11,6 +11,18 @@ In addition to the Renderless Components and the Mixins, Feathers-Vuex includes 
 
 Before you can use the `useFind` and `useGet` composition functions, you'll need to [install the Vue Composition API](https://github.com/vuejs/composition-api#Installation) plugin.
 
+## Detour: Reading a TypeScript interface
+
+The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  If this is your first time, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
+
+- In the [first interface example](#options), below, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass them around like variables.
+- Each line of the interface describes a property.
+- The part before the `:` is the name of the property.
+- The part after the `:` describes what type of variable it can be.
+- You can look at any `|` after the `:` as a conditional "or"
+- Any property followed by a `?` is optional.
+- Any property not followed by a `?` is required.
+
 ## useFind <Badge text="3.0.0+" />
 
 The `useFind` utility reduces boilerplate for querying with fall-through cache and realtime updates.  To get started with it you provide a `model` class and a computed `params` object.
@@ -59,21 +71,9 @@ Let's review each of the numbered comments, above:
 1. Get a reference to the model class.  With the Vue Composition API, there's no `this` object.  It has been replaced by the context object.  So, only when using the composition API, the `$FeathersVuex` object is found at `context.root.$FeathersVuex`
 2. Create a computed property for the params. Return an object with a `query` object.
 
-### Detour: Reading  a TypeScript interface
-
-The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  If this is your first time, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
-
-- In the below exampe, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass them around like variables.
-- Each line of the interface describes a property.
-- The part before the `:` is the name of the property.
-- The part after the `:` describes what type of variable it can be.
-- You can look at any `|` after the `:` as a conditional "or"
-- Any property followed by a `?` is optional.
-- Any property not followed by a `?` is required.
-
 ### Options
 
-Since we learned in the previous section how to read a TypeScript interface, let's look at the TypeScript definition for the `UseFindOptions`.
+Since we learned earlier [how to read a TypeScript interface](#detour-reading-a-typescript-interface), let's look at the TypeScript definition for the `UseFindOptions` interface.
 
 ```ts
 interface UseFindOptions {
