@@ -61,9 +61,9 @@ describe('use/find', function() {
     const {
       debounceTime,
       error,
-      haveBeenRequestedOnce,
-      haveLoadedOnce,
-      isFindPending,
+      haveBeenRequested,
+      haveLoaded,
+      isPending,
       isLocal,
       items,
       latestQuery,
@@ -77,14 +77,14 @@ describe('use/find', function() {
     assert(isRef(error))
     assert(error.value === null)
 
-    assert(isRef(haveBeenRequestedOnce))
-    assert(haveBeenRequestedOnce.value === true)
+    assert(isRef(haveBeenRequested))
+    assert(haveBeenRequested.value === true)
 
-    assert(isRef(haveLoadedOnce))
-    assert(haveLoadedOnce.value === false)
+    assert(isRef(haveLoaded))
+    assert(haveLoaded.value === false)
 
-    assert(isRef(isFindPending))
-    assert(isFindPending.value === true)
+    assert(isRef(isPending))
+    assert(isPending.value === true)
 
     assert(isRef(isLocal))
     assert(isLocal.value === false)
@@ -120,10 +120,10 @@ describe('use/find', function() {
       params: instrumentParams,
       lazy: true
     })
-    const { haveBeenRequestedOnce } = instrumentsData
+    const { haveBeenRequested } = instrumentsData
 
-    assert(isRef(haveBeenRequestedOnce))
-    assert(haveBeenRequestedOnce.value === false)
+    assert(isRef(haveBeenRequested))
+    assert(haveBeenRequested.value === false)
   })
 
   it('params can return null to prevent the query', function() {
@@ -137,10 +137,10 @@ describe('use/find', function() {
       params: instrumentParams,
       lazy: true
     })
-    const { haveBeenRequestedOnce } = instrumentsData
+    const { haveBeenRequested } = instrumentsData
 
-    assert(isRef(haveBeenRequestedOnce))
-    assert(haveBeenRequestedOnce.value === false)
+    assert(isRef(haveBeenRequested))
+    assert(haveBeenRequested.value === false)
   })
 
   it('allows using `local: true` to prevent API calls from being made', function() {
@@ -156,13 +156,13 @@ describe('use/find', function() {
       params: instrumentParams,
       local: true
     })
-    const { haveBeenRequestedOnce, find } = instrumentsData
+    const { haveBeenRequested, find } = instrumentsData
 
-    assert(isRef(haveBeenRequestedOnce))
-    assert(haveBeenRequestedOnce.value === false, 'no request during init')
+    assert(isRef(haveBeenRequested))
+    assert(haveBeenRequested.value === false, 'no request during init')
 
     find()
 
-    assert(haveBeenRequestedOnce.value === false, 'no request after find')
+    assert(haveBeenRequested.value === false, 'no request after find')
   })
 })

@@ -34,7 +34,7 @@ export default {
   name: 'UserGuide',
   setup(props, context) {
     // 1. Get a reference to the model class
-    const { Tutorial } = context.root.$FeathersVuex.spark
+    const { Tutorial } = context.root.$FeathersVuex.api
 
     // 2. Create a computed property for the params
     const tutorialsParams = computed(() => {
@@ -111,7 +111,7 @@ interface UseFindData {
   servicePath: Ref<string>
   isFindPending: Ref<boolean>
   haveBeenRequestedOnce: Ref<boolean>
-  haveLoadedOnce: Ref<boolean>
+  haveLoaded: Ref<boolean>
   isLocal: Ref<boolean>
   qid: Ref<string>
   debounceTime: Ref<number>
@@ -128,7 +128,7 @@ Let's look at the functionality that each one provides:
 - `servicePath` is the FeathersJS service path that is used by the current model. This is mostly only useful for debugging.
 - `isFindPending` is a boolean that indicates if there is an active query.  It is set to `true` just before each outgoing request.  It is set to `false` after the response returns.  Bind to it in the UI to show an activity indicator to the user.
 - `haveBeenRequestedOnce` is a boolean that is set to `true` immediately before the first query is sent out.  It remains true throughout the life of the component.  This comes in handy for first-load scenarios in the UI.
-- `haveLoadedOnce` is a boolean that is set to true after the first API response.  It remains `true` for the life of the component. This also comes in handy for first-load scenarios in the UI.
+- `haveLoaded` is a boolean that is set to true after the first API response.  It remains `true` for the life of the component. This also comes in handy for first-load scenarios in the UI.
 - `isLocal` is a boolean that is set to true if this data is local only.
 - `qid` is currently the primary `qid` provided in params.  It might become more useful in the future.
 - `debounceTime` is the current number of milliseconds used as the debounce interval.
@@ -157,7 +157,7 @@ import { useFind } from 'feathers-vuex'
 export default {
   name: 'UserGuide',
   setup(props, context) {
-    const { Todo } = context.root.$FeathersVuex.spark
+    const { Todo } = context.root.$FeathersVuex.api
 
     const todosParams = computed(() => {
       return {
@@ -196,7 +196,197 @@ The `useGet` utility is still being built.  Docs will be written when it becomes
 
 ### Returned Attributes
 
-## Pairing `useFind` with `useGet`
+## Pattens: `useFind` with `useGet`
+
+### Simultaneous Queries
+
+Let's look at an example where we have two separate tables and we want live-queried lists for both of them.  This example will show a component for a doctor's office that pulls up a patient by `id` using `useGet` then retrieves all of the patient's `appointments` using `useFind`.
+
+```html
+<template>
+  <div>
+    <div>{{ patient.name }}</div>
+
+    <li v-for="appointment in appointments" :key="appointment._id">
+      {{ appointment.date }}
+    </li>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'PatientAppointments',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Patient, Appointment } = context.root.$FeathersVuex.api
+
+    // Get the patient record
+    const { item: patient } = useGet({ model: Patient, id: props.id })
+
+    // Get all of the appointments belonging to the current patient
+    const appointmentsParams = computed(() => {
+      return {
+        query: {
+          userId: props.id,
+          $sort: { date: -1 }
+        }
+      }
+    })
+    const { items: appointments } = useFind({
+      model: Appointment,
+      params: appointmentsParams
+    })
+
+    return {
+      patient,
+      appointments
+    }
+  }
+}
+```
+
+### Deferring Queries
+
+In the previous example, the requests for the `patient` and `appointments` are made at the same time because the user's `id` is available, already.  What if we were required to load `appointments` after the `patient` record finished loading?  We could change the `appointmentsParams` to return `null` until the `patient` record becomes available, as shown in the following example:
+
+```html
+<template>
+  <div>
+    <div>{{ patient.name }}</div>
+
+    <li v-for="appointment in appointments" :key="appointment._id">
+      {{ appointment.date }}
+    </li>
+
+    <div v-if="!appointments.length && haveLoaded">
+      No appointments have been scheduled for this patient.
+    </div>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'PatientAppointments',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Patient, Appointment } = context.root.$FeathersVuex.api
+
+    // Get the patient record
+    const { item: patient } = useGet({ model: Patient, id: props.id })
+
+    // Get all of the appointments belonging to the current patient
+    const appointmentsParams = computed(() => {
+      // (1)
+      if (!patient.value) {
+        return null
+      }
+      // (2)
+      return {
+        query: {
+          userId: patient.value._id,
+          $sort: { date: -1 }
+        }
+      }
+    })
+    const { items: appointments, haveLoaded } = useFind({
+      model: Appointment,
+      params: appointmentsParams
+    })
+
+    return {
+      patient,
+      appointments,
+      haveLoaded
+    }
+  }
+}
+```
+
+Reviewing the above snippet, while there is no `patient` record, the `appointmentsParams` computed property returns `null` at comment `(1)`.  This will prevent any query from going out to the API server.
+
+Once the `patient` has loaded, the full params object is returned at comment `(2)`.  This allows the `useFind` utility to make the request.
+
+### Showing Loading State
+
+This next example builds on the previous one and adds loading state for both the `patient` and the `appointments`.
+
+```html
+<template>
+  <div>
+    <div v-if="isPatientLoading">Loading</div>
+    <div v-else>{{ patient.name }}</div>
+
+    <li v-for="appointment in appointments" :key="appointment._id">
+      {{ appointment.date }}
+    </li>
+
+    <div v-if="!appointments.length && haveLoaded">
+      No appointments have been scheduled for this patient.
+    </div>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'PatientAppointments',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Patient, Appointment } = context.root.$FeathersVuex.api
+
+    const {
+      item: patient,
+      isPending: isPatientLoading
+    } = useGet({ model: Patient, id: props.id })
+
+    const appointmentsParams = computed(() => {
+      if (!patient.value) {
+        return null
+      }
+      return {
+        query: {
+          userId: patient.value._id,
+          $sort: { date: -1 }
+        }
+      }
+    })
+    const { items: appointments, haveLoaded } = useFind({
+      model: Appointment,
+      params: appointmentsParams
+    })
+
+    return {
+      patient,
+      isPatientLoading,
+      appointments,
+      haveLoaded
+    }
+  }
+}
+```
 
 ## Conventions for Development
 

@@ -25,9 +25,9 @@ interface UseFindOptions {
 interface UseFindState {
   debounceTime: null | number
   qid: string
-  isFindPending: boolean
-  haveBeenRequestedOnce: boolean
-  haveLoadedOnce: boolean
+  isPending: boolean
+  haveBeenRequested: boolean
+  haveLoaded: boolean
   error: null | Error
   latestQuery: null | object
   isLocal: boolean
@@ -35,9 +35,9 @@ interface UseFindState {
 interface UseFindData {
   items: Ref<any>
   servicePath: Ref<string>
-  isFindPending: Ref<boolean>
-  haveBeenRequestedOnce: Ref<boolean>
-  haveLoadedOnce: Ref<boolean>
+  isPending: Ref<boolean>
+  haveBeenRequested: Ref<boolean>
+  haveLoaded: Ref<boolean>
   isLocal: Ref<boolean>
   qid: Ref<string>
   debounceTime: Ref<number>
@@ -84,9 +84,9 @@ export default function find(options: UseFindOptions): UseFindData {
 
   const state = reactive<UseFindState>({
     qid,
-    isFindPending: false,
-    haveBeenRequestedOnce: false,
-    haveLoadedOnce: false,
+    isPending: false,
+    haveBeenRequested: false,
+    haveLoaded: false,
     error: null,
     debounceTime: null,
     latestQuery: null,
@@ -128,20 +128,20 @@ export default function find(options: UseFindOptions): UseFindData {
   function find<T>(params: Params): T {
     params = isRef(params) ? params.value : params
     if (queryWhen.value && !state.isLocal) {
-      state.isFindPending = true
-      state.haveBeenRequestedOnce = true
+      state.isPending = true
+      state.haveBeenRequested = true
 
       return model.find(params).then(response => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
-        state.haveLoadedOnce = true
+        state.haveLoaded = true
 
         const queryInfo = getQueryInfo(params, response)
         queryInfo.response = response
         queryInfo.isOutdated = false
 
         state.latestQuery = queryInfo
-        state.isFindPending = false
+        state.isPending = false
         return response
       })
     }
