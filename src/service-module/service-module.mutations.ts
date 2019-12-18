@@ -23,9 +23,6 @@ export default function makeServiceMutations() {
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
     const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
 
-    const newKeyedById = { ...state.keyedById }
-    const newTempsById = { ...state.tempsById }
-
     for (let item of items) {
       const id = getId(item, idField)
       const isTemp = id === null || id === undefined
@@ -45,16 +42,14 @@ export default function makeServiceMutations() {
           tempId = assignTempId(state, item)
         }
         item.__isTemp = true
-        newTempsById[tempId] = item
+        Vue.set(state.tempsById, tempId, item)
       } else {
         // Only add the id if it's not already in the `ids` list.
         if (!state.ids.includes(id)) {
           state.ids.push(id)
         }
-        newKeyedById[id] = item
+        Vue.set(state.keyedById, id, item)
       }
-      state.keyedById = newKeyedById
-      state.tempsById = newTempsById
     }
   }
 
