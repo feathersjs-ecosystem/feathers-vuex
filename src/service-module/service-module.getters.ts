@@ -77,7 +77,7 @@ export default function makeServiceGetters() {
       const tempRecord = tempsById[id]
         ? select(params, tempIdField)(tempsById[id])
         : undefined
-      return record || tempRecord
+      return record || tempRecord || null
     },
     getCopyById: state => id => {
       const { servicePath, keepCopiesInStore, serverAlias } = state

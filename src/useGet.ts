@@ -1,67 +1,123 @@
-import { reactive, computed, toRefs, watch } from '@vue/composition-api'
+/*
+eslint
+@typescript-eslint/no-explicit-any: 0
+*/
 import {
-  getServicePrefix,
-  getServiceCapitalization,
-  getQueryInfo,
-  getItemsFromQueryInfo
-} from './utils'
+  reactive,
+  computed,
+  toRefs,
+  isRef,
+  watch,
+  Ref
+} from '@vue/composition-api'
+import { Params } from './utils'
 
-const defaults = {
-  model: null,
-  params: null,
-  queryWhen: () => true,
-  qid: 'default'
+interface UseGetOptions {
+  model: Function
+  id: null | string | number | Ref<null> | Ref<string> | Ref<number>
+  params?: Params | Ref<Params>
+  fetchParams?: Params | Ref<Params>
+  queryWhen?: Ref<Function>
+  local?: boolean
+  lazy?: boolean
+}
+interface UseGetState {
+  item: Ref<any>
+  isPending: boolean
+  hasBeenRequested: boolean
+  hasLoaded: boolean
+  error: null | Error
+  isLocal: boolean
+}
+interface UseGetData {
+  item: Ref<any>
+  servicePath: Ref<string>
+  isPending: Ref<boolean>
+  hasBeenRequested: Ref<boolean>
+  hasLoaded: Ref<boolean>
+  isLocal: Ref<boolean>
+  error: Ref<Error>
+  get: Function
 }
 
-export default function find(options) {
-  const { model, params, name, queryWhen, qid } = Object.assign(
+export default function get(options: UseGetOptions): UseGetData {
+  const defaults = {
+    model: null,
+    id: null,
+    params: null,
+    queryWhen: computed((): boolean => true),
+    local: false,
+    lazy: false
+  }
+  const { model, id, params, queryWhen, local, lazy } = Object.assign(
     {},
     defaults,
     options
   )
 
-  const nameToUse = (name || model.servicePath).replace('-', '_')
-  const prefix = getServicePrefix(nameToUse)
-  const capitalized = getServiceCapitalization(nameToUse)
-
-  const IS_FIND_PENDING = `isFind${capitalized}Pending`
-  const GET_ACTION = `find${capitalized}`
-  const GET_GETTER = `find${capitalized}InStore`
-  const HAVE_ITEMS_BEEN_REQUESTED_ONCE = `have${capitalized}BeenRequestedOnce`
-  const HAVE_ITEMS_LOADED_ONCE = `have${capitalized}LoadedOnce`
-  const PAGINATION = `${prefix}PaginationData`
-  // const MOST_RECENT_QUERY = `${prefix}LatestQuery`
-  const ERROR = `${prefix}Error`
-
-  const state = reactive({
-    [prefix]: computed(() => model.getFromStore(params).data),
-    [IS_FIND_PENDING]: false,
-    [HAVE_ITEMS_BEEN_REQUESTED_ONCE]: false,
-    [HAVE_ITEMS_LOADED_ONCE]: false,
-    [ERROR]: null,
-    [PAGINATION]: computed(() => {
-      return model.store.state[model.servicePath].pagination
-    })
+  const _id = computed(() => id)
+  const servicePath = computed<string>(() => model.servicePath)
+  const state = reactive<UseGetState>({
+    item: computed(() => {
+      const getterId = isRef(id) ? id.value : id
+      const getterParams = isRef(params)
+        ? Object.assign({}, params.value)
+        : params == null
+        ? params
+        : { ...params }
+      if (getterParams != null) {
+        return model.getFromStore(getterId, getterParams) || null
+      } else {
+        return model.getFromStore(getterId) || null
+      }
+      // return model.store.state[model.servicePath].keyedById[id.value] || null
+      // return model.getFromStore(id.value) || null
+    }),
+    isPending: false,
+    hasBeenRequested: false,
+    hasLoaded: false,
+    error: null,
+    isLocal: local
   })
-  function get(params) {
-    if (params != null) {
-      console.log('finding')
-      model.get(params)
+
+  function get<T>(id, params): T {
+    const idToUse = isRef(id) ? id.value : id
+    const paramsToUse = isRef(params) ? params.value : params
+
+    if (idToUse != null && !state.isLocal) {
+      state.isPending = true
+      state.hasBeenRequested = true
+
+      const promise =
+        paramsToUse != null
+          ? model.get(idToUse, paramsToUse)
+          : model.get(idToUse)
+
+      return promise
+        .then(response => {
+          state.isPending = false
+          state.hasLoaded = true
+          return response
+        })
+        .catch(error => {
+          state.isPending = false
+          state.error = error
+          return error
+        })
     }
   }
 
   watch(
-    () => params,
-    params => {
-      get(params)
-    }
+    () => [_id, params],
+    ([_id, params]) => {
+      get(_id, params)
+    },
+    { lazy }
   )
 
-  get(params)
-
   return {
+    servicePath,
     ...toRefs(state),
-    [GET_ACTION]: model.get,
-    [GET_GETTER]: model.getFromStore
+    get
   }
 }
