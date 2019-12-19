@@ -112,6 +112,8 @@ build: {
 }
 ```
 
+Be sure to read the section of the docs dedicated to [Working With Nuxt](./nuxt.md).
+
 ## Vue DevTools
 
 Since Feathers-Vuex extensively uses Vuex under the hood, you'll want to make sure your VueJS developer tools are up to date AND setup properly.  Specifically, the "New Vuex Backend" needs to be enabled.  To setup the devtools
