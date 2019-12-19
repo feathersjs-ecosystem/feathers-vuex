@@ -1,8 +1,10 @@
+/* eslint @typescript-eslint/ban-ts-ignore:0 */
 import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import feathers from '@feathersjs/client'
 import auth from '@feathersjs/authentication-client'
 
+// @ts-ignore
 const feathersClient = feathers().configure(auth())
 
 describe('Service Module - Bad Client Setup', () => {
@@ -12,7 +14,7 @@ describe('Service Module - Bad Client Setup', () => {
     })
     class MisconfiguredTask extends BaseModel {
       public static modelName = 'MisconfiguredTask'
-      public static test: boolean = true
+      public static test = true
     }
 
     try {
