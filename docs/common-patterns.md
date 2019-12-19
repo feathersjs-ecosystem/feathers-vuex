@@ -24,6 +24,13 @@ As of version 2.0, Feathers-Vuex has been rewritten in TypeScript.
 
 See [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
 
+In version 3.0, support for the [Vue Composition API](https://github.com/vuejs/composition-api) was added in the form of the `useFind` and `useGet` utilities.  These new utilities provide the best experience for working with TypeScript.  This is due to two things:
+
+1. Better general TypeScript support in the Vue Composition API.
+1. Consistent object-key naming and types in the new utilities.
+
+Read more about how to use them in the [Feathers-Vuex Composition API Docs](./composition-api.md)
+
 ## Clearing data upon user logout
 
 The best solution is to simply refresh to clear memory.  The alternative to refreshing would be to perform manual cleanup of the service stores.  Refreshing is much simpler, so it's the officially supported solution.  Feel free to read [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/10) for more suggestions.
