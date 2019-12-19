@@ -384,6 +384,10 @@ When this record is instantiated, the `user` attribute will first be turned into
 
 There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
 
+### Workflow for Saving Model Associations
+
+A great issue was opened on GitHub about the [Workflow for clone and save Model with associations](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/278).  That's a great issue to read to get familiar with the workflow.
+
 ## Form Binding
 
 Use the Model classes to reduce the boilerplate required to work with forms and Vuex, even in strict mode!  Every model instance has a `.clone()` method which can be used to get a fully-reactive copy of the record in the store.  Here is a very simple version of how you could bind to a form and submit new data to the server.
