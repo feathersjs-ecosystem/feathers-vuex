@@ -1,5 +1,6 @@
 ---
 title: Mixins
+sidebarDepth: 3
 ---
 
 # Mixins
