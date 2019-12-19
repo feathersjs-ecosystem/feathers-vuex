@@ -471,7 +471,7 @@ export default {
 
 ### Using queryWhen
 
-The `queryWhen` option for both `useFind` and `useGet` comes in handy when you want to, say, not query if an item already exists.  This next example shows how to stop the `get` request if you already have a patient with the current `id`.
+The `queryWhen` option for both `useFind` and `useGet` comes in handy when you want to conditional prevent API queries.  One use case for this is to prevent extra queries by checking if an item already exists in the vuex store.  This next example shows how to stop the `get` request if you already have a patient record with the current `id`.
 
 ```html
 <template>
