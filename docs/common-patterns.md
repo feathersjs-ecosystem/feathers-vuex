@@ -264,6 +264,18 @@ In summary, you can plan on individual records in the action response data to be
 
 See the [instanceDefaults API](./model-classes.html#instancedefaults)
 
+## Handling Non-Reactive Data
+
+If you are encountering a scenario where certain properties in your records are not reactive, it's probably because they
+
+1. Are not defined in the `instanceDefaults`.
+2. Are getting added to the record after it gets added to the Vuex store.
+
+There are two ways to solve this:
+
+1. Add the property to the `instanceDefaults` (see the previous section, above)  This tends to be the simplest solution.
+2. Make sure the property is added in the responses from the API server.
+
 ## Model-Specific Computed Properties
 
 You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
