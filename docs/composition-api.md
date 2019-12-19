@@ -13,7 +13,7 @@ Before you can use the `useFind` and `useGet` composition functions, you'll need
 
 ## Detour: Reading a TypeScript interface
 
-The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  If this is your first time, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
+The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  In this case, they're used to show the `options` object which can be passed to each of the composition api utilities.  If this is your first time with interfaces, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
 
 - In the [first interface example](#options), below, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass them around like variables.
 - Each line of the interface describes a property.
@@ -190,11 +190,88 @@ Note that with the Vue Options API (aka the only way to write components in Vue 
 
 ## useGet <Badge text="3.0.0+" />
 
-The `useGet` utility is still being built.  Docs will be written when it becomes more complete.
+The `useGet` Composition API utility provides the same fall-through cache functionality as `useFind`.  It has a slightly simpler API, only requiring a `model` and `id` instead of the `params` object.  Still, the `params` object can be used to send along additional query parameters in the request.  Below is an example of how you might use the `useGet` utility.
+
+```html
+<template>
+  <div>
+    <div v-if="post">{{ post.body }}</div>
+    <div v-else-if="isPending">Loading</div>
+    <div v-else>Post not found.</div>
+  </div>
+</template>
+
+<script>
+import { computed } from '@vue/composition-api'
+import { useFind, useGet } from 'feathers-vuex'
+
+export default {
+  name: 'BlogPostView',
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, context) {
+    const { Post } = context.root.$FeathersVuex.api
+
+    // Get the patient record
+    const { item: post, isPending } = useGet({
+      model: Post,
+      id: props.id
+    })
+
+    return {
+      post,
+      isPending
+    }
+  }
+}
+```
+
+See the [Routing with useGet](#routing-with-useget) portion of the patterns section, below, to see how to hook up the above component to vue-router.
 
 ### Options
 
+We learned earlier [how to read a TypeScript interface](#detour-reading-a-typescript-interface), so let's look at the TypeScript interface for the `UseGetOptions`.
+
+```ts
+interface UseGetOptions {
+  model: Function
+  id: null | string | number | Ref<null> | Ref<string> | Ref<number>
+  params?: Params | Ref<Params>
+  queryWhen?: Ref<Function>
+  local?: boolean
+  lazy?: boolean
+}
+```
+
+And here's a look at each individual property:
+
+- `model` must be a Feathers-Vuex Model class. The Model's `get` and `getFromStore` methods are used to query data.
+- `id` must be a record's unique identifier (`id` or `_id`, usually) or a ref or computed property which returns one.
+  - When the `id` changes, the API will be queried for the new record (unless `queryWhen` evaluates to `false`).
+  - If the `id` is `null`, no query will be made.
+- `params` is a FeathersJS Params object OR a Composition API `ref` (or `computed`, since they return a `ref` instance) which returns a Params object.
+  - Unlike the `useFind` utility, `useGet` does not currently have built-in debouncing.
+- `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests apart from `null` in the `id`.
+- `lazy`, which is `false` by default, determines if the internal `watch` should fire immediately.  Set `lazy: true` and the query will not fire immediately.  It will only fire on subsequent changes to the `id` or `params`.
+
 ### Returned Attributes
+
+```ts
+interface UseGetData {
+  item: Ref<any>
+  servicePath: Ref<string>
+  isPending: Ref<boolean>
+  hasBeenRequested: Ref<boolean>
+  hasLoaded: Ref<boolean>
+  isLocal: Ref<boolean>
+  error: Ref<Error>
+  get: Function
+}
+```
 
 ## Pattens: `useFind` with `useGet`
 
@@ -434,6 +511,32 @@ export default {
 
 In the above example, the `patientQueryWhen` computed property will return `true` if we don't already have a `Patient` record in the store with the current `props.id`.  While you could also achieve similar results by performing this logic inside of a `params` computed property, the `queryWhen` option works great as a "master override" to prevent unneeded queries.
 
+### Routing with useGet
+
+Apps will commonly have one or more routes with an `:id` param.  This might be for viewing or editing data.  Vue Router has a feature that makes it easy to write reusable components without having to directly reference the `$route` object.  The key is to set the `props` attribute in a route definition to `true`.  Here's an example route:
+
+```js
+// router.js
+import Vue from 'vue'
+import Router from 'vue-router'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      name: 'Post View',
+      path: '/posts/:id',
+      component: () =>
+        import(/* webpackChunkName: "posts" */ './views/Post.vue'),
+      props: true
+    }
+  ]
+})
+```
+
+Now, the `Post.vue` file only requires to have a `prop` named `id`.  Vue Router will pass the params from the route as props to the component.  See the [first useGet example](#useget) for a component that would work with the above route.  The vue-router documentation has more information about [Passing Props to Route Components](https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components)
+
 ## Conventions for Development
 
 ### Params are Computed
@@ -446,10 +549,10 @@ In contrast, an imperatively-written query would be a reactive object that you d
 
 ### Naming Variables
 
-Having a variable naming convention can really assist the developer onboarding process and long run ease of use.  Here are some guidelines that could be useful while using the composition API utilities:
+Having a variable naming convention can really assist the developer onboarding process and long run ease of use.  Here are some guidelines that could prove useful while using the composition API utilities:
 
 - Params for `useFind` result in a list of records, and should therefore indicate plurality.
-- Params for `useGet` result in a single record, and should indicate singularity.
+- When used, params for `useGet` result in a single record, and should indicate singularity.
 
 ```js
 import { computed } from '@vue/composition-api'

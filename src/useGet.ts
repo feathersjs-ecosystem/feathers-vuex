@@ -16,7 +16,6 @@ interface UseGetOptions {
   model: Function
   id: null | string | number | Ref<null> | Ref<string> | Ref<number>
   params?: Params | Ref<Params>
-  fetchParams?: Params | Ref<Params>
   queryWhen?: Ref<Function>
   local?: boolean
   lazy?: boolean
