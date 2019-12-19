@@ -11,6 +11,6 @@ features:
 - title: Simplified Auth & Services
   details: Includes service and auth plugins powered by Vuex. All plugins can be easily customized to fit your app.  Fully flexible.
 - title: Best Practices, Baked In
-  details: Common Redux patterns come included. Fall-through cache comes standard. Query the vuex store like a database.
+  details: Vue Composition API 😎 Common Redux patterns included. Fall-through cache by default. Query the Vuex store like a database.
 footer: MIT Licensed | Copyright © 2017-present Marshall Thompson
 ---

@@ -95,6 +95,7 @@ And here's a look at each individual property:
   - You can use `params.qid` to dynamically specify the query identifier for any API request. The `qid` is used for tracking pagination data and enabling the fall-through cache across multiple queries.
   - Set `params.paginate` to `true` to turn off realtime updates for the results and defer pagination to the API server.  Pagination works the same as for the [makeFindMixin pagination](./mixins.html#pagination-with-fall-through-cacheing).
   - Set `params.debounce` to an integer and the API requests will automatically be debounced by that many milliseconds.  For example, setting `debounce: 1000` will assure that the API request will be made at most every 1 second.
+  - Set `params.temps` to `true` to include temporary (local-only) items in the results. Temporary records are instances that have been created but not yet saved to the database.
 - `fetchParams` This is a separate set of params that, when provided, will become the params sent to the API server.  The `params` will then only be used to query data from the local data store.
   - Explicitly returning `null` will prevent an API request from being made.
 - `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests *outside* of the `params`.

@@ -4,6 +4,16 @@ title: Nuxt
 
 # Nuxt
 
+### Access `$FeathersVuex` models in Nuxt `asyncData`
+
+In `feathers-vuex@2.x`, you can get access to the `$FeathersVuex` object by importing the `models` object from the main export:
+
+```
+import { models } from 'feathers-vuex'
+```
+
+The `models` and `$FeathersVuex` variables are the same object.
+
 ## Preventing Memory Leaks
 
 The default settings of Feathers-Vuex include having realtime events enabled by default.  This will result in increased memory usage over time on the SSR server.  It can be turned off when you configure `feathers-vuex`.  The example below has been modified from the example of [Setting up the Feathers Client & Feathers-Vuex](./api-overview.md#feathers-client-feathers-vuex).  Look specifically at the `enableEvents` option.
