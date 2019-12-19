@@ -93,7 +93,7 @@ And here's a look at each individual property:
   - When provided alone (without the optional `fetchParams`), this same query is used for both the local data store and the API requests.
   - Explicitly returning `null` will prevent an API request from being made.
   - You can use `params.qid` to dynamically specify the query identifier for any API request. The `qid` is used for tracking pagination data and enabling the fall-through cache across multiple queries.
-  - Set `params.paginate` to `true` to turn off realtime updates for the results and defer pagination to the API server.
+  - Set `params.paginate` to `true` to turn off realtime updates for the results and defer pagination to the API server.  Pagination works the same as for the [makeFindMixin pagination](./mixins.html#pagination-with-fall-through-cacheing).
   - Set `params.debounce` to an integer and the API requests will automatically be debounced by that many milliseconds.  For example, setting `debounce: 1000` will assure that the API request will be made at most every 1 second.
 - `fetchParams` This is a separate set of params that, when provided, will become the params sent to the API server.  The `params` will then only be used to query data from the local data store.
   - Explicitly returning `null` will prevent an API request from being made.
@@ -273,7 +273,11 @@ interface UseGetData {
 }
 ```
 
-## Pattens: `useFind` with `useGet`
+## Patterns & Examples
+
+### Server-Side Pagination
+
+Similar to what was introduced with the `makeFindMixin` in Feathers-Vuex 2.0, the `useFind` API supports server-side pagination.  It is enabled by passing `paginate: true` in the `params` (or the `fetchParams` if you're using separate queries).  For an overview of how it works, refer to the [makeFindMixin pagination docs](./mixins.html#pagination-with-fall-through-cacheing).
 
 ### Simultaneous Queries
 
