@@ -10,6 +10,8 @@ module.exports = {
     sidebar: [
       '/api-overview.md',
       '/3.0-major-release.md',
+      '/getting-started.md',
+      '/example-applications.md',
       '/vue-plugin.md',
       '/service-plugin.md',
       '/auth-plugin.md',
