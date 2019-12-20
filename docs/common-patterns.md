@@ -24,6 +24,13 @@ As of version 2.0, Feathers-Vuex has been rewritten in TypeScript.
 
 See [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/114) for suggestions for with TypeScript helpers.
 
+In version 3.0, support for the [Vue Composition API](https://github.com/vuejs/composition-api) was added in the form of the `useFind` and `useGet` utilities.  These new utilities provide the best experience for working with TypeScript.  This is due to two things:
+
+1. Better general TypeScript support in the Vue Composition API.
+1. Consistent object-key naming and types in the new utilities.
+
+Read more about how to use them in the [Feathers-Vuex Composition API Docs](./composition-api.md)
+
 ## Clearing data upon user logout
 
 The best solution is to simply refresh to clear memory.  The alternative to refreshing would be to perform manual cleanup of the service stores.  Refreshing is much simpler, so it's the officially supported solution.  Feel free to read [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/10) for more suggestions.
@@ -257,6 +264,18 @@ In summary, you can plan on individual records in the action response data to be
 
 See the [instanceDefaults API](./model-classes.html#instancedefaults)
 
+## Handling Non-Reactive Data
+
+If you are encountering a scenario where certain properties in your records are not reactive, it's probably because they
+
+1. Are not defined in the `instanceDefaults`.
+2. Are getting added to the record after it gets added to the Vuex store.
+
+There are two ways to solve this:
+
+1. Add the property to the `instanceDefaults` (see the previous section, above)  This tends to be the simplest solution.
+2. Make sure the property is added in the responses from the API server.
+
 ## Model-Specific Computed Properties
 
 You may find yourself in a position where model-specific computed properties would be very useful. [github issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/163).  In Feathers-Vuex 1.7, these could be specified in the `instanceDefaults`.  As of 2.0, they are specified directly on each Model class:
@@ -364,6 +383,10 @@ const servicePlugin = makeServicePlugin({
 When this record is instantiated, the `user` attribute will first be turned into a User [model instance](./model-classes.html), stored properly in the `/users` store. The `todo.user` attribute will be a reference to that user.  No more duplicate data!  Here's an example of how to set this up.
 
 There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
+
+### Workflow for Saving Model Associations
+
+A great issue was opened on GitHub about the [Workflow for clone and save Model with associations](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/278).  That's a great issue to read to get familiar with the workflow.
 
 ## Form Binding
 

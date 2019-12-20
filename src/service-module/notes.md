@@ -384,12 +384,6 @@ Feathers-Vuex 2.0 supports tracking temporary items and automatically assigns a 
 
 Because of the new ability to handle temporary records, a message is only logged when assigning a temporary id to a record.  The `checkId` utility function has been removed, since this was its main purpose.
 
-## Getters Work with Temporary Records
-
-The `find` getter has been updated to include records from `state.tempsById`, by default.  You can pass `temps: false` in the params to only search `state.keyedById`: `find({ query: {}, temps: false })`
-
-The `get` getter has also been updated to work with temp ids.  Pass the tempId the way you normally would pass the id:  `get(tempId)`
-
 ## The "currentItem" workflow is no longer supported
 
 The `setCurrent` mutation and `currentId` state encouraged use of a very limiting API.  It's much more common for apps to require more than one current record.  The `createCopy`, `resetCopy` (formerly called `rejectCopy`), `commitCopy`, and `clearCopy` mutations (since v1.x) provide a more flexible solution for implementing the same functionality.  As a result of this, following have been removed from the modules:

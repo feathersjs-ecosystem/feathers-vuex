@@ -1,15 +1,20 @@
 ---
 title: Mixins
+sidebarDepth: 3
 ---
 
-> Coming in Version 2.0: First Class pagination support!  Details coming soon.
+# Mixins
 
-FeathersVuex mixins provide quick and easy best practices directly inside a component's viewModel.  They are similar to [Renderless Data Components](./components.md), but are more powerful for two reasons.
+`Feathers-Vuex` mixins provide quick and easy best practices directly inside a component's viewModel.  They are similar to [Renderless Data Components](./components.md), but are more powerful for two reasons.
 
 1. You can do lots of them together. Handle multiple queries against multiple services at the same time.  The Renderless Data Components aren't capable of handling more than one query without doing ugly nesting.
 2. They bring the data directly into the component's actual viewModel.  The Renderless Data Components only pull the data into the template scope, so the only clean way to get access to the data was by passing it to a component as props.  This is a great solution until you run into number 1, above.
 
-  Here are the steps to using it:
+If you're not using the [Feathers-Vuex Composition API](./composition-api.md), the mixins are probably going to be your preferred solution for development.
+
+## Usage
+
+Here are the steps to using mixins:
 
 1. Import the `makeFindMixin` utility from FeathersVuex.
 2. Register it in a component's mixins once for each query to be made in the component.

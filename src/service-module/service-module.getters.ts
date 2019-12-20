@@ -21,7 +21,7 @@ export default function makeServiceGetters() {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => params => {
-      params = params || {}
+      params = { ...params } || {}
 
       // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
@@ -77,7 +77,7 @@ export default function makeServiceGetters() {
       const tempRecord = tempsById[id]
         ? select(params, tempIdField)(tempsById[id])
         : undefined
-      return record || tempRecord
+      return record || tempRecord || null
     },
     getCopyById: state => id => {
       const { servicePath, keepCopiesInStore, serverAlias } = state

@@ -21,18 +21,16 @@ function makeContext() {
 
   class FindModel extends BaseModel {
     public static modelName = 'FindModel'
-    public static test: boolean = true
+    public static test = true
   }
 
   return { FindModel, BaseModel, makeServicePlugin }
 }
 
-// @ts-ignore
 Vue.use(Vuex)
-// @ts-ignore
 Vue.use(FeathersVuex)
 
-describe('Find Mixin', function () {
+describe('Find Mixin', function() {
   const { makeServicePlugin, FindModel } = makeContext()
   const serviceName = 'todos'
   const store = new Vuex.Store({
@@ -44,7 +42,7 @@ describe('Find Mixin', function () {
     ]
   })
 
-  it('correctly forms mixin data', function () {
+  it('correctly forms mixin data', function() {
     const todosMixin = makeFindMixin({ service: 'todos' })
 
     interface TodosComponent {
@@ -75,7 +73,10 @@ describe('Find Mixin', function () {
     )
     assert(vm.todosServiceName === 'todos', 'service name was correct')
     assert(vm.isFindTodosPending === false, 'loading boolean is in place')
-    assert(vm.haveTodosBeenRequestedOnce === false, 'requested once boolean is in place')
+    assert(
+      vm.haveTodosBeenRequestedOnce === false,
+      'requested once boolean is in place'
+    )
     assert(vm.haveTodosLoadedOnce === false, 'loaded once boolean is in place')
     assert(typeof vm.findTodos === 'function', 'the find action is in place')
     assert(vm.todosLocal === false, 'local boolean is false by default')
@@ -95,7 +96,7 @@ describe('Find Mixin', function () {
     )
   })
 
-  it.skip('correctly forms mixin data for dynamic service', function () {
+  it.skip('correctly forms mixin data for dynamic service', function() {
     const tasksMixin = makeFindMixin({
       service() {
         return this.serviceName

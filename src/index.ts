@@ -13,6 +13,8 @@ import { clients, addClient } from './service-module/global-clients'
 import makeModel from './service-module/make-model'
 import prepareMakeServicePlugin from './service-module/make-service-plugin'
 import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
+import useFind from './useFind'
+import useGet from './useGet'
 
 import { FeathersVuexOptions } from './service-module/types'
 import { initAuth } from './utils'
@@ -74,5 +76,7 @@ export {
   makeFindMixin,
   makeGetMixin,
   models,
-  clients
+  clients,
+  useFind,
+  useGet
 }

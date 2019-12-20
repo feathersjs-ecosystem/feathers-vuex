@@ -25,7 +25,31 @@ The "Clone and Commit" pattern provides an alternative to using a lot of mutatio
 2. Create and modify a clone of the data.
 3. Use a single mutation to commit the changes back to the original record in the store.
 
-Send most edits through a single mutation can really simplify the way you work with Vuex data.  The Feathers-Vuex `BaseModel` class has `clone` and `commit` instance methods.  Those methods are used inside the FeathersVuexFormWrapper component.
+Sending most edits through a single mutation can really simplify the way you work with Vuex data.  The Feathers-Vuex `BaseModel` class has `clone` and `commit` instance methods.   These methods provide a clean API for working with items in the Vuex store and supporting Vuex strict mode:
+
+```js
+import { models } from 'feathers-vuex'
+
+export default {
+  name: 'MyComponent',
+  created() {
+    const { Todo } = models.api
+
+    const todo = new Todo({
+      description: 'Plant the garden',
+      isComplete: false
+    })
+
+    const todoClone = todo.clone()
+    todoClone.description = 'Plant half of the garden."
+    todoClone.commit()
+  }
+}
+```
+
+In the example above, modifying the `todo` variable would directly modify part of the Vuex store outside of a mutation (also known as a reducer in Redux), which is a generally unsupportive practice.  Calling `todo.clone()` returns a reactive clone of the instance and keeps it outside the Vuex store.  This means you can make changes to it all you want without causing any trouble with Vuex.  You can then call `todoClone.commit()` to update the original record in the store.
+
+The `clone` and `commit` methods are used inside the FeathersVuexFormWrapper component.
 
 ## FeathersVuexFormWrapper
 

@@ -9,16 +9,18 @@ module.exports = {
     editLinks: true,
     sidebar: [
       '/api-overview.md',
+      '/3.0-major-release.md',
       '/vue-plugin.md',
       '/service-plugin.md',
       '/auth-plugin.md',
       '/model-classes.md',
       '/common-patterns.md',
+      '/composition-api.md',
       '/mixins.md',
       '/data-components.md',
       '/feathers-vuex-form-wrapper.md',
       '/nuxt.md',
-      '/2.0-major-release.md'
+      '/2.0-major-release.md',
     ],
     serviceWorker: {
       updatePopup: true

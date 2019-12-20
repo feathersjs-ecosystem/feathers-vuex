@@ -38,11 +38,11 @@ These docs are for version 2.x.  For feathers-vuex@1.x, please go to [https://fe
 - [Renderless Data Components](./data-components.md)
 - [Renderless Form Component](./feathers-vuex-form-wrapper.md#feathersvuexformwrapper) for Simplified Vuex Forms
 - [Temporary (Local-only) Record Support](./2.0-major-release.md#support-for-temporary-records) *
+- New `useFind` and `useGet` Vue Composition API super powers! <Badge text="3.0.0+" />
 - [Server-Powered Pagination Support](./service-plugin.md#pagination-and-the-find-action) *
 - [VuePress Dark Mode Support](https://tolking.github.io/vuepress-theme-default-prefers-color-scheme/) for the Docs
 
-`* Improved in v2.0.0`<br />
-`** New in v2.0.0`
+`** Improved in v3.0.0`
 
 ## Installation
 
@@ -111,6 +111,8 @@ build: {
   transpile: ['feathers-vuex'],
 }
 ```
+
+Be sure to read the section of the docs dedicated to [Working With Nuxt](./nuxt.md).
 
 ## Vue DevTools
 
@@ -185,7 +187,7 @@ The following example creates a User class and registers it with the new `makeSe
 
 ```js
 // src/store/services/users.js
-import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
+import feathersClient, { makeServicePlugin, BaseModel } from '../../feathers-client'
 
 class User extends BaseModel {
   constructor(data, options) {
