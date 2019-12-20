@@ -9,7 +9,7 @@ On this page you will find any example applications using Feathers-Vuex that hav
 
 ## Feathers Chat
 
-The [Feathers Chat Example for Feathers Vuex](https://github.com/feathersjs-community/feathers-chat-vuex) has been updated to `feathers-vuex@3.x` and everything has been rewritten with the Vue composition API.  The old repo is now available at [https://github.com/feathersjs-ecosystem/feathers-chat-vuex-0.7](https://github.com/feathersjs-ecosystem/feathers-chat-vuex-0.7).  The following information will assist you in seeing the "before" and "after" of the refactor to feathers-vuex@3.x.
+The [Feathers Chat Example for Feathers Vuex](https://github.com/feathersjs-ecosystem/feathers-chat-vuex) has been updated to `feathers-vuex@3.x` and everything has been rewritten with the Vue composition API.  The old repo is now available at [https://github.com/feathersjs-ecosystem/feathers-chat-vuex-0.7](https://github.com/feathersjs-ecosystem/feathers-chat-vuex-0.7).  The following information will assist you in seeing the "before" and "after" of the refactor to feathers-vuex@3.x.
 
 ![Feathers Chat](https://camo.githubusercontent.com/14b6b2d6dd2475c3b83eb1ade6aedbcd8cf94139/68747470733a2f2f646f63732e66656174686572736a732e636f6d2f6173736574732f696d672f66656174686572732d636861742e39313936303738352e706e67)
 
@@ -37,10 +37,10 @@ The Feathers Chat example is a pretty simple application.  Its primary purpose i
 1. Still allows comparison of Feathers Chat applications made with other frameworks.
 2. Allows the version of Feathers Chat built with Feathers-Vuex to add features and showcase things you might actually use in production.
 
-If there are features which you would like to see implemented, please open an issue in the [feathers-chat-vuex Repo](https://github.com/feathersjs-community/feathers-chat-vuex) for your idea to be considered.
+If there are features which you would like to see implemented, please open an issue in the [feathers-chat-vuex Repo](https://github.com/feathersjs-ecosystem/feathers-chat-vuex) for your idea to be considered.
 
 ## Community Examples
 
 If you have created or know of an example application, please add it, here.
 
-- [Feathers-Chat-Vuex](https://github.com/feathersjs-community/feathers-chat-vuex)
+- [Feathers-Chat-Vuex](https://github.com/feathersjs-ecosystem/feathers-chat-vuex)
