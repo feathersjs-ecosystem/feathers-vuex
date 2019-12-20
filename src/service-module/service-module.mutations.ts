@@ -263,6 +263,9 @@ export default function makeServiceMutations() {
         if (!item.hasOwnProperty('__ob__')) {
           item = Vue.observable(item)
         }
+        if (!Model.hasOwnProperty('copiesById')) {
+          Object.defineProperty(Model, 'copiesById', { value: {} })
+        }
         Model.copiesById[id] = item
       }
     },

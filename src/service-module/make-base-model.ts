@@ -34,7 +34,7 @@ const defaultOptions = {
  *
  * @param options
  */
-export default function makeModel(options: FeathersVuexOptions) {
+export default function makeBaseModel(options: FeathersVuexOptions) {
   const addModel = prepareAddModel(options)
   const { serverAlias } = options
 
@@ -70,7 +70,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     public static serverAlias: string = options.serverAlias
 
     public static readonly models = globalModels // Can access other Models here
-    public static readonly copiesById = {}
+    public static copiesById = {}
 
     public __id: string
     public __isClone: boolean
@@ -252,7 +252,7 @@ export default function makeModel(options: FeathersVuexOptions) {
     }
 
     private _clone(id) {
-      const { store, copiesById, namespace, _commit, _getters } = this
+      const { store, namespace, _commit, _getters } = this
         .constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
 
@@ -261,7 +261,8 @@ export default function makeModel(options: FeathersVuexOptions) {
       if (keepCopiesInStore) {
         return _getters.call(this.constructor, 'getCopyById', id)
       } else {
-        return copiesById[id]
+        // const { copiesById } = this.constructor as typeof BaseModel
+        return (this.constructor as typeof BaseModel).copiesById[id]
       }
     }
     /**

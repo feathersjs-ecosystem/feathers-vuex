@@ -180,6 +180,29 @@ describe('Models - Default Values', function() {
     )
   })
 
+  it('each model has its own Model.copiesById', function() {
+    const { Todo, Person } = makeContext()
+    const todo = new Todo({ id: 1, description: 'This is the original' })
+    const person = new Person({ id: 2, name: 'Xavier' })
+
+    todo.clone()
+    assert(Todo.copiesById[1], 'should have a copy stored on Todo.copiesById')
+    assert(
+      !Person.copiesById[1],
+      'should not have a copy stored on Person.copiesById'
+    )
+
+    person.clone()
+    assert(
+      Person.copiesById[2],
+      'should have a copy stored on Person.copiesById'
+    )
+    assert(
+      !Todo.copiesById[2],
+      'should not have a copy stored on Todo.copiesById'
+    )
+  })
+
   it('allows instance defaults, including getters and setters', function() {
     const { BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'instance-defaults'
