@@ -229,6 +229,7 @@ export default {
     }
   }
 }
+<script>
 ```
 
 See the [Routing with useGet](#routing-with-useget) portion of the patterns section, below, to see how to hook up the above component to vue-router.
@@ -333,6 +334,7 @@ export default {
     }
   }
 }
+</script>
 ```
 
 ### Deferring Queries
@@ -398,6 +400,7 @@ export default {
     }
   }
 }
+</script>
 ```
 
 Reviewing the above snippet, while there is no `patient` record, the `appointmentsParams` computed property returns `null` at comment `(1)`.  This will prevent any query from going out to the API server.
@@ -468,6 +471,7 @@ export default {
     }
   }
 }
+</script>
 ```
 
 ### Using queryWhen
@@ -512,6 +516,7 @@ export default {
     }
   }
 }
+</script>
 ```
 
 In the above example, the `patientQueryWhen` computed property will return `true` if we don't already have a `Patient` record in the store with the current `props.id`.  While you could also achieve similar results by performing this logic inside of a `params` computed property, the `queryWhen` option works great as a "master override" to prevent unneeded queries.
