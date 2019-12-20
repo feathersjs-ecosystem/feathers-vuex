@@ -48,31 +48,31 @@ function makeContext() {
       super(data, options)
     }
     public static modelName = 'Person'
-    public static test: boolean = true
+    public static test = true
   }
   class Item extends BaseModel {
     public static modelName = 'Item'
-    public static test: boolean = true
+    public static test = true
   }
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static test: boolean = true
+    public static test = true
   }
   class Car extends BaseModel {
     public static modelName = 'Car'
-    public static test: boolean = true
+    public static test = true
   }
   class Group extends BaseModel {
     public static modelName = 'Group'
-    public static test: boolean = true
+    public static test = true
   }
   class Test extends BaseModel {
     public static modelName = 'Test'
-    public static test: boolean = true
+    public static test = true
   }
   class Thing extends BaseModel {
     public static modelName = 'Thing'
-    public static test: boolean = true
+    public static test = true
   }
 
   const todosPlugin = makeServicePlugin({
@@ -124,7 +124,7 @@ describe('Models - Default Values', function() {
     // monkey patched with the store.
     class NakedTodo extends BaseModel {
       public static modelName = 'NakedTodo'
-      public static test: boolean = true
+      public static test = true
     }
     const todo = new NakedTodo()
 
@@ -187,9 +187,9 @@ describe('Models - Default Values', function() {
 
     class Car extends BaseModel {
       public id?
-      public year: number = 1905
-      public make: string = 'Tesla'
-      public model: string = 'Roadster'
+      public year = 1905
+      public make = 'Tesla'
+      public model = 'Roadster'
       public get combined(): string {
         return `${this.year} ${this.make} ${this.model}`
       }
@@ -223,9 +223,9 @@ describe('Models - Default Values', function() {
 
     class Car extends BaseModel {
       public id?
-      public year: number = 1905
-      public make: string = 'Tesla'
-      public model: string = 'Roadster'
+      public year = 1905
+      public make = 'Tesla'
+      public model = 'Roadster'
 
       public constructor(data?, options?) {
         super(data, options)
@@ -247,7 +247,7 @@ describe('Models - Default Values', function() {
 
     class Person extends BaseModel {
       public id?
-      public firstName: string = 'Harry'
+      public firstName = 'Harry'
       public location: Location = {
         coordinates: [0, 0]
       }
