@@ -37,14 +37,16 @@ function makeContext() {
   })
 
   class Todo extends BaseModel {
-    public static modelName = 'Todo'
-    public description: string
-
     public constructor(data = {}, options?) {
       super(data, options)
     }
+    public static modelName = 'Todo'
+    public description: string
   }
   class Person extends BaseModel {
+    public constructor(data = {}, options?) {
+      super(data, options)
+    }
     public static modelName = 'Person'
     public static test: boolean = true
   }
