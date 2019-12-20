@@ -85,7 +85,9 @@ export default function prepareMakeServicePlugin(
         preferUpdate
       })
       if (!Model.modelName || Model.modelName === 'BaseModel') {
-        throw new Error('The modelName property is required for Feathers-Vuex Models')
+        throw new Error(
+          'The modelName property is required for Feathers-Vuex Models'
+        )
       }
       addModel(Model)
 
