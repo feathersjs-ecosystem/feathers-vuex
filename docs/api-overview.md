@@ -187,7 +187,7 @@ The following example creates a User class and registers it with the new `makeSe
 
 ```js
 // src/store/services/users.js
-import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
+import feathersClient, { makeServicePlugin, BaseModel } from '../../feathers-client'
 
 class User extends BaseModel {
   constructor(data, options) {
