@@ -1,5 +1,6 @@
 ---
 title: Service Plugin
+sidebarDepth: 3
 ---
 
 <!-- markdownlint-disable MD002 MD033 MD041 -->
