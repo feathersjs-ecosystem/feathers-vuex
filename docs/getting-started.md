@@ -271,7 +271,7 @@ The following default options are available for configuration:
 const defaultOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
-  enableEvents: true, // Listens to socket.io events when available
+  enableEvents: true, // Listens to socket.io events when available. See the `handleEvents` API for more details
   idField: 'id', // The field in each record that will contain the id
   tempIdField: '__id',
   debug: false, // Set to true to enable logging messages.

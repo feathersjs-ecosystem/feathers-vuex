@@ -23,6 +23,12 @@ The following options are supported on `makeServicePlugin`.
   setupInstance: instance => instance, // Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
   autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
   enableEvents: false, // Turn off socket event listeners. It's true by default
+  handleEvents: {
+    created: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to add to the store
+    patched: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to update in the store
+    updated: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to update in the store
+    removed: (item, { model, models }) => options.enableEvents // handle `removed` events, return true to remove from the store
+  },
   addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
   replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
   skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
@@ -346,6 +352,63 @@ store.dispatch('todos/remove', 1)
 ```
 
 Make sure your returned records have a unique field that matches the `idField` option for the service plugin.
+
+## Service Events
+
+By default, the service plugin listens to all of the FeathersJS events:
+
+- `created` events will add new record to the store.
+- `patched` events will add (if new) or update (if present) the record in the store.
+- `updated` events will add (if new) or update (if present) the record in the store.
+- `removed` events will remove the record from the store, if present.
+
+This behavior can be turned off completely by passing `enableEvents: false` in either the global Feathers-Vuex options or in the service plugin options.  If you configure this at the global level, the service plugin level will override it.  For example, if you turn off events at the global level, you can enable them for a specific service by setting `enableEvents: true` on that service's options.
+
+### Custom Event Handlers <Badge text="3.1.0+" />
+
+As of version 3.1, you can customize the behavior of the event handlers, or even perform side effects based on the event data.  This is handled through the new `handleEvents` option on the service plugin.  Here is an example of how you might use this:
+
+```js
+handleEvents: {
+  created: (item, { model, models }) => {
+    // Perform a side effect to remove any record with the same `name`
+    const existing = Model.findInStore({ query: { name: item.name }}).data[0]
+    if (existing) {
+      existing.remove()
+    }
+
+    // Perform side effects with other models.
+    const { SomeModel } = models.api
+    new SomeModel({ /* some custom data */ }).save()
+
+    // Access the store through model.store
+    const modelState = model.store.state[model.namespace]
+    if (modelState.keyedById[5]) {
+      console.log('we accessed the vuex store')
+    }
+
+    // If true, the new item will be stored.
+    return true
+  },
+  updated: () => false,
+  patched: item.hasPatchedAttribute && item.isWorthKeeping,
+  removed: item => true // The default value, will remove the record from the store
+}
+```
+
+As shown above, each handler has two possible uses:
+
+1. Control the default behavior of the event by returning a boolean.
+  - For `created`, `patched`, and `updated` a truthy return will add or update the item in the store.
+  - For `removed` a truthy return will remove the item from the store, if present.
+2. Perform side effects using the current service `model` or with other `models`.  The `models` object is the same as the `$FeathersVuex` object in the Vue plugin.
+
+Each handler receives the following arguments:
+
+- `item`: the record sent from the API server
+- `utils`: an object containing the following properties
+   - `model` The current service's Model class.
+   - `models` The same as the `$FeathersVuex` object, gives you access to each api with their respective model classes.
 
 ## Pagination and the `find` action
 
