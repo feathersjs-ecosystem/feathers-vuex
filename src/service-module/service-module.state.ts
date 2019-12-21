@@ -11,6 +11,7 @@ export default function makeDefaultState(servicePath, options) {
     'actions',
     'getters',
     'instanceDefaults',
+    'handleEvents',
     'Model',
     'mutations',
     'service',

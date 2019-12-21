@@ -3,7 +3,11 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
+import {
+  FeathersVuexOptions,
+  MakeServicePluginOptions,
+  HandleEvents
+} from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
@@ -13,6 +17,7 @@ const defaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
   nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   servicePath: '',
+  handleEvents: {} as HandleEvents,
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
@@ -20,6 +25,7 @@ const defaults = {
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
   setupInstance: instance => instance // Default setupInstance returns the instance
 }
+const events = ['created', 'patched', 'updated', 'removed']
 
 /**
  * prepare only wraps the makeServicePlugin to provide the globalOptions.
@@ -36,6 +42,12 @@ export default function prepareMakeServicePlugin(
    * (3) Setup real-time events
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
+    // Setup the event handlers. By default they just return the value of `options.enableEvents`
+    defaults.handleEvents = events.reduce((obj, eventName) => {
+      obj[eventName] = () => config.enableEvents || true
+      return obj
+    }, {} as HandleEvents)
+
     const options = Object.assign({}, defaults, globalOptions, config)
     const {
       Model,
@@ -93,30 +105,31 @@ export default function prepareMakeServicePlugin(
 
       // (3^) Setup real-time events
       if (options.enableEvents) {
+        const handleEvent = (eventName, item, mutationName) => {
+          const affectsStore = options.handleEvents[eventName](item, {
+            model: Model,
+            models: globalModels
+          })
+          affectsStore &&
+            store.dispatch(`${options.namespace}/${mutationName}`, item)
+        }
+
         // Listen to socket events when available.
         service.on('created', item => {
-          store.dispatch(`${options.namespace}/addOrUpdate`, item)
-          if (Model.emit) {
-            Model.emit('created', item)
-          }
+          handleEvent('created', item, 'addOrUpdate')
+          Model.emit && Model.emit('created', item)
         })
         service.on('updated', item => {
-          store.dispatch(`${options.namespace}/addOrUpdate`, item)
-          if (Model.emit) {
-            Model.emit('updated', item)
-          }
+          handleEvent('updated', item, 'addOrUpdate')
+          Model.emit && Model.emit('updated', item)
         })
         service.on('patched', item => {
-          store.dispatch(`${options.namespace}/addOrUpdate`, item)
-          if (Model.emit) {
-            Model.emit('patched', item)
-          }
+          handleEvent('patched', item, 'addOrUpdate')
+          Model.emit && Model.emit('patched', item)
         })
         service.on('removed', item => {
-          store.commit(`${options.namespace}/removeItem`, item)
-          if (Model.emit) {
-            Model.emit('removed', item)
-          }
+          handleEvent('removed', item, 'removeItem')
+          Model.emit && Model.emit('removed', item)
         })
       }
     }

@@ -8,6 +8,7 @@ export interface FeathersVuexOptions {
   autoRemove?: boolean
   debug?: boolean
   enableEvents?: boolean
+  handleEvents?: HandleEvents
   idField?: string
   tempIdField?: string
   keepCopiesInStore?: boolean
@@ -17,6 +18,13 @@ export interface FeathersVuexOptions {
   replaceItems?: boolean
   skipRequestIfExists?: boolean
   whitelist?: string[]
+}
+
+export interface HandleEvents {
+  created?: Function
+  patched?: Function
+  updated?: Function
+  removed?: Function
 }
 
 export interface MakeServicePluginOptions {
