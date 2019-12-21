@@ -391,8 +391,8 @@ handleEvents: {
     // If true, the new item will be stored.
     return true
   },
-  updated: () => false,
-  patched: item.hasPatchedAttribute && item.isWorthKeeping,
+  updated: () => false, // Ignore `updated` events.
+  patched: item => item.hasPatchedAttribute && item.isWorthKeeping,
   removed: item => true // The default value, will remove the record from the store
 }
 ```
