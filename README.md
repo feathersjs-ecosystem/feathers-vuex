@@ -25,7 +25,7 @@ npm install feathers-vuex --save
 yarn add feathers-vuex
 ```
 
-IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes. If your project uses Babel, it must be configured properly. See the [Project Configuration](https://vuex.feathersjs.com/api-overview.html#project-configuration) section for more information.
+IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes. If your project uses Babel, it must be configured properly. See the [Project Configuration](https://vuex.feathersjs.com/getting-started.html#project-configuration) section for more information.
 
 ## Contributing
 
