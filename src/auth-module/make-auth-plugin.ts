@@ -20,13 +20,21 @@ const defaults = {
   actions: {} // for custom actions
 }
 
-export default function authPluginInit(feathersClient, globalOptions: FeathersVuexOptions) {
+export default function authPluginInit(
+  feathersClient,
+  globalOptions: FeathersVuexOptions
+) {
   if (!feathersClient || !feathersClient.service) {
     throw new Error('You must pass a Feathers Client instance to feathers-vuex')
   }
 
   return function makeAuthPlugin(options) {
-    options = Object.assign({}, defaults, { serverAlias: globalOptions.serverAlias }, options)
+    options = Object.assign(
+      {},
+      defaults,
+      { serverAlias: globalOptions.serverAlias },
+      options
+    )
 
     if (!feathersClient.authenticate) {
       throw new Error(
@@ -40,7 +48,7 @@ export default function authPluginInit(feathersClient, globalOptions: FeathersVu
     }
 
     const defaultState = setupState(options)
-    const defaultGetters = setupGetters()
+    const defaultGetters = setupGetters(options)
     const defaultMutations = setupMutations()
     const defaultActions = setupActions(feathersClient)
 
