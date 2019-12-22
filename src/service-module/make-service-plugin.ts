@@ -111,7 +111,7 @@ export default function prepareMakeServicePlugin(
             models: globalModels
           })
           if (affectsStore) {
-            eventName = 'removed'
+            eventName === 'removed'
               ? store.commit(`${options.namespace}/removeItem`, item)
               : store.dispatch(`${options.namespace}/${mutationName}`, item)
           }
