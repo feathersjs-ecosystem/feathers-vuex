@@ -40,6 +40,13 @@ It includes the following state by default:
 }
 ```
 
+## Getters
+
+Two getters are available when a `userService` is provided to the `makeAuthPlugin` options.
+
+- `user`: returns the reactive, logged-in user from the `userService` specified in the options.
+- `isAuthenticated`: a easy to remember boolean attribute for if the user is logged in.
+
 ## Actions
 
 The following actions are included in the `auth` module.  Login is accomplished through the `authenticate` action.  For logout, use the `logout` action.  It's important to note that the records that were loaded for a user are NOT automatically cleared upon logout.  Because the business logic requirements for that feature would vary from app to app, it can't be baked into Feathers-Vuex.  It must be manually implemented.  The recommended solution is to simply refresh the browser, which clears the data from memory.
