@@ -110,8 +110,11 @@ export default function prepareMakeServicePlugin(
             model: Model,
             models: globalModels
           })
-          affectsStore &&
-            store.dispatch(`${options.namespace}/${mutationName}`, item)
+          if (affectsStore) {
+            eventName = 'removed'
+              ? store.commit(`${options.namespace}/removeItem`, item)
+              : store.dispatch(`${options.namespace}/${mutationName}`, item)
+          }
         }
 
         // Listen to socket events when available.
