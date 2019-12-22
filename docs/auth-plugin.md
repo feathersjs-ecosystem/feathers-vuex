@@ -30,7 +30,7 @@ It includes the following state by default:
   userService: null, // Specify the userService to automatically populate the user upon login.
   entityIdField: 'userId', // The property in the payload storing the user id
   responseEntityField: 'user', // The property in the payload storing the user
-  user: null, // automatically populates if you have correctly configured the three previous settings.
+  user: null, // Deprecated: This is no longer reactive, so use the `user` getter. See below.
 
   isAuthenticatePending: false,
   isLogoutPending: false,
