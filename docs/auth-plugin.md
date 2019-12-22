@@ -44,7 +44,7 @@ It includes the following state by default:
 
 Two getters are available when a `userService` is provided to the `makeAuthPlugin` options.
 
-- `user`: returns the reactive, logged-in user from the `userService` specified in the options.
+- `user`: returns the reactive, logged-in user from the `userService` specified in the options. Returns `null` if not logged in.
 - `isAuthenticated`: a easy to remember boolean attribute for if the user is logged in.
 
 ## Actions
