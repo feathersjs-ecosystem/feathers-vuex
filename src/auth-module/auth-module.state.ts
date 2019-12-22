@@ -15,7 +15,7 @@ export default function setupAuthState({ userService, serverAlias }) {
 
     errorOnAuthenticate: null,
     errorOnLogout: null,
-    user: null,
+    user: null, // For a reactive user object, use the `user` getter.
     serverAlias
   }
   // If a userService string was passed, add a user attribute
