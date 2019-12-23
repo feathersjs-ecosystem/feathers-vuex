@@ -15,7 +15,7 @@ Before you can use the `useFind` and `useGet` composition functions, you'll need
 
 The next few sections show various TypeScript interfaces, which are basically shorthand descriptions of the types of data that make up a variable.  In this case, they're used to show the `options` object which can be passed to each of the composition api utilities.  If this is your first time with interfaces, here's a quick primer as an alternative to reading the [TypeScript interface docs](https://www.typescriptlang.org/docs/handbook/interfaces.html):
 
-- In the [first interface example](#options), below, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass them around like variables.
+- In the [first interface example](#options), below, `UseFindOptions` is the name of the interface, similar to naming any other variable.  When using TypeScript, you can import and pass interfaces around like variables.
 - Each line of the interface describes a property.
 - The part before the `:` is the name of the property.
 - The part after the `:` describes what type of variable it can be.
