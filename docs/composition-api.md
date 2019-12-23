@@ -104,7 +104,7 @@ And here's a look at each individual property:
 
 ### Returned Attributes
 
-Notice the `tutorialsData` in the previous example.  You can see that there's an `items` property, which is returned from the `setup` method as the `tutorials`.  There are many more attributes available in the object returned from `useFind`. We can learn more about the return values by looking at its TypeScript interface, below.
+Notice the `tutorialsData` in the previous example.  You can see that there's an `tutorialsData.items` property, which is returned at the bottom of the `setup` method as `tutorials`.  There are many more attributes available in the object returned from `useFind`. We can learn more about the return values by looking at its TypeScript interface, below.
 
 ```ts
 interface UseFindData {
