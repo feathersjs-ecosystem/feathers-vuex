@@ -69,7 +69,7 @@ export default {
 Let's review each of the numbered comments, above:
 
 1. Get a reference to the model class.  With the Vue Composition API, there's no `this` object.  It has been replaced by the context object.  So, only when using the composition API, the `$FeathersVuex` object is found at `context.root.$FeathersVuex`
-2. Create a computed property for the params. Return an object with a `query` object.
+2. Create a computed property for the params. Return an object with a nested `query` object.
 
 ### Options
 
