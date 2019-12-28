@@ -146,7 +146,7 @@ One important note, the `isAdmin` attribute is specified in the above example in
 
 A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
 
-The function will be called with the following arguments and should return an object of default properties for new instances.
+The function will be called during model instance construction with the following arguments and should return an object containing properties that'll be merged into the new instance.
 
 - `data {Object}` - The instance data
 - A `utils` object containing these props:
@@ -160,7 +160,7 @@ For an example of how you might use `setupInstance`, suppose we have two service
 setupInstance(data, { store, models }) {
   if (data.posts) {
     // Turn posts into an array of Post instances
-    data.posts = data.posts.map(p => new models.Todo(p))
+    data.posts = data.posts.map(post => new models.Post(post))
   }
   return data
 }
