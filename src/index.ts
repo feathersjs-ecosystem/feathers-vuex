@@ -17,7 +17,7 @@ import useFind from './useFind'
 import useGet from './useGet'
 
 import { FeathersVuexOptions } from './service-module/types'
-import { initAuth } from './utils'
+import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
 
 const defaultOptions: FeathersVuexOptions = {
@@ -69,6 +69,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
 
 export {
   initAuth,
+  hydrateApi,
   FeathersVuexFind,
   FeathersVuexGet,
   FeathersVuexFormWrapper,

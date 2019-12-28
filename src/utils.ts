@@ -183,6 +183,18 @@ export const initAuth = function initAuth(options) {
 }
 
 /**
+ * run de BaseModel hydration on client for each api
+ */
+export const hydrateApi = function hydrateApi({ api }) {
+  Object.keys(api).forEach(modelName => {
+    if (!['byServicePath', 'BaseModel'].includes(modelName)) {
+      const Model = api[modelName]
+      Model.hydrateAll()
+    }
+  })
+}
+
+/**
  * Generate a new tempId and mark the record as a temp
  * @param state
  * @param item

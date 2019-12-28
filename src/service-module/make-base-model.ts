@@ -239,6 +239,23 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     }
 
     /**
+     * make the server side documents hydrated on client a FeathersVuexModel
+     */
+    public static hydrateAll() {
+      const { namespace, store } = this
+      const state = store.state[namespace]
+      const commit = store.commit
+      // Replace each plain object with a model instance.
+      Object.keys(state.keyedById).forEach(id => {
+        const record = state.keyedById[id]
+        console.log('hydrateAll')
+        console.log(record)
+        commit(`${namespace}/removeItem`, record)
+        commit(`${namespace}/addItem`, record)
+      })
+    }
+
+    /**
      * clone the current record using the `createCopy` mutation
      */
     public clone() {
