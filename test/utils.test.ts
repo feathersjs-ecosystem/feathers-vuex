@@ -1,9 +1,11 @@
 import { assert } from 'chai'
 import { AuthState } from '../src/auth-module/types'
+import { ServiceState } from './service-module/types'
 import { isNode, isBrowser } from '../src/utils'
 import { diff as deepDiff } from 'deep-object-diff'
 import {
   initAuth,
+  hydrateApi,
   getServicePrefix,
   getServiceCapitalization,
   getQueryInfo
@@ -16,7 +18,8 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 interface RootState {
-  auth: AuthState
+  auth: AuthState,
+  users: ServiceState
 }
 
 describe('Utils', function() {
@@ -74,6 +77,38 @@ describe('Utils', function() {
       .then(token => {
         assert.isDefined(token, 'the feathers client storage was set')
       })
+  })
+
+  it('properly hydrate SSR store', function() {
+    const { makeServicePlugin, BaseModel, models } = feathersVuex(
+      feathersClient,
+      { serverAlias: 'hydrate' }
+    )
+
+    class User extends BaseModel {
+      public static modelName = 'User'
+      public static test: boolean = true
+    }
+
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: User,
+          servicePath: 'users',
+          service: feathersClient.service('users'),
+          mutations: {
+            addServerItem (state) {
+              state.keyedById['abcdefg'] = { id: 'abcdefg', name: 'Guzz' }
+            }
+          }
+        })
+      ]
+    })
+    store.commit('users/addServerItem')
+    assert(store.state.users.keyedById['abcdefg'], 'server document added')
+    assert(store.state.users.keyedById['abcdefg'] instanceof Object, 'server document is pure javascript object')
+    hydrateApi({ api: models.hydrate })
+    assert(store.state.users.keyedById['abcdefg'] instanceof User, 'document hydrated')
   })
 
   describe('Inflections', function() {

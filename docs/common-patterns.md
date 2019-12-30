@@ -507,3 +507,288 @@ export default new Vuex.Store({
 ## Enable Debug Logging
 
 If items aren't not getting added to the store properly, try setting the `debug` option on the `makeServicePlugin` to `true`.  It enables some additional logging that may be useful for troubleshooting.
+
+## Full nuxt example
+
+In this example we will create a nuxt configuration with all the features discribed in the [Nuxt Section](./nuxt.md).
+
+Our application is hosted in 2 different endpoints, one for the feathers api and another with our nuxt SSR, and we will also implement a permission system that will prevent users without an `admin` permission to get into some pages. For that you will need to [customize your payload](https://docs.feathersjs.com/cookbook/authentication/stateless.html#customizing-the-payload) in your feathers api.
+
+```js
+// nuxt.config.js
+export default {
+  env: {
+    API_URL: process.env.API_URL || 'http://localhost:3030'
+  },
+  router: {
+    middleware: [
+      'feathers'
+    ]
+  },
+  plugins: [
+    { src: '~/plugins/feathers-vuex.js' }
+  ],
+  modules: [
+    'nuxt-client-init-module'
+  ],
+  build: {
+    transpile: [
+      'feathers-vuex'
+    ]
+  }
+}
+```
+
+The `feathers` middleware will redirect any user in a non public page to the login, but will also redirect a loged user away from any public pages.
+
+```js
+// ~/middleware/feathers.js
+export default function ({ store, redirect, route }) {
+  const { auth } = store.state
+  if (auth.publicPages.length > 0 && !auth.publicPages.includes(route.name) && !auth.payload) {
+    return redirect('login')
+  } else if (auth.publicPages.length > 0 && auth.publicPages.includes(route.name) && auth.payload) {
+    return redirect('feed')
+  }
+}
+```
+
+The `admin` middleware will redirect any user that is not loged in or do not have the `admin` permission to a `not-permited` page.
+
+```js
+// ~/middleware/admin.js
+export default function ({ store, redirect }) {
+  const { auth } = store.state
+  const permissions = auth.payload.permissions
+  if (
+    !auth.payload ||
+    !permissions.includes('admin')
+  ) {
+    return redirect('/not-permited')
+  }
+}
+```
+Add the `admin` middleware to the administrative pages
+
+```js
+// ~/pages/**
+export default {
+
+  ...
+
+  middleware: ['admin']
+
+  ...
+
+}
+```
+
+In the feathers client configuration we will use a different transport for the nuxt-server > api comunication and the nuxt-client > api. When we are making request on the server we do not need the socket io realtime messaging system so we can use an rest configuration for better performance.
+
+```js
+// ~/plugins/feathers.js
+import feathers from '@feathersjs/feathers'
+import rest from '@feathersjs/rest-client'
+import axios from 'axios'
+import socketio from '@feathersjs/socketio-client'
+import auth from '@feathersjs/authentication-client'
+import io from 'socket.io-client'
+import { CookieStorage } from 'cookie-storage'
+import { iff, discard } from 'feathers-hooks-common'
+import feathersVuex, { initAuth, hydrateApi } from 'feathers-vuex'
+// Get the api url from the environment variable
+const apiUrl = process.env.API_URL
+let socket
+let restClient
+// We won't use socket to comunicate from server to server
+if (process.client) {
+  socket = io(apiUrl, { transports: ['websocket'] })
+} else {
+  restClient = rest(apiUrl)
+}
+const transport = process.client ? socketio(socket) : restClient.axios(axios)
+const storage = new CookieStorage()
+
+const feathersClient = feathers()
+  .configure(transport)
+  .configure(auth({ storage }))
+  .hooks({
+    before: {
+      all: [
+        iff(
+          context => ['create', 'update', 'patch'].includes(context.method),
+          discard('__id', '__isTemp')
+        )
+      ]
+    }
+  })
+
+export default feathersClient
+
+// Setting up feathers-vuex
+const { makeServicePlugin, makeAuthPlugin, BaseModel, models, FeathersVuex } = feathersVuex(
+  feathersClient,
+  {
+    serverAlias: 'api', // optional for working with multiple APIs (this is the default value)
+    idField: '_id', // Must match the id field in your database table/collection
+    whitelist: ['$regex', '$options'],
+    enableEvents: process.client // Prevent memory leak
+  }
+)
+
+export { makeAuthPlugin, makeServicePlugin, BaseModel, models, FeathersVuex, initAuth, hydrateApi }
+```
+
+I prefere install the `FeathersVuex` plugin in a separate file, it's more consistent with nuxt patterns.
+
+```js
+// ~/plugins/feathers-vuex.js
+import Vue from 'vue'
+import { FeathersVuex } from './feathers'
+
+Vue.use(FeathersVuex)
+```
+
+Configure any service you want on `~/store/services/*.js`.
+
+```js
+// ~/store/services/users.js
+import feathersClient, { makeServicePlugin, BaseModel } from '~/plugins/feathers'
+
+class User extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'User'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: '',
+      permissions: []
+    }
+  }
+}
+const servicePath = 'users'
+const servicePlugin = makeServicePlugin({
+  Model: User,
+  service: feathersClient.service(servicePath),
+  servicePath
+})
+
+// Setup the client-side Feathers hooks.
+feathersClient.service(servicePath).hooks({
+  before: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+})
+
+export default servicePlugin
+```
+
+Create your nuxt store with the right nuxt pattern, exporting an Vuex store will be deprecated on nuxt 3.
+
+```js
+// ~/store/index.js
+import { makeAuthPlugin, initAuth, hydrateApi, models } from '~/plugins/feathers'
+const auth = makeAuthPlugin({
+  userService: 'users',
+  state: {
+    publicPages: [
+      'login',
+      'signup'
+    ]
+  },
+  actions: {
+    onInitAuth ({ state, dispatch }, payload) {
+      if (payload) {
+        dispatch('authenticate', { strategy: 'jwt', accessToken: state.accessToken })
+          .then((result) => {
+            // handle success like a boss
+            console.log('loged in')
+          })
+          .catch((error) => {
+            // handle error like a boss
+            console.log(error)
+          })
+      }
+    }
+  }
+})
+
+const requireModule = require.context(
+  // The path where the service modules live
+  './services',
+  // Whether to look in subfolders
+  false,
+  // Only include .js files (prevents duplicate imports`)
+  /.js$/
+)
+const servicePlugins = requireModule
+  .keys()
+  .map(modulePath => requireModule(modulePath).default)
+
+export const modules = {
+  // Custom modules
+}
+
+export const state = () => ({
+  // Custom state
+})
+
+export const mutations = {
+  // Custom mutations
+}
+
+export const actions = {
+  // Custom actions
+  nuxtServerInit ({ commit, dispatch }, { req }) {
+    return initAuth({
+      commit,
+      dispatch,
+      req,
+      moduleName: 'auth',
+      cookieName: 'feathers-jwt'
+    })
+  },
+  nuxtClientInit ({ state, dispatch, commit }, context) {
+
+    hydrateApi({ api: models.api })
+
+    if (state.auth.accessToken) {
+      return dispatch('auth/onInitAuth', state.auth.payload)
+    }
+  }
+}
+
+export const getters = {
+  // Custom getters
+}
+
+export const plugins = [ ...servicePlugins, auth ]
+```
