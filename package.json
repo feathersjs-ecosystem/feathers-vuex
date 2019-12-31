@@ -21,6 +21,10 @@
     "email": "marshall@creativeideal.net",
     "url": "https://github.com/marshallswain"
   },
+  "funding": {
+    "type": "Github sponsor",
+    "url": "https://github.com/sponsors/marshallswain"
+  },
   "contributors": [],
   "bugs": {
     "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"

@@ -43,47 +43,96 @@ const { makeServicePlugin, makeAuthPlugin, BaseModel, models, FeathersVuex } = f
 Here's an example store that uses it:
 
 ```js
-import Vuex from 'vuex'
-import feathersClient from './feathers-client'
+// ~/plugins/feathers-client.js
+import feathers from '@feathersjs/feathers'
+import socketio from '@feathersjs/socketio-client'
+import auth from '@feathersjs/authentication-client'
+import io from 'socket.io-client'
+import { iff, discard } from 'feathers-hooks-common'
 import feathersVuex, { initAuth } from 'feathers-vuex'
 
-const { service, auth } = feathersVuex(feathersClient)
+const socket = io('http://localhost:3030', {transports: ['websocket']})
 
-const createStore = () => {
-  return new Vuex.Store({
-    state: {},
-    mutations: {
-      increment (state) {
-        state.counter++
-      }
-    },
-    actions: {
-      nuxtServerInit ({ commit, dispatch }, { req }) {
-        return initAuth({
-          commit,
-          dispatch,
-          req,
-          feathersClient,
-          moduleName: 'auth',
-          cookieName: 'feathers-jwt'
-        })
-      }
-    },
-    plugins: [
-      service('courses'),
-      auth({
-        state: {
-          publicPages: [
-            'login',
-            'signup'
-          ]
-        }
-      })
-    ]
+const feathersClient = feathers()
+  .configure(socketio(socket))
+  .configure(auth({ storage: window.localStorage }))
+  .hooks({
+    before: {
+      all: [
+        iff(
+          context => ['create', 'update', 'patch'].includes(context.method),
+          discard('__id', '__isTemp')
+        )
+      ]
+    }
   })
+
+export default feathersClient
+
+// Setting up feathers-vuex
+const { makeServicePlugin, makeAuthPlugin, BaseModel, models, FeathersVuex } = feathersVuex(
+  feathersClient,
+  {
+    serverAlias: 'api', // optional for working with multiple APIs (this is the default value)
+    idField: '_id', // Must match the id field in your database table/collection
+    whitelist: ['$regex', '$options'],
+    enableEvents: process.client // No events for SSR server
+  }
+)
+
+export { makeAuthPlugin, makeServicePlugin, initAuth, BaseModel, models, FeathersVuex }
+```
+
+```js
+// ~/store/index.js
+import { makeAuthPlugin, initAuth, models } from '~/plugins/feathers'
+const auth = makeAuthPlugin({
+  userService: 'users',
+  state: {
+    publicPages: [
+      'login',
+      'signup'
+    ]
+  }
+})
+
+const requireModule = require.context(
+  // The path where the service modules live
+  './services',
+  // Whether to look in subfolders
+  false,
+  // Only include .js files (prevents duplicate imports`)
+  /.js$/
+)
+const servicePlugins = requireModule
+  .keys()
+  .map(modulePath => requireModule(modulePath).default)
+
+export const state = () => ({
+  // Your custom state
+})
+
+export const mutations = {
+  // Your custom mutations
 }
 
-export default createStore
+export const actions = {
+  nuxtServerInit ({ commit, dispatch }, { req }) {
+    return initAuth({
+      commit,
+      dispatch,
+      req,
+      moduleName: 'auth',
+      cookieName: 'feathers-jwt'
+    })
+  }
+}
+
+export const getters = {
+  // Your custom getters
+}
+
+export const plugins = [ ...servicePlugins, auth ]
 ```
 
 Notice in the above example, I've added a `publicPages` property to the auth state.  Let's now use this state to redirect the browser when it's not on a public page and there's no auth:
@@ -125,3 +174,131 @@ import { CookieStorage } from 'cookie-storage'
 const feathersClient = feathers()
   .configure(auth({ storage: new CookieStorage() }))
 ```
+
+## Server and Client in different end points
+
+If you have your feathersjs server in a different end point from your client (Ex. api.yourdomain.com - feathers / yourdomain.com - vue) your cookies wont be shared beetween server and client so you will have to authenticate your client manualy.
+
+The best solution is to use [nuxt-client-init-module](https://www.npmjs.com/package/nuxt-client-init-module).
+
+First we add it to our app using `npm install nuxt-client-init-module` or `yarn add nuxt-client-init-module`, and add it to our `nuxt.config.js` modules:
+
+```js
+export default {
+  ...
+  modules: [
+    'nuxt-client-init-module'
+  ],
+}
+```
+
+Now, based on the auth example above, we will edit our `~/store/index.js` file.
+
+```js
+// ~/store/index.js
+import { makeAuthPlugin, initAuth, models } from '~/plugins/feathers'
+const auth = makeAuthPlugin({
+  userService: 'users',
+  state: {
+    publicPages: []
+  },
+  actions: {
+    // Handles initial authentication
+    onInitAuth ({ state, dispatch }, payload) {
+      if (payload) {
+        dispatch('authenticate', { strategy: 'jwt', accessToken: state.accessToken })
+          .then((result) => {
+            // handle success like a boss
+            console.log('loged in')
+          })
+          .catch((error) => {
+            // handle error like a boss
+            console.log(error)
+          })
+      }
+    }
+  }
+})
+
+...
+
+export const actions = {
+  nuxtServerInit ({ commit, dispatch }, { req }) {
+    return initAuth({
+      commit,
+      dispatch,
+      req,
+      moduleName: 'auth',
+      cookieName: 'feathers-jwt'
+    })
+  },
+  nuxtClientInit ({ state, dispatch, commit }, context) {
+    // Run the authentication with the access token hydrated from the server store
+    if (state.auth.accessToken) {
+      return dispatch('auth/onInitAuth', state.auth.payload)
+    }
+  }
+}
+
+...
+
+```
+
+## Server side hydration <Badge text="3.0.0+" />
+
+When using nuxt SSR and you make requests in the server, using `fetch` or `asyncData`, nuxt will send this data and hydrate the store on client init.
+
+Because this hydration is done by nuxt, the documents do not inherit from their right classes and all documents are created as simple javascript objects.
+
+`feathers-vuex@3.x.x^` ships with the `hydrateApi` utility for this use case.
+
+We only have to pass the api's that we need to hydarate on client start to the `nuxtClientInit`.
+
+```js
+// ~/plugins/feathers-client.js
+import feathers from '@feathersjs/feathers'
+import socketio from '@feathersjs/socketio-client'
+import auth from '@feathersjs/authentication-client'
+import io from 'socket.io-client'
+import { iff, discard } from 'feathers-hooks-common'
+import feathersVuex, { initAuth, hydrateApi } from 'feathers-vuex'
+
+...
+
+export { makeAuthPlugin, makeServicePlugin, initAuth, hydrateApi, BaseModel, models, FeathersVuex }
+```
+
+```js
+// ~/store/index.js
+import { makeAuthPlugin, initAuth, hydrateApi, models } from '~/plugins/feathers'
+
+...
+
+export const actions = {
+  nuxtServerInit ({ commit, dispatch }, { req }) {
+    return initAuth({
+      commit,
+      dispatch,
+      req,
+      moduleName: 'auth',
+      cookieName: 'feathers-jwt'
+    })
+  },
+  nuxtClientInit ({ state, dispatch, commit }, context) {
+    hydrateApi({ api: models.api })
+    // Call once for each API to be updated
+    hydrateApi({ api: models.otherApi })
+    // Run the authentication with the access token hydrated from the server store
+    if (state.auth.accessToken) {
+      return dispatch('auth/onInitAuth', state.auth.payload)
+    }
+  }
+}
+
+...
+
+```
+
+## Full nuxt configuration example
+
+[Check a full nuxt exemple in the common patterns section](./common-patterns.md#full-nuxt-example)

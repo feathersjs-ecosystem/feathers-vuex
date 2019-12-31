@@ -85,6 +85,17 @@ describe('makeModel / BaseModel', function () {
       )
     })
 
+    // Utility Methods
+    const utilityMethods = [
+      'hydrateAll'
+    ]
+    utilityMethods.forEach(method => {
+      assert(
+        typeof BaseModel[method] === 'function',
+        `has ${method} method`
+      )
+    })
+
     const eventMethods = [
       'on',
       'off',
