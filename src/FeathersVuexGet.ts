@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 export default {
   props: {
     /**
@@ -23,6 +24,29 @@ export default {
       default: null
     },
     /**
+     * If a separate query is desired to fetch data, use fetchQuery
+     * The watchers are automatically updated, so you don't have to write 'fetchQuery.propName'
+     */
+    fetchQuery: {
+      type: Object
+    },
+    /**
+     * Can be used in place of the `query` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    params: {
+      type: Object,
+      default: null
+    },
+    /**
+     * Can be used in place of the `fetchQuery` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    fetchParams: {
+      type: Object,
+      default: null
+    },
+    /**
      * When `queryWhen` evaluates to false, no API request will be made.
      */
     queryWhen: {
@@ -33,13 +57,6 @@ export default {
     id: {
       type: [Number, String],
       default: null
-    },
-    /**
-     * If a separate query is desired to fetch data, use fetchQuery
-     * The watchers are automatically updated, so you don't have to write 'fetchQuery.propName'
-     */
-    fetchQuery: {
-      type: Object
     },
     /**
      * Specify which properties in the query to watch and re-trigger API requests.
@@ -76,13 +93,17 @@ export default {
   computed: {
     item() {
       const getArgs = this.getArgs(this.query)
-
       if (this.id) {
-        return (
-          this.$store.getters[`${this.service}/get`](
-            getArgs.length === 1 ? this.id : getArgs
-          ) || null
-        )
+        if (getArgs.length === 1) {
+          return this.$store.getters[`${this.service}/get`](this.id) || null
+        } else {
+          const args = [this.id]
+          const query = getArgs[1].query
+          if (query) {
+            args.push(query)
+          }
+          return this.$store.getters[`${this.service}/get`](args) || null
+        }
       } else {
         return null
       }
@@ -97,12 +118,14 @@ export default {
   methods: {
     getArgs(queryToUse) {
       const query = queryToUse || this.fetchQuery || this.query
-      const getArgs = [this.id]
+      const params = this.fetchParams || this.params
 
-      if (query && Object.keys(query).length > 0) {
+      const getArgs = [this.id]
+      if (params) {
+        getArgs.push(params)
+      } else if (query && Object.keys(query).length > 0) {
         getArgs.push({ query })
       }
-
       return getArgs
     },
     getData() {
@@ -121,8 +144,9 @@ export default {
               `${this.service}/get`,
               getArgs.length === 1 ? this.id : getArgs
             )
-            .then(() => {
+            .then(response => {
               this.isGetPending = false
+              return response
             })
         }
       }
@@ -131,17 +155,15 @@ export default {
       if (this.local || this.id === 'new') {
         return
       } else if (
-        this.id !== null &&
-        this.id !== undefined &&
-        !this.query &&
-        !this.fetchQuery
+        this.fetchQuery ||
+        this.query ||
+        this.params ||
+        (this.id !== null && this.id !== undefined)
       ) {
         return this.getData()
       } else {
         // eslint-disable-next-line no-console
-        console.log(
-          `No query and no id provided, so no data will be fetched.`
-        )
+        console.log(`No query and no id provided, so no data will be fetched.`)
       }
     }
   },
@@ -153,7 +175,7 @@ export default {
     }
     if (!this.$store.state[this.service]) {
       throw new Error(
-        `The '${ this.service }' plugin is not registered with feathers-vuex`
+        `The '${this.service}' plugin is not registered with feathers-vuex`
       )
     }
 
@@ -162,6 +184,7 @@ export default {
     if (
       this.fetchQuery ||
       this.query ||
+      this.params ||
       (this.id !== null && this.id !== undefined)
     ) {
       watch.forEach(prop => {
