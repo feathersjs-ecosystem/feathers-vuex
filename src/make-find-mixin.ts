@@ -4,14 +4,15 @@ no-console: 0,
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  getServicePrefix,
-  getServiceCapitalization,
-  getQueryInfo,
-  getItemsFromQueryInfo
-} from './utils'
+
 import debounce from 'lodash/debounce'
 import _get from 'lodash/get'
+import {
+  getItemsFromQueryInfo,
+  getQueryInfo,
+  getServiceCapitalization,
+  getServicePrefix
+} from './utils'
 
 export default function makeFindMixin(options) {
   const {
@@ -179,46 +180,44 @@ export default function makeFindMixin(options) {
           fetchParams: this[FETCH_PARAMS]
         })
 
-        if (!this[LOCAL]) {
-          const shouldExecuteQuery =
-            typeof this[QUERY_WHEN] === 'function'
-              ? this[QUERY_WHEN](paramsToUse)
-              : this[QUERY_WHEN]
+        const shouldExecuteQuery =
+          typeof this[QUERY_WHEN] === 'function'
+            ? this[QUERY_WHEN](paramsToUse)
+            : this[QUERY_WHEN]
 
-          if (shouldExecuteQuery) {
-            if (paramsToUse) {
-              // Set the qid.
-              paramsToUse.query = paramsToUse.query || {}
-              paramsToUse.qid = paramsToUse.qid || this[QID]
-              this[QID] = paramsToUse.qid
+        if (shouldExecuteQuery) {
+          if (paramsToUse) {
+            // Set the qid.
+            paramsToUse.query = paramsToUse.query || {}
+            paramsToUse.qid = paramsToUse.qid || this[QID]
+            this[QID] = paramsToUse.qid
 
-              this[IS_FIND_PENDING] = true
-              this[HAVE_ITEMS_BEEN_REQUESTED_ONCE] = true
+            this[IS_FIND_PENDING] = true
+            this[HAVE_ITEMS_BEEN_REQUESTED_ONCE] = true
 
-              return this.$store
-                .dispatch(`${serviceName}/find`, paramsToUse)
-                .then(response => {
-                  // To prevent thrashing, only clear ERROR on response, not on initial request.
-                  this[ERROR] = null
+            return this.$store
+              .dispatch(`${serviceName}/find`, paramsToUse)
+              .then(response => {
+                // To prevent thrashing, only clear ERROR on response, not on initial request.
+                this[ERROR] = null
 
-                  this[HAVE_ITEMS_LOADED_ONCE] = true
-                  const queryInfo = getQueryInfo(paramsToUse, response)
-                  queryInfo.response = response
-                  queryInfo.isOutdated = false
+                this[HAVE_ITEMS_LOADED_ONCE] = true
+                const queryInfo = getQueryInfo(paramsToUse, response)
+                queryInfo.response = response
+                queryInfo.isOutdated = false
 
-                  this[MOST_RECENT_QUERY] = queryInfo
-                  this[IS_FIND_PENDING] = false
-                  return response
-                })
-                .catch(error => {
-                  this[ERROR] = error
-                  return error
-                })
-            }
-          } else {
-            if (this[MOST_RECENT_QUERY]) {
-              this[MOST_RECENT_QUERY].isOutdated = true
-            }
+                this[MOST_RECENT_QUERY] = queryInfo
+                this[IS_FIND_PENDING] = false
+                return response
+              })
+              .catch(error => {
+                this[ERROR] = error
+                return error
+              })
+          }
+        } else {
+          if (this[MOST_RECENT_QUERY]) {
+            this[MOST_RECENT_QUERY].isOutdated = true
           }
         }
       },
@@ -232,46 +231,51 @@ export default function makeFindMixin(options) {
         return { queryInfo, pageInfo }
       }
     },
-    created() {
-      debug &&
-        console.log(
-          `running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`
-        )
-      debug && console.log(PARAMS, this[PARAMS])
-      debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
+    // add the created hook only if the local option is falsy
+    ...(!local && {
+      created() {
+        if (debug) {
+          console.log(
+            `running 'created' hook in makeFindMixin for service "${service}" (using name ${nameToUse}")`
+          )
+          console.log(PARAMS, this[PARAMS])
+          console.log(FETCH_PARAMS, this[FETCH_PARAMS])
+        }
 
-      const pType = Object.getPrototypeOf(this)
+        const pType = Object.getPrototypeOf(this)
 
-      if (pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
-        watch.forEach(prop => {
-          if (typeof prop !== 'string') {
-            throw new Error(`Values in the 'watch' array must be strings.`)
-          }
-          prop = prop.replace('params', PARAMS)
-
-          if (pType.hasOwnProperty(FETCH_PARAMS)) {
-            if (prop.startsWith(PARAMS)) {
-              prop = prop.replace(PARAMS, FETCH_PARAMS)
+        if (
+          pType.hasOwnProperty(PARAMS) ||
+          pType.hasOwnProperty(FETCH_PARAMS)
+        ) {
+          watch.forEach(prop => {
+            if (typeof prop !== 'string') {
+              throw new Error(`Values in the 'watch' array must be strings.`)
             }
-          }
-          this.$watch(prop, function() {
-            // If the request is going to be debounced, set IS_FIND_PENDING to true.
-            // Without this, there's not a way to show a loading indicator during the debounce timeout.
-            const paramsToUse = getParams({
-              providedParams: null,
-              params: this[PARAMS],
-              fetchParams: this[FETCH_PARAMS]
+            prop = prop.replace('params', PARAMS)
+
+            if (pType.hasOwnProperty(FETCH_PARAMS)) {
+              if (prop.startsWith(PARAMS)) {
+                prop = prop.replace(PARAMS, FETCH_PARAMS)
+              }
+            }
+            this.$watch(prop, function() {
+              // If the request is going to be debounced, set IS_FIND_PENDING to true.
+              // Without this, there's not a way to show a loading indicator during the debounce timeout.
+              const paramsToUse = getParams({
+                providedParams: null,
+                params: this[PARAMS],
+                fetchParams: this[FETCH_PARAMS]
+              })
+              if (paramsToUse && paramsToUse.debounce) {
+                this[IS_FIND_PENDING] = true
+              }
+              return this[`${FIND_ACTION}DebouncedProxy`]()
             })
-            if (paramsToUse && paramsToUse.debounce) {
-              this[IS_FIND_PENDING] = true
-            }
-            return this[`${FIND_ACTION}DebouncedProxy`]()
           })
-        })
 
-        return this[FIND_ACTION]()
-      } else {
-        if (!local) {
+          return this[FIND_ACTION]()
+        } else {
           // TODO: Add this message to the logging:
           //       "Pass { local: true } to disable this warning and only do local queries."
           console.log(
@@ -279,7 +283,7 @@ export default function makeFindMixin(options) {
           )
         }
       }
-    }
+    })
   }
 
   function hasSomeAttribute(vm, ...attributes) {
