@@ -81,6 +81,36 @@ The `FeathersVuexFind` component retrieves data from the API server, puts it in 
 
 ## FeathersVuexGet
 
+The `FeathersVuexGet` component allows fetching data from directly inside a template.  It makes the slot scope available to the child components.  Note that in `feathers-vuex@3.3.0` the component now includes support for `params` and `fetchParams` props.  These are meant to replace the `query` and `fetchQuery` props.  The `params` allow you, for example, to configure a project to pass custom params to the server.  This would require use of custom hooks.
+
+```html
+<template>
+  <FeathersVuexGet service="users" :id="id" :params="params" :watch="[id, params]">
+    <template slot-scope="{ item: user }">
+      {{ user }}
+    </template>
+  </FeathersVuexGet>
+</template>
+
+<script>
+export default {
+  name: 'UserProfile',
+  computed: {
+    id() {
+      return this.$route.params.id
+    },
+    params() {
+      return {
+        $populateParams: {
+          name: 'withFollowers'
+        }
+      }
+    }
+  }
+}
+</script>
+```
+
 ## A note about the internal architecture
 
 These components use Vuex getters (to query data from the local store) and actions (to query data from the API server).  When a `query` or `id` is provided, the components pull data from the API server and put it into the store.  That same `query` or `id` is then used to pull data from the local Vuex store.  Keep this in mind, especially when attempting to use server-side pagination.  To use server-side pagination, use the `query` prop for pulling data from the local vuex store, then use the `fetchQuery` prop to retrieve data from the API server.
