@@ -44,7 +44,6 @@ describe('Find Mixin', function() {
 
   it('correctly forms mixin data', function() {
     const todosMixin = makeFindMixin({ service: 'todos' })
-    // todosMixin.
     interface TodosComponent {
       todos: []
       todosServiceName: string

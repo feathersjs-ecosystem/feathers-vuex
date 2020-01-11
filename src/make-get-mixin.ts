@@ -120,12 +120,11 @@ export default function makeFindMixin(options) {
     },
     // add the created lifecycle hook only if local option is falsy
     ...(!local && {
-      created: function created() {
-        debug &&
+      created() {
+        if (debug) {
           console.log(
             `running 'created' hook in makeGetMixin for service "${service}" (using name ${nameToUse}")`
           )
-        if (debug) {
           console.log(ID, this[ID])
           console.log(PARAMS, this[PARAMS])
           console.log(FETCH_PARAMS, this[FETCH_PARAMS])
