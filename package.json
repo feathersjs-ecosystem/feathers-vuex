@@ -126,7 +126,7 @@
     "lodash.pick": "^4.4.0",
     "lodash.trim": "^4.5.1",
     "serialize-error": "^5.0.0",
-    "sift": "^9.0.4",
+    "sift": "^11.0.10",
     "steal-typescript": "^0.5.0",
     "vuepress-theme-default-prefers-color-scheme": "^1.0.3"
   },
