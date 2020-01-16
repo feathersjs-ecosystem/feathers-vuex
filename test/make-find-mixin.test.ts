@@ -3,13 +3,13 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import jsdom from 'jsdom-global'
 import { assert } from 'chai'
-import feathersVuex, { FeathersVuex } from '../src/index'
-import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
-import makeFindMixin from '../src/make-find-mixin'
+import jsdom from 'jsdom-global'
 import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
+import feathersVuex, { FeathersVuex } from '../src/index'
+import makeFindMixin from '../src/make-find-mixin'
+import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
 
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
@@ -44,7 +44,6 @@ describe('Find Mixin', function() {
 
   it('correctly forms mixin data', function() {
     const todosMixin = makeFindMixin({ service: 'todos' })
-
     interface TodosComponent {
       todos: []
       todosServiceName: string
@@ -81,6 +80,10 @@ describe('Find Mixin', function() {
     assert(typeof vm.findTodos === 'function', 'the find action is in place')
     assert(vm.todosLocal === false, 'local boolean is false by default')
     assert(
+      typeof vm.$options.created[0] === 'function',
+      'created lifecycle hook function is in place given that local is false'
+    )
+    assert(
       vm.todosQid === 'default',
       'the default query identifier is in place'
     )
@@ -96,11 +99,12 @@ describe('Find Mixin', function() {
     )
   })
 
-  it.skip('correctly forms mixin data for dynamic service', function() {
+  it('correctly forms mixin data for dynamic service', function() {
     const tasksMixin = makeFindMixin({
       service() {
         return this.serviceName
-      }
+      },
+      local: true
     })
 
     interface TasksComponent {
@@ -116,7 +120,7 @@ describe('Find Mixin', function() {
     }
 
     const vm = new Vue({
-      name: 'tasls-component',
+      name: 'tasks-component',
       data: () => ({
         serviceName: 'tasks'
       }),
@@ -125,27 +129,31 @@ describe('Find Mixin', function() {
       template: `<div></div>`
     }).$mount()
 
-    assert.deepEqual(vm.tasks, [], 'tasks prop was empty array')
+    assert.deepEqual(vm.items, [], 'items prop was empty array')
     assert(
-      vm.hasOwnProperty('tasksPaginationData'),
+      vm.hasOwnProperty('servicePaginationData'),
       'pagination data prop was present, even if undefined'
     )
-    assert(vm.tasksServiceName === 'tasks', 'service name was correct')
-    assert(vm.isFindTasksPending === false, 'loading boolean is in place')
-    assert(typeof vm.findTasks === 'function', 'the find action is in place')
-    assert(vm.tasksLocal === false, 'local boolean is false by default')
+    assert(vm.serviceServiceName === 'tasks', 'service name was correct')
+    assert(vm.isFindServicePending === false, 'loading boolean is in place')
+    assert(typeof vm.findService === 'function', 'the find action is in place')
+    assert(vm.serviceLocal === true, 'local boolean is set to true')
     assert(
-      vm.tasksQid === 'default',
+      typeof vm.$options.created === 'undefined',
+      'created lifecycle hook function is NOT in place given that local is true'
+    )
+    assert(
+      vm.serviceQid === 'default',
       'the default query identifier is in place'
     )
-    assert(vm.tasksQueryWhen() === true, 'the default queryWhen is true')
+    assert(vm.serviceQueryWhen === true, 'the default queryWhen is true')
     // assert(vm.tasksWatch.length === 0, 'the default watch is an empty array')
     assert(
-      vm.tasksParams === undefined,
+      vm.serviceParams === undefined,
       'no params are in place by default, must be specified by the user'
     )
     assert(
-      vm.tasksFetchParams === undefined,
+      vm.serviceFetchParams === undefined,
       'no fetch params are in place by default, must be specified by the user'
     )
   })

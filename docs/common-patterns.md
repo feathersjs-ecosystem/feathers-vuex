@@ -384,6 +384,10 @@ When this record is instantiated, the `user` attribute will first be turned into
 
 There's another amazing benefit from these relationships.  Because `feathers-vuex` listens to real-time events and keeps data up to date, when the user record changes, the `todo.user` automatically updates!
 
+### Handling Sequelize Joins
+
+See [this issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/404) for a discussion on how to handle joins with Sequelize.  It's important to specify `raw: false`, as shown in [this comment](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/404#issuecomment-571774598).
+
 ### Workflow for Saving Model Associations
 
 A great issue was opened on GitHub about the [Workflow for clone and save Model with associations](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/278).  That's a great issue to read to get familiar with the workflow.

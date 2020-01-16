@@ -95,75 +95,77 @@ export default function makeFindMixin(options) {
         const paramsToUse = params || this[FETCH_PARAMS] || this[PARAMS]
         const idToUse = id || this[ID]
 
-        if (!this[LOCAL]) {
-          if (this[QUERY_WHEN]) {
-            this[IS_GET_PENDING] = true
-            this[HAS_ITEM_BEEN_REQUESTED_ONCE] = true
+        if (this[QUERY_WHEN]) {
+          this[IS_GET_PENDING] = true
+          this[HAS_ITEM_BEEN_REQUESTED_ONCE] = true
 
-            if (idToUse != null) {
-              return this.$store
-                .dispatch(`${this[SERVICE_NAME]}/get`, [idToUse, paramsToUse])
-                .then(response => {
-                  // To prevent thrashing, only clear ERROR on response, not on initial request.
-                  this[ERROR] = null
+          if (idToUse != null) {
+            return this.$store
+              .dispatch(`${this[SERVICE_NAME]}/get`, [idToUse, paramsToUse])
+              .then(response => {
+                // To prevent thrashing, only clear ERROR on response, not on initial request.
+                this[ERROR] = null
 
-                  this[HAS_ITEM_LOADED_ONCE] = true
-                  this[IS_GET_PENDING] = false
-                  return response
-                })
-                .catch(error => {
-                  this[ERROR] = error
-                  return error
-                })
-            }
+                this[HAS_ITEM_LOADED_ONCE] = true
+                this[IS_GET_PENDING] = false
+                return response
+              })
+              .catch(error => {
+                this[ERROR] = error
+                return error
+              })
           }
         }
       }
     },
-    created() {
-      debug &&
-        console.log(
-          `running 'created' hook in makeGetMixin for service "${service}" (using name ${nameToUse}")`
-        )
-      debug && console.log(ID, this[ID])
-      debug && console.log(PARAMS, this[PARAMS])
-      debug && console.log(FETCH_PARAMS, this[FETCH_PARAMS])
-
-      const pType = Object.getPrototypeOf(this)
-
-      if (
-        this.hasOwnProperty(ID) ||
-        pType.hasOwnProperty(ID) ||
-        pType.hasOwnProperty(PARAMS) ||
-        pType.hasOwnProperty(FETCH_PARAMS)
-      ) {
-        if (!watch.includes(ID)) {
-          watch.push(ID)
+    // add the created lifecycle hook only if local option is falsy
+    ...(!local && {
+      created() {
+        if (debug) {
+          console.log(
+            `running 'created' hook in makeGetMixin for service "${service}" (using name ${nameToUse}")`
+          )
+          console.log(ID, this[ID])
+          console.log(PARAMS, this[PARAMS])
+          console.log(FETCH_PARAMS, this[FETCH_PARAMS])
         }
 
-        watch.forEach(prop => {
-          if (typeof prop !== 'string') {
-            throw new Error(`Values in the 'watch' array must be strings.`)
-          }
-          prop = prop.replace('query', PARAMS)
+        const pType = Object.getPrototypeOf(this)
 
-          if (pType.hasOwnProperty(FETCH_PARAMS)) {
-            if (prop.startsWith(PARAMS)) {
-              prop.replace(PARAMS, FETCH_PARAMS)
+        if (
+          this.hasOwnProperty(ID) ||
+          pType.hasOwnProperty(ID) ||
+          pType.hasOwnProperty(PARAMS) ||
+          pType.hasOwnProperty(FETCH_PARAMS)
+        ) {
+          if (!watch.includes(ID)) {
+            watch.push(ID)
+          }
+
+          watch.forEach(prop => {
+            if (typeof prop !== 'string') {
+              throw new Error(`Values in the 'watch' array must be strings.`)
             }
-          }
-          this.$watch(prop, function () {
-            return this[GET_ACTION]()
-          })
-        })
+            prop = prop.replace('query', PARAMS)
 
-        return this[GET_ACTION]()
-      } else {
-        console.log(
-          `No "${ID}", "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeGetMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`
-        )
+            if (pType.hasOwnProperty(FETCH_PARAMS)) {
+              if (prop.startsWith(PARAMS)) {
+                prop.replace(PARAMS, FETCH_PARAMS)
+              }
+            }
+            this.$watch(prop, function() {
+              return this[GET_ACTION]()
+            })
+          })
+
+          return this[GET_ACTION]()
+        } else {
+          console.log(
+            `No "${ID}", "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeGetMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`
+          )
+        }
       }
-    }
+    })
   }
 
   function hasSomeAttribute(vm, ...attributes) {
