@@ -248,8 +248,6 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       // Replace each plain object with a model instance.
       Object.keys(state.keyedById).forEach(id => {
         const record = state.keyedById[id]
-        console.log('hydrateAll')
-        console.log(record)
         commit(`${namespace}/removeItem`, record)
         commit(`${namespace}/addItem`, record)
       })
