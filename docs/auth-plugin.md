@@ -6,7 +6,7 @@ The Auth module assists setting up user login and logout.
 
 ## Setup
 
-See the [Auth Setup](/api-overview.html#auth-plugin) section for an example of how to setup the Auth Plugin.
+See the [Auth Setup](/getting-started.html#auth-plugin) section for an example of how to setup the Auth Plugin.
 
 ## Breaking Changes in 2.0
 
