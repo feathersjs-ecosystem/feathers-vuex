@@ -106,6 +106,65 @@ describe('use/find', function() {
     assert(qid.value === 'default')
   })
 
+  it('returns correct default data even when params is not reactive', function() {
+    const { Instrument } = makeContext()
+
+    const instrumentsData = useFind({
+      model: Instrument,
+      params: {
+        query: {},
+        paginate: false
+      }
+    })
+
+    const {
+      debounceTime,
+      error,
+      haveBeenRequested,
+      haveLoaded,
+      isPending,
+      isLocal,
+      items,
+      latestQuery,
+      paginationData,
+      qid
+    } = instrumentsData
+
+    assert(isRef(debounceTime))
+    assert(debounceTime.value === null)
+
+    assert(isRef(error))
+    assert(error.value === null)
+
+    assert(isRef(haveBeenRequested))
+    assert(haveBeenRequested.value === true)
+
+    assert(isRef(haveLoaded))
+    assert(haveLoaded.value === false)
+
+    assert(isRef(isPending))
+    assert(isPending.value === true)
+
+    assert(isRef(isLocal))
+    assert(isLocal.value === false)
+
+    assert(isRef(items))
+    assert(Array.isArray(items.value))
+    assert(items.value.length === 0)
+
+    assert(isRef(latestQuery))
+    assert(latestQuery.value === null)
+
+    assert(isRef(paginationData))
+    assert.deepStrictEqual(paginationData.value, {
+      defaultLimit: null,
+      defaultSkip: null
+    })
+
+    assert(isRef(qid))
+    assert(qid.value === 'default')
+  })
+
   it('allows passing {lazy:true} to not query immediately', function() {
     const { Instrument } = makeContext()
 

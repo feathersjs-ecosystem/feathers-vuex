@@ -3,15 +3,15 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import {
-  reactive,
   computed,
-  toRefs,
   isRef,
-  watch,
-  Ref
+  reactive,
+  Ref,
+  toRefs,
+  watch
 } from '@vue/composition-api'
-import { getQueryInfo, getItemsFromQueryInfo, Params } from './utils'
 import debounce from 'lodash/debounce'
+import { getItemsFromQueryInfo, getQueryInfo, Params } from './utils'
 
 interface UseFindOptions {
   model: Function
@@ -47,6 +47,9 @@ interface UseFindData {
   find: Function
 }
 
+const unwrapParams = (params: Params | Ref<Params>): Params =>
+  isRef(params) ? params.value : params
+
 export default function find(options: UseFindOptions): UseFindData {
   const defaults = {
     model: null,
@@ -62,24 +65,21 @@ export default function find(options: UseFindOptions): UseFindData {
     options
   )
 
-  const getFetchParams = (providedParams?: object): Params => {
-    const provided = isRef(providedParams)
-      ? providedParams.value
-      : providedParams
+  const getFetchParams = (providedParams?: Params | Ref<Params>): Params => {
+    const provided = unwrapParams(providedParams)
 
     if (provided) {
       return provided
-    } else {
-      const fetchParams = isRef(options.fetchParams)
-        ? options.fetchParams.value
-        : options.fetchParams
-      const params = isRef(options.params)
-        ? options.params.value
-        : options.params
-
-      // Returning null fetchParams allows the query to be skipped.
-      return fetchParams || fetchParams === null ? fetchParams : params
     }
+
+    const fetchParams = unwrapParams(options.fetchParams)
+    // Returning null fetchParams allows the query to be skipped.
+    if (fetchParams || fetchParams === null) {
+      return fetchParams
+    }
+
+    const params = unwrapParams(options.params)
+    return params
   }
 
   const state = reactive<UseFindState>({
@@ -95,9 +95,8 @@ export default function find(options: UseFindOptions): UseFindData {
   const computes = {
     // The find getter
     items: computed<any[]>(() => {
-      const getterParams: Params = isRef(params)
-        ? Object.assign({}, params.value)
-        : { params }
+      const getterParams = unwrapParams(params)
+
       if (getterParams.paginate) {
         const serviceState = model.store.state[model.servicePath]
         const { defaultSkip, defaultLimit } = serviceState.pagination
@@ -125,8 +124,8 @@ export default function find(options: UseFindOptions): UseFindData {
     servicePath: computed<string>(() => model.servicePath)
   }
 
-  function find<T>(params: Params): T {
-    params = isRef(params) ? params.value : params
+  function find<T>(params: Params | Ref<Params>): T {
+    params = unwrapParams(params)
     if (queryWhen.value && !state.isLocal) {
       state.isPending = true
       state.haveBeenRequested = true
@@ -151,7 +150,7 @@ export default function find(options: UseFindOptions): UseFindData {
       return find(params)
     }
   }
-  function findProxy<T>(params?: Params): T {
+  function findProxy<T>(params?: Params | Ref<Params>): T {
     const paramsToUse = getFetchParams(params)
 
     if (paramsToUse && paramsToUse.debounce) {
