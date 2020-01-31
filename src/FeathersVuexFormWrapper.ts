@@ -10,10 +10,10 @@ export default {
       required: true
     },
     /**
-    * By default, when you call the `save` method, the cloned data will be
-    * committed to the store BEFORE saving tot he API server. Set
-    * `:eager="false"` to only update the store with the API server response.
-    */
+     * By default, when you call the `save` method, the cloned data will be
+     * committed to the store BEFORE saving tot he API server. Set
+     * `:eager="false"` to only update the store with the API server response.
+     */
     eager: {
       type: Boolean,
       default: true
