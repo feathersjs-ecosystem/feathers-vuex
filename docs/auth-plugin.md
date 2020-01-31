@@ -68,7 +68,7 @@ export default {
   methods: {
 
     login() {
-      this.$store.dispatch('auth/authenticate' {
+      this.$store.dispatch('auth/authenticate', {
         email: '...',
         password: '...'
       })
