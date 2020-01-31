@@ -20,7 +20,7 @@ module.exports = {
       '/composition-api.md',
       '/mixins.md',
       '/data-components.md',
-      '/feathers-vuex-form-wrapper.md',
+      '/feathers-vuex-forms.md',
       '/nuxt.md',
       '/2.0-major-release.md',
     ],
