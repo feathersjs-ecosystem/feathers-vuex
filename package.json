@@ -106,9 +106,9 @@
     "@vue/composition-api": "^0.3.4"
   },
   "dependencies": {
-    "@feathersjs/adapter-commons": "^4.4.3",
-    "@feathersjs/commons": "^4.4.3",
-    "@feathersjs/errors": "^4.4.3",
+    "@feathersjs/adapter-commons": "^4.5.1",
+    "@feathersjs/commons": "^4.5.1",
+    "@feathersjs/errors": "^4.5.1",
     "@types/feathersjs__feathers": "^3.1.5",
     "@types/inflection": "^1.5.28",
     "@types/lodash": "^4.14.149",
@@ -133,12 +133,12 @@
     "vuepress-theme-default-prefers-color-scheme": "^1.0.3"
   },
   "devDependencies": {
-    "@feathersjs/authentication-client": "^4.4.3",
+    "@feathersjs/authentication-client": "^4.5.1",
     "@feathersjs/authentication-jwt": "^2.0.10",
-    "@feathersjs/client": "^4.4.3",
-    "@feathersjs/feathers": "^4.4.3",
-    "@feathersjs/rest-client": "^4.4.3",
-    "@feathersjs/socketio-client": "^4.4.3",
+    "@feathersjs/client": "^4.5.1",
+    "@feathersjs/feathers": "^4.5.1",
+    "@feathersjs/rest-client": "^4.5.1",
+    "@feathersjs/socketio-client": "^4.5.1",
     "@types/chai": "^4.2.7",
     "@types/mocha": "^5.2.7",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
