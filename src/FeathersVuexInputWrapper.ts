@@ -1,3 +1,5 @@
+import _debounce from 'lodash/debounce'
+
 export default {
   name: 'FeathersVuexInputWrapper',
   props: {
@@ -8,6 +10,10 @@ export default {
     prop: {
       type: String,
       required: true
+    },
+    debounce: {
+      type: Number,
+      default: 0
     }
   },
   data: () => ({
@@ -16,6 +22,14 @@ export default {
   computed: {
     current() {
       return this.clone || this.item
+    }
+  },
+  watch: {
+    debounce: {
+      handler(wait) {
+        this.debouncedHandler = _debounce(this.handler, wait)
+      },
+      immediate: true
     }
   },
   methods: {
@@ -28,6 +42,7 @@ export default {
       })
     },
     handler(e, callback) {
+      debugger
       if (!this.clone) {
         this.createClone()
       }
@@ -45,7 +60,9 @@ export default {
     }
   },
   render() {
-    const { current, prop, createClone, handler } = this
+    const { current, prop, createClone } = this
+    const handler = this.debounce ? this.debouncedHandler : this.handler
+
     return this.$scopedSlots.default({ current, prop, createClone, handler })
   }
 }
