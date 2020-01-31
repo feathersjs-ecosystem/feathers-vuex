@@ -1,11 +1,11 @@
 ---
 title: Working with Forms
-sidebarDepth: 3
+sidebarDepth: 4
 ---
 
 # Working with Forms
 
-The `FeathersVuexFormWrapper` is a renderless component which assists in connecting your feathers-vuex data to a form.  The next two sections review why it exists by looking at a couple of common patterns.  Proceed to the [FeathersVuexFormWrapper](#feathersvuexformwrapper) section to learn how to implement.
+The `FeathersVuexFormWrapper` and `FeathersVuexInputWrapper` are renderless components which assist in connecting your feathers-vuex data to a form.  The next two sections review why they exist by looking at a couple of common patterns.  Proceed to the [FeathersVuexFormWrapper](#feathersvuexformwrapper) or [FeathersVuexInputWrapper](#feathersvuexinputwrapper) sections to learn how to implement.
 
 ## The Mutation Multiplicity (anti) Pattern
 
@@ -151,7 +151,7 @@ The default slot contains only four attributes.  The `clone` data can be passed 
 - `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
 - `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
 
-## Example Usage: CRUD Form
+## FormWrapper Example: CRUD Form
 
 ### TodoView
 
@@ -270,6 +270,229 @@ export default {
       type: Object,
       required: true
     }
+  }
+}
+</script>
+```
+
+## FeathersVuexInputWrapper
+
+Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.
+
+An important difference with the FeathersVuexInputWrapper is that it is built using the Vue Composition API.  This means that in order to use it you will need to install and use the `@vue/composition-api` package in your Vue project, [as described here](/composition-api.html).
+
+One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on text and color inputs:
+
+```html
+<template>
+  <div class="p-3">
+    <FeathersVuexInputWrapper :item="user" prop="email">
+      <template #default="{ current, prop, createClone, handler }">
+        <input v-model="current[prop]" type="text" @focus="createClone" @blur="e => handler(e, save)" />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <!-- Simple readout to show that it's working. -->
+    <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InputWrapperExample',
+  methods: {
+    // Optionally make the event handler async.
+    async save({ event, clone, prop, data }) {
+      const user = clone.commit()
+      return user.patch(data)
+    }
+  }
+}
+</script>
+```
+
+Notice that in the `save` handler in the above example, the `.patch` method is called on the user, passing in the data.  Because the data contains only the user property which changed, the patch request will only send the data which has changed, saving precious bandwidth.
+
+### Props
+
+The `FeathersVuexInputWrapper` has two props, both of which are required:
+
+- `item`: The original (non-cloned) model instance.
+- `prop`: The property name on the model instance to be edited.
+
+### Default Slot Scope
+
+Only the default slot is used. The following props are available in the slot scope:
+
+- `current {clone|instance}`: returns the clone if it exists, or the original record. `current = clone || item`
+- `clone { clone }`: the internal clone. This is exposed for debugging purposes.
+- `prop {String}`: the value of the `prop` prop. If you have the prop stored in a variable in the outer scope, this is redundant and not needed. You could just use this from the outer scope.  It mostly comes in handy when you are manually specifying the `prop` name on the component.
+- `createClone {Function}`: sets up the internal clone. Meant to be used as an event handler.
+- `handler {Function}`: has the signature `handler(event, callback)`.  It prepared data before calling the callback function that must be provided from the outer scope.
+
+### The Callback Function
+
+The `handler` function in the slot scope requires the use of a callback function as its second argument.  Here's an example callback function followed by an explanation of its properties:
+
+```js
+myCallback({ event, clone, prop, data }) {
+  clone.commit()
+}
+```
+
+- `event {Event}`: the event which triggered the `handler` function in the slot scope.
+- `clone {clone}`: the cloned version of the `item` instance that was provided as a prop.
+- `prop {String}`: the name of the `prop` that is being edited (will always match the `prop` prop.)
+- `data {Object}`: An object containing the changes that were made to the object. Useful for calling `.patch(data)` on the original instance.
+
+This callback needs to be customized to fit your business logic.  You might patch the changes right away, as shown in this example callback function.
+
+```js
+async save({ event, clone, prop, data }) {
+  const user = clone.commit()
+  return user.patch(data)
+}
+```
+
+Notice in the example above that the `save` function is `async`.  This means that it returns a promise, which in this case is the `user.patch` request.  Internally, the `handler` method will automatically set the internal `clone` object to `null`, which will cause the `current` computed property to return the original instance.
+
+Note that some types of HTML input elements will call `handler` repeatedly, so the handler needs to be debounced.  See an example, below.
+
+## InputWrapper Examples
+
+### Text Input
+
+With a text input, you can use the `focus` and `blur` events
+
+```html
+<template>
+  <div class="p-3">
+    <FeathersVuexInputWrapper :item="user" prop="email">
+      <template #default="{ current, prop, createClone, handler }">
+        <input
+          v-model="current[prop]"
+          type="text"
+          @focus="createClone"
+          @blur="e => handler(e, save)"
+        />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <!-- Simple readout to show that it's working. -->
+    <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InputWrapperExample',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    // The callback can be async
+    async save({ event, clone, prop, data }) {
+      const user = clone.commit()
+      return user.patch(data)
+    }
+  }
+}
+</script>
+```
+
+### Color Input
+
+Here is an example of using the FeathersVuexInputWrapper on a color input.  Color inputs emit a lot of `input` and `change` events, so you'll probably want to debounce the callback function if you are going to immediately save changes.  The example after this one shows how you might debounce.
+
+```html
+<template>
+  <div class="p-3">
+    <FeathersVuexInputWrapper :item="user" prop="email">
+      <template #default="{ current, prop, createClone, handler }">
+        <input
+          v-model="current[prop]"
+          type="text"
+          @click="createClone"
+          @change="e => handler(e, save)"
+        />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <!-- Simple readout to show that it's working. -->
+    <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InputWrapperExample',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    // The callback can be async
+    async save({ event, clone, prop, data }) {
+      const user = clone.commit()
+      return user.patch(data)
+    }
+  }
+}
+</script>
+```
+
+### Color Input with Debounce
+
+Here is an example of using the FeathersVuexInputWrapper on a color input.  Notice how the debounced callback function is provided to the `handler`.  This is because color inputs trigger a `change` event every time their value changes.  To prevent sending thousands of patch requests as the user changes colors, we use the debounced function to only send a request after 100ms of inactivity.
+
+Notice also that this example uses the Vue Composition API because creating a debounced function is much cleaner this way.
+
+```vue
+<template>
+  <div class="p-3">
+    <FeathersVuexInputWrapper :item="user" prop="email">
+      <template #default="{ current, prop, createClone, handler }">
+        <input
+          v-model="current[prop]"
+          type="text"
+          @click="createClone"
+          @change="e => handler(e, debouncedSave)"
+        />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <!-- Simple readout to show that it's working. -->
+    <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
+  </div>
+</template>
+
+<script>
+import _debounce from 'lodash/debounce'
+
+export default {
+  name: 'InputWrapperExample',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
+  setup() {
+    // The original, non-debounced save function
+    async function save({ event, clone, prop, data }) {
+      const user = clone.commit()
+      return user.patch(data)
+    }
+    // The debounced wrapper around the save function
+    const debouncedSave = _debounce(save, 100)
+
+    // We only really need to provide the debouncedSave to the template.
+    return { debouncedSave }
   }
 }
 </script>
