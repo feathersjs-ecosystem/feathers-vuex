@@ -5,7 +5,7 @@
 [![Download Status](https://img.shields.io/npm/dm/feathers-vuex.svg?style=flat-square)](https://www.npmjs.com/package/feathers-vuex)
 [![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs-ecosystem/feathers-vuex.svg)](https://greenkeeper.io/)
 
-`Feathers-Vuex` is a first class integration of the FeathersJS and Vuex. It implements many Redux best practices under the hood, eliminates _a lot_ of boilerplate code with flexible data modeling, and still allows you to easily customize the Vuex store.
+`Feathers-Vuex` is a first class integration of FeathersJS and Vuex. It implements many Redux best practices under the hood, eliminates _a lot_ of boilerplate code with flexible data modeling, and still allows you to easily customize the Vuex store.
 
 ![feathers-vuex service logo](./service-logo.png)
 
