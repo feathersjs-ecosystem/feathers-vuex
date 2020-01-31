@@ -277,11 +277,7 @@ export default {
 
 ## FeathersVuexInputWrapper
 
-Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.
-
-An important difference with the FeathersVuexInputWrapper is that it is built using the Vue Composition API.  This means that in order to use it you will need to install and use the `@vue/composition-api` package in your Vue project, [as described here](/composition-api.html).
-
-One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on text and color inputs:
+Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.  One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on text and color inputs:
 
 ```html
 <template>
