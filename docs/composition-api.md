@@ -7,6 +7,29 @@ sidebarDepth: 3
 
 In addition to the Renderless Components and the Mixins, Feathers-Vuex includes utilities that let you take advantage of the [Vue Composition API](https://github.com/vuejs/composition-api).
 
+It's important to note that the `@vue/composition-api` plugin must be registered BEFORE you import `App.vue`.  This means that you need to modify your `main.js` file to look like this:
+
+```js
+import Vue from 'vue'
+import VueCompositionApi from '@vue/composition-api'
+
+// Register the Composition API plugin BEFORE you import App.vue
+Vue.use(VueCompositionApi)
+
+import App from './App.vue'
+import router from './router'
+import store from './store/store'
+import './plugins/plugins'
+Vue.config.productionTip = true
+new Vue({
+  router,
+  store,
+  render: h => h(App)
+}).$mount('#app')
+```
+
+If you forget to register the plugin, first, you will see a console warning from Vue stating `[Vue warn]: Error in data(): "Error: [vue-composition-api] must call Vue.use(plugin) before using any function.".  To fix this, make sure to register the plugin BEFORE you call any Composition utility functions, as shown above.
+
 ## Setup
 
 Before you can use the `useFind` and `useGet` composition functions, you'll need to [install the Vue Composition API](https://github.com/vuejs/composition-api#Installation) plugin.
