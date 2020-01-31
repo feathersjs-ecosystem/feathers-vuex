@@ -1,6 +1,6 @@
 ---
 title: Working with Forms
-sidebarDepth: 3
+sidebarDepth: 4
 ---
 
 # Working with Forms
@@ -274,3 +274,43 @@ export default {
 }
 </script>
 ```
+
+## FeathersVuexInputWrapper
+
+Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.  One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on text and color inputs:
+
+```html
+<template>
+  <div class="p-3">
+    <FeathersVuexInputWrapper :item="user" prop="email">
+      <template #default="{ current, prop, createClone, handler }">
+        <input v-model="current[prop]" type="text" @focus="createClone" @blur="e => handler(e, save)" />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <FeathersVuexInputWrapper :item="user" prop="carColor">
+      <template #default="{ current, prop, createClone, handler }">
+        <input v-model="current[prop]" type="color" @focus="createClone" @blur="e => handler(e, save)" />
+      </template>
+    </FeathersVuexInputWrapper>
+
+    <!-- Simple readout to show that it's working. -->
+    <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InputWrapperExample',
+  methods: {
+    // Optionally make the event handler async.
+    async save({ event, clone, prop, data }) {
+      const user = clone.commit()
+      return user.patch(data)
+    }
+  }
+}
+</script>
+```
+
+Notice that in the `save` handler in the above example, the `.patch` method is called on the user, passing in the data.  Because the data contains only the user property which changed, the patch request will only send the data which has changed, saving precious bandwidth.
