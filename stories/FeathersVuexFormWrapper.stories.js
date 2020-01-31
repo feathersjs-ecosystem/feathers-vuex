@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import '../../assets/styles/tailwind.postcss'
 
 import FeathersVuexFormWrapper from '../src/FeathersVuexFormWrapper'

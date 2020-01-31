@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import FeathersVuexInputWrapper from '../src/FeathersVuexInputWrapper.vue'
 import { makeModel } from '@rovit/test-model'
 
