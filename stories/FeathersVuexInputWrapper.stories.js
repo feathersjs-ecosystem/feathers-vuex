@@ -1,6 +1,5 @@
-import FeathersVuexInputWrapper from './FeathersVuexInputWrapper.vue'
+import FeathersVuexInputWrapper from '../src/FeathersVuexInputWrapper.vue'
 import { makeModel } from '@rovit/test-model'
-import { debounce } from 'lodash'
 
 const User = makeModel()
 

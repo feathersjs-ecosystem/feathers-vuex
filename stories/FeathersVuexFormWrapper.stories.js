@@ -1,6 +1,6 @@
 import '../../assets/styles/tailwind.postcss'
 
-import FeathersVuexFormWrapper from './FeathersVuexFormWrapper'
+import FeathersVuexFormWrapper from '../src/FeathersVuexFormWrapper'
 import Readme from './README.md'
 
 import store from '../../store/store.dev'
