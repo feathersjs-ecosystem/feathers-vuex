@@ -277,14 +277,19 @@ export default {
 
 ## FeathersVuexInputWrapper
 
-Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.  One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on text and color inputs:
+Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.  One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on a text input:
 
 ```html
 <template>
   <div class="p-3">
     <FeathersVuexInputWrapper :item="user" prop="email">
       <template #default="{ current, prop, createClone, handler }">
-        <input v-model="current[prop]" type="text" @focus="createClone" @blur="e => handler(e, save)" />
+        <input
+          v-model="current[prop]"
+          type="text"
+          @focus="createClone"
+          @blur="e => handler(e, save)"
+        />
       </template>
     </FeathersVuexInputWrapper>
 
