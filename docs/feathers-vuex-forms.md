@@ -255,10 +255,10 @@ Next let's look at a minimal example of a 'TodoEditor' component which is a chil
     <button type="submit">Save</button>
 
     <!-- Emitting reset will restore the item back to the stored version. -->
-    <button type="button" @click="$emit('reset')>Reset</button>
+    <button type="button" @click="$emit('reset')">Reset</button>
 
     <!-- Delete's the instance -->
-    <button type="button" @click="$emit('remove')>Delete</button>
+    <button type="button" @click="$emit('remove')">Delete</button>
   </form>
 </template>
 
