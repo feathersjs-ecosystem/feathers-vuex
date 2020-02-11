@@ -8,11 +8,11 @@ sidebarDepth: 3
 ## Installation
 
 ```bash
-npm install feathers-vuex --save
+npm install feathers-vuex @vue/composition-api --save
 ```
 
 ```bash
-yarn add feathers-vuex
+yarn add feathers-vuex @vue/composition-api
 ```
 
 IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for full compatibility with JS classes.  If your project uses Babel, it must be configured properly.  See the [Project Configuration](#projectconfiguration) section for more information.
