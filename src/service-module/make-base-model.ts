@@ -81,7 +81,6 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
     public constructor(data, options: BaseModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
-      const originalData = data
       data = data || {}
       options = Object.assign({}, defaultOptions, options)
 
@@ -158,7 +157,6 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       }
 
       // Add the item to the store
-      // Make sure originalData wasn't an empty object.
       if (!options.clone && options.commit !== false && store) {
         _commit.call(this.constructor, 'addItem', this)
       }
