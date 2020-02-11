@@ -22,11 +22,11 @@ IMPORTANT: Feathers-Vuex is (and requires to be) published in ES6 format for ful
 A realtime-transport like Socket.io or Primus is required in order to take advantage of the real-time socket events built into Feathers-Vuex. The `feathers-hooks-common` package, specified below, is not required to work with Feathers-Vuex.
 
 ```bash
-npm i @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client feathers-vuex feathers-hooks-common --save
+npm i @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client @vue/composition-api feathers-vuex feathers-hooks-common --save
 ```
 
 ```bash
-yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client feathers-vuex feathers-hooks-common
+yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentication-client socket.io-client @vue/composition-api feathers-vuex feathers-hooks-common
 ```
 
 ### With feathers-rest
@@ -34,11 +34,11 @@ yarn add @feathersjs/feathers @feathersjs/socketio-client @feathersjs/authentica
 Feathers-Vuex works with Feathers-Rest, but keep in mind that the `feathers-rest` client does not listen to socket events. The `feathers-hooks-common` package, specified below, is not required to work with Feathers-Vuex.
 
 ```bash
-npm i @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client feathers-hooks-common feathers-vuex --save
+npm i @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client @vue/composition-api feathers-hooks-common feathers-vuex --save
 ```
 
 ```bash
-yarn add @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client feathers-hooks-common feathers-vuex
+yarn add @feathersjs/feathers @feathersjs/rest-client @feathersjs/authentication-client @vue/composition-api feathers-hooks-common feathers-vuex
 ```
 
 ## Project Configuration
