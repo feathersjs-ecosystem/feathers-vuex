@@ -186,7 +186,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
     public static getFromStore(id, params?) {
       if (params) {
-        return this._getters('get', [id, params])
+        return this._getters('get', id, params)
       } else {
         return this._getters('get', id)
       }
@@ -272,10 +272,16 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       _commit.call(this.constructor, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return Object.assign(_getters.call(this.constructor, 'getCopyById', id), data)
+        return Object.assign(
+          _getters.call(this.constructor, 'getCopyById', id),
+          data
+        )
       } else {
         // const { copiesById } = this.constructor as typeof BaseModel
-        return Object.assign((this.constructor as typeof BaseModel).copiesById[id], data)
+        return Object.assign(
+          (this.constructor as typeof BaseModel).copiesById[id],
+          data
+        )
       }
     }
     /**
