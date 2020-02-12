@@ -67,31 +67,31 @@ function makeContext() {
   }
   class Person extends BaseModel {
     public static modelName = 'Person'
-    public static test: boolean = true
+    public static test = true
   }
   class Item extends BaseModel {
     public static modelName = 'Item'
-    public static test: boolean = true
+    public static test = true
   }
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static test: boolean = true
+    public static test = true
   }
   class Car extends BaseModel {
     public static modelName = 'Car'
-    public static test: boolean = true
+    public static test = true
   }
   class Group extends BaseModel {
     public static modelName = 'Group'
-    public static test: boolean = true
+    public static test = true
   }
   class Test extends BaseModel {
     public static modelName = 'Test'
-    public static test: boolean = true
+    public static test = true
   }
   class Thing extends BaseModel {
     public static modelName = 'Thing'
-    public static test: boolean = true
+    public static test = true
   }
 
   return {
@@ -119,7 +119,7 @@ function makeContextWithState() {
   class ServiceTodo extends BaseModel {
     public static modelName = 'ServiceTodo'
 
-    public static test: boolean = true
+    public static test = true
   }
 
   return {
@@ -156,13 +156,13 @@ function makeAutoRemoveContext() {
   })
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public static servicePath: string = 'todos'
-    public static test: boolean = true
+    public static servicePath = 'todos'
+    public static test = true
   }
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static servicePath: string = 'tasks'
-    public static test: boolean = true
+    public static servicePath = 'tasks'
+    public static test = true
   }
   return {
     feathers,
@@ -197,7 +197,6 @@ describe('Service Module', function() {
       'the Model was added to the models'
     )
     assert(
-      // @ts-ignore
       feathersService.FeathersVuexModel === ServiceTodo,
       'the Model is also found at service.FeathersVuexModel'
     )
@@ -388,8 +387,10 @@ describe('Service Module', function() {
     })
 
     it(`allows shallow assign of data when cloning`, function() {
-      const { serviceTodo, owners } = this
-      let serviceTodoClone = serviceTodo.clone({ isComplete: !serviceTodo.isComplete })
+      const { serviceTodo } = this
+      const serviceTodoClone = serviceTodo.clone({
+        isComplete: !serviceTodo.isComplete
+      })
 
       assert.equal(
         !serviceTodo.isComplete,
@@ -408,7 +409,7 @@ describe('Service Module', function() {
 
     it('allows reseting copy changes back to match the original', function() {
       const { serviceTodo } = this
-      let serviceTodoClone = serviceTodo.clone()
+      const serviceTodoClone = serviceTodo.clone()
 
       serviceTodoClone.description = 'Do something else'
       serviceTodoClone.reset()
@@ -488,7 +489,7 @@ describe('Service Module', function() {
       const { makeServicePlugin, BaseModel, Task } = makeContext()
       class Todo extends BaseModel {
         public static modelName = 'Todo'
-        public static test: boolean = true
+        public static test = true
       }
       const store = new Vuex.Store<RootState>({
         plugins: [
