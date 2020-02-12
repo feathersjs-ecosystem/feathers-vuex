@@ -193,22 +193,19 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     }
 
     /**
-     * An alias for store.getters
+     * An alias for store.getters. Can only call function-based getters, since
+     * it's meant for only `find` and `get`.
      * @param method the vuex getter name without the namespace
      * @param payload if provided, the getter will be called as a function
      */
-    public static _getters(name: string, payload?: any) {
+    public static _getters(name: string, idOrParams?: any, params?: any) {
       const { namespace, store } = this
 
       if (checkNamespace(namespace, this, options.debug)) {
         if (!store.getters.hasOwnProperty(`${namespace}/${name}`)) {
           throw new Error(`Could not find getter named ${namespace}/${name}`)
         }
-        if (payload !== undefined) {
-          return store.getters[`${namespace}/${name}`](payload)
-        } else {
-          return store.getters[`${namespace}/${name}`]
-        }
+        return store.getters[`${namespace}/${name}`](idOrParams, params)
       }
     }
     /**
