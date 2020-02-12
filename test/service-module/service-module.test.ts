@@ -387,6 +387,25 @@ describe('Service Module', function() {
       )
     })
 
+    it(`allows shallow assign of data when cloning`, function() {
+      const { serviceTodo, owners } = this
+      let serviceTodoClone = serviceTodo.clone({ isComplete: !serviceTodo.isComplete })
+
+      assert.equal(
+        !serviceTodo.isComplete,
+        serviceTodoClone.isComplete,
+        'clone value has changed'
+      )
+
+      serviceTodoClone.commit()
+
+      assert.equal(
+        serviceTodo.isComplete,
+        true,
+        'value has changed after commit'
+      )
+    })
+
     it('allows reseting copy changes back to match the original', function() {
       const { serviceTodo } = this
       let serviceTodoClone = serviceTodo.clone()
