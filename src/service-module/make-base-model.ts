@@ -266,7 +266,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._clone(id, data)
     }
 
-    private _clone(id, data) {
+    private _clone(id, data = {}) {
       const { store, namespace, _commit, _getters } = this
         .constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
@@ -274,10 +274,10 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       _commit.call(this.constructor, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return Object.assign(_getters.call(this.constructor, 'getCopyById', id), data || {})
+        return Object.assign(_getters.call(this.constructor, 'getCopyById', id), data)
       } else {
         // const { copiesById } = this.constructor as typeof BaseModel
-        return Object.assign((this.constructor as typeof BaseModel).copiesById[id], data || {})
+        return Object.assign((this.constructor as typeof BaseModel).copiesById[id], data)
       }
     }
     /**
