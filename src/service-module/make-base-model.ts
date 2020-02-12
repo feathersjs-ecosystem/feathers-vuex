@@ -254,17 +254,17 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * clone the current record using the `createCopy` mutation
      */
-    public clone() {
+    public clone(data) {
       const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
       const id =
         getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
-      return this._clone(id)
+      return this._clone(id, data)
     }
 
-    private _clone(id) {
+    private _clone(id, data = {}) {
       const { store, namespace, _commit, _getters } = this
         .constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
@@ -272,10 +272,10 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       _commit.call(this.constructor, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return _getters.call(this.constructor, 'getCopyById', id)
+        return Object.assign(_getters.call(this.constructor, 'getCopyById', id), data)
       } else {
         // const { copiesById } = this.constructor as typeof BaseModel
-        return (this.constructor as typeof BaseModel).copiesById[id]
+        return Object.assign((this.constructor as typeof BaseModel).copiesById[id], data)
       }
     }
     /**
