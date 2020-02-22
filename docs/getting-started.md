@@ -223,7 +223,7 @@ export default makeAuthPlugin({ userService: 'users' })
 This example uses Webpack's `require.context` feature.  If you're not using Webpack, you'll need to manually import each module and list them in the `plugins` array.
 
 ```js
-// src/store/store.js
+// src/store/index.js
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { FeathersVuex } from '../feathers-client'
