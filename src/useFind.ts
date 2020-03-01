@@ -119,7 +119,10 @@ export default function find(options: UseFindOptions): UseFindData {
       }
     }),
     paginationData: computed(() => {
-      return model.store.state[model.servicePath].pagination
+      if (!state.isPending)
+        return model.store.state[model.servicePath].pagination;
+      else
+        return {};
     }),
     servicePath: computed<string>(() => model.servicePath)
   }
