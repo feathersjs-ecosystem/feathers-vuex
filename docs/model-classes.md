@@ -360,7 +360,7 @@ console.log(todoCopy.description) // --> 'Do something else!'
 
 There's another use case for using `.clone()`.  Vuex has a `strict` mode that's really useful in development.  It throws errors if any changes occur in the Vuex store `state` outside of mutations.  Clone really comes in handy here, because you can make changes to the clone without having to write custom Vuex mutations. When you're finished making changes, call `.commit()` to update the store. This gives you `strict` mode compliance with little effort!
 
-> Nonte: You could previously use the `keepCopiesInStore` option to keep copies in `state.copiesById`.  In 2.0, this feature is deprecated and will be removed from the next release.
+> Note: You could previously use the `keepCopiesInStore`<Badge text="deprecated" type="warning"/> option to keep copies in `state.copiesById`.  In 2.0, this feature is deprecated and will be removed from the next release.
 
 ### `instance.commit()`
 
