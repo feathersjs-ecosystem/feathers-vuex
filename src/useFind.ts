@@ -97,7 +97,7 @@ export default function find(options: UseFindOptions): UseFindData {
     items: computed<any[]>(() => {
       const getterParams = unwrapParams(params)
 
-      if (getterParams.paginate) {
+      if (getterParams && getterParams.paginate) {
         const serviceState = model.store.state[model.servicePath]
         const { defaultSkip, defaultLimit } = serviceState.pagination
         const skip = getterParams.query.$skip || defaultSkip

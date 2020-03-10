@@ -550,9 +550,9 @@ The `feathers` middleware will redirect any user in a non public page to the log
 export default function ({ store, redirect, route }) {
   const { auth } = store.state
   if (auth.publicPages.length > 0 && !auth.publicPages.includes(route.name) && !auth.payload) {
-    return redirect('login')
+    return redirect('/login')
   } else if (auth.publicPages.length > 0 && auth.publicPages.includes(route.name) && auth.payload) {
-    return redirect('feed')
+    return redirect('/feed')
   }
 }
 ```
