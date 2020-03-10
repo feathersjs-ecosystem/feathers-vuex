@@ -62,16 +62,16 @@ const servicePlugin = makeServicePlugin({
 ```
 The following options can also be configured in [Global Configuration](getting-started.html#global-configuration) for every service initialized using `feathers-client.js`:
 
-- `idField {String}` - **Default:** `'id'` - The field in each record that will contain the id
-- `tempIdField {Boolean}` - **Default:** `'__id'` - The field in each temporary record that contains the id
-- `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
-- `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
-- `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
-- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off
-- `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
-- `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
-- `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+- `idField {String}` - **Default:** `globalConfig: 'id'` - The field in each record that will contain the id
+- `tempIdField {Boolean}` - **Default:** `globalConfig: '__id'` - The field in each temporary record that contains the id
+- `debug {Boolean}` - **Default:** `globalConfig: false` - Enable some logging for debugging
+- `addOnUpsert {Boolean}` - **Default:** `globalConfig: false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
+- `autoRemove {Boolean}` - **Default:** `globalConfig: false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
+- `enableEvents {Boolean}` - **Default:** `globalConfig: true` - If `false` socket event listeners will be turned off
+- `preferUpdate {Boolean}` - **Default:** `globalConfig: false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
+- `replaceItems {Boolean}` - **Default:** `globalConfig: false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
+- `skipRequestIfExists {Boolean}` - **Default:** `globalConfig: false` - For get action, if `true` the record already exists in store, skip the remote request.
+- `nameStyle {'short'|'path'}` - **Default:** `globalConfig: 'short'` - Use the full service path as the Vuex module name, instead of just the last section.
 
 The following options can only configured individually per service plugin
 
@@ -79,8 +79,8 @@ The following options can only configured individually per service plugin
 - `namespace {String}`, - **Default:** `nameStyle === 'short' ? ${afterLastSlashOfServicePath} : ${stripSlashesFromServicePath}` - Customize the Vuex module name. Overrides nameStyle.
 - `modelName {String}` - **Default:** `${ServicePlugin.Model.modelName}`
 - `instanceDefaults {Function}` - **Default:** `() => ({})` - Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
-- `setupInstance {Function}` **Default:** `instance => instance` - Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
-- `handleEvents {Object}`
+- `setupInstance {Function}` - **Default:** `instance => instance` - Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
+- `handleEvents {Object}`: For this to work `enableEvents` must not be `false`
   - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
   - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
   - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
