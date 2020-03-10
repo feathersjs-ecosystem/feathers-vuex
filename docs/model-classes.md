@@ -10,7 +10,7 @@ Feathers-Vuex 1.0 introduced some lightweight data modeling.  Every service had 
 
 ## Extending the BaseModel Class
 
-While [setting up Feathers-Vuex](/api-overview.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it.  The below example shows how to import and extend the `BaseModel`.  Each service must now have its own unique Model class.
+While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it.  The below example shows how to import and extend the `BaseModel`.  Each service must now have its own unique Model class.
 
 ```js
 import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
