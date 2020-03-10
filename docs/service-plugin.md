@@ -3,55 +3,101 @@ title: Service Plugin
 sidebarDepth: 3
 ---
 
+# Service Plugin
+
 <!-- markdownlint-disable MD002 MD033 MD041 -->
 
 The `makeServicePlugin` method creates a vuex plugin which connects a Feathers service to the Vuex store.  Once you create a plugin, you must register it in the Vuex store's `plugins` section.
 
-See the [setup documentation](/api-overview.html#service-plugins) to learn the basics of setting up a Service Plugin.
+## Setup
+
+See the [setup documentation](./getting-started.html#service-plugins) to learn the basics of setting up a Service Plugin.
 
 ## Configuration
 
-The following options are supported on `makeServicePlugin`.
+The following options are supported on `makeServicePlugin`:
 
 ```js
-{
-  idField: '_id', // The field in each record that will contain the id
-  nameStyle: 'path', // Use the full service path as the Vuex module name, instead of just the last section
-  namespace: 'custom-namespace', // Customize the Vuex module name.  Overrides nameStyle.
-  debug: true, // Enable some logging for debugging
-  servicePath: '', // Not all Feathers service plugins expose the service path, so it can be manually specified when missing.
-  instanceDefaults: () => ({}), // Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
-  setupInstance: instance => instance, // Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
-  autoRemove: true, // Automatically remove records missing from responses (only use with feathers-rest)
-  enableEvents: false, // Turn off socket event listeners. It's true by default
+import Model from "../users.model";
+
+const servicePath = 'users'
+const servicePlugin = makeServicePlugin({
+  // necesarry
+  Model,
+  service: feathersClient.service(servicePath),
+  
+  // optional
+  servicePath,
+  idField: 'id',
+  tempIdField: '__id',
+  servicePath: '',
+  nameStyle: 'short',
+  debug: false,
+  autoRemove: false,
+  preferUpdate: false,
+  enableEvents: true,
+  addOnUpsert: false, 
+  replaceItems: false,
+  skipRequestIfExists: false,
+  
+  namespace: null,
+  modelName: 'User',
+  
+  instanceDefaults: () => ({}),
+  setupInstance: instance => instance,
   handleEvents: {
-    created: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to add to the store
-    patched: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to update in the store
-    updated: (item, { model, models }) => options.enableEvents, // handle `created` events, return true to update in the store
-    removed: (item, { model, models }) => options.enableEvents // handle `removed` events, return true to remove from the store
+    created: (item, { model, models }) => options.enableEvents,
+    patched: (item, { model, models }) => options.enableEvents,
+    updated: (item, { model, models }) => options.enableEvents,
+    removed: (item, { model, models }) => options.enableEvents
   },
-  addOnUpsert: true, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them. It's false by default
-  replaceItems: true, // If true, updates & patches replace the record in the store. Default is false, which merges in changes
-  skipRequestIfExists: true, // For get action, if the record already exists in store, skip the remote request. It's false by default
-  modelName: 'OldTask' // Default modelName would have been 'Task'
-}
+  
+  state: {},
+  getters: {},
+  mutations: {},
+  actions: {},
+  
+  //...
+});
 ```
+The following options can also be configured in [Global Configuration](getting-started.html#global-configuration) for every service initialized using `feathers-client.js`:
+
+- `idField {String}` - **Default:** `'id'` - The field in each record that will contain the id
+- `tempIdField {Boolean}` - **Default:** `'__id'` - The field in each temporary record that contains the id
+- `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
+- `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
+- `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
+- `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
+- `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
+- `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
+- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off
+- `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+
+The following options can only configured individually per service plugin
+
+- `servicePath {String}`- Not all Feathers service plugins expose the service path, so it can be manually specified when missing.
+- `namespace {String}`, - **Default:** `nameStyle === 'short' ? ${afterLastSlashOfServicePath} : ${stripSlashesFromServicePath}` - Customize the Vuex module name. Overrides nameStyle.
+- `modelName {String}` - **Default:** `${ServicePlugin.Model.modelName}`
+- `instanceDefaults {Function}` - **Default:** `() => ({})` - Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
+- `setupInstance {Function}` **Default:** `instance => instance` - Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
+- `handleEvents {Object}`
+  - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
+  - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
+  
+  - `state {Object}` - **Default:**: `null` - Pass custom `states` to the service plugin or modify existing ones
+  - `getters {Object}` - **Default:** `null` - Pass custom `getters` to the service plugin or modify existing ones
+  - `mutations {Object}` - **Default:** `null` - Pass custom `mutations` to the service plugin or modify existing ones
+  - `actions {Object}` - **Default:** `null` - Pass custom `actions` to the service plugin or modify existing ones
 
 ## Realtime by Default
 
 Service plugins automatically listen to all socket messages received by the Feathers Client.  This can be disabled by setting `enableEvents: false` in the options, as shown above.
 
-## New in Feathers-Vuex 2.0
-
-Feathers-Vuex 2.0 includes a few breaking changes to the service plugin.  Some of these changes are being made to prepare for future compatibility beyond FeathersJS
-
-- The `service` method is now called `makeServicePlugin`
-- The Feathers Client service is no longer created, internally, so a Feathers service object must be provided instead of just the path string.
-- A Model class is now required. The `instanceDefaults` API has been moved into the Model class.  You can find a basic example of a minimal Model class in the [Data Modeling](/model-classes.html) docs.
-
 ## The FeathersClient Service
 
-Once the service plugin has been registered with Vuex, the FeathersClient Service will have a new `service.FeathersVuexModel` property.  This provides access to the service's [Model class](./model-classes.md).
+Once the service plugin has been registered with Vuex, the FeathersClient Service will have a new `service.FeathersVuexModel` property.  This provides access to the service's [Model class](./model-classes.html).
 
 ```js
 import { models } from 'feathers-vuex'
@@ -66,15 +112,30 @@ Each service comes loaded with the following default state:
 ```js
 {
     ids: [],
-    keyedById: {}, // A hash map, keyed by id of each item
     idField: 'id',
-    servicePath: 'v1/todos' // The full service path
-    autoRemove: false, // Indicates that this service will not automatically remove results missing from subsequent requests.
-    replaceItems: false, // When set to true, updates and patches will replace the record in the store instead of merging changes
-    paginate: false, // Indicates if pagination is enabled on the Feathers service.
+    keyedById: {},
+    tempsById: {},
+    tempsByNewId: {}, 
+    pagination: {
+      defaultLimit: null,
+      defaultSkip: null
+    },
+    servicePath: 'v1/todos'
+    modelName: 'Todo',
+    autoRemove: false,
+    replaceItems: false,
+    
+    pagination: {
+      ids: []
+      limit: 0
+      skip: 0
+      ip: 0
+      total: 0,
+      mostRecent: any
+    },
 
-    paramsForServer: [], // Custom query operators that are ignored in the find getter, but will pass through to the server.
-    whitelist: [], // Custom query operators that will be allowed in the find getter.
+    paramsForServer: [],
+    whitelist: [],
 
     isFindPending: false,
     isGetPending: false,
@@ -92,25 +153,29 @@ Each service comes loaded with the following default state:
   }
 ```
 
-The following attributes are available in each service module's state:
-
 - `ids {Array}` - an array of plain ids representing the ids that belong to each object in the `keyedById` map.
+- `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
 - `keyedById {Object}` - a hash map keyed by the id of each item.
+- `tempsById {Object}` - a hash map of temporary records, [keyed by tempIdField](./getting-started.html#global-configuration) of each item
+- `tempsByNewId {Object}` - temporary storage for temps while getting transferred from tempsById to keyedById
 - `servicePath {String}` - the full service path, even if you alias the namespace to something else.
 - `modelName {String}` - the key in the $FeathersVuex plugin where the model will be found.
-- `autoRemove {Boolean` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
+- `autoRemove {Boolean}` - indicates that this service will not automatically remove results missing from subsequent requests.  Only use with feathers-rest. Default is false.
 - `replaceItems {Boolean}` - When set to true, updates and patches will replace the record in the store instead of merging changes.  Default is false
-- `idField {String}` - the name of the field that holds each item's id. *Default: `'id'`*
-- `paginate {Boolean}` - Indicates if the service has pagination turned on.
+
+- `pagination {Object}` - provides informaiton about the last made queries
+
+- `paramsForServer {Array}` - Custom query operators that are ignored in the find getter, but will pass through to the server.
+- `whitelist {Array}` - Custom query operators that will be allowed in the find getter.
 
 The following state attributes allow you to bind to the pending state of requests:
 
-- `isFindPending {Boolean}` - `true` if there's a pending `find` request.  `false` if not.
-- `isGetPending {Boolean}` - `true` if there's a pending `get` request.  `false` if not.
-- `isCreatePending {Boolean}` - `true` if there's a pending `create` request.  `false` if not.
-- `isUpdatePending {Boolean}` - `true` if there's a pending `update` request.  `false` if not.
-- `isPatchPending {Boolean}` - `true` if there's a pending `patch` request.  `false` if not.
-- `isRemovePending {Boolean}` - `true` if there's a pending `remove` request.  `false` if not.
+- `isFindPending {Boolean}` - `true` if there's a pending `find` request. `false` if not.
+- `isGetPending {Boolean}` - `true` if there's a pending `get` request. `false` if not.
+- `isCreatePending {Boolean}` - `true` if there's a pending `create` request. `false` if not.
+- `isUpdatePending {Boolean}` - `true` if there's a pending `update` request. `false` if not.
+- `isPatchPending {Boolean}` - `true` if there's a pending `patch` request. `false` if not.
+- `isRemovePending {Boolean}` - `true` if there's a pending `remove` request. `false` if not.
 
 The following state attribute will be populated with any request error, serialized as a plain object:
 
@@ -173,12 +238,6 @@ Removes the passed in items or ids from the store.
 
 - `items {Array}` - An array of ids or of objects with ids that will be removed from the data store.
 
-### `clearList(state)`
-
-> Removed in 2.0
-
-Clears the `list`, excepting the `current` item.
-
 ### `clearAll(state)`
 
 Clears all data from `ids`, `keyedById`, and `currentId`
@@ -187,46 +246,12 @@ Clears all data from `ids`, `keyedById`, and `currentId`
 
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
 
-Before Feathers-Vuex 2.0, these were the available mutations:
-
-- `setFindPending(state)` - sets `isFindPending` to `true`
-- `unsetFindPending(state)` - sets `isFindPending` to `false`
-- `setGetPending(state)` - sets `isGetPending` to `true`
-- `unsetGetPending(state)` - sets `isGetPending` to `false`
-- `setCreatePending(state)` - sets `isCreatePending` to `true`
-- `unsetCreatePending(state)` - sets `isCreatePending` to `false`
-- `setUpdatePending(state)` - sets `isUpdatePending` to `true`
-- `unsetUpdatePending(state)` - sets `isUpdatePending` to `false`
-- `setPatchPending(state)` - sets `isPatchPending` to `true`
-- `unsetPatchPending(state)` - sets `isPatchPending` to `false`
-- `setRemovePending(state)` - sets `isRemovePending` to `true`
-- `unsetRemovePending(state)` - sets `isRemovePending` to `false`
-
-In Feathers-Vuex 2.0, these have changed to only two mutations:
-
 - `setPending(state, method)` - sets the `is${method}Pending` attribute to true
 - `unsetPending(state, method)` - sets the `is${method}Pending` attribute to false
 
 ### Mutations for Managing Errors
 
 The following mutations are called automatically by the service actions, and will rarely need to be used manually.
-
-Before Feathers-Vuex 2.0, these were the available mutations:
-
-- `setFindError(state, error)`
-- `clearFindError(state)`
-- `setGetError(state, error)`
-- `clearGetError(state)`
-- `setCreateError(state, error)`
-- `clearCreateError(state)`
-- `setUpdateError(state, error)`
-- `clearUpdateError(state)`
-- `setPatchError(state, error)`
-- `clearPatchError(state)`
-- `setRemoveError(state, error)`
-- `clearRemoveError(state)`
-
-In Feathers-Vuex 2.0, these have changed to only two mutations:
 
 - `setError(state, { method, error })` - sets the `errorOn${method}` attribute to the error
 - `clearError(state, method)` - sets the `errorOn${method}` attribute to `null`
@@ -254,7 +279,7 @@ See the section about pagination, below, for more information that is applicable
 
 ### `afterFind(response)`
 
-The `afterFind` action is called by the `find` action after a successful response is added to the store.  It is called with the current response.  By default, it is a no-op (it literally does nothing), and is just a placeholder for you to use when necessary.  See the sections on [customizing the default store](#Customizing-a-Service’s-Default-Store) and [Handling custom server responses](./common-patterns.md#Handling-custom-server-responses) for example usage.
+The `afterFind` action is called by the `find` action after a successful response is added to the store.  It is called with the current response.  By default, it is a no-op (it literally does nothing), and is just a placeholder for you to use when necessary.  See the sections on [customizing the default store](#Customizing-a-Service’s-Default-Store) and [Handling custom server responses](./common-patterns.html#Handling-custom-server-responses) for example usage.
 
 ### `get(id)` or `get([id, params])`
 
@@ -583,7 +608,7 @@ In summary, any time a query param other than `$limit` and `$skip` changes, we g
 
 Now that we've reviewed how pagination tracking works under the hood, you might be asking "Why?"  There are a few reasons:
 
-1. Improve performance with cacheing.  It's now possible to skip making a query if we already have valid data for the current query.  The [`makeFindMixin`](./mixins.md) mixin makes this very easy with its built-in `queryWhen` feature.
+1. Improve performance with cacheing.  It's now possible to skip making a query if we already have valid data for the current query.  The [`makeFindMixin`](./mixins.html) mixin makes this very easy with its built-in `queryWhen` feature.
 2. Allow fall-through cacheing of paginated data.  A common challenge occurs when you provide the same query params to the `find` action and the `find` getter.  As you'll learn in the next section, the `find` getter allows you to make queries against the Vuex store as though it were a Feathers database adapter.  But what happens when you pass `{ $limit: 10, $skip: 10 }` to the action and getter?<br/>
 First, lets review what happens with the `find` action.  The database is aware of all 155 records, so it skips the first 10 and returns the next 10 records.  Those records get populated in the store, so the store now has 10 records.  Now we pass the query to the `find` getter and tell it to `$skip: 10`.  It skips the only 10 records that are in the store and returns an empty array!  That's definitely not what we wanted.<br/>
 Since we're now storing this pagination structure, we can build a utility around the `find` getter which will allow us to return the same data with the same query.  The data is still reactive and will automatically update when a record changes.
@@ -608,7 +633,7 @@ The `find` getter queries data from the local store using the same Feathers quer
 
 ## Customizing a Service's Default Store
 
-As shown in the first example, the service module allows you to customize its store:
+As shown in the example below, the service module allows you to customize its store:
 
 ```js
 const store = new Vuex.Store({
@@ -624,12 +649,9 @@ const store = new Vuex.Store({
         }
       },
       mutations: {
-        setTestToFalse (state) {
-          state.test = false
+        setTest (state, val) {
+          state.test = val;
         },
-        setTestToTrue (state) {
-          state.test = true
-        }
       },
       actions: {
         // Overwriting the built-in `afterFind` action.
@@ -637,17 +659,9 @@ const store = new Vuex.Store({
           // Do something with the response.
           // Keep in mind that the data is already in the store.
         },
-        asyncStuff ({ commit, dispatch }, args) {
+        asyncStuff ({ state, getters, commit, dispatch }, args) {
           commit('setTestToTrue')
-
-          return doSomethingAsync(id, params)
-            .then(result => {
-              commit('setTestToFalse')
-              return dispatch('otherAsyncStuff', result)
-            })
-        },
-        otherAsyncStuff ({commit}, args) {
-          return new Promise.resolve(result)
+          return new Promise.resolve("")
         }
       }
     })
