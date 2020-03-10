@@ -232,6 +232,12 @@ Removes a single item.  `item` can be
 
 - `item {Number|String|Object}` - The item or id of the item to be deleted.
 
+### `removeTemps(state, tempIds)`
+
+// Removes temp records. Also cleans up tempsByNewId
+
+- `items {Array}` - An array of ids or of objects with tempIds that will be removed from the data store
+
 ### `removeItems(state, items)`
 
 Removes the passed in items or ids from the store.
