@@ -42,7 +42,6 @@ export default {
       })
     },
     handler(e, callback) {
-      debugger
       if (!this.clone) {
         this.createClone()
       }
