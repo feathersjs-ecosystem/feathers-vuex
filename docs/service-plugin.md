@@ -25,24 +25,24 @@ const servicePlugin = makeServicePlugin({
   // necesarry
   Model,
   service: feathersClient.service(servicePath),
-  
-  // optional
-  servicePath,
+
+  // optional and configurable by global config
   idField: 'id',
   tempIdField: '__id',
-  servicePath: '',
-  nameStyle: 'short',
   debug: false,
+  addOnUpsert: false,
   autoRemove: false,
-  preferUpdate: false,
   enableEvents: true,
-  addOnUpsert: false, 
+  preferUpdate: false,
   replaceItems: false,
   skipRequestIfExists: false,
-  
+  nameStyle: 'short',
+
+  // optional and only configurable per service
+  servicePath: '',
   namespace: null,
   modelName: 'User',
-  
+
   instanceDefaults: () => ({}),
   setupInstance: instance => instance,
   handleEvents: {
@@ -51,12 +51,12 @@ const servicePlugin = makeServicePlugin({
     updated: (item, { model, models }) => options.enableEvents,
     removed: (item, { model, models }) => options.enableEvents
   },
-  
+
   state: {},
   getters: {},
   mutations: {},
   actions: {},
-  
+
   //...
 });
 ```
@@ -65,12 +65,12 @@ The following options can also be configured in [Global Configuration](getting-s
 - `idField {String}` - **Default:** `'id'` - The field in each record that will contain the id
 - `tempIdField {Boolean}` - **Default:** `'__id'` - The field in each temporary record that contains the id
 - `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
-- `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
 - `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
+- `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
+- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off
+- `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
-- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off
 - `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
 
 The following options can only configured individually per service plugin
@@ -85,7 +85,7 @@ The following options can only configured individually per service plugin
   - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
   - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
   - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
-  
+
   - `state {Object}` - **Default:**: `null` - Pass custom `states` to the service plugin or modify existing ones
   - `getters {Object}` - **Default:** `null` - Pass custom `getters` to the service plugin or modify existing ones
   - `mutations {Object}` - **Default:** `null` - Pass custom `mutations` to the service plugin or modify existing ones
@@ -115,7 +115,7 @@ Each service comes loaded with the following default state:
     idField: 'id',
     keyedById: {},
     tempsById: {},
-    tempsByNewId: {}, 
+    tempsByNewId: {},
     pagination: {
       defaultLimit: null,
       defaultSkip: null
@@ -124,7 +124,7 @@ Each service comes loaded with the following default state:
     modelName: 'Todo',
     autoRemove: false,
     replaceItems: false,
-    
+
     pagination: {
       ids: []
       limit: 0

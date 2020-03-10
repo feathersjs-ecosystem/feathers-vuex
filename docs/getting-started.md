@@ -269,22 +269,42 @@ The following default options are available for configuration:
 
 ```js
 const defaultOptions = {
-  autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
-  addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
-  enableEvents: true, // Listens to socket.io events when available. See the `handleEvents` API for more details
-  idField: 'id', // The field in each record that will contain the id
-  tempIdField: '__id',
-  debug: false, // Set to true to enable logging messages.
-  keepCopiesInStore: false, // Set to true to store cloned copies in the store instead of on the Model.
-  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
-  paramsForServer: [], // Custom query operators that are ignored in the find getter, but will pass through to the server.
-  preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
-  replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
+  // configured globally
   serverAlias: 'api',
-  skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
-  whitelist: [] // Custom query operators that will be allowed in the find getter.
+  keepCopiesInStore: false,
+  paramsForServer: [],
+  whitelist: []
+
+  // also configurable per service
+  idField: 'id',
+  tempIdField: '__id',
+  debug: false,
+  addOnUpsert: false,
+  autoRemove: false,
+  enableEvents: true,
+  preferUpdate: false,
+  replaceItems: false,
+  skipRequestIfExists: false,
+  nameStyle: 'short',
 }
 ```
+- `serverAlias` - **Default:** `api` - Models are keyed by `serverAlias`. Access the `$FeathersVuex` Plugin and its models in your components by `this.$FeathersVuex.api.${Model}`
+- `keepCopiesInStore` - **Default:** `false` - Set to true to store cloned copies in the store instead of on the Model. <Badge text="deprecated" type="warning" />
+- `paramsForServer {Array}` - **Default:** `[]` - Custom query operators that are ignored in the find getter, but will pass through to the server.
+- `whitelist {Array}` - **Default:** `[]` - Custom query operators that will be allowed in the find getter.
+
+- `idField {String}` - **Default:** `'id'` - The field in each record that will contain the id
+- `tempIdField {Boolean}` - **Default:** `'__id'` - The field in each temporary record that contains the id
+- `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
+- `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
+- `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
+- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services [handleEvents API](/service-plugin.html#configuration)
+- `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
+- `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
+- `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
+- `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+
+Also see the [Configs per Service](/service-plugin.html#configuration)
 
 ### Note about feathers-reactive
 
