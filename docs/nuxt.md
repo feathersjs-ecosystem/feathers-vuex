@@ -16,7 +16,7 @@ The `models` and `$FeathersVuex` variables are the same object.
 
 ## Preventing Memory Leaks
 
-The default settings of Feathers-Vuex include having realtime events enabled by default.  This will result in increased memory usage over time on the SSR server.  It can be turned off when you configure `feathers-vuex`.  The example below has been modified from the example of [Setting up the Feathers Client & Feathers-Vuex](./api-overview.md#feathers-client-feathers-vuex).  Look specifically at the `enableEvents` option.
+The default settings of Feathers-Vuex include having realtime events enabled by default.  This will result in increased memory usage over time on the SSR server.  It can be turned off when you configure `feathers-vuex`.  The example below has been modified from the example of [Setting up the Feathers Client & Feathers-Vuex](./getting-started.html#feathers-client-feathers-vuex).  Look specifically at the `enableEvents` option.
 
 ```js
 const { makeServicePlugin, makeAuthPlugin, BaseModel, models, FeathersVuex } = feathersVuex(

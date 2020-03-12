@@ -213,6 +213,40 @@ describe('Models - Temp Ids', function() {
     })
   })
 
+  it('removes uncreated temp', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    const thing = new Thing({
+      description: 'Robb Wolf - the Paleo Solution',
+      website:
+        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99
+    })
+
+    assert(store.state.things.tempsById[thing.__id], 'item is in the tempsById')
+
+    store.commit('things/removeTemps', [thing.__id])
+
+    assert(!store.state.things.tempsById[thing.__id], 'temp item was removed')
+  })
+
   it('clones into Model.copiesById', function() {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',

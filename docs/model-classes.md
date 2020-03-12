@@ -10,7 +10,7 @@ Feathers-Vuex 1.0 introduced some lightweight data modeling.  Every service had 
 
 ## Extending the BaseModel Class
 
-While [setting up Feathers-Vuex](/api-overview.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it.  The below example shows how to import and extend the `BaseModel`.  Each service must now have its own unique Model class.
+While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it.  The below example shows how to import and extend the `BaseModel`.  Each service must now have its own unique Model class.
 
 ```js
 import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
@@ -360,7 +360,7 @@ console.log(todoCopy.description) // --> 'Do something else!'
 
 There's another use case for using `.clone()`.  Vuex has a `strict` mode that's really useful in development.  It throws errors if any changes occur in the Vuex store `state` outside of mutations.  Clone really comes in handy here, because you can make changes to the clone without having to write custom Vuex mutations. When you're finished making changes, call `.commit()` to update the store. This gives you `strict` mode compliance with little effort!
 
-> Nonte: You could previously use the `keepCopiesInStore` option to keep copies in `state.copiesById`.  In 2.0, this feature is deprecated and will be removed from the next release.
+> Note: You could previously use the `keepCopiesInStore`<Badge text="deprecated" type="warning"/> option to keep copies in `state.copiesById`.  In 2.0, this feature is deprecated and will be removed from the next release.
 
 ### `instance.commit()`
 

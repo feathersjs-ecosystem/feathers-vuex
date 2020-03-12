@@ -179,10 +179,16 @@ export default function makeServiceMutations() {
     removeTemps(state, tempIds) {
       const ids = tempIds.reduce((ids, id) => {
         const temp = state.tempsById[id]
-        if (temp && temp[state.idField]) {
-          delete temp.__isTemp
-          Vue.delete(temp, '__isTemp')
-          ids.push(temp[state.idField])
+        if (temp) {
+          if (temp[state.idField]) {
+            // Removes __isTemp if created
+            delete temp.__isTemp
+            Vue.delete(temp, '__isTemp')
+            ids.push(temp[state.idField])
+          } else {
+            // Removes uncreated temp
+            ids.push(temp[state.tempIdField])
+          }
         }
         return ids
       }, [])

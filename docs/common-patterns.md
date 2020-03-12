@@ -174,42 +174,15 @@ in the above example of component code, the `upcomingAppointments` and `pastAppo
 
 ## Organizing the services in your project
 
-You can use the file system to organize each service into its own module. This is especially useful in organizing larger-sized projects.  Here's an example `store.js`.  It uses Webpack's require.context feature save repetitive imports:
+You can use the file system to organize each service into its own module. This is especially useful in organizing larger-sized projects.  Here's an example `store.js`.  It uses Webpack's require.context feature save repetitive imports.
 
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import { FeathersVuex } from '../feathers-client'
-import auth from './store.auth'
-
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
-
-const requireModule = require.context(
-  // The path where the service modules live
-  './services',
-  // Whether to look in subfolders
-  false,
-  // Only include .js files (prevents duplicate imports`)
-  /.js$/
-)
-const servicePlugins = requireModule
-  .keys()
-  .map(modulePath => requireModule(modulePath).default)
-
-export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
-  plugins: [...servicePlugins, auth]
-})
-```
+See it [here](/getting-started.html#auth-plugin)
 
 With the `store.js` file in place, we can start adding services to the `services` folder.
 
-- [Learn how to setup a Vuex plugin for a Feathers service.](/api-overview.html#service-plugins)
-- [Learn how to setup the feathers-client.js file](/api-overview.html)
-- [Learn how to setup the auth plugin](/api-overview.html#auth-plugin)
+- [Learn how to setup the feathers-client.js file](/getting-started.html#feathers-client-feathers-vuex)
+- [Learn how to setup a Vuex plugin for a Feathers service](/getting-started.html#service-plugins)
+- [Learn how to setup the auth plugin](/getting-started.html#auth-plugin)
 
 ## Actions return reactive store records
 
@@ -482,7 +455,7 @@ todoCopy.commit()
 todoCopy2.commit()
 ```
 
-You can use the `keepCopiesInStore` option to make this service keep all of its copies in `state.copiesById`.  Remember that to comply with Vuex `strict` mode (if that's a concern for you), you'll have to write custom mutations.  If it's not a concern (maybe you're the sole developer or whatever reason), you could technically turn off `strict` mode, enable `keepCopiesInStore`, and modify them however you desire, ignoring custom mutations.
+You can use the `keepCopiesInStore`<Badge text="deprecated" type="warning"/> option to make this service keep all of its copies in `state.copiesById`.  Remember that to comply with Vuex `strict` mode (if that's a concern for you), you'll have to write custom mutations.  If it's not a concern (maybe you're the sole developer or whatever reason), you could technically turn off `strict` mode, enable `keepCopiesInStore`, and modify them however you desire, ignoring custom mutations.
 
 ```js
 import Vue from 'vue'
