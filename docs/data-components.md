@@ -126,7 +126,7 @@ import { FeathersVuexFind, FeathersVuexGet } from 'feathers-vuex'
 
 // in your component
 components: {
-  FeathersVuexData,
+  FeathersVuexFind,
   FeathersVuexGet
 }
 
