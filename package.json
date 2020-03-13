@@ -48,7 +48,7 @@
     "test": "TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register 'test/**/*.test.ts'",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
-    "docs:serve": "vuepress dev docs",
+    "docs": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
   "prettier": {
