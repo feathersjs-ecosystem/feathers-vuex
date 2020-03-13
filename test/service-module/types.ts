@@ -23,6 +23,8 @@ export interface ServiceState {
   idField: string
   keyedById: {}
   tempsById: {}
+  whitelist: string[]
+  paramsForServer: string[]
   namespace: string
   nameStyle: string // Should be enum of 'short' or 'path'
   pagination?: {
@@ -35,7 +37,7 @@ export interface PaginationState {
   limit: number
   skip: number
   ip: number
-  total: number,
+  total: number
   mostRecent: any
 }
 

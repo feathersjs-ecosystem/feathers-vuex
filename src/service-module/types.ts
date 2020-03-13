@@ -30,17 +30,28 @@ export interface HandleEvents {
 export interface MakeServicePluginOptions {
   Model: any
   service: any
-  addOnUpsert?: boolean
-  enableEvents?: boolean
+
   idField?: string
   tempIdField?: string
-  nameStyle?: string
-  namespace?: string
-  preferUpdate?: boolean
+
+  addOnUpsert?: boolean
   autoRemove?: boolean
+  debug?: boolean
+  enableEvents?: boolean
+  preferUpdate?: boolean
+  replaceItems?: boolean
+  skipRequestIfExists?: boolean
+  nameStyle?: string
+
   servicePath?: string
+  namespace?: string
+
+  whitelist?: string[]
+  paramsForServer?: string[]
+
   instanceDefaults?: () => {}
   setupInstance?: (data, { models, store }) => {}
+  handleEvents?: HandleEvents
   state?: {}
   getters?: {}
   mutations?: {}
