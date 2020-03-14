@@ -642,39 +642,54 @@ The `find` getter queries data from the local store using the same Feathers quer
 As shown in the example below, the service module allows you to customize its store:
 
 ```js
-const store = new Vuex.Store({
-  plugins: [
-    // Add custom state, getters, mutations, or actions, if needed
-    service('things', {
-      state: {
-        test: true
-      },
-      getters: {
-        getSomeData () {
-          return 'some data'
-        }
-      },
-      mutations: {
-        setTest (state, val) {
-          state.test = val;
-        },
-      },
-      actions: {
-        // Overwriting the built-in `afterFind` action.
-        afterFind ({ commit, dispatch, getters, state }, response) {
-          // Do something with the response.
-          // Keep in mind that the data is already in the store.
-        },
-        asyncStuff ({ state, getters, commit, dispatch }, args) {
-          commit('setTestToTrue')
-          return new Promise.resolve("")
-        }
-      }
-    })
-  ]
+// src/store/services/users.js
+import feathersClient, { makeServicePlugin, BaseModel } from '../../feathers-client'
+
+class Asset extends BaseModel {
+  constructor(data, options) {
+    super(data, options)
+  }
+  // Required for $FeathersVuex plugin to work after production transpile.
+  static modelName = 'Asset'
+  // Define default properties here
+  static instanceDefaults() {
+    return {
+      email: '',
+      password: ''
+    }
+  }
+}
+
+const servicePath = 'assets'
+const servicePlugin = makeServicePlugin({
+  Model: Asset,
+  service: feathersClient.service(servicePath),
+  servicePath,
+  state: {
+    test: true
+  },
+  getters: {
+    getSomeData () {
+      return 'some data'
+    }
+  },
+  mutations: {
+    setTest (state, val) {
+      state.test = val;
+    },
+  },
+  actions: {
+    // Overwriting the built-in `afterFind` action.
+    afterFind ({ commit, dispatch, getters, state }, response) {
+      // Do something with the response.
+      // Keep in mind that the data is already in the store.
+    },
+    asyncStuff ({ state, getters, commit, dispatch }, args) {
+      commit('setTestToTrue')
+      return new Promise.resolve("")
+    }
+  }
 })
 
-assert(store.getters['todos/oneTwoThree'] === 123, 'the custom getter was available')
-store.dispatch('todos/trigger')
-assert(store.state.todos.isTrue === true, 'the custom action was run')
+export default servicePlugin
 ```
