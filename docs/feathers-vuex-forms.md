@@ -288,6 +288,146 @@ export default {
 </script>
 ```
 
+### Vuelidate 2 Example
+
+Here's an example of how you might use the upcoming Vuelidate 2 (which is being rewritten to work with the Vue Composition API) to do form validation.  Just to be clear, the validation library you use doesn't change how FeathersVuex will work.  Since Vuelidate is likely the most popular validation library, this is an example to get you started.  There may be some things to figure out to implement your use case.  First, you'll need to install these dependencies:
+
+```json
+{
+  "dependencies": {
+    "@vuelidate/core": "^2.0.0-alpha.0",
+    "@vuelidate/validators": "^2.0.0-alpha.0"
+  }
+}
+```
+
+Here's the full example, complete with TailwindCSS styles.
+
+```html
+<template>
+  <div class="permission-creator flex flex-row items-end">
+    <!-- Org Selector -->
+    <label class="block w-full">
+      <span class="select-label text-gray-700">Add Organization</span>
+      <XSelect
+        v-model="selectedOrg"
+        :items="filteredOrgs"
+        :label="makeOrgLabel"
+        clearable
+        placeholder="Select an Organization"
+        class="block"
+        :input-class="[
+          'x-select-button px-2 py-2 border rounded bg-white',
+          $v.org.$dirty && $v.org.$invalid
+            ? 'border-red-400'
+            : 'border-gray-400'
+        ]"
+        @click="$v.org.$touch"
+      />
+    </label>
+
+    <!-- Permission Selector -->
+    <label class="block ml-0.5">
+      <span class="select-label text-gray-700">Permission</span>
+      <PermissionSelect v-model="selectedAccessType" />
+    </label>
+
+    <button
+      class="form-button primary ml-0.5"
+      :disabled="$v.$invalid"
+      @click="validateAndCreate"
+    >
+      Add
+    </button>
+  </div>
+</template>
+
+<script>
+import { XSelect } from '@rovit/x-select'
+import PermissionSelect from '../PermissionSelect/PermissionSelect'
+import { models, useFind } from 'feathers-vuex'
+import { computed, ref } from '@vue/composition-api'
+import keyBy from 'lodash/keyBy'
+import capitalize from 'voca/capitalize'
+import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
+
+export default {
+  name: 'PermissionCreatorOrg',
+  components: {
+    XSelect,
+    PermissionSelect
+  },
+  props: {
+    excludeIds: {
+      type: Array,
+      default: () => []
+    }
+  },
+  setup(props, context) {
+    const { Org } = models.api
+
+    const selectedOrg = ref(null)
+    const selectedAccessType = ref('view')
+
+    // Fetch orgs
+    const orgsParams = computed(() => {
+      return { query: {} }
+    })
+    const { items: orgs } = useFind({ model: Org, params: orgsParams })
+
+    const filteredOrgs = computed(() => {
+      const excludeIds = keyBy(props.excludeIds)
+      return orgs.value.filter(org => {
+        return !excludeIds[org._id]
+      })
+    })
+
+    const $v = useVuelidate(
+      {
+        org: { required, $autoDirty: true },
+        accessType: { required, $autoDirty: true }
+      },
+      { org: selectedOrg, accessType: selectedAccessType }
+    )
+
+    function validateAndCreate() {
+      const org = selectedOrg.value
+      const accessType = selectedAccessType.value
+
+      if (!$v.$invalid) context.emit('create', { org, accessType })
+
+      selectedOrg.value = null
+      selectedAccessType.value = 'view'
+
+      // Not currently working, so the org select turns red after removal
+      $v.org.$reset()
+    }
+
+    function makeOrgLabel(org) {
+      let label = `${org.name}`
+      if (org.nameOfOwner) {
+        label += ` (${org.nameOfOwner})`
+      }
+      return label
+    }
+
+    return {
+      selectedOrg,
+      selectedAccessType,
+      filteredOrgs,
+      validateAndCreate,
+      capitalize,
+      $v,
+      makeOrgLabel
+    }
+  }
+}
+</script>
+
+<style lang="postcss"></style>
+```
+
 ## FeathersVuexInputWrapper
 
 Building on the same ideas as the FeathersVuexFormWrapper, the FeathersVuexInputWrapper reduces boilerplate for working with the clone and commit pattern on a single input.  One use case for this component is implementing an "edit-in-place" workflow.  The following example shows how to use the FeathersVuexInputWrapper to automatically save a record upon `blur` on a text input:
