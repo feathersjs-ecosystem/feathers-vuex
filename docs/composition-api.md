@@ -132,16 +132,16 @@ Notice the `tutorialsData` in the previous example.  You can see that there's an
 ```ts
 interface UseFindData {
   items: Ref<any>
+  paginationData: Ref<object>
   servicePath: Ref<string>
-  isFindPending: Ref<boolean>
-  haveBeenRequestedOnce: Ref<boolean>
-  haveLoaded: Ref<boolean>
-  isLocal: Ref<boolean>
   qid: Ref<string>
+  isPending: Ref<boolean>
+  haveBeenRequested: Ref<boolean>
+  haveLoaded: Ref<boolean>
+  error: Ref<Error>
   debounceTime: Ref<number>
   latestQuery: Ref<object>
-  paginationData: Ref<object>
-  error: Ref<Error>
+  isLocal: Ref<boolean>
   find: Function
 }
 ```
