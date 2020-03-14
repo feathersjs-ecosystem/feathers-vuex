@@ -441,9 +441,12 @@ As promised, here is the example code for the `PaginationUi` component used abov
     <div class="flex flex-grow justify-center items-center">
       Page
       <input
-        v-model.number="currentPage"
-        type="text"
+        :value="currentPage"
+        type="number"
+        :min="1"
+        :max="pageCount"
         class="w-12 rounded py-0.5 mx-1.5 dark:bg-gray-900 text-center"
+        @input="event => $emit('to-page', event.target.value)"
       />
       of {{ pageCount }}
     </div>
