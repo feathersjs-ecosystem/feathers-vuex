@@ -22,7 +22,9 @@ export default {
   },
   // eslint-disable-next-line
   setup(props, context) {
-    // Total
+    /**
+     * The number of pages available based on the results returned in the latestQuery prop.
+     */
     const pageCount = computed(() => {
       const q = props.latestQuery
       if (q && q.response) {
@@ -31,7 +33,14 @@ export default {
         return 1
       }
     })
-    // Current Page
+
+    /**
+     * The `currentPage` is calculated based on the $limit and $skip values provided in
+     * the v-model object.
+     *
+     * Setting `currentPage` to a new numeric value will emit the appropriate values out
+     * the v-model. (using the default `input` event)
+     */
     const currentPage = computed({
       set(pageNumber: number) {
         if (pageNumber < 1) {
@@ -67,6 +76,9 @@ export default {
     function toEnd(): void {
       currentPage.value = pageCount.value
     }
+    function toPage(pageNumber): void {
+      currentPage.value = pageNumber
+    }
 
     function next(): void {
       currentPage.value++
@@ -85,6 +97,7 @@ export default {
           canNext: canNext.value,
           toStart,
           toEnd,
+          toPage,
           prev,
           next
         })
