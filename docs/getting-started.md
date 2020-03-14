@@ -73,6 +73,11 @@ build: {
 }
 ```
 
+### Resolving Build Issues
+
+If you have issues with sub-dependencies not loading correctly, you may want to check out [this GitHub issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/399).  One of the suggestions is likely to fix the issue.
+
+
 Be sure to read the section of the docs dedicated to [Working With Nuxt](./nuxt.md).
 
 ## Vue DevTools
