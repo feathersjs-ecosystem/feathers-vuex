@@ -67,7 +67,7 @@ export default {
       return currentPage.value - 1 > 0
     })
     const canNext = computed(() => {
-      return currentPage.value + 1 < pageCount.value
+      return currentPage.value < pageCount.value
     })
 
     function toStart(): void {
