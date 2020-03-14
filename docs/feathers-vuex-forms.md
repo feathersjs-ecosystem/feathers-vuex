@@ -247,7 +247,7 @@ Next let's look at a minimal example of a 'TodoEditor' component which is a chil
 
 ```vue
 <template>
-  <form @submit.prevent="$emit('save')">
+  <form @submit.prevent="handleSubmit">
     <input type="checkbox" v-model="item.isComplete" />
     <input type="text" v-model="item.description" />
 
@@ -270,6 +270,19 @@ export default {
       type: Object,
       required: true
     }
+  },
+  setup(props, context) {
+    function handleSubmit() {
+      // This is a placeholder for checking form validity, (with Vuelidate, for example)
+      const isValid = true || false
+
+      if (formIsValid) {
+        context.emit('save')
+      } else {
+        // Show any form errors in the UI.
+      }
+    }
+    return { handleSubmit }
   }
 }
 </script>
