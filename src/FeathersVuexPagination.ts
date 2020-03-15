@@ -1,4 +1,4 @@
-import { createElement, computed } from '@vue/composition-api'
+import { createElement, computed, watch } from '@vue/composition-api'
 
 export default {
   name: 'FeathersVuexPagination',
@@ -62,6 +62,16 @@ export default {
         }
       }
     })
+
+    watch(
+      () => pageCount.value,
+      () => {
+        const lq = props.latestQuery
+        if (lq && lq.response && currentPage.value > pageCount.value) {
+          currentPage.value = pageCount.value
+        }
+      }
+    )
 
     const canPrev = computed(() => {
       return currentPage.value - 1 > 0
