@@ -12,7 +12,7 @@ You can set `debug: true` in the options to enable some logging to assist with d
 
 ## Use the `<FeathersVuexFind>` and `<FeathersVuexGet>` components
 
-Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./components.html) docs for more details.
+Using the new `<FeathersVuexFind>` and `<FeathersVuexGet>` components provides concise access to the best features of `feathers-vuex`, including live queries, reactive lists, custom pagination tracking per component, and fall-through cacheing of local data in the Vuex store.  Check out the [Renderless Data Components](./data-components.html) docs for more details.
 
 ## Use the `makeFindMixin` and `makeGetMixin` utilities
 
