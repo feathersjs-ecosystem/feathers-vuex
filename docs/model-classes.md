@@ -111,7 +111,7 @@ created () {
 
 ### instanceDefaults  <Badge text="1.7.0+" />
 
-`instanceDefaults(data, { store, Models })`
+`instanceDefaults(data, { store, models })`
 
 The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app.  Depending on the complexity of the service's "business logic", it can save a lot of boilerplate.  Notice that it is similar to the `setupInstance` method added in 2.0.  The instanceDefaults method should ONLY be used to return default values for a new instance.  Use `setupInstance` to handle other transformations on the data.
 
@@ -142,7 +142,7 @@ One important note, the `isAdmin` attribute is specified in the above example in
 
 ### setupInstance  <Badge text="2.0.0+" />
 
-`setupInstance(data, { store, Models })`
+`setupInstance(data, { store, models })`
 
 A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
 
