@@ -261,8 +261,8 @@ export default function makeServiceActions(service) {
       const { idField, autoRemove } = state
 
       list.forEach(item => {
-        let id = getId(item, idField)
-        let existingItem = state.keyedById[id]
+        const id = getId(item, idField)
+        const existingItem = state.keyedById[id]
 
         if (id !== null && id !== undefined) {
           existingItem ? toUpdate.push(item) : toAdd.push(item)
@@ -305,8 +305,8 @@ export default function makeServiceActions(service) {
      */
     async addOrUpdate({ state, commit }, item) {
       const { idField } = state
-      let id = getId(item, idField)
-      let existingItem = state.keyedById[id]
+      const id = getId(item, idField)
+      const existingItem = state.keyedById[id]
 
       const isIdOk = id !== null && id !== undefined
 
