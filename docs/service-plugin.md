@@ -363,7 +363,7 @@ Patch (merge in changes) one or more records
 - `paramArray {Array}` - array containing the three parameters patch takes.
   - `id {Number|String}` - the `id` of the existing record being requested from the API server.
   - `data {Object}` - the data that will be merged into the existing record
-  - `params {Object}` - An object containing a `query` object.
+  - `params {Object}` - An object containing a `query` object. If params.data is provided, it will be used as the patch data, providing a simple way to patch with partial data.
 
 ```js
 let data = {description: 'write your tests', completed: true}

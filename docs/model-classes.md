@@ -302,6 +302,7 @@ The `patch` method calls the `patch` action (service method) using the instance 
 
 Similar to the `.create()` method, you might not ever need to use `.patch()` if you just use `.save()` and let `feathers-vuex` figure out how to handle it.
 
+
 ```js
 const { Todo } = this.$FeathersVuex.api
 const todo = new Todo({ id: 1, description: 'Do something!' })
@@ -311,7 +312,16 @@ todo.description = 'Do something else'
 todo.patch() // --> Sends a `patch` request the with the id and description.
 ```
 
-*Note: Currently, patch sends all data, not just what has changed. In a future update, it will only send the fields that have changed.*
+<Badge text="3.9.0+" /> As of version 3.9.0, you can provide an object as `params.data`, and Feathers-Vuex will use `params.data` as the patch data.  This allows patching with partial data:
+
+```js
+import { models } from 'feathers-vuex'
+const { Todo } = models.api
+
+const todo = new Todo({ description: 'Do Something', isComplete: false })
+
+todo.patch({ data: { isComplete: true } })
+```
 
 ### `instance.update(params)`
 
