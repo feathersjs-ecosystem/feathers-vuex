@@ -1,3 +1,5 @@
+import { Service } from '@feathersjs/feathers'
+
 /*
 eslint
 @typescript-eslint/no-explicit-any: 0
@@ -29,7 +31,7 @@ export interface HandleEvents {
 
 export interface MakeServicePluginOptions {
   Model: any
-  service: any
+  service: Service<any>
 
   idField?: string
   tempIdField?: string
@@ -50,7 +52,7 @@ export interface MakeServicePluginOptions {
   paramsForServer?: string[]
 
   instanceDefaults?: () => {}
-  setupInstance?: (data, { models, store }) => {}
+  setupInstance?: (data: any, { models, store }) => {}
   handleEvents?: HandleEvents
   state?: {}
   getters?: {}
