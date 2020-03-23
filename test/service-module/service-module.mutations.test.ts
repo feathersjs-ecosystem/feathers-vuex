@@ -14,13 +14,27 @@ import fakeData from '../fixtures/fake-data'
 import { getQueryInfo } from '../../src/utils'
 import { diff as deepDiff } from 'deep-object-diff'
 import omitDeep from 'omit-deep-lodash'
+import feathersVuex from '../../src/index'
+
+import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
+
+const { BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'mutations'
+})
 
 Vue.use(Vuex)
+
+class Todo extends BaseModel {
+  public static modelName = 'Todo'
+  public static test = true
+}
 
 const options = {
   idField: '_id',
   autoRemove: false,
-  serverAlias: 'myApi'
+  serverAlias: 'myApi',
+  service: feathersClient.service('mutations-todo'),
+  Model: Todo
 }
 
 const {
@@ -44,7 +58,7 @@ const {
 
 describe('Service Module - Mutations', function() {
   beforeEach(function() {
-    this.state = makeServiceState('mutation-todos', options)
+    this.state = makeServiceState(options)
     this.state.keepCopiesInStore = true
   })
 
@@ -165,7 +179,10 @@ describe('Service Module - Mutations', function() {
         { _id: 4, test: true }
       ]
       addItems(state, items)
-      const itemsToRemove = [{ _id: 1, test: true }, { _id: 2, test: true }]
+      const itemsToRemove = [
+        { _id: 1, test: true },
+        { _id: 2, test: true }
+      ]
       removeItems(state, itemsToRemove)
 
       assert(state.ids.length === 2, 'should have 2 ids left')
@@ -857,7 +874,7 @@ describe('Service Module - Mutations', function() {
   })
 
   describe('Pagination', function() {
-    it('updatePaginationForQuery', function () {
+    it('updatePaginationForQuery', function() {
       this.timeout(600000)
       const state = this.state
       const qid = 'main-list'
