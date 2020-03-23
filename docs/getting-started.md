@@ -286,6 +286,12 @@ const defaultOptions = {
   replaceItems: false,
   skipRequestIfExists: false,
   nameStyle: 'short',
+  handleEvents: {
+    created: (item, { model, models }) => options.enableEvents,
+    patched: (item, { model, models }) => options.enableEvents,
+    updated: (item, { model, models }) => options.enableEvents,
+    removed: (item, { model, models }) => options.enableEvents
+  },
 }
 ```
 - `serverAlias` - **Default:** `api` - Models are keyed by `serverAlias`. Access the `$FeathersVuex` Plugin and its models in your components by `this.$FeathersVuex.api.${Model}`
@@ -298,11 +304,16 @@ const defaultOptions = {
 - `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
 - `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
 - `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
-- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services [handleEvents API](/service-plugin.html#configuration)
 - `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
 - `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services
+- `handleEvents {Object}`: For this to work `enableEvents` must be `true`
+  - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
+  - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
 
 Also see the [Configs per Service](/service-plugin.html#configuration)
 
