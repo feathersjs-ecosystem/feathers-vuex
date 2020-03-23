@@ -6,7 +6,7 @@ eslint
 
 import _omit from 'lodash/omit'
 
-import { MakeServicePluginOptions, PaginationState } from './types'
+import { MakeServicePluginOptions } from './types'
 
 export interface ServiceStateExclusiveDefaults {
   ids: string[]
