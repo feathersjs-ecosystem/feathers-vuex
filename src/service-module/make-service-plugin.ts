@@ -3,15 +3,22 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  FeathersVuexOptions,
-  MakeServicePluginOptions,
-  ServiceOptionsDefaults
-} from './types'
+import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import _get from 'lodash/get'
+
+interface ServiceOptionsDefaults {
+  servicePath: string
+  namespace: string
+  state: {}
+  getters: {}
+  mutations: {}
+  actions: {}
+  instanceDefaults: () => {}
+  setupInstance: (instance: {}) => {}
+}
 
 const defaults: ServiceOptionsDefaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
