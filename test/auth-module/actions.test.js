@@ -42,7 +42,7 @@ describe('Auth Module - Actions', () => {
       assert(authState.errorOnLogout === null)
       assert(authState.isAuthenticatePending === false)
       assert(authState.isLogoutPending === false)
-      let expectedPayload = {
+      const expectedPayload = {
         userId: 0,
         exp: 9999999999999
       }
@@ -109,7 +109,7 @@ describe('Auth Module - Actions', () => {
     actions.authenticate
       .call({ $store: store }, request)
       .then(response => {
-        let expectedUser = {
+        const expectedUser = {
           id: 0,
           email: 'test@test.com'
         }

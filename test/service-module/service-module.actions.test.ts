@@ -79,19 +79,19 @@ function makeContext() {
   })
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public static test: boolean = true
+    public static test = true
   }
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static test: boolean = true
+    public static test = true
   }
   class NoId extends BaseModel {
     public static modelName = 'NoId'
-    public static test: boolean = true
+    public static test = true
   }
   class Broken extends BaseModel {
     public static modelName = 'Broken'
-    public static test: boolean = true
+    public static test = true
   }
   return {
     makeServicePlugin,
@@ -151,7 +151,7 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 10, 'three ids populated')
           assert(todoState.errorOnFind === null, 'errorOnFind still null')
           assert(todoState.isFindPending === false, 'isFindPending is false')
-          let expectedKeyedById: NumberedList = makeStore()
+          const expectedKeyedById: NumberedList = makeStore()
           const currentKeyedById = JSON.parse(
             JSON.stringify(todoState.keyedById)
           )
