@@ -69,6 +69,7 @@
       "plugin:prettier/recommended"
     ],
     "rules": {
+      "linebreak-style": ["warn", "unix"],
       "prettier/prettier": [
         "warn",
         {
@@ -109,7 +110,6 @@
     "@feathersjs/adapter-commons": "^4.5.1",
     "@feathersjs/commons": "^4.5.1",
     "@feathersjs/errors": "^4.5.1",
-    "@types/feathersjs__feathers": "^3.1.5",
     "@types/inflection": "^1.5.28",
     "@types/lodash": "^4.14.149",
     "@types/npm": "^2.0.31",
