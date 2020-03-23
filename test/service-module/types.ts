@@ -3,7 +3,6 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-// TODO: use this in the src
 export interface ServiceState {
   options: {}
   ids: string[]
@@ -23,6 +22,7 @@ export interface ServiceState {
   idField: string
   keyedById: {}
   tempsById: {}
+  tempsByNewId: {}
   whitelist: string[]
   paramsForServer: string[]
   namespace: string
@@ -30,6 +30,7 @@ export interface ServiceState {
   pagination?: {
     default: PaginationState
   }
+  modelName: string
 }
 
 export interface PaginationState {

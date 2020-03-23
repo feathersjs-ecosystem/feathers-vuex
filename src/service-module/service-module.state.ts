@@ -6,21 +6,94 @@ eslint
 
 import _omit from 'lodash/omit'
 
-export default function makeDefaultState(servicePath, options) {
+import { MakeServicePluginOptions, PaginationState } from './types'
+
+export interface ServiceStateExclusiveDefaults {
+  ids: string[]
+
+  errorOnFind: any
+  errorOnGet: any
+  errorOnCreate: any
+  errorOnPatch: any
+  errorOnUpdate: any
+  errorOnRemove: any
+
+  isFindPending: boolean
+  isGetPending: boolean
+  isCreatePending: boolean
+  isPatchPending: boolean
+  isUpdatePending: boolean
+  isRemovePending: boolean
+
+  keyedById: {}
+  tempsById: {}
+  tempsByNewId: {}
+  copiesById: {}
+  namespace?: string
+  pagination?: {
+    defaultLimit: number
+    defaultSkip: number
+    default?: PaginationState
+  }
+  modelName?: string
+}
+
+export interface ServiceState {
+  options: {}
+  ids: string[]
+  autoRemove: boolean
+  errorOnFind: any
+  errorOnGet: any
+  errorOnCreate: any
+  errorOnPatch: any
+  errorOnUpdate: any
+  errorOnRemove: any
+  isFindPending: boolean
+  isGetPending: boolean
+  isCreatePending: boolean
+  isPatchPending: boolean
+  isUpdatePending: boolean
+  isRemovePending: boolean
+  idField: string
+  keyedById: {}
+  tempsById: {}
+  tempsByNewId: {}
+  copiesById: {}
+  whitelist: string[]
+  paramsForServer: string[]
+  namespace: string
+  nameStyle: string // Should be enum of 'short' or 'path'
+  pagination?: {
+    defaultLimit: number
+    defaultSkip: number
+    default?: PaginationState
+  }
+  modelName?: string
+}
+
+export interface PaginationState {
+  ids: any
+  limit: number
+  skip: number
+  ip: number
+  total: number
+  mostRecent: any
+}
+
+export default function makeDefaultState(options: MakeServicePluginOptions) {
   const nonStateProps = [
-    'actions',
-    'getters',
-    'instanceDefaults',
-    'handleEvents',
     'Model',
-    'mutations',
     'service',
+    'instanceDefaults',
     'setupInstance',
+    'handleEvents',
     'state',
+    'getters',
+    'mutations',
     'actions'
   ]
 
-  const state = {
+  const state: ServiceStateExclusiveDefaults = {
     ids: [],
     keyedById: {},
     copiesById: {},
@@ -43,8 +116,7 @@ export default function makeDefaultState(servicePath, options) {
     errorOnCreate: null,
     errorOnUpdate: null,
     errorOnPatch: null,
-    errorOnRemove: null,
-    modelName: null as string | null
+    errorOnRemove: null
   }
 
   if (options.Model) {
