@@ -39,7 +39,7 @@ export default function makeAuthActions(feathersClient) {
           if (state.serverAlias && state.userService) {
             const Model = Object.keys(models[state.serverAlias])
               .map(modelName => models[state.serverAlias][modelName])
-              .find(model => model.servicePath === getShortName(state.userService))
+              .find(model => getShortName(model.servicePath) === getShortName(state.userService))
             if (Model) {
               user = new Model(user)
             }
