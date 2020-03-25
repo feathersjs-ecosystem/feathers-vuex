@@ -4,6 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { globalModels as models } from '../service-module/global-models'
+import { getShortName } from '../utils'
 
 export default function makeAuthActions(feathersClient) {
   return {
@@ -38,7 +39,7 @@ export default function makeAuthActions(feathersClient) {
           if (state.serverAlias && state.userService) {
             const Model = Object.keys(models[state.serverAlias])
               .map(modelName => models[state.serverAlias][modelName])
-              .find(model => model.servicePath === state.userService)
+              .find(model => model.servicePath === getShortName(state.userService))
             if (Model) {
               user = new Model(user)
             }
