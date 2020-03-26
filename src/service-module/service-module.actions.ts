@@ -244,7 +244,7 @@ export default function makeServiceActions(service) {
           : (response = mappedFromState)
       }
 
-      response = await await dispatch('afterFind', response)
+      response = await dispatch('afterFind', response)
 
       return response
     },
