@@ -995,6 +995,44 @@ describe('Service Module - Actions', () => {
         })
     })
 
+    it('overrides patch data with params.data', done => {
+      const { makeServicePlugin, Todo } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-todos',
+            Model: Todo,
+            service: feathersClient.service('my-todos')
+          })
+        ]
+      })
+      const actions = mapActions('my-todos', ['create', 'patch'])
+      const originalData = { description: 'Do something', test: true }
+
+      actions.create.call({ $store: store }, originalData).then(() => {
+        const data = {
+          description:
+            'This description should not be patched since params.data is provided'
+        }
+        const params = { data: { test: false } }
+        actions.patch
+          .call({ $store: store }, [0, data, params])
+          .then(responseFromPatch => {
+            assert.equal(
+              responseFromPatch.description,
+              originalData.description,
+              'description should not have changed'
+            )
+            assert.equal(
+              responseFromPatch.test,
+              false,
+              'Providing params.data should have set the test attribute to false.'
+            )
+            done()
+          })
+      })
+    })
+
     it('updates store state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({

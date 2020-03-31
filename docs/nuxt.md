@@ -299,6 +299,10 @@ export const actions = {
 
 ```
 
+## Resolving Build Issues
+
+If you have issues with sub-dependencies not loading correctly, you may want to check out [this GitHub issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/399).  One of the suggestions is likely to fix the issue.
+
 ## Full nuxt configuration example
 
 [Check a full nuxt exemple in the common patterns section](./common-patterns.md#full-nuxt-example)

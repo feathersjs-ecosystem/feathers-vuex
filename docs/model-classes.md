@@ -111,7 +111,7 @@ created () {
 
 ### instanceDefaults  <Badge text="1.7.0+" />
 
-`instanceDefaults(data, { store, Models })`
+`instanceDefaults(data, { store, models })`
 
 The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app.  Depending on the complexity of the service's "business logic", it can save a lot of boilerplate.  Notice that it is similar to the `setupInstance` method added in 2.0.  The instanceDefaults method should ONLY be used to return default values for a new instance.  Use `setupInstance` to handle other transformations on the data.
 
@@ -142,7 +142,7 @@ One important note, the `isAdmin` attribute is specified in the above example in
 
 ### setupInstance  <Badge text="2.0.0+" />
 
-`setupInstance(data, { store, Models })`
+`setupInstance(data, { store, models })`
 
 A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
 
@@ -302,6 +302,7 @@ The `patch` method calls the `patch` action (service method) using the instance 
 
 Similar to the `.create()` method, you might not ever need to use `.patch()` if you just use `.save()` and let `feathers-vuex` figure out how to handle it.
 
+
 ```js
 const { Todo } = this.$FeathersVuex.api
 const todo = new Todo({ id: 1, description: 'Do something!' })
@@ -311,7 +312,16 @@ todo.description = 'Do something else'
 todo.patch() // --> Sends a `patch` request the with the id and description.
 ```
 
-*Note: Currently, patch sends all data, not just what has changed. In a future update, it will only send the fields that have changed.*
+<Badge text="3.9.0+" /> As of version 3.9.0, you can provide an object as `params.data`, and Feathers-Vuex will use `params.data` as the patch data.  This allows patching with partial data:
+
+```js
+import { models } from 'feathers-vuex'
+const { Todo } = models.api
+
+const todo = new Todo({ description: 'Do Something', isComplete: false })
+
+todo.patch({ data: { isComplete: true } })
+```
 
 ### `instance.update(params)`
 

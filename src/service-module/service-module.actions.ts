@@ -146,13 +146,20 @@ export default function makeServiceActions(service: Service<any>) {
         })
     },
 
+    /**
+     * If params.data is provided, it will be passed as the patch data (instead of the `data` arg).
+     * This provides a simple way to patch with partial data.
+     */
     patch({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'patch')
 
       params = fastCopy(params)
 
-      if (service.FeathersVuexModel) {
+      if (service.FeathersVuexModel && params && !params.data) {
         data = service.FeathersVuexModel.diffOnPatch(data)
+      }
+      if (params && params.data) {
+        data = params.data
       }
 
       return service
@@ -238,7 +245,7 @@ export default function makeServiceActions(service: Service<any>) {
           : (response = mappedFromState)
       }
 
-      response = await await dispatch('afterFind', response)
+      response = await dispatch('afterFind', response)
 
       return response
     },

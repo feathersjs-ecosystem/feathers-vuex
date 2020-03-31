@@ -85,7 +85,9 @@ const user = new models.api.User({
 When you register the Vue Plugin, a few components are automatically globally registered:
 
 - The [Renderless Data components](/data-components.html)
-- The [`FeathersVuexFormWrapper` component](/feathers-vuex-forms.html)
+- The [`FeathersVuexFormWrapper` component](/feathers-vuex-forms.html#feathersvuexformwrapper)
+- The [`FeathersVuexInputWrapper` component](/feathers-vuex-forms.html#feathersvuexinputwrapper)
+- The [`FeathersVuexPagination` component](/composition-api.html#feathersvuexpagination)
 
 You can pass `components: false` in the options to not globally register the component:
 

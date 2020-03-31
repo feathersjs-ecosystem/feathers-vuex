@@ -132,16 +132,16 @@ Notice the `tutorialsData` in the previous example.  You can see that there's an
 ```ts
 interface UseFindData {
   items: Ref<any>
+  paginationData: Ref<object>
   servicePath: Ref<string>
-  isFindPending: Ref<boolean>
-  haveBeenRequestedOnce: Ref<boolean>
-  haveLoaded: Ref<boolean>
-  isLocal: Ref<boolean>
   qid: Ref<string>
+  isPending: Ref<boolean>
+  haveBeenRequested: Ref<boolean>
+  haveLoaded: Ref<boolean>
+  error: Ref<Error>
   debounceTime: Ref<number>
   latestQuery: Ref<object>
-  paginationData: Ref<object>
-  error: Ref<Error>
+  isLocal: Ref<boolean>
   find: Function
 }
 ```
@@ -296,6 +296,215 @@ interface UseGetData {
   error: Ref<Error>
   get: Function
 }
+```
+
+## FeathersVuexPagination
+
+As of version `3.8.0`, Feathers-Vuex includes the `FeathersVuexPagination` renderless component.  This component pairs with the [`useFind` utility](#usefind) to simplify handling server-side pagination.  If you use the FeathersVuex Vue plugin, the `FeathersVuexPagination` component is registered as a global component.  Since it's a renderless component, you'll need to supply your own UI to the default slot.
+
+### Usage Steps
+
+The steps to using the `FeathersVuexPagination` component include
+
+1. Create a `pagination` ref containing an object with `$limit` and `$skip` properties.
+2. Create a `params` computed property. Be sure to include a `query` object and `paginate: true` in the params.  It's also recommended that you use a `qid` to identify the component that you're using, otherwise pagination data could mix with other parts of the UI and create an inconsistent experience.
+3. Merge the `pagination` into the `params.query`.
+4. Pass the `params` object to the `useFind` utility.
+5. Pull the `items` array and `latestQuery` object from `useFind`'s return value.
+6. Make the `items`, `latestQuery`, and `pagination` available to the component's template by returning them in the setup method.
+7. Provide the above two variables to the `FeathersVuexPagination` component as props.
+8. Provide a UI inside the default slot, binding to variables and desired events.
+
+### Props
+
+The `FeathersVuexPagination` component only accepts two props.
+
+- `v-model` (or `value`): Receives the `pagination` object, which must contain the `$limit` and `$skip` properties.
+- `latest-query`, which receives the `latestQuery` object returned by the `useFind` utility.
+
+### Default Slot Scope
+
+The following variables and functions are provided by the default slot:
+
+- `currentPage` {Number} The current page number, based on the current `$limit` and `$skip` values provided to the `v-model`.
+- `pageCount` {Number} If the response from the API server includes a `total` attribute, the `pageCount` will be the total number of pages, based on the current value of `$limit`.
+- `canPrev` {Boolean} Will be true if not on the first page (can go to a previous page).  This value is useful for enabling/disabling a button in the UI, if you desire to give that kind of feedback to the user.
+- `canNext` {Boolean} Will be true if not on the last page (can go to a next page).  This value is useful for enabling/disabling a button in the UI, if you desire to give that kind of feedback to the user.
+- `toStart` {Function} When called, will move to the first page.
+- `toEnd` {Function} When called, will move to the last page.
+- `toPage(n: number)` {Function} When called with a page number as its first argument, will move to that page number.  If the page number is greater than the total number of pages, will go to the last page.  If the page number is less than 0, will go to the first page.
+- `prev` {Function} When called, moves to the previous page. Will not go below page 1.
+- `next` {Function} When called, moves tot the next page.  Will not go past the last page.
+
+### Example
+
+Here is an example of how to use it.  It assumes that you have a `/listings` service with a `Listing` model.  The next code example below this one shows the `PaginationUi` component.  Note that not all slot scope variables and functions are required.  To implement basic pagination, only the `currentPage`, `pageCount`, `next`, and `prev` values are really necessary.  The other slot scope values allow providing a customized pagination experience.
+
+```html
+<template>
+  <div>
+    <!-- 7. ^ -->
+    <FeathersVuexPagination v-model="pagination" :latest-query="latestQuery">
+      <!-- 8. ^ -->
+      <template #default="{ currentPage, pageCount, toStart, toEnd, toPage, next, prev, canNext, canPrev }">
+        <PaginationUi
+          :current-page="currentPage"
+          :page-count="pageCount"
+          :can-prev="canPrev"
+          :can-next="canNext"
+          @to-start="toStart"
+          @to-end="toEnd"
+          @to-page="toPage"
+          @next="next"
+          @prev="prev"
+        />
+      </template>
+    </FeathersVuexPagination>
+
+    <!-- Results -->
+    <div>
+      <div v-for="item in items" :key="item._id">
+        {{ item }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from '@vue/composition-api'
+import { models, useFind, FeathersVuexPagination } from 'feathers-vuex'
+import PaginationUi from './PaginationUi.vue'
+
+export default {
+  name: 'PaginationExample',
+  components: {
+    FeathersVuexPagination,
+    PaginationUi
+  },
+  setup(props, context) {
+    const { Listing } = models.api
+
+    // 1.^
+    const pagination = ref({
+      $limit: 20,
+      $skip: 0
+    })
+    // 2.^
+    const params = computed(() => {
+      const query = {}
+      // 3.^
+      Object.assign(query, pagination.value)
+
+      return { query, qid: 'listingsPage', paginate: true }
+    })
+    // 4.^
+    const data = useFind({ model: Listing, params: params })
+
+    // 5.^  (can be merged into previous line)
+    const { items, latestQuery } = data
+
+    // 6.^
+    return { items, pagination, latestQuery }
+  }
+}
+</script>
+```
+
+As promised, here is the example code for the `PaginationUi` component used above.  It includes some TailwindCSS utility classes in the markup in order to show how one might use the `canPrev` and `canNext` properties.  Keep in mind that this is just an example.  You can provide whatever experience you want for your users by creating your own component.
+
+```html
+<template>
+  <div class="flex flex-row items-center mt-2">
+    <button
+      type="button"
+      class="rounded py-0.5 flex flex-row items-center justify-center w-24 mr-1"
+      :class="[
+        canPrev
+          ? 'bg-gray-600 text-white'
+          : 'bg-gray-400 text-gray-500 cursor-not-allowed'
+      ]"
+      :disabled="!canPrev"
+      @click="e => $emit('prev', e)"
+    >
+      <ChevronLeftIcon />
+      <p class="pr-2">Previous</p>
+    </button>
+
+    <button
+      type="button"
+      class="bg-gray-600 text-white rounded py-0.5 flex flex-row items-center justify-center w-24 mr-1"
+      @click="e => $emit('to-start', e)"
+    >
+      <p class="pr-2">To Start</p>
+    </button>
+
+    <div class="flex flex-grow justify-center items-center">
+      Page
+      <input
+        :value="currentPage"
+        type="number"
+        :min="1"
+        :max="pageCount"
+        class="w-12 rounded py-0.5 mx-1.5 dark:bg-gray-900 text-center"
+        @input="event => $emit('to-page', event.target.value)"
+      />
+      of {{ pageCount }}
+    </div>
+
+    <button
+      type="button"
+      class="bg-gray-600 text-white rounded py-0.5 flex flex-row items-center justify-center w-24 mr-1"
+      @click="e => $emit('to-end', e)"
+    >
+      <p class="pr-2">To End</p>
+    </button>
+
+    <button
+      type="button"
+      class="rounded py-0.5 flex flex-row items-center justify-center w-24"
+      :class="[
+        canNext
+          ? 'bg-gray-600 text-white'
+          : 'bg-gray-400 text-gray-500 cursor-not-allowed'
+      ]"
+      :disabled="!canNext"
+      @click="e => $emit('next', e)"
+    >
+      <div class="w-12">Next</div>
+      <ChevronRightIcon />
+    </button>
+  </div>
+</template>
+
+<script>
+import { ChevronLeftIcon, ChevronRightIcon } from 'vue-feather-icons'
+
+export default {
+  name: 'SidebarPagination',
+  components: {
+    ChevronLeftIcon,
+    ChevronRightIcon
+  },
+  props: {
+    currentPage: {
+      type: Number,
+      required: true
+    },
+    pageCount: {
+      type: Number,
+      required: true
+    },
+    canPrev: {
+      type: Boolean,
+      required: true
+    },
+    canNext: {
+      type: Boolean,
+      required: true
+    }
+  }
+}
+</script>
 ```
 
 ## Patterns & Examples
