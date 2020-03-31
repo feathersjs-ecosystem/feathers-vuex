@@ -43,7 +43,6 @@ function makeContext() {
   const taskService = feathersClient.service('my-tasks')
   const noIdService = feathersClient.use(
     'no-ids',
-    // @ts-ignore
     memory({
       store: makeStoreWithAtypicalIds(),
       paginate: {
@@ -71,6 +70,7 @@ function makeContext() {
     remove() {
       return Promise.reject(new Error('remove error'))
     },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     setup() {}
   })
 
