@@ -18,11 +18,12 @@ import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
 import useFind from './useFind'
 import useGet from './useGet'
 
-import { FeathersVuexOptions } from './service-module/types'
+import { FeathersVuexOptions, HandleEvents } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
+const events = ['created', 'patched', 'updated', 'removed']
 
-const defaultOptions: FeathersVuexOptions = {
+const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
   enableEvents: true, // Listens to socket.io events when available
@@ -35,6 +36,7 @@ const defaultOptions: FeathersVuexOptions = {
   preferUpdate: false, // When true, calling model.save() will do an update instead of a patch.
   replaceItems: false, // Instad of merging in changes in the store, replace the entire record.
   serverAlias: 'api',
+  handleEvents: {} as HandleEvents,
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   whitelist: [] // Custom query operators that will be allowed in the find getter.
 }
@@ -45,13 +47,20 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
       'The first argument to feathersVuex must be a feathers client.'
     )
   }
-  options = Object.assign({}, defaultOptions, options)
 
   if (!options.serverAlias) {
     throw new Error(
       `You must provide a 'serverAlias' in the options to feathersVuex`
     )
   }
+
+  // Setup the event handlers. By default they just return the value of `options.enableEvents`
+  defaults.handleEvents = events.reduce((obj, eventName) => {
+    obj[eventName] = () => options.enableEvents || true
+    return obj
+  }, {} as HandleEvents)
+
+  options = Object.assign({}, defaults, options)
 
   addClient({ client: feathers, serverAlias: options.serverAlias })
 

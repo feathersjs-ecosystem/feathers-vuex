@@ -70,12 +70,23 @@ export default {
       return _get(this.pagination, `[${this.queryId}]`) || {}
     },
     pageInfo() {
-      if (this.pagination == null || this.queryId == null || this.pageId == null) return {}
+      if (
+        this.pagination == null ||
+        this.queryId == null ||
+        this.pageId == null
+      )
+        return {}
       return _get(this.pagination, `[${this.queryId}][${this.pageId}]`) || {}
     },
     scope() {
       const { items, isFindPending, pagination, queryInfo, pageInfo } = this
-      const defaultScope = { isFindPending, pagination, items, queryInfo, pageInfo }
+      const defaultScope = {
+        isFindPending,
+        pagination,
+        items,
+        queryInfo,
+        pageInfo
+      }
 
       return this.editScope(defaultScope) || defaultScope
     }
@@ -96,7 +107,7 @@ export default {
 
           return this.$store
             .dispatch(`${this.service}/find`, params)
-            .then((response) => {
+            .then(response => {
               this.isFindPending = false
               const { queryId, pageId } = getQueryInfo(params, response)
               this.queryId = queryId
@@ -110,7 +121,7 @@ export default {
         if (this.query) {
           return this.findData()
         } else {
-          // TODO: access debug boolean from from the store config, somehow.
+          // TODO: access debug boolean from the store config, somehow.
           // eslint-disable-next-line no-console
           console.log(
             `No query and no id provided, so no data will be fetched.`
@@ -127,7 +138,7 @@ export default {
     }
     if (!this.$store.state[this.service]) {
       throw new Error(
-        `The '${ this.service }' plugin not registered with feathers-vuex`
+        `The '${this.service}' plugin not registered with feathers-vuex`
       )
     }
 

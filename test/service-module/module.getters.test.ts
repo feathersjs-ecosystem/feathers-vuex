@@ -16,7 +16,9 @@ const options = {
   idField: '_id',
   tempIdField: '__id',
   autoRemove: false,
-  serverAlias: 'default'
+  serverAlias: 'default',
+  Model: null,
+  service: null
 }
 
 const { find, list, get, getCopyById } = makeServiceGetters()
@@ -24,7 +26,7 @@ const { addItems } = makeServiceMutations()
 
 describe('Service Module - Getters', function() {
   beforeEach(function() {
-    const state = makeServiceState('getter-todos', options)
+    const state = makeServiceState(options)
     this.items = [
       {
         _id: 1,
@@ -201,8 +203,9 @@ describe('Service Module - Getters', function() {
   it('find with non-whitelisted custom operator fails', function() {
     const { state } = this
     const params = { query: { $client: 'test' } }
+    let results
     try {
-      var results = find(state)(params)
+      results = find(state)(params)
     } catch (error) {
       assert(error)
     }
@@ -216,8 +219,9 @@ describe('Service Module - Getters', function() {
       name: { $regex: 'marsh', $options: 'igm' }
     }
     const params = { query }
+    let results
     try {
-      var results = find(state)(params)
+      results = find(state)(params)
     } catch (error) {
       assert(!error, 'should not have failed with whitelisted custom operator')
     }
