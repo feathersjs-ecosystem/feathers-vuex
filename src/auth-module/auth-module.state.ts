@@ -3,12 +3,17 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-export default function setupAuthState({ userService, serverAlias }) {
+export default function setupAuthState({
+  userService,
+  serverAlias,
+  responseEntityField = 'user',
+  entityIdField = 'userId'
+}) {
   const state = {
     accessToken: null, // The JWT
     payload: null, // The JWT payload
-    entityIdField: 'userId',
-    responseEntityField: 'user',
+    entityIdField,
+    responseEntityField,
 
     isAuthenticatePending: false,
     isLogoutPending: false,
