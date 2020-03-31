@@ -1,3 +1,5 @@
+import { Service } from '@feathersjs/feathers'
+
 /*
 eslint
 @typescript-eslint/no-explicit-any: 0
@@ -29,18 +31,29 @@ export interface HandleEvents {
 
 export interface MakeServicePluginOptions {
   Model: any
-  service: any
-  addOnUpsert?: boolean
-  enableEvents?: boolean
+  service: Service<any>
+
   idField?: string
   tempIdField?: string
-  nameStyle?: string
-  namespace?: string
-  preferUpdate?: boolean
+
+  addOnUpsert?: boolean
   autoRemove?: boolean
+  debug?: boolean
+  enableEvents?: boolean
+  preferUpdate?: boolean
+  replaceItems?: boolean
+  skipRequestIfExists?: boolean
+  nameStyle?: string
+
   servicePath?: string
+  namespace?: string
+
+  whitelist?: string[]
+  paramsForServer?: string[]
+
   instanceDefaults?: () => {}
-  setupInstance?: (data, { models, store }) => {}
+  setupInstance?: (data: any, { models, store }) => {}
+  handleEvents?: HandleEvents
   state?: {}
   getters?: {}
   mutations?: {}

@@ -5,8 +5,9 @@ eslint
 */
 import fastCopy from 'fast-copy'
 import { getId } from '../utils'
+import { Service } from '@feathersjs/feathers'
 
-export default function makeServiceActions(service) {
+export default function makeServiceActions(service: Service<any>) {
   const serviceActions = {
     find({ commit, dispatch }, params) {
       params = params || {}

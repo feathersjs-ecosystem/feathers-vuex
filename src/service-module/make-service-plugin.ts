@@ -3,21 +3,26 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  FeathersVuexOptions,
-  MakeServicePluginOptions,
-  HandleEvents
-} from './types'
+import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import _get from 'lodash/get'
 
-const defaults = {
+interface ServiceOptionsDefaults {
+  servicePath: string
+  namespace: string
+  state: {}
+  getters: {}
+  mutations: {}
+  actions: {}
+  instanceDefaults: () => {}
+  setupInstance: (instance: {}) => {}
+}
+
+const defaults: ServiceOptionsDefaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
-  nameStyle: 'short', // Determines the source of the module name. 'short', 'path', or 'explicit'
   servicePath: '',
-  handleEvents: {} as HandleEvents,
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
@@ -42,12 +47,11 @@ export default function prepareMakeServicePlugin(
    * (3) Setup real-time events
    */
   return function makeServicePlugin(config: MakeServicePluginOptions) {
-    // Setup the event handlers. By default they just return the value of `options.enableEvents`
-    defaults.handleEvents = events.reduce((obj, eventName) => {
-      obj[eventName] = () => config.enableEvents || true
-      return obj
-    }, {} as HandleEvents)
-
+    if (!config.service) {
+      throw new Error(
+        'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport.'
+      )
+    }
     const options = Object.assign({}, defaults, globalOptions, config)
     const {
       Model,
@@ -59,11 +63,10 @@ export default function prepareMakeServicePlugin(
       preferUpdate
     } = options
 
-    if (!service) {
-      throw new Error(
-        'No service was provided. If you passed one in, check that you have configured a transport plugin on the Feathers Client. Make sure you use the client version of the transport.'
-      )
-    }
+    events.forEach(eventName => {
+      if (options.handleEvents[eventName])
+        options.handleEvents[eventName] = () => options.enableEvents || true
+    })
 
     // Make sure we get a service path from either the service or the options
     let { servicePath } = options
