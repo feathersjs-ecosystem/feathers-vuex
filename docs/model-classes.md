@@ -155,6 +155,9 @@ The function will be called during model instance construction with the followin
 
 For an example of how you might use `setupInstance`, suppose we have two services: Users and Posts.  Assume that the API request to get a user includes their `posts`, already populated on the data.  The `instanceDefaults` allows us to convert the array of `posts` into an array of `Post` instances.
 
+> If you're looking for a great solution for populating data to work with Feathers-Vuex, check out [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+
+
 ```js
 // The setupInstance method on an imaginary User model.
 setupInstance(data, { store, models }) {
