@@ -71,7 +71,7 @@ export default function makeServiceMutations() {
         if (state.ids.includes(id)) {
           // Completely replace the item
           if (replaceItems) {
-            if (Model && !item.isFeathersVuexInstance) {
+            if (Model && !(item instanceof Model)) {
               item = new Model(item)
             }
             Vue.set(state.keyedById, id, item)

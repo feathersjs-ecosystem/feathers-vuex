@@ -318,7 +318,10 @@ export default function makeServiceActions(service: Service<any>) {
 
       const isIdOk = id !== null && id !== undefined
 
-      if (service.FeathersVuexModel && !item.isFeathersVuexInstance) {
+      if (
+        service.FeathersVuexModel &&
+        !(item instanceof service.FeathersVuexModel)
+      ) {
         item = new service.FeathersVuexModel(item)
       }
 
