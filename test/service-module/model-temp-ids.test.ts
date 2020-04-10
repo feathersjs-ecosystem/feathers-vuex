@@ -180,9 +180,12 @@ describe('Models - Temp Ids', function() {
           },
           context => {
             assert(!context.data.__id, '__id was not sent to API server')
-            assert(!context.data.__id, '__isTemp was not sent to API server')
+            assert(
+              !context.data.__isTemp,
+              '__isTemp was not sent to API server'
+            )
             context.result = {
-              id: 1,
+              _id: 1,
               description: 'Robb Wolf - the Paleo Solution',
               website:
                 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
