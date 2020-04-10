@@ -373,4 +373,33 @@ describe('Models - Temp Ids', function() {
       })
       .catch(done)
   })
+
+  it('removes __isTemp from temp and clone', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    const thing = new Thing()
+    assert(thing.__isTemp, 'thing has __isTemp')
+
+    const clone = thing.clone()
+    assert(clone.__isTemp, 'Clone also has __isTemp')
+
+    store.commit('things/remove__isTemp', thing)
+
+    assert(!thing.hasOwnProperty('__isTemp'), '__isTemp was removed from thing')
+    assert(!clone.hasOwnProperty('__isTemp'), '__isTemp was removed from clone')
+  })
 })
