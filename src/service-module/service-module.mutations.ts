@@ -145,6 +145,14 @@ export default function makeServiceMutations() {
         temp[state.idField] = id
         state.tempsByNewId[id] = temp
       }
+
+      // Add _id to temp's clone as well if it exists
+      const Model = _get(models, `[${state.serverAlias}][${state.modelName}]`)
+      const tempClone = Model && Model.copiesById && Model.copiesById[tempId]
+      if (tempClone) {
+        tempClone[state.idField] = id
+        Model.copiesById[id] = tempClone
+      }
     },
 
     /**
