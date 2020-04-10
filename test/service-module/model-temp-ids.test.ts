@@ -405,4 +405,76 @@ describe('Models - Temp Ids', function() {
     assert(!thing.hasOwnProperty('__isTemp'), '__isTemp was removed from thing')
     assert(!clone.hasOwnProperty('__isTemp'), '__isTemp was removed from clone')
   })
+
+  it('Clone gets _id after save (create only called once)', async function() {
+    // Test ensures subsequent calls to clone.save() do not call create
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    // Manually set the result in a hook to simulate the server request.
+    let createCalled = false
+    feathersClient.service('things').hooks({
+      before: {
+        create: [
+          context => {
+            assert(createCalled === false, 'Create is only called once')
+            createCalled = true
+            context.result = { _id: 42, ...context.data }
+            return context
+          }
+        ],
+        patch: [
+          context => {
+            assert(context.data.__isClone, 'Patch called on clone')
+            assert(context.id === 42, 'context has correct ID')
+            assert(context.data._id === 42, 'patch called with correct _id')
+            assert(
+              context.data.description === 'Thing 3',
+              'patch called with correct description'
+            )
+            context.result = { ...context.data }
+            return context
+          }
+        ]
+      }
+    })
+
+    // Create instance and clone
+    const thing = new Thing({ description: 'Thing 1' })
+    const clone = thing.clone()
+    assert(thing.__id === clone.__id, "clone has thing's tempId")
+    assert(clone.description === 'Thing 1', "clone got thing's description")
+    assert(!thing.hasOwnProperty('_id'), 'thing has no _id')
+    assert(!clone.hasOwnProperty('_id'), 'clone has no _id')
+
+    // Modify clone and save
+    clone.description = 'Thing 2'
+    const response = await clone.save()
+    assert(response === thing, 'response from clone.save() is thing')
+    assert(thing._id === 42, 'thing got _id')
+    assert(thing.description === 'Thing 2', "thing got clone's changes")
+    assert(clone._id === response._id, 'clone got _id')
+
+    // Modify clone again and save again
+    clone.description = 'Thing 3'
+    const response2 = await clone.save()
+    assert(response2 === thing, 'response2 is still thing')
+    assert(thing.description === 'Thing 3', "thing got clone's new changes")
+  })
 })
