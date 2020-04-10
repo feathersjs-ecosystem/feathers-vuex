@@ -21,7 +21,7 @@ export default function makeServiceMutations() {
   function addItems(state, items) {
     const { serverAlias, idField, tempIdField, modelName } = state
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
+    const BaseModel = _get(models, `[${serverAlias}].BaseModel`)
 
     for (let item of items) {
       const id = getId(item, idField)
@@ -159,8 +159,18 @@ export default function makeServiceMutations() {
       }
     },
 
-    remove__isTemp(state, temp) {
+    remove__isTemp({ modelName, serverAlias, tempIdField }, temp) {
       Vue.delete(temp, '__isTemp')
+
+      // Remove from temp's clone as well if it exists
+      const tempId = temp[tempIdField]
+      if (tempId) {
+        const Model = _get(models, `[${serverAlias}][${modelName}]`)
+        const tempClone = Model && Model.copiesById && Model.copiesById[tempId]
+        if (tempClone) {
+          Vue.delete(tempClone, '__isTemp')
+        }
+      }
     },
 
     removeItem(state, item) {
