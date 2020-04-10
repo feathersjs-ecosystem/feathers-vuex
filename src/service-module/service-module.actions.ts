@@ -322,7 +322,7 @@ export default function makeServiceActions(service: Service<any>) {
         service.FeathersVuexModel &&
         !(item instanceof service.FeathersVuexModel)
       ) {
-        item = new service.FeathersVuexModel(item)
+        item = new service.FeathersVuexModel(item, { commit: false })
       }
 
       // If the item has a matching temp, update the temp and provide it as the new item.
