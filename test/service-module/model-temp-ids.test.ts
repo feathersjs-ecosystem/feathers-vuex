@@ -9,6 +9,7 @@ import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
 import { Service as MemoryService } from 'feathers-memory'
+import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
 import { makeStore } from '../test-utils'
 import ObjectID from 'bson-objectid'
@@ -476,5 +477,69 @@ describe('Models - Temp Ids', function() {
     const response2 = await clone.save()
     assert(response2 === thing, 'response2 is still thing')
     assert(thing.description === 'Thing 3', "thing got clone's new changes")
+  })
+
+  it('find() getter does not return duplicates with temps: true', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class FooModel extends BaseModel {
+      public static modelName = 'FooModel'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: FooModel,
+          service: feathersClient.service('foos'),
+          servicePath: 'foos'
+        })
+      ]
+    })
+
+    // Fake server call
+    feathersClient.service('foos').hooks({
+      before: {
+        create: [
+          context => {
+            context.result = { _id: 24, ...context.data }
+            return context
+          }
+        ]
+      }
+    })
+
+    // Create component with find() computed prop
+    const watchEvents = []
+    new Vue({
+      template: `<div></div>`,
+      computed: {
+        things() {
+          return store.getters['foos/find']({
+            query: { test: true },
+            temps: true
+          }).data
+        }
+      },
+      watch: {
+        things(items) {
+          watchEvents.push(items)
+        }
+      }
+    }).$mount()
+
+    const item = new FooModel({ test: true })
+    await item.save()
+
+    assert(watchEvents.length > 0, 'watch fired at least once')
+    watchEvents.forEach(items => {
+      if (items.length === 2) {
+        assert(items[0]._id !== items[1]._id, 'no duplicate id')
+        assert(items[0].__id !== items[1].__id, 'no duplicate tempId')
+      }
+    })
   })
 })
