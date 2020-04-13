@@ -3,6 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+import fastCopy from 'fast-copy'
 import { globalModels as models } from '../service-module/global-models'
 import { getNameFromPath } from '../utils'
 
@@ -41,7 +42,8 @@ export default function makeAuthActions(feathersClient) {
               .map(modelName => models[state.serverAlias][modelName])
               .find(model => getNameFromPath(model.servicePath) === getNameFromPath(state.userService))
             if (Model) {
-              user = new Model(user)
+              // Copy user object to avoid setupInstance modifying payload state
+              user = new Model(fastCopy(user))
             }
           }
           commit('setUser', user)
