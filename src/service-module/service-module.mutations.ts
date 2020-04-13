@@ -90,9 +90,10 @@ export default function makeServiceMutations() {
               !(item instanceof Model)
             ) {
               item = new Model(item)
+            } else {
+              const original = state.keyedById[id]
+              updateOriginal(original, item)
             }
-            const original = state.keyedById[id]
-            updateOriginal(original, item)
           }
 
           // if addOnUpsert then add the record into the state, else discard it.
