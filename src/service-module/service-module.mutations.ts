@@ -142,9 +142,13 @@ export default function makeServiceMutations() {
     // can migrate the temp to the keyedById state.
     updateTemp(state, { id, tempId }) {
       const temp = state.tempsById[tempId]
-      if (state.tempsById) {
+      if (temp) {
         temp[state.idField] = id
-        state.tempsByNewId[id] = temp
+        Vue.delete(temp, '__isTemp')
+        Vue.delete(state.tempsById, tempId)
+        // If an item already exists in the store from the `created` event firing
+        // it will be replaced here
+        Vue.set(state.keyedById, id, temp)
       }
 
       // Add _id to temp's clone as well if it exists
@@ -153,32 +157,7 @@ export default function makeServiceMutations() {
       if (tempClone) {
         tempClone[state.idField] = id
         Model.copiesById[id] = tempClone
-      }
-    },
-
-    /**
-     * Overwrites the item with matching id with the temp record.
-     * This is to preserve reactivity for temp records.
-     */
-    replaceItemWithTemp(state, { item, temp }) {
-      const id = item[state.idField]
-      if (state.keyedById[id]) {
-        state.keyedById[id] = temp
-        Vue.delete(state.keyedById[id], '__isTemp')
-      }
-    },
-
-    remove__isTemp({ modelName, serverAlias, tempIdField }, temp) {
-      Vue.delete(temp, '__isTemp')
-
-      // Remove from temp's clone as well if it exists
-      const tempId = temp[tempIdField]
-      if (tempId) {
-        const Model = _get(models, `[${serverAlias}][${modelName}]`)
-        const tempClone = Model && Model.copiesById && Model.copiesById[tempId]
-        if (tempClone) {
-          Vue.delete(tempClone, '__isTemp')
-        }
+        Vue.delete(tempClone, '__isTemp')
       }
     },
 
@@ -194,24 +173,18 @@ export default function makeServiceMutations() {
       }
     },
 
-    // Removes temp records. Also cleans up tempsByNewId
+    // Removes temp records
     removeTemps(state, tempIds) {
-      const ids = tempIds.reduce((ids, id) => {
+      tempIds.forEach(id => {
         const temp = state.tempsById[id]
         if (temp) {
           if (temp[state.idField]) {
             // Removes __isTemp if created
             delete temp.__isTemp
             Vue.delete(temp, '__isTemp')
-            ids.push(temp[state.idField])
-          } else {
-            // Removes uncreated temp
-            ids.push(temp[state.tempIdField])
           }
         }
-        return ids
-      }, [])
-      state.tempsByNewId = _omit(state.tempsByNewId, ids)
+      })
       state.tempsById = _omit(state.tempsById, tempIds)
     },
 

@@ -9,7 +9,6 @@ import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
 import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
-import _unionBy from 'lodash/unionBy'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
 const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
@@ -27,7 +26,7 @@ export default function makeServiceGetters() {
       // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
-      const { paramsForServer, whitelist, idField, tempIdField } = state
+      const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
       const customOperators = Object.keys(q).filter(
         k => k[0] === '$' && !defaultOps.includes(k)
@@ -37,14 +36,10 @@ export default function makeServiceGetters() {
       const { query, filters } = filterQuery(cleanQuery, {
         operators: additionalOperators.concat(whitelist)
       })
-      let values = _.values(state.keyedById)
+      let values = _.values(keyedById)
 
       if (params.temps) {
-        values = _unionBy(
-          values,
-          _.values(state.tempsById),
-          i => i[tempIdField] || i[idField]
-        )
+        values = values.concat(_.values(state.tempsById))
       }
 
       values = values.filter(sift(query))

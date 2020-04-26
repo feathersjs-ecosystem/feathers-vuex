@@ -312,7 +312,6 @@ export default function makeServiceActions(service: Service<any>) {
     addOrUpdate({ state, commit }, item) {
       const { idField } = state
       const id = getId(item, idField)
-      const existingItem = state.keyedById[id]
 
       const isIdOk = id !== null && id !== undefined
 
@@ -323,22 +322,14 @@ export default function makeServiceActions(service: Service<any>) {
         item = new service.FeathersVuexModel(item, { commit: false })
       }
 
-      // If the item has a matching temp, update the temp and provide it as the new item.
-      const temp = state.tempsByNewId[id]
-      if (temp) {
-        commit('merge', { dest: temp, source: item })
-        commit('remove__isTemp', temp)
-      }
       if (isIdOk) {
-        if (existingItem && temp) {
-          commit('replaceItemWithTemp', { item, temp })
+        if (state.keyedById[id]) {
+          commit('updateItem', item)
         } else {
-          existingItem
-            ? commit('updateItem', temp || item)
-            : commit('addItem', temp || item)
+          commit('addItem', item)
         }
       }
-      return temp || item
+      return item
     }
   }
   /**

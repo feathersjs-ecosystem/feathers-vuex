@@ -13,6 +13,7 @@ import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
 import { makeStore } from '../test-utils'
 import ObjectID from 'bson-objectid'
+import fastCopy from 'fast-copy'
 
 interface RootState {
   transactions: ServiceState
@@ -211,8 +212,6 @@ describe('Models - Temp Ids', function() {
       assert(response._id === 1)
       assert(response.__id, 'the temp id is still intact')
       assert(!store.state.things.tempsById[response.__id])
-      //@ts-ignore
-      assert(!Object.keys(store.state.things.tempsByNewId).length)
       assert(response === thing, 'maintained the reference')
     })
   })
@@ -401,10 +400,41 @@ describe('Models - Temp Ids', function() {
     const clone = thing.clone()
     assert(clone.__isTemp, 'Clone also has __isTemp')
 
-    store.commit('things/remove__isTemp', thing)
+    store.commit('things/updateTemp', { id: 42, tempId: thing.__id })
 
     assert(!thing.hasOwnProperty('__isTemp'), '__isTemp was removed from thing')
     assert(!clone.hasOwnProperty('__isTemp'), '__isTemp was removed from clone')
+  })
+
+  it('updateTemp assigns ID to temp and migrates it from tempsById to keyedById', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    const thing = new Thing()
+    assert(thing.__id, 'thing has tempId')
+    assert(!thing._id, 'thing does not have _id')
+    assert(store.state.things.tempsById[thing.__id], 'thing is in tempsById')
+
+    store.commit('things/updateTemp', { id: 42, tempId: thing.__id })
+    assert(thing._id === 42, 'thing got _id')
+    assert(store.state.things.keyedById[42] === thing, 'thing is in keyedById')
+    assert(
+      !store.state.things.tempsById[thing.__id],
+      'thing is no longer in tempsById'
+    )
   })
 
   it('Clone gets _id after save (create only called once)', async function() {
@@ -505,6 +535,10 @@ describe('Models - Temp Ids', function() {
       before: {
         create: [
           context => {
+            delete context.data.__id
+            delete context.data.__isTemp
+          },
+          context => {
             context.result = { _id: 24, ...context.data }
             return context
           }
@@ -526,7 +560,7 @@ describe('Models - Temp Ids', function() {
       },
       watch: {
         things(items) {
-          watchEvents.push(items)
+          watchEvents.push(fastCopy(items))
         }
       }
     }).$mount()
