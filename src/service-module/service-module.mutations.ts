@@ -138,8 +138,10 @@ export default function makeServiceMutations() {
       updateItems(state, items)
     },
 
-    // Adds an _id to a temp record so that that the addOrUpdate action
-    // can migrate the temp to the keyedById state.
+    // Promotes temp to "real" item:
+    // - adds _id to temp
+    // - removes __isTemp flag
+    // - migrates temp from tempsById to keyedById
     updateTemp(state, { id, tempId }) {
       const temp = state.tempsById[tempId]
       if (temp) {
