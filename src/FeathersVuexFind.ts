@@ -151,7 +151,7 @@ export default {
         }
         if (this.fetchQuery) {
           if (prop.startsWith('query')) {
-            prop.replace('query', 'fetchQuery')
+            prop = prop.replace('query', 'fetchQuery')
           }
         }
         this.$watch(prop, this.fetchData)
