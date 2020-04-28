@@ -48,12 +48,6 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     )
   }
 
-  if (!options.serverAlias) {
-    throw new Error(
-      `You must provide a 'serverAlias' in the options to feathersVuex`
-    )
-  }
-
   // Setup the event handlers. By default they just return the value of `options.enableEvents`
   defaults.handleEvents = events.reduce((obj, eventName) => {
     obj[eventName] = () => options.enableEvents || true
@@ -61,6 +55,12 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   }, {} as HandleEvents)
 
   options = Object.assign({}, defaults, options)
+
+  if (!options.serverAlias) {
+    throw new Error(
+      `You must provide a 'serverAlias' in the options to feathersVuex`
+    )
+  }
 
   addClient({ client: feathers, serverAlias: options.serverAlias })
 
