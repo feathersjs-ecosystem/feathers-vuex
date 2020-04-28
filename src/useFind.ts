@@ -111,9 +111,7 @@ export default function find(options: UseFindOptions): UseFindData {
           queryInfo,
           serviceState.keyedById
         )
-        if (items && items.length) {
-          return items
-        }
+        return items
       } else {
         return model.findInStore(getterParams).data
       }
