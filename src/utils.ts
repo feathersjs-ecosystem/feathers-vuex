@@ -212,14 +212,18 @@ export function assignTempId(state, item) {
 
 /**
  * Get the id from a record in this order:
- *   1. id
- *   2. _id
- *   3. the `idField`
+ *   1. the `idField`
+ *   2. id
+ *   3. _id
  * @param item
+ * @param idField
  */
 export function getId(item, idField) {
   if (!item) {
     return
+  }
+  if (item[idField] != null || item.hasOwnProperty(idField)) {
+    return item[idField]
   }
   if (item.id != null || item.hasOwnProperty('id')) {
     return item.id
@@ -227,9 +231,7 @@ export function getId(item, idField) {
   if (item._id != null || item.hasOwnProperty('_id')) {
     return item._id
   }
-  if (item[idField] != null || item.hasOwnProperty(idField)) {
-    return item[idField]
-  }
+
 }
 
 // Creates a Model class name from the last part of the servicePath
