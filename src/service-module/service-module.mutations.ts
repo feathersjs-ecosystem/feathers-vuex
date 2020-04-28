@@ -21,7 +21,7 @@ export default function makeServiceMutations() {
   function addItems(state, items) {
     const { serverAlias, idField, tempIdField, modelName } = state
     const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
+    const BaseModel = _get(models, `[${serverAlias}].BaseModel`)
 
     for (let item of items) {
       const id = getId(item, idField)
@@ -71,7 +71,7 @@ export default function makeServiceMutations() {
         if (state.ids.includes(id)) {
           // Completely replace the item
           if (replaceItems) {
-            if (Model && !item.isFeathersVuexInstance) {
+            if (Model && !(item instanceof Model)) {
               item = new Model(item)
             }
             Vue.set(state.keyedById, id, item)
@@ -90,9 +90,10 @@ export default function makeServiceMutations() {
               !(item instanceof Model)
             ) {
               item = new Model(item)
+            } else {
+              const original = state.keyedById[id]
+              updateOriginal(original, item)
             }
-            const original = state.keyedById[id]
-            updateOriginal(original, item)
           }
 
           // if addOnUpsert then add the record into the state, else discard it.
@@ -137,30 +138,29 @@ export default function makeServiceMutations() {
       updateItems(state, items)
     },
 
-    // Adds an _id to a temp record so that that the addOrUpdate action
-    // can migrate the temp to the keyedById state.
+    // Promotes temp to "real" item:
+    // - adds _id to temp
+    // - removes __isTemp flag
+    // - migrates temp from tempsById to keyedById
     updateTemp(state, { id, tempId }) {
       const temp = state.tempsById[tempId]
-      if (state.tempsById) {
+      if (temp) {
         temp[state.idField] = id
-        state.tempsByNewId[id] = temp
+        Vue.delete(temp, '__isTemp')
+        Vue.delete(state.tempsById, tempId)
+        // If an item already exists in the store from the `created` event firing
+        // it will be replaced here
+        Vue.set(state.keyedById, id, temp)
       }
-    },
 
-    /**
-     * Overwrites the item with matching id with the temp record.
-     * This is to preserve reactivity for temp records.
-     */
-    replaceItemWithTemp(state, { item, temp }) {
-      const id = item[state.idField]
-      if (state.keyedById[id]) {
-        state.keyedById[id] = temp
-        Vue.delete(state.keyedById[id], '__isTemp')
+      // Add _id to temp's clone as well if it exists
+      const Model = _get(models, `[${state.serverAlias}][${state.modelName}]`)
+      const tempClone = Model && Model.copiesById && Model.copiesById[tempId]
+      if (tempClone) {
+        tempClone[state.idField] = id
+        Model.copiesById[id] = tempClone
+        Vue.delete(tempClone, '__isTemp')
       }
-    },
-
-    remove__isTemp(state, temp) {
-      Vue.delete(temp, '__isTemp')
     },
 
     removeItem(state, item) {
@@ -175,24 +175,18 @@ export default function makeServiceMutations() {
       }
     },
 
-    // Removes temp records. Also cleans up tempsByNewId
+    // Removes temp records
     removeTemps(state, tempIds) {
-      const ids = tempIds.reduce((ids, id) => {
+      tempIds.forEach(id => {
         const temp = state.tempsById[id]
         if (temp) {
           if (temp[state.idField]) {
             // Removes __isTemp if created
             delete temp.__isTemp
             Vue.delete(temp, '__isTemp')
-            ids.push(temp[state.idField])
-          } else {
-            // Removes uncreated temp
-            ids.push(temp[state.tempIdField])
           }
         }
-        return ids
-      }, [])
-      state.tempsByNewId = _omit(state.tempsByNewId, ids)
+      })
       state.tempsById = _omit(state.tempsById, tempIds)
     },
 

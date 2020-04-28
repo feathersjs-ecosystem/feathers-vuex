@@ -51,7 +51,7 @@ export default function makeServiceActions(service: Service<any>) {
         return service
           .get(id, params)
           .then(async function(item) {
-            await dispatch('addOrUpdate', item)
+            dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
           })
@@ -99,7 +99,7 @@ export default function makeServiceActions(service: Service<any>) {
         .create(data, params)
         .then(async response => {
           if (Array.isArray(response)) {
-            await dispatch('addOrUpdateList', response)
+            dispatch('addOrUpdateList', response)
             response = response.map(item => {
               const id = getId(item, idField)
 
@@ -112,7 +112,7 @@ export default function makeServiceActions(service: Service<any>) {
             if (id != null && tempId != null) {
               commit('updateTemp', { id, tempId })
             }
-            response = await dispatch('addOrUpdate', response)
+            response = dispatch('addOrUpdate', response)
 
             // response = state.keyedById[id]
           }
@@ -135,7 +135,7 @@ export default function makeServiceActions(service: Service<any>) {
       return service
         .update(id, data, params)
         .then(async function(item) {
-          await dispatch('addOrUpdate', item)
+          dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
         })
@@ -165,7 +165,7 @@ export default function makeServiceActions(service: Service<any>) {
       return service
         .patch(id, data, params)
         .then(async function(item) {
-          await dispatch('addOrUpdate', item)
+          dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
         })
@@ -223,7 +223,7 @@ export default function makeServiceActions(service: Service<any>) {
       const { qid = 'default', query } = params
       const { idField } = state
 
-      await dispatch('addOrUpdateList', response)
+      dispatch('addOrUpdateList', response)
       commit('unsetPending', 'find')
 
       const mapItemFromState = item => {
@@ -260,7 +260,7 @@ export default function makeServiceActions(service: Service<any>) {
       return response
     },
 
-    async addOrUpdateList({ state, commit }, response) {
+    addOrUpdateList({ state, commit }, response) {
       const list = response.data || response
       const isPaginated = response.hasOwnProperty('total')
       const toAdd = []
@@ -292,9 +292,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       if (service.FeathersVuexModel) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.FeathersVuexModel(item, {
-            skipCommit: true
-          })
+          toAdd[index] = new service.FeathersVuexModel(item, { commit: false })
         })
       }
 
@@ -311,33 +309,27 @@ export default function makeServiceActions(service: Service<any>) {
      * the `create` response returns to create the record. The reference to the
      * original temporary record must be maintained in order to preserve reactivity.
      */
-    async addOrUpdate({ state, commit }, item) {
+    addOrUpdate({ state, commit }, item) {
       const { idField } = state
       const id = getId(item, idField)
-      const existingItem = state.keyedById[id]
 
       const isIdOk = id !== null && id !== undefined
 
-      if (service.FeathersVuexModel && !item.isFeathersVuexInstance) {
-        item = new service.FeathersVuexModel(item)
+      if (
+        service.FeathersVuexModel &&
+        !(item instanceof service.FeathersVuexModel)
+      ) {
+        item = new service.FeathersVuexModel(item, { commit: false })
       }
 
-      // If the item has a matching temp, update the temp and provide it as the new item.
-      const temp = state.tempsByNewId[id]
-      if (temp) {
-        commit('merge', { dest: temp, source: item })
-        commit('remove__isTemp', temp)
-      }
       if (isIdOk) {
-        if (existingItem && temp) {
-          commit('replaceItemWithTemp', { item, temp })
+        if (state.keyedById[id]) {
+          commit('updateItem', item)
         } else {
-          existingItem
-            ? commit('updateItem', temp || item)
-            : commit('addItem', temp || item)
+          commit('addItem', item)
         }
       }
-      return temp || item
+      return item
     }
   }
   /**

@@ -27,7 +27,6 @@ export interface ServiceStateExclusiveDefaults {
 
   keyedById: {}
   tempsById: {}
-  tempsByNewId: {}
   copiesById: {}
   namespace?: string
   pagination?: {
@@ -57,7 +56,6 @@ export interface ServiceState {
   idField: string
   keyedById: {}
   tempsById: {}
-  tempsByNewId: {}
   copiesById: {}
   whitelist: string[]
   paramsForServer: string[]
@@ -98,7 +96,6 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     keyedById: {},
     copiesById: {},
     tempsById: {}, // Really should be called tempsByTempId
-    tempsByNewId: {}, // temporary storage for temps while getting transferred from tempsById to keyedById
     pagination: {
       defaultLimit: null,
       defaultSkip: null

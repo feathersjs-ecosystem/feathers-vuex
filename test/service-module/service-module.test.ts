@@ -658,7 +658,6 @@ describe('Service Module', function() {
         servicePath: 'service-todos',
         tempIdField: '__id',
         tempsById: {},
-        tempsByNewId: {},
         pagination: {
           defaultLimit: null,
           defaultSkip: null

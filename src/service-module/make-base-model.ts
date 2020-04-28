@@ -185,11 +185,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     }
 
     public static getFromStore(id, params?) {
-      if (params) {
-        return this._getters('get', id, params)
-      } else {
-        return this._getters('get', id)
-      }
+      return this._getters('get', id, params)
     }
 
     /**

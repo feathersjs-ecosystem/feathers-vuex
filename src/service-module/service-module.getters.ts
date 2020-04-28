@@ -26,7 +26,7 @@ export default function makeServiceGetters() {
       // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
-      const { paramsForServer, whitelist } = state
+      const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
       const customOperators = Object.keys(q).filter(
         k => k[0] === '$' && !defaultOps.includes(k)
@@ -36,7 +36,7 @@ export default function makeServiceGetters() {
       const { query, filters } = filterQuery(cleanQuery, {
         operators: additionalOperators.concat(whitelist)
       })
-      let values = _.values(state.keyedById)
+      let values = _.values(keyedById)
 
       if (params.temps) {
         values = values.concat(_.values(state.tempsById))
