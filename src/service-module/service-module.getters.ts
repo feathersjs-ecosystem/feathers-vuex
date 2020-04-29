@@ -69,16 +69,18 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    get: ({ keyedById, tempsById, idField, tempIdField }) =>
-      (id, params = {}) => {
-        const record = keyedById[id] && select(params, idField)(keyedById[id]);
-        if (record) {
-          return record;
-        }
-        const tempRecord = 
-          tempsById[id] && select(params, tempIdField)(tempsById[id]);
+    get: ({ keyedById, tempsById, idField, tempIdField }) => (
+      id,
+      params = {}
+    ) => {
+      const record = keyedById[id] && select(params, idField)(keyedById[id])
+      if (record) {
+        return record
+      }
+      const tempRecord =
+        tempsById[id] && select(params, tempIdField)(tempsById[id])
 
-        return tempRecord || null;
+      return tempRecord || null
     },
     getCopyById: state => id => {
       const { servicePath, keepCopiesInStore, serverAlias } = state
