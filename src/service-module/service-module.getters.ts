@@ -21,6 +21,7 @@ export default function makeServiceGetters() {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => params => {
+      params = params.value || params // Unwrap a ref
       params = { ...params } || {}
 
       // Set params.temps to true to include the tempsById records
