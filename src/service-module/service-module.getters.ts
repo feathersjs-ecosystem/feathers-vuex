@@ -9,6 +9,7 @@ import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
 import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
+import { isRef } from '@vue/composition-api'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
 const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
@@ -21,7 +22,9 @@ export default function makeServiceGetters() {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => params => {
-      params = params.value || params // Unwrap a ref
+      if (isRef(params)) {
+        params = params.value
+      }
       params = { ...params } || {}
 
       // Set params.temps to true to include the tempsById records
