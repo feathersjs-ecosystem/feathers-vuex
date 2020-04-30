@@ -56,7 +56,7 @@ export default {
       get() {
         const params = props.value
         if (params) {
-          return params.$skip / params.$limit + 1
+          return pageCount.value === 0 ? 0 : params.$skip / params.$limit + 1
         } else {
           return 1
         }
