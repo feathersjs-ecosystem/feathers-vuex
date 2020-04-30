@@ -63,6 +63,14 @@ export default function prepareMakeServicePlugin(
       preferUpdate
     } = options
 
+    if (globalOptions.handleEvents && options.handleEvents) {
+      options.handleEvents = Object.assign(
+        {},
+        globalOptions.handleEvents,
+        options.handleEvents
+      )
+    }
+
     events.forEach(eventName => {
       if (!options.handleEvents[eventName])
         options.handleEvents[eventName] = () => options.enableEvents || true
