@@ -64,7 +64,7 @@ export default function prepareMakeServicePlugin(
     } = options
 
     events.forEach(eventName => {
-      if (options.handleEvents[eventName])
+      if (!options.handleEvents[eventName])
         options.handleEvents[eventName] = () => options.enableEvents || true
     })
 
