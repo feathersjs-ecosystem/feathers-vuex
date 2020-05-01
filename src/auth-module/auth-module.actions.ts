@@ -11,14 +11,9 @@ export default function makeAuthActions(feathersClient) {
   return {
     authenticate(store, dataOrArray) {
       const { commit, state, dispatch } = store
-      let data
-      let params
-      if (Array.isArray(dataOrArray)) {
-        data = dataOrArray[0]
-        params = dataOrArray[1]
-      } else {
-        data = dataOrArray
-      }
+      const [data, params] = Array.isArray(dataOrArray)
+        ? dataOrArray
+        : [dataOrArray]
 
       commit('setAuthenticatePending')
       if (state.errorOnAuthenticate) {
