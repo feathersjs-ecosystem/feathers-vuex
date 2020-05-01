@@ -4,6 +4,7 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
+import { isEmpty } from 'lodash'
 
 const { makeAuthPlugin, makeServicePlugin, BaseModel } = feathersVuex(
   feathersClient,
@@ -208,5 +209,44 @@ describe('Auth Module', () => {
       store.dispatch('auth/trigger')
       assert(store.state.auth.isTrue === true, 'the custom action was run')
     })
+  })
+
+  it('Calls auth service without params', async function() {
+    let receivedData = null
+    let receivedParams = null
+    feathersClient.use('authentication', {
+      create(data, params) {
+        receivedData = data
+        receivedParams = params
+        return Promise.resolve({ accessToken: 'jg54jh2gj6fgh734j5h4j25jbh' })
+      }
+    })
+
+    const { store } = makeContext()
+
+    const request = { strategy: 'local', email: 'test', password: 'test' }
+    await store.dispatch('auth/authenticate', request)
+    assert(receivedData, 'got data')
+    assert(receivedData.strategy === 'local', 'got strategy')
+    assert(receivedData.email === 'test', 'got email')
+    assert(receivedData.password === 'test', 'got password')
+    assert(receivedParams && isEmpty(receivedParams), 'empty params')
+  })
+
+  it('Calls auth service with params', async function() {
+    let receivedParams = null
+    feathersClient.use('authentication', {
+      create(data, params) {
+        receivedParams = params
+        return Promise.resolve({ accessToken: 'jg54jh2gj6fgh734j5h4j25jbh' })
+      }
+    })
+
+    const { store } = makeContext()
+
+    const request = { strategy: 'local', email: 'test', password: 'test' }
+    const customParams = { theAnswer: 42 }
+    await store.dispatch('auth/authenticate', [request, customParams])
+    assert(receivedParams && receivedParams.theAnswer === 42, 'got params')
   })
 })
