@@ -449,6 +449,50 @@ Each handler receives the following arguments:
    - `model` The current service's Model class.
    - `models` The same as the `$FeathersVuex` object, gives you access to each api with their respective model classes.
 
+You do not have to specify a handler for every event. Any that are not specified in your service-specific `handleEvents`, will fall back to using the `handleEvents` handler in your global options. If none are defined for the service or globally, the default behavior is controlled by the `enableEvents` option.
+
+#### Handling complex events <Badge text="3.10.0+" />
+
+If your application emits the standard Feathers service events inside a nested object with additional data, you can use `handleEvents` to tell FeathersVuex what part of that data is actually the model data that should be used to update the store.
+
+To do this, use `handleEvents` as described before, but return a tuple `[affectsStore, modelData]` from your handler.
+
+- `affectsStore` a truthy value indicates the event should update the store
+- `modelData` is the model data used to update the store
+
+For example, you've configured your Feathers API to emit `patched` events for your `Todos` service that include context about the event which look like
+
+```json
+{
+  "$context": {
+    "time": 1445411009000,
+    "userId": 121,
+    "deviceId": "Marty's iPhone"
+  },
+  "event": {
+    "id": 88,
+    "text": "Get back to the past",
+    "done": true
+  }
+}
+```
+
+For this service to play nicely with FeathersVuex, you'll need to use `handleEvents`
+
+```js
+handleEvents: {
+  patched: (item, { model, models }) => {
+    // Perform any side effects...
+
+    // If the first element is truthy, the item will update the store
+    // The second element is the actual model data to add to the store
+    return [true, item.event]
+  }
+}
+```
+
+The original event data is bubbled to [Model events](./model-classes.md#model-events) so listeners receive the full event context.
+
 ## Pagination and the `find` action
 
 Both the `find` action and the `find` getter support pagination.  There are differences in how they work.
