@@ -55,6 +55,8 @@ module.exports = {
 
 ### Quasar
 
+> In newer Quasar apps, the following `transpileDependencies` setup may not be necessary, anymore. See [this issue on GitHub](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/450)
+
 For Quasar apps, `transpileDependencies` can be updated in `quasar.conf.js` under build as
 
 ```
