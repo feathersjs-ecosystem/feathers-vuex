@@ -6,6 +6,7 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { ServiceState } from './types'
 import { clearModels } from '../../src/service-module/global-models'
 import { clients } from '../../src/service-module/global-clients'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
@@ -336,5 +337,102 @@ describe('makeServicePlugin', function() {
 
     await todo.remove()
     assert(globalRemovedCalled, 'global removed handler called')
+  })
+
+  it('allow handleEvents handlers to return extracted event data', async function() {
+    const serverAlias = 'default'
+
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
+      idField: '_id',
+      serverAlias,
+      handleEvents: {
+        created(e) {
+          return [true, e.myCreatedPropWithActualData]
+        },
+        updated(e) {
+          return [true, e.myUpdatedPropWithActualData]
+        },
+        patched(e) {
+          return [true, e.myPatchedPropWithActualData]
+        },
+        removed(e) {
+          return [true, e.myRemovedPropWithActualData]
+        }
+      }
+    })
+
+    const servicePath = 'todos'
+    class Todo extends BaseModel {
+      public static modelName = 'Todo'
+      public static servicePath = servicePath
+    }
+
+    const todosService = feathers.service(servicePath)
+    const todosPlugin = makeServicePlugin({
+      servicePath,
+      Model: Todo,
+      service: todosService
+    })
+
+    const store = new Vuex.Store<{ todos: ServiceState }>({
+      plugins: [todosPlugin]
+    })
+    const { keyedById } = store.state.todos
+
+    let createdData = null
+    let updatedData = null
+    let patchedData = null
+    let removedData = null
+    Todo.on('created', e => (createdData = e))
+    Todo.on('updated', e => (updatedData = e))
+    Todo.on('patched', e => (patchedData = e))
+    Todo.on('removed', e => (removedData = e))
+
+    assert(Object.keys(keyedById).length === 0, 'no todos in store')
+
+    todosService.emit('created', {
+      context: 'foo',
+      myCreatedPropWithActualData: { _id: 42, text: '' }
+    })
+    assert(keyedById[42], 'todo added to store')
+    assert(keyedById[42].text === '', 'todo string is empty')
+    assert(createdData, "Model's created event fired")
+    assert(
+      createdData.context === 'foo' && createdData.myCreatedPropWithActualData,
+      "Model's created event got all event data"
+    )
+
+    todosService.emit('updated', {
+      context: 'bar',
+      myUpdatedPropWithActualData: { _id: 42, text: 'updated' }
+    })
+    assert(keyedById[42].text === 'updated', 'todo was updated')
+    assert(updatedData, "Model's updated event fired")
+    assert(
+      updatedData.context === 'bar' && updatedData.myUpdatedPropWithActualData,
+      "Model's updated event got all event data"
+    )
+
+    todosService.emit('patched', {
+      context: 'baz',
+      myPatchedPropWithActualData: { _id: 42, text: 'patched' }
+    })
+    assert(keyedById[42].text === 'patched', 'todo was patched')
+    assert(patchedData, "Model's patched event fired")
+    assert(
+      patchedData.context === 'baz' && patchedData.myPatchedPropWithActualData,
+      "Model's patched event got all event data"
+    )
+
+    todosService.emit('removed', {
+      context: 'spam',
+      myRemovedPropWithActualData: { _id: 42 }
+    })
+    assert(Object.keys(keyedById).length === 0, 'todo removed from store')
+    assert(removedData, "Model's removed event fired")
+    assert(
+      removedData.context === 'spam' && removedData.myRemovedPropWithActualData,
+      "Model's removed event got all event data"
+    )
   })
 })
