@@ -9,15 +9,18 @@ import { getNameFromPath } from '../utils'
 
 export default function makeAuthActions(feathersClient) {
   return {
-    authenticate(store, data) {
+    authenticate(store, dataOrArray) {
       const { commit, state, dispatch } = store
+      const [data, params] = Array.isArray(dataOrArray)
+        ? dataOrArray
+        : [dataOrArray]
 
       commit('setAuthenticatePending')
       if (state.errorOnAuthenticate) {
         commit('clearAuthenticateError')
       }
       return feathersClient
-        .authenticate(data)
+        .authenticate(data, params)
         .then(response => {
           return dispatch('responseHandler', response)
         })
