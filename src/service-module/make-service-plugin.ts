@@ -117,14 +117,18 @@ export default function prepareMakeServicePlugin(
       // (3^) Setup real-time events
       if (options.enableEvents) {
         const handleEvent = (eventName, item, mutationName) => {
-          const affectsStore = options.handleEvents[eventName](item, {
+          const handler = options.handleEvents[eventName]
+          const confirmOrArray = handler(item, {
             model: Model,
             models: globalModels
           })
+          const [affectsStore, modified = item] = Array.isArray(confirmOrArray)
+            ? confirmOrArray
+            : [confirmOrArray]
           if (affectsStore) {
             eventName === 'removed'
-              ? store.commit(`${options.namespace}/removeItem`, item)
-              : store.dispatch(`${options.namespace}/${mutationName}`, item)
+              ? store.commit(`${options.namespace}/removeItem`, modified)
+              : store.dispatch(`${options.namespace}/${mutationName}`, modified)
           }
         }
 
