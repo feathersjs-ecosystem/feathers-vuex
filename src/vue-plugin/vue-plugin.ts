@@ -6,6 +6,7 @@ eslint
 import FeathersVuexFind from '../FeathersVuexFind'
 import FeathersVuexGet from '../FeathersVuexGet'
 import FeathersVuexFormWrapper from '../FeathersVuexFormWrapper'
+import FeathersVuexInputWrapper from '../FeathersVuexInputWrapper'
 import FeathersVuexPagination from '../FeathersVuexPagination'
 import { globalModels } from '../service-module/global-models'
 
@@ -20,6 +21,7 @@ export const FeathersVuex = {
       Vue.component('FeathersVuexFind', FeathersVuexFind)
       Vue.component('FeathersVuexGet', FeathersVuexGet)
       Vue.component('FeathersVuexFormWrapper', FeathersVuexFormWrapper)
+      Vue.component('FeathersVuexInputWrapper', FeathersVuexInputWrapper)
       Vue.component('FeathersVuexPagination', FeathersVuexPagination)
     }
   }
