@@ -89,7 +89,8 @@ export default function prepareMakeServicePlugin(
       // (1^) Create and register the Vuex module
       options.namespace = makeNamespace(namespace, servicePath, nameStyle)
       const module = makeServiceModule(service, options)
-      store.registerModule(options.namespace, module)
+      // Don't preserve state if reinitialized (prevents state pollution in SSR)
+      store.registerModule(options.namespace, module, { preserveState: false })
 
       // (2a^) Monkey patch the BaseModel in globalModels
       const BaseModel = _get(globalModels, `[${options.serverAlias}].BaseModel`)
@@ -100,12 +101,15 @@ export default function prepareMakeServicePlugin(
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
       assignIfNotPresent(Model, {
-        store,
         namespace: options.namespace,
         servicePath,
         instanceDefaults,
         setupInstance,
         preferUpdate
+      })
+      // As per 1^, don't preserve state on the model either (prevents state pollution in SSR)
+      Object.assign(Model, {
+        store
       })
       if (!Model.modelName || Model.modelName === 'BaseModel') {
         throw new Error(
