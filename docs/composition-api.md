@@ -150,8 +150,8 @@ Let's look at the functionality that each one provides:
 
 - `items` is the list of results. By default, this list will be reactive, so if new items are created which match the query, they will show up in this list automagically.
 - `servicePath` is the FeathersJS service path that is used by the current model. This is mostly only useful for debugging.
-- `isFindPending` is a boolean that indicates if there is an active query.  It is set to `true` just before each outgoing request.  It is set to `false` after the response returns.  Bind to it in the UI to show an activity indicator to the user.
-- `haveBeenRequestedOnce` is a boolean that is set to `true` immediately before the first query is sent out.  It remains true throughout the life of the component.  This comes in handy for first-load scenarios in the UI.
+- `isPending` is a boolean that indicates if there is an active query.  It is set to `true` just before each outgoing request.  It is set to `false` after the response returns.  Bind to it in the UI to show an activity indicator to the user.
+- `haveBeenRequested` is a boolean that is set to `true` immediately before the first query is sent out.  It remains true throughout the life of the component.  This comes in handy for first-load scenarios in the UI.
 - `haveLoaded` is a boolean that is set to true after the first API response.  It remains `true` for the life of the component. This also comes in handy for first-load scenarios in the UI.
 - `isLocal` is a boolean that is set to true if this data is local only.
 - `qid` is currently the primary `qid` provided in params.  It might become more useful in the future.
