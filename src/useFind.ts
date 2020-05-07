@@ -86,7 +86,7 @@ export default function find(options: UseFindOptions): UseFindData {
     qid,
     isPending: false,
     haveBeenRequested: false,
-    haveLoaded: false,
+    haveLoaded: local,
     error: null,
     debounceTime: null,
     latestQuery: null,
