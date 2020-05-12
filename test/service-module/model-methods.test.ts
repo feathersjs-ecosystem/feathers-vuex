@@ -155,6 +155,27 @@ describe('Models - Methods', function() {
     assert(typeof Task.findInStore === 'function')
   })
 
+  it('Model.count is a function', function() {
+    const { Task } = makeContext()
+
+    assert(typeof Task.count === 'function')
+  })
+
+  it('Model.count returns a Promise', function() {
+    const { Task } = makeContext()
+    const result = Task.count()
+    assert(typeof result.then !== 'undefined')
+    result.catch(err => {
+      /* noop -- prevents UnhandledPromiseRejectionWarning */
+    })
+  })
+
+  it('Model.countInStore', function() {
+    const { Task } = makeContext()
+
+    assert(typeof Task.countInStore === 'function')
+  })
+
   it('Model.get', function() {
     const { Task } = makeContext()
 

@@ -21,6 +21,9 @@ export default function makeServiceGetters() {
     list(state) {
       return state.ids.map(id => state.keyedById[id])
     },
+    count: state => () => {
+      return state.ids.length;
+    },
     find: state => params => {
       if (isRef(params)) {
         params = params.value
