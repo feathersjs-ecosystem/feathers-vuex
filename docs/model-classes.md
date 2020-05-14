@@ -85,15 +85,15 @@ created () {
 }
 ```
 
-### count()
+### count(params)
 
-Model classes have a `count` method, which is a proxy to the [`find` action] with the param `$limit: 0` (./service-plugin.html#find-params). <Badge text="3.10.5+" />
+Model classes have a `count` method, which is a proxy to the [`find` action] with the param `$limit: 0` automaticalluy appended. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params). <Badge text="3.10.5+" />
 
 ```js
 // In your Vue component
 async created () {
   const { Todo } = this.$FeathersVuex.api
-  const todosCount = await Todo.count()
+  const todosCount = await Todo.count({ query: { priority: 'critical' }})
   // or
   Todo.count().then((total) => { this.todoCount = total })
 }
@@ -107,7 +107,7 @@ Model classes have a `countInStore` method, which is a proxy to the [`count` get
 // In your Vue component
 created () {
   const { Todo } = this.$FeathersVuex.api
-  const todosCount = Todo.countInStore()
+  const todosCount = Todo.countInStore({ query: { priority: 'critical' }})
 }
 ```
 

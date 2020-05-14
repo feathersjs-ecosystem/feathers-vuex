@@ -21,8 +21,34 @@ export default function makeServiceGetters() {
     list(state) {
       return state.ids.map(id => state.keyedById[id])
     },
-    count: state => () => {
-      return state.ids.length;
+    count: state => params => {
+      if (isRef(params)) {
+        params = params.value
+      }
+      params = { ...params } || {}
+
+      // Set params.temps to true to include the tempsById records
+      params.temps = params.hasOwnProperty('temps') ? params.temps : false
+
+      const { paramsForServer, whitelist, keyedById } = state
+      const q = _omit(params.query || {}, paramsForServer)
+      const customOperators = Object.keys(q).filter(
+        k => k[0] === '$' && !defaultOps.includes(k)
+      )
+      const cleanQuery = _omit(q, customOperators)
+
+      const { query, filters } = filterQuery(cleanQuery, {
+        operators: additionalOperators.concat(whitelist)
+      })
+      let values = _.values(keyedById)
+
+      if (params.temps) {
+        values = values.concat(_.values(state.tempsById))
+      }
+
+      values = values.filter(sift(query))
+
+      return values.length
     },
     find: state => params => {
       if (isRef(params)) {
