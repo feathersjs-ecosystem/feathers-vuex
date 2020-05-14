@@ -34,7 +34,7 @@ const defaultOptions = {
  *
  * @param options
  */
-export default function makeBaseModel(options: FeathersVuexOptions) {
+export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
   const addModel = prepareAddModel(options)
   const { serverAlias } = options
 
