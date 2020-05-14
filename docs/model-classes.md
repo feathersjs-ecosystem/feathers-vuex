@@ -5,17 +5,15 @@ sidebarDepth: 3
 
 # Data Modeling with Model Classes
 
-Feathers-Vuex 1.0 introduced some lightweight data modeling. Every service had its own, internal `FeathersVuexModel`. In version 2.0 this `FeathersVuexModel` is now called the `BaseModel` and is extendable, so you can add your own functionality.
+Feathers-Vuex 1.0 introduced some lightweight data modeling.  Every service had its own, internal `FeathersVuexModel`.  In version 2.0 this `FeathersVuexModel` is now called the `BaseModel` and is extendable, so you can add your own functionality.
+
 
 ## Extending the BaseModel Class
 
-While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it. The below example shows how to import and extend the `BaseModel`. Each service must now have its own unique Model class.
+While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-vuex), we exported the `BaseModel` class so that we could extend it.  The below example shows how to import and extend the `BaseModel`.  Each service must now have its own unique Model class.
 
 ```js
-import feathersClient, {
-  makeServicePlugin,
-  BaseModel
-} from '../feathers-client'
+import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
 
 class User extends BaseModel {
   // Required for $FeathersVuex plugin to work after production transpile.
@@ -37,7 +35,7 @@ const servicePlugin = makeServicePlugin({
 })
 ```
 
-In case you're wondering, the `modelName` property is used to get around transpilation errors when using Babel with ES3 or ES5. Babel is still installed by default in most projects and generators. The `modelName` is used instead of the `name` property to provide a reliable name AFTER transpilation.
+In case you're wondering, the `modelName` property is used to get around transpilation errors when using Babel with ES3 or ES5.  Babel is still installed by default in most projects and generators.  The `modelName` is used instead of the `name` property to provide a reliable name AFTER transpilation.
 
 If you're working in an environment that doesn't support static properties on classes, you can always specify the static properties using the dot operator:
 
@@ -45,7 +43,7 @@ If you're working in an environment that doesn't support static properties on cl
 class User extends BaseModel {}
 
 User.modelName = 'User'
-User.instanceDefaults = function () {
+User.instanceDefaults = function() {
   return {
     email: '',
     password: ''
@@ -77,7 +75,7 @@ created () {
 
 ### findInStore(params)
 
-Model classes have a `findInStore` method, which is a proxy to the [`find` getter](./service-plugin.html#Service-Getters). <Badge text="1.7.0+" />
+Model classes have a `findInStore` method, which is a proxy to the [`find` getter](./service-plugin.html#Service-Getters).  <Badge text="1.7.0+" />
 
 ```js
 // In your Vue component
@@ -89,13 +87,13 @@ created () {
 
 ### count()
 
-Model classes have a `count` method, which is a proxy to the [`find` action] with the param `$limit: 0` automatically appended (./service-plugin.html#find-params). <Badge text="3.10.5+" />
+Model classes have a `count` method, which is a proxy to the [`find` action] with the param `$limit: 0` (./service-plugin.html#find-params). <Badge text="3.10.5+" />
 
 ```js
 // In your Vue component
 async created () {
   const { Todo } = this.$FeathersVuex.api
-  const todosCount = await Todo.count({ query: { priority: 'major'}})
+  const todosCount = await Todo.count()
   // or
   Todo.count().then((total) => { this.todoCount = total })
 }
@@ -103,19 +101,19 @@ async created () {
 
 ### countInStore(params)
 
-Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters). <Badge text="3.10.5+" />
+Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).  <Badge text="3.10.5+" />
 
 ```js
 // In your Vue component
 created () {
   const { Todo } = this.$FeathersVuex.api
-  const todosCount = Todo.countInStore({ query: { priority: 'major'}})
+  const todosCount = Todo.countInStore()
 }
 ```
 
 ### get(id, params)
 
-Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params). <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
+Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
 
 ```js
 // In your Vue component
@@ -127,7 +125,7 @@ created () {
 
 ### getFromStore(id, params)
 
-Model classes have a `getFromStore` method, which is a proxy to the [`get` getter](./service-plugin.html#Service-Getters). <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
+Model classes have a `getFromStore` method, which is a proxy to the [`get` getter](./service-plugin.html#Service-Getters).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
 
 ```js
 // In your Vue component
@@ -137,13 +135,13 @@ created () {
 }
 ```
 
-### instanceDefaults <Badge text="1.7.0+" />
+### instanceDefaults  <Badge text="1.7.0+" />
 
 `instanceDefaults(data, { store, models })`
 
-The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app. Depending on the complexity of the service's "business logic", it can save a lot of boilerplate. Notice that it is similar to the `setupInstance` method added in 2.0. The instanceDefaults method should ONLY be used to return default values for a new instance. Use `setupInstance` to handle other transformations on the data.
+The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app.  Depending on the complexity of the service's "business logic", it can save a lot of boilerplate.  Notice that it is similar to the `setupInstance` method added in 2.0.  The instanceDefaults method should ONLY be used to return default values for a new instance.  Use `setupInstance` to handle other transformations on the data.
 
-Starting with version 2.0, `instanceDefaults` must be provided as a function. The function will be called with the following arguments and should return an object of default properties for new instances.
+Starting with version 2.0, `instanceDefaults` must be provided as a function.  The function will be called with the following arguments and should return an object of default properties for new instances.
 
 - `data {Object}` - The instance data
 - An `utils` object containing these props:
@@ -164,15 +162,15 @@ instanceDefaults(data, { store, models }) {
 }
 ```
 
-With the above attributes in place, you no longer have to manually specify any of the listed attributes. You can, however, provided data to replace them. Calling `new User({ firstName: 'Marshall' })` will create the instance with the `firstName` filled in, already.
+With the above attributes in place, you no longer have to manually specify any of the listed attributes.  You can, however, provided data to replace them.  Calling `new User({ firstName: 'Marshall' })` will create the instance with the `firstName` filled in, already.
 
-One important note, the `isAdmin` attribute is specified in the above example in order to allow immediate binding in a form. You would pretty much NEVER allow specifying `isAdmin` from the client and storing it on the server. Attributes related to roles and app security should pretty much ALWAYS be written in hooks on the API server.
+One important note, the `isAdmin` attribute is specified in the above example in order to allow immediate binding in a form.  You would pretty much NEVER allow specifying `isAdmin` from the client and storing it on the server.  Attributes related to roles and app security should pretty much ALWAYS be written in hooks on the API server.
 
-### setupInstance <Badge text="2.0.0+" />
+### setupInstance  <Badge text="2.0.0+" />
 
 `setupInstance(data, { store, models })`
 
-A new `setupinstance` class method is now available in version 2.0. This method allows you to transform the data and setup the final instance based on incoming data. For example, you can access the `models` object to reference other service Model classes and create data associations.
+A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
 
 The function will be called during model instance construction with the following arguments and should return an object containing properties that'll be merged into the new instance.
 
@@ -181,9 +179,10 @@ The function will be called during model instance construction with the followin
   - `store` - The vuex store
   - `models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
 
-For an example of how you might use `setupInstance`, suppose we have two services: Users and Posts. Assume that the API request to get a user includes their `posts`, already populated on the data. The `instanceDefaults` allows us to convert the array of `posts` into an array of `Post` instances.
+For an example of how you might use `setupInstance`, suppose we have two services: Users and Posts.  Assume that the API request to get a user includes their `posts`, already populated on the data.  The `instanceDefaults` allows us to convert the array of `posts` into an array of `Post` instances.
 
 > If you're looking for a great solution for populating data to work with Feathers-Vuex, check out [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+
 
 ```js
 // The setupInstance method on an imaginary User model.
@@ -212,7 +211,7 @@ Remove an event handler.
 
 ## Model Events <Badge text="2.3.0+" />
 
-Model classes are EventEmitter instances which emit service events when received (technically, EventEmitter methods are mixed onto each Model class). All FeathersJS events are supported. Oh, and one more thing: it works with `feathers-rest` (you won't receive socket events, but you can listen for when instances are created in other parts of the app.)
+Model classes are EventEmitter instances which emit service events when received (technically, EventEmitter methods are mixed onto each Model class).  All FeathersJS events are supported.  Oh, and one more thing: it works with `feathers-rest` (you won't receive socket events, but you can listen for when instances are created in other parts of the app.)
 
 Here’s an example of how to use it in a component:
 
@@ -232,12 +231,12 @@ export default {
 }
 ```
 
-Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus. You can even use custom event names:
+Since they have all of the EventEmitter methods, Model classes can be used as a data-layer Event Bus.  You can even use custom event names:
 
 ```js
 const { Todo } = this.$FeathersVuex.api
 
-Todo.on('custom-event', (data) => {
+Todo.on('custom-event', data => {
   console.log(data) // { test: true }
 })
 
@@ -265,7 +264,7 @@ const { Todo } = Vue.$FeathersVuex.api
 const todo = new Todo({ description: 'Do something!' })
 ```
 
-The examples above show instantiating a new Model instance without an `id` field. In this case, the record is not added to the Vuex store. If you instantiate a record **with an `id`** field, it **will** get added to the Vuex store. _Note: This field is customizable using the `idField` option for this service._
+The examples above show instantiating a new Model instance without an `id` field. In this case, the record is not added to the Vuex store.  If you instantiate a record **with an `id`** field, it **will** get added to the Vuex store. *Note: This field is customizable using the `idField` option for this service.*
 
 Now that we have Model instances, let's take a look at the functionality they provide. Each instance will include the following methods:
 
@@ -277,25 +276,26 @@ Now that we have Model instances, let's take a look at the functionality they pr
 - `.commit()`
 - `.reset()`
 
-_Remember, if a record already has an attribute with any of these method names, it will be overwritten with the method._
+*Remember, if a record already has an attribute with any of these method names, it will be overwritten with the method.*
 
-These methods give access to many of the store `actions` and `mutations`. Using Model instances, you no longer have to use `mapActions` for `create`, `patch`, `update`, or `remove`. You also no longer have to use `mapMutations` for `createCopy`, `commitCopy`, or `resetCopy`.
+These methods give access to many of the store `actions` and `mutations`.  Using Model instances, you no longer have to use `mapActions` for `create`, `patch`, `update`, or `remove`.  You also no longer have to use `mapMutations` for `createCopy`, `commitCopy`, or `resetCopy`.
 
 ```js
-store.dispatch('todos/find', { query: {} }).then((response) => {
-  const { data } = response
-  const todo = data[0]
+store.dispatch('todos/find', { query: {} })
+  .then(response => {
+    const { data } = response
+    const todo = data[0]
 
-  todo.description = 'Read Nuxt.js docs'
-  todo.save() // Calls store.dispatch('todos/patch', [item.id, item, {}])
-})
+    todo.description = 'Read Nuxt.js docs'
+    todo.save() // Calls store.dispatch('todos/patch', [item.id, item, {}])
+  })
 ```
 
 ## Instance Methods
 
 ### `instance.save(params)`
 
-The `save` method is a convenience wrapper for the `create/patch` methods, by default. If the records has no `_id`, the `instance.create()` method will be used. The `params` argument will be used in the Feathers client request. See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference on where params are used in each method.
+The `save` method is a convenience wrapper for the `create/patch` methods, by default. If the records has no `_id`, the `instance.create()` method will be used. The `params` argument will be used in the Feathers client request.  See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference on where params are used in each method.
 
 ```js
 // In your Vue component
@@ -307,13 +307,13 @@ created () {
 }
 ```
 
-Once the `create` response returns, the record will have an `_id`. If you call `instance.save()` again, it will call `instance.patch()`. Which method is used depends soletly on the data having an id (that matches the `options.idfield` for this service).
+Once the `create` response returns, the record will have an `_id`.  If you call `instance.save()` again, it will call `instance.patch()`.  Which method is used depends soletly on the data having an id (that matches the `options.idfield` for this service).
 
 As mentioned, `save` performs either `create` or `patch`, but you can use the `preferUpdate` option to change the behavior to `create/update`.
 
 ### `instance.create(params)`
 
-The `create` method calls the `create` action (service method) using the instance data. The `params` argument will be used in the Feathers client request. See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
+The `create` method calls the `create` action (service method) using the instance data. The `params` argument will be used in the Feathers client request.  See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
 
 You might not ever need to use `.create()`, but can instead use the `.save()` method. Let `feathers-vuex` call `create` or `patch`.
 
@@ -327,9 +327,10 @@ todo.create() // --> Creates the todo on the server using the instance data
 
 ### `instance.patch(params)`
 
-The `patch` method calls the `patch` action (service method) using the instance data. The instance's id field is used for the `patch` id. The `params` argument will be used in the Feathers client request. See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
+The `patch` method calls the `patch` action (service method) using the instance data. The instance's id field is used for the `patch` id.  The `params` argument will be used in the Feathers client request.  See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
 
 Similar to the `.create()` method, you might not ever need to use `.patch()` if you just use `.save()` and let `feathers-vuex` figure out how to handle it.
+
 
 ```js
 const { Todo } = this.$FeathersVuex.api
@@ -340,7 +341,7 @@ todo.description = 'Do something else'
 todo.patch() // --> Sends a `patch` request the with the id and description.
 ```
 
-<Badge text="3.9.0+" /> As of version 3.9.0, you can provide an object as `params.data`, and Feathers-Vuex will use `params.data` as the patch data. This allows patching with partial data:
+<Badge text="3.9.0+" /> As of version 3.9.0, you can provide an object as `params.data`, and Feathers-Vuex will use `params.data` as the patch data.  This allows patching with partial data:
 
 ```js
 import { models } from 'feathers-vuex'
@@ -353,9 +354,9 @@ todo.patch({ data: { isComplete: true } })
 
 ### `instance.update(params)`
 
-The `update` method calls the `update` action (service method) using the instance data. The instance's id field is used for the `update` id. The `params` argument will be used in the Feathers client request. See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
+The `update` method calls the `update` action (service method) using the instance data. The instance's id field is used for the `update` id. The `params` argument will be used in the Feathers client request.  See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
 
-Use `.update()` whenever you want to completely replace the data on the server with the instance data. You can also set the `preferUpdate` option to `true` to make `.save()` call `.update()` when an id field is present on the instance.
+Use `.update()` whenever you want to completely replace the data on the server with the instance data.  You can also set the `preferUpdate` option to `true` to make `.save()` call `.update()` when an id field is present on the instance.
 
 ```js
 const { Todo } = this.$FeathersVuex.api
@@ -368,15 +369,16 @@ todo.update() // --> Sends a `update` request the with all instance data.
 
 ### `instance.remove(params)`
 
-The `remove` method calls the `remove` action (service method) using the instance data. The instance's id field is used for the `remove` id. The `params` argument will be used in the Feathers client request. See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
+The `remove` method calls the `remove` action (service method) using the instance data. The instance's id field is used for the `remove` id. The `params` argument will be used in the Feathers client request.  See the [Feathers Service](https://docs.feathersjs.com/guides/basics/services.html#service-methods) docs, for reference.
 
 ```js
 const { Todo } = this.$FeathersVuex.api
 const todo = new Todo({ id: 1, description: 'Do something!' })
 
-todo.save().then((todo) => {
-  todo.remove() // --> Deletes the record from the server
-})
+todo.save()
+  .then(todo => {
+    todo.remove() // --> Deletes the record from the server
+  })
 ```
 
 ### `instance.clone()`
@@ -395,9 +397,9 @@ console.log(todo.description) // --> 'Do something else!'
 console.log(todoCopy.description) // --> 'Do something else!'
 ```
 
-There's another use case for using `.clone()`. Vuex has a `strict` mode that's really useful in development. It throws errors if any changes occur in the Vuex store `state` outside of mutations. Clone really comes in handy here, because you can make changes to the clone without having to write custom Vuex mutations. When you're finished making changes, call `.commit()` to update the store. This gives you `strict` mode compliance with little effort!
+There's another use case for using `.clone()`.  Vuex has a `strict` mode that's really useful in development.  It throws errors if any changes occur in the Vuex store `state` outside of mutations.  Clone really comes in handy here, because you can make changes to the clone without having to write custom Vuex mutations. When you're finished making changes, call `.commit()` to update the store. This gives you `strict` mode compliance with little effort!
 
-> Note: You could previously use the `keepCopiesInStore`<Badge text="deprecated" type="warning"/> option to keep copies in `state.copiesById`. In 2.0, this feature is deprecated and will be removed from the next release.
+> Note: You could previously use the `keepCopiesInStore`<Badge text="deprecated" type="warning"/> option to keep copies in `state.copiesById`.  In 2.0, this feature is deprecated and will be removed from the next release.
 
 ### `instance.commit()`
 

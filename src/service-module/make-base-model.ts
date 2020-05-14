@@ -176,21 +176,19 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._getters('find', params)
     }
 
-    public static count(params) {
-      params = params || {
-        query: {}
+    public static count() {
+      const params = {
+        $limit: 0 // <- limit 0 in feathers is a fast count query
       }
-      params.query.$limit = 0 // <- limit 0 in feathers is a fast count query
       return this._dispatch('find', params).then((res) => {
         return res.total
       })
     }
 
-    public static countInStore(params) {
-      console.log('params : ' + params)
-      return this._getters('count', params)
+    public static countInStore() {
+      return this._getters('count')
     }
-
+    
     public static get(id, params) {
       if (params) {
         return this._dispatch('get', [id, params])
@@ -252,7 +250,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       const state = store.state[namespace]
       const commit = store.commit
       // Replace each plain object with a model instance.
-      Object.keys(state.keyedById).forEach((id) => {
+      Object.keys(state.keyedById).forEach(id => {
         const record = state.keyedById[id]
         commit(`${namespace}/removeItem`, record)
         commit(`${namespace}/addItem`, record)
