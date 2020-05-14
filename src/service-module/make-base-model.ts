@@ -3,7 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions } from './types'
+import { FeathersVuexOptions, ModelInstanceOptions } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
 import _merge from 'lodash/merge'
@@ -15,11 +15,6 @@ interface Function {
   preferUpdate: boolean
 }
 
-interface BaseModelInstanceOptions {
-  clone?: boolean
-  commit?: boolean
-  merge?: boolean
-}
 interface ChildClassOptions {
   merge?: boolean
 }
@@ -79,7 +74,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     public static merge = mergeWithAccessors
     public static modelName = 'BaseModel'
 
-    public constructor(data, options: BaseModelInstanceOptions) {
+    public constructor(data, options: ModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
       data = data || {}
       options = Object.assign({}, defaultOptions, options)

@@ -18,7 +18,11 @@ import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
 import useFind from './useFind'
 import useGet from './useGet'
 
-import { FeathersVuexOptions, HandleEvents } from './service-module/types'
+import {
+  FeathersVuexOptions,
+  HandleEvents,
+  ModelStatic
+} from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
 const events = ['created', 'patched', 'updated', 'removed']
@@ -41,7 +45,10 @@ const defaults: Required<FeathersVuexOptions> = {
   whitelist: [] // Custom query operators that will be allowed in the find getter.
 }
 
-export default function feathersVuex(feathers, options: FeathersVuexOptions) {
+export default function feathersVuex<DefaultBaseModelType = {}>(
+  feathers,
+  options: FeathersVuexOptions
+) {
   if (!feathers || !feathers.service) {
     throw new Error(
       'The first argument to feathersVuex must be a feathers client.'
@@ -70,7 +77,8 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
 
   return {
     makeServicePlugin,
-    BaseModel,
+    BaseModel: BaseModel as ModelStatic<DefaultBaseModelType>,
+    castBaseModel: <T>() => BaseModel as ModelStatic<T>,
     makeAuthPlugin,
     FeathersVuex,
     models,
