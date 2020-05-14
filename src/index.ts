@@ -21,10 +21,12 @@ import useGet from './useGet'
 import {
   FeathersVuexOptions,
   HandleEvents,
-  ModelStatic
+  ModelStatic,
+  SetupContext
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
+import { ServiceState } from './service-module/service-module.state'
 const events = ['created', 'patched', 'updated', 'removed']
 
 const defaults: Required<FeathersVuexOptions> = {
@@ -43,6 +45,13 @@ const defaults: Required<FeathersVuexOptions> = {
   handleEvents: {} as HandleEvents,
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   whitelist: [] // Custom query operators that will be allowed in the find getter.
+}
+
+// Augment global models onto VueConstructor
+declare module 'vue' {
+  interface VueConstructor {
+    $FeathersVuex: FeathersVuexGlobalModels
+  }
 }
 
 export default function feathersVuex<DefaultBaseModelType = {}>(
@@ -100,5 +109,8 @@ export {
   models,
   clients,
   useFind,
-  useGet
+  useGet,
+  ServiceState,
+  SetupContext
+}
 }
