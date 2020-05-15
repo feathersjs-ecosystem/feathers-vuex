@@ -80,7 +80,7 @@ declare module '..' {
   }
 }
 
-export interface SetupContext {
+export interface ModelSetupContext {
   /**
    * The global Vuex store
    */
@@ -189,10 +189,10 @@ export interface ModelStatic<D extends {} = {}> extends EventEmitter {
    * @param data the instance data
    * @param ctx setup context
    */
-  instanceDefaults(data: Partial<D>, ctx: SetupContext): Partial<D>
+  instanceDefaults(data: Partial<D>, ctx: ModelSetupContext): Partial<D>
 
   /**
-   * A new setupinstance class method is now available in version 2.0.
+   * A new setupInstance class method is now available in version 2.0.
    * This method allows you to transform the data and setup the final
    * instance based on incoming data. For example, you can access the
    * models object to reference other service Model classes and create
@@ -200,7 +200,7 @@ export interface ModelStatic<D extends {} = {}> extends EventEmitter {
    * @param data the instance data
    * @param ctx setup context
    */
-  setupInstance(data: Partial<D>, ctx: any): Partial<D>
+  setupInstance(data: Partial<D>, ctx: ModelSetupContext): Partial<D>
 
   /**
    * Gets called just before sending the data to the API server. It gets
@@ -289,7 +289,7 @@ export interface ModelInstance<D extends {} = {}> {
    * the update id.
    * @param params Params passed to the Feathers client request
    */
-  update(parms?: Params): Promise<this>
+  update(params?: Params): Promise<this>
   /**
    * The save method is a convenience wrapper for the create/patch
    * methods, by default. If the records has no _id, the

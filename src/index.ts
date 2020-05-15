@@ -22,7 +22,7 @@ import {
   FeathersVuexOptions,
   HandleEvents,
   ModelStatic,
-  SetupContext
+  ModelSetupContext
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -111,5 +111,5 @@ export {
   useFind,
   useGet,
   ServiceState,
-  SetupContext
+  ModelSetupContext
 }
