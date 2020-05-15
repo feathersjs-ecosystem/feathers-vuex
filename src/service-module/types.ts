@@ -115,15 +115,15 @@ export interface ModelInstanceOptions {
 /**
  * FeathersVuex Model with readonly data props
  */
-type Model<D> = ModelInstance<D> & Readonly<D>
+type Model<D extends {} = {}> = ModelInstance<D> & Readonly<D>
 
 /**
  * FeathersVuex Model clone with writeable data props
  */
-type ModelClone<D> = ModelInstanceClone<D> & D
+type ModelClone<D extends {} = {}> = ModelInstanceClone<D> & D
 
 /** Static Model interface */
-export interface ModelStatic<D = any> extends EventEmitter {
+export interface ModelStatic<D extends {} = {}> extends EventEmitter {
   /**
    * The path passed to `FeathersClient.service()` to create the service
    */
@@ -237,7 +237,7 @@ export interface ModelStatic<D = any> extends EventEmitter {
 }
 
 /** Model instance interface */
-export interface ModelInstance<D = any> {
+export interface ModelInstance<D extends {} = {}> {
   /**
    * model's temporary ID
    */
@@ -300,7 +300,8 @@ export interface ModelInstance<D = any> {
 }
 
 /** Model instance clone interface */
-export interface ModelInstanceClone<D = any> extends ModelInstance<D> {
+export interface ModelInstanceClone<D extends {} = {}>
+  extends ModelInstance<D> {
   /**
    * Commit changes from clone to original
    */
