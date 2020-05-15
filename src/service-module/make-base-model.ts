@@ -7,7 +7,7 @@ import {
   FeathersVuexOptions,
   ModelInstanceOptions,
   ModelStatic,
-  ModelInstance
+  ModelInstanceClone
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
@@ -58,7 +58,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     return ExistingBaseModel as ModelStatic<D>
   }
 
-  abstract class BaseModel implements ModelInstance<D> {
+  abstract class BaseModel implements ModelInstanceClone<D> {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
