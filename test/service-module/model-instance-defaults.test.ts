@@ -502,3 +502,10 @@ describe('Models - Default Values', function() {
     assert.equal(typeof letter.status, 'string', 'accessor prop still in place')
   })
 })
+
+// Disable readonly models in test
+declare module '../../src' {
+  interface FeathersVuexTypeOptions {
+    'model-readonly': false
+  }
+}
