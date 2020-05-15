@@ -52,7 +52,7 @@ function assertIsEventEmitter(val: unknown): asserts val is EventEmitter {
  *
  * @param options
  */
-export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
+export default function makeBaseModel(options: FeathersVuexOptions) {
   const addModel = prepareAddModel(options)
   const { serverAlias } = options
   type D = {}

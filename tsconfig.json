@@ -6,8 +6,7 @@
     "moduleResolution": "node",
     "target": "es6",
     "sourceMap": false,
-    "declaration": true,
-    "strictNullChecks": true
+    "declaration": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.test.js"]

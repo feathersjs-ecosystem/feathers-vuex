@@ -34,7 +34,7 @@ import { FeathersVuex } from './vue-plugin/vue-plugin'
 import { ServiceState } from './service-module/service-module.state'
 const events = ['created', 'patched', 'updated', 'removed']
 
-const defaults: Required<FeathersVuexOptions> = {
+const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
   addOnUpsert: false, // Add new records pushed by 'updated/patched' socketio events into store, instead of discarding them
   enableEvents: true, // Listens to socket.io events when available
@@ -82,7 +82,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
 
   addClient({ client: feathers, serverAlias: options.serverAlias })
 
-  const BaseModel = makeBaseModel(options as Required<FeathersVuexOptions>)
+  const BaseModel = makeBaseModel(options)
   const makeServicePlugin = prepareMakeServicePlugin(options)
   const makeAuthPlugin = prepareMakeAuthPlugin(feathers, options)
 
