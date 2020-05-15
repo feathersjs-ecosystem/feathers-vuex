@@ -1,7 +1,6 @@
 import { Service } from '@feathersjs/feathers'
 import { Params, Paginated } from '../utils'
 import { EventEmitter } from 'events'
-import { FeathersVuexStoreState, FeathersVuexGlobalModels } from '..'
 import { Store } from 'vuex'
 
 export type Id = number | string
@@ -66,19 +65,17 @@ export interface MakeServicePluginOptions {
   actions?: {}
 }
 
-interface PatchParams<D> extends Params {
-  data: Partial<D>
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FeathersVuexStoreState {
+  /** Allow clients to augment store state */
+}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FeathersVuexGlobalModels {
+  /** Allow clients to augment Global models */
 }
 
-declare module '..' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface FeathersVuexStoreState {
-    /** Allow clients to augment store state */
-  }
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface FeathersVuexGlobalModels {
-    /** Allow clients to augment Global models */
-  }
+interface PatchParams<D> extends Params {
+  data: Partial<D>
 }
 
 export interface ModelSetupContext {

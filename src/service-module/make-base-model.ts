@@ -10,14 +10,15 @@ import {
   Model,
   ModelStatic,
   ModelInstanceClone,
-  ModelClone
+  ModelClone,
+  FeathersVuexGlobalModels,
+  FeathersVuexStoreState
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
 import { EventEmitter } from 'events'
-import { FeathersVuexStoreState, FeathersVuexGlobalModels } from '..'
 import { ModelSetupContext } from './types'
 import { Store } from 'vuex'
 
@@ -56,7 +57,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
   const { serverAlias } = options
   type D = {}
 
-  // If this serverAlias already has a BaseModel, nreturn it
+  // If this serverAlias already has a BaseModel, return it
   const ExistingBaseModel = _get(globalModels, `[${serverAlias}].BaseModel`)
   if (ExistingBaseModel) {
     return ExistingBaseModel as ModelStatic<D>

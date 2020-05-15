@@ -25,7 +25,9 @@ import {
   ModelSetupContext,
   Model,
   ModelClone,
-  Id
+  Id,
+  FeathersVuexStoreState,
+  FeathersVuexGlobalModels
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -90,7 +92,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     castBaseModel: <T extends {} = {}>() => BaseModel as ModelStatic<T>,
     makeAuthPlugin,
     FeathersVuex,
-    models,
+    models: models as FeathersVuexGlobalModels,
     clients
   }
 }
@@ -115,5 +117,7 @@ export {
   ModelClone,
   ModelStatic,
   ModelSetupContext,
-  ServiceState
+  ServiceState,
+  FeathersVuexGlobalModels,
+  FeathersVuexStoreState
 }
