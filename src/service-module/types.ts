@@ -115,12 +115,12 @@ export interface ModelInstanceOptions {
 /**
  * FeathersVuex Model with readonly data props
  */
-type Model<D extends {} = {}> = ModelInstance<D> & Readonly<D>
+export type Model<D extends {} = {}> = ModelInstance<D> & Readonly<D>
 
 /**
  * FeathersVuex Model clone with writeable data props
  */
-type ModelClone<D extends {} = {}> = ModelInstanceClone<D> & D
+export type ModelClone<D extends {} = {}> = ModelInstanceClone<D> & D
 
 /** Static Model interface */
 export interface ModelStatic<D extends {} = {}> extends EventEmitter {

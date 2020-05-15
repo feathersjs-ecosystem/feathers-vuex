@@ -22,7 +22,9 @@ import {
   FeathersVuexOptions,
   HandleEvents,
   ModelStatic,
-  ModelSetupContext
+  ModelSetupContext,
+  Model,
+  ModelClone
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -54,10 +56,7 @@ declare module 'vue' {
   }
 }
 
-export default function feathersVuex<DefaultBaseModelType = {}>(
-  feathers,
-  options: FeathersVuexOptions
-) {
+export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {
     throw new Error(
       'The first argument to feathersVuex must be a feathers client.'
@@ -86,8 +85,8 @@ export default function feathersVuex<DefaultBaseModelType = {}>(
 
   return {
     makeServicePlugin,
-    BaseModel: BaseModel as ModelStatic<DefaultBaseModelType>,
-    castBaseModel: <T>() => BaseModel as ModelStatic<T>,
+    BaseModel: BaseModel as ModelStatic,
+    castBaseModel: <T extends {} = {}>() => BaseModel as ModelStatic<T>,
     makeAuthPlugin,
     FeathersVuex,
     models,
@@ -110,6 +109,9 @@ export {
   clients,
   useFind,
   useGet,
+  Model,
+  ModelClone,
+  ModelStatic,
   ServiceState,
   ModelSetupContext
 }
