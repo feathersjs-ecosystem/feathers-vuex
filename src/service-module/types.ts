@@ -289,7 +289,7 @@ export interface ModelInstance<D extends {} = {}> {
    * the update id.
    * @param params Params passed to the Feathers client request
    */
-  update(): Promise<this>
+  update(parms?: Params): Promise<this>
   /**
    * The save method is a convenience wrapper for the create/patch
    * methods, by default. If the records has no _id, the
