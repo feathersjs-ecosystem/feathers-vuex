@@ -3,12 +3,19 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions, ModelInstanceOptions } from './types'
+import {
+  FeathersVuexOptions,
+  ModelInstanceOptions,
+  ModelStatic,
+  ModelInstance
+} from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
 import { EventEmitter } from 'events'
+import { FeathersVuexStoreState, FeathersVuexGlobalModels } from '..'
+import { Store } from 'vuex'
 
 // A hack to prevent error with this.constructor.preferUpdate
 interface Function {
@@ -25,6 +32,17 @@ const defaultOptions = {
   merge: true
 }
 
+/** Ensures value has EventEmitter instance props */
+function assertIsEventEmitter(val: unknown): asserts val is EventEmitter {
+  if (
+    !Object.keys(EventEmitter.prototype).every(eeKey =>
+      Object.prototype.hasOwnProperty.call(val, eeKey)
+    )
+  ) {
+    throw new Error(`Expected EventEmitter, but got ${val}`)
+  }
+}
+
 /**
  *
  * @param options
@@ -32,14 +50,15 @@ const defaultOptions = {
 export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
   const addModel = prepareAddModel(options)
   const { serverAlias } = options
+  type D = {}
 
   // If this serverAlias already has a BaseModel, nreturn it
   const ExistingBaseModel = _get(globalModels, `[${serverAlias}].BaseModel`)
   if (ExistingBaseModel) {
-    return ExistingBaseModel
+    return ExistingBaseModel as ModelStatic<D>
   }
 
-  abstract class BaseModel {
+  abstract class BaseModel implements ModelInstance<D> {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
@@ -57,14 +76,14 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
-    public static store: Record<string, any>
+    public static store: Store<FeathersVuexStoreState>
 
     public static idField: string = options.idField
     public static tempIdField: string = options.tempIdField
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
 
-    public static readonly models = globalModels // Can access other Models here
+    public static readonly models = globalModels as FeathersVuexGlobalModels // Can access other Models here
     public static copiesById = {}
 
     public __id: string
@@ -399,5 +418,8 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
   }
 
   addModel(BaseModel)
-  return BaseModel
+
+  const BaseModelEventEmitter = BaseModel
+  assertIsEventEmitter(BaseModelEventEmitter)
+  return BaseModelEventEmitter as ModelStatic<D>
 }
