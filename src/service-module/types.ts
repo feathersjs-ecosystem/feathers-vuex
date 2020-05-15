@@ -187,6 +187,31 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
   }
 
   /**
+   * The BaseModel constructor calls mergeWithAccessors(this, newData).
+   * This utility function correctly copies data between both regular
+   * objects and Vue.observable instances. If you create a class where
+   * you need to do your own merging, you probably don't want
+   * mergeWithAccessors to run twice. In this case, you can use the
+   * `merge: false` BaseModel instance option to prevent the internal
+   * merge. You can then access the mergeWithAccessors method by calling
+   * this method like MyModel.merge(this, newData).
+   * @param dest destination object
+   * @param source source object
+   * @param blacklist keys to ignore when merging
+   * @example
+   * class Todo extends BaseModel {
+   *   public constructor(data, options?) {
+   *   options.merge = false // Prevent the internal merge
+   *   super(data, options)
+   *   // ... your custom constructor logic happens here.
+   *   // Call the static merge method to do your own merging.
+   *   Todo.merge(this, data)
+   *   }
+   * }
+   */
+  merge(dest: unknown, source: unknown, blacklist?: string[]): void
+
+  /**
    * Create new Model
    * @param data partial model data
    * @param options model instance options
