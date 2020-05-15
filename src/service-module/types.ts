@@ -1,9 +1,10 @@
 import { Service } from '@feathersjs/feathers'
 import { Params, Paginated } from '../utils'
-import { Id } from '@feathersjs/feathers'
 import { EventEmitter } from 'events'
 import { FeathersVuexStoreState, FeathersVuexGlobalModels } from '..'
 import { Store } from 'vuex'
+
+export type Id = number | string
 
 /*
 eslint
@@ -166,8 +167,8 @@ export interface ModelStatic<D extends {} = {}> extends EventEmitter {
    * All model copies created using `model.clone()`
    */
   readonly copiesById: {
-    [key: string]: Model<D> | undefined
-    [key: number]: Model<D> | undefined
+    [key: string]: ModelClone<D> | undefined
+    [key: number]: ModelClone<D> | undefined
   }
 
   /**

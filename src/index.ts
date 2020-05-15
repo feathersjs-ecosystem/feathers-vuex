@@ -24,7 +24,8 @@ import {
   ModelStatic,
   ModelSetupContext,
   Model,
-  ModelClone
+  ModelClone,
+  Id
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -109,9 +110,10 @@ export {
   clients,
   useFind,
   useGet,
+  Id,
   Model,
   ModelClone,
   ModelStatic,
-  ServiceState,
-  ModelSetupContext
+  ModelSetupContext,
+  ServiceState
 }

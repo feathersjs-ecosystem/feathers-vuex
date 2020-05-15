@@ -5,16 +5,20 @@ eslint
 */
 import {
   FeathersVuexOptions,
+  Id,
   ModelInstanceOptions,
+  Model,
   ModelStatic,
-  ModelInstanceClone
+  ModelInstanceClone,
+  ModelClone
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
-import { mergeWithAccessors, checkNamespace, getId } from '../utils'
+import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
 import { EventEmitter } from 'events'
 import { FeathersVuexStoreState, FeathersVuexGlobalModels } from '..'
+import { ModelSetupContext } from './types'
 import { Store } from 'vuex'
 
 // A hack to prevent error with this.constructor.preferUpdate
@@ -64,14 +68,14 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     public static namespace: string
     public static keepCopiesInStore = options.keepCopiesInStore
     // eslint-disable-next-line
-    public static instanceDefaults(data, { models, store }) {
+    public static instanceDefaults(data: Partial<D>, ctx: ModelSetupContext) {
       return data
     }
     // eslint-disable-next-line
-    public static setupInstance(data, { models, store }) {
+    public static setupInstance(data: Partial<D>, ctx: ModelSetupContext) {
       return data
     }
-    public static diffOnPatch(data) {
+    public static diffOnPatch(data: Partial<D>) {
       return data
     }
 
@@ -84,7 +88,10 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     public static serverAlias: string = options.serverAlias
 
     public static readonly models = globalModels as FeathersVuexGlobalModels // Can access other Models here
-    public static copiesById = {}
+    public static copiesById: {
+      [key: string]: ModelClone<D> | undefined
+      [key: number]: ModelClone<D> | undefined
+    } = {}
 
     public __id: string
     public __isClone: boolean
@@ -93,7 +100,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     public static merge = mergeWithAccessors
     public static modelName = 'BaseModel'
 
-    public constructor(data, options: ModelInstanceOptions) {
+    public constructor(data: Partial<D>, options: ModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
       data = data || {}
       options = Object.assign({}, defaultOptions, options)
@@ -182,15 +189,15 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
       return getId(record, idField)
     }
 
-    public static find(params) {
+    public static find(params?: Params) {
       return this._dispatch('find', params)
     }
 
-    public static findInStore(params) {
+    public static findInStore(params?: Params) {
       return this._getters('find', params)
     }
 
-    public static get(id, params) {
+    public static get(id: Id, params?: Params) {
       if (params) {
         return this._dispatch('get', [id, params])
       } else {
@@ -198,7 +205,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
       }
     }
 
-    public static getFromStore(id, params?) {
+    public static getFromStore(id: Id, params?: Params) {
       return this._getters('get', id, params)
     }
 
@@ -261,7 +268,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     /**
      * clone the current record using the `createCopy` mutation
      */
-    public clone(data) {
+    public clone(data: Partial<D>): ModelClone<D> {
       const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
@@ -294,7 +301,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     /**
      * Reset a clone to match the instance in the store.
      */
-    public reset() {
+    public reset(): this {
       const { idField, tempIdField, _commit } = this
         .constructor as typeof BaseModel
 
@@ -313,7 +320,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
     /**
      * Update a store instance to match a clone.
      */
-    public commit() {
+    public commit(): Model<D> {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
@@ -333,7 +340,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
      * A shortcut to either call create or patch/update
      * @param params
      */
-    public save(params) {
+    public save(params?: Params): Promise<this> {
       const { idField, preferUpdate } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
       if (id != null) {
@@ -346,7 +353,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
      * Calls service create with the current instance data
      * @param params
      */
-    public create(params) {
+    public create(params?: Params): Promise<this> {
       const { _dispatch } = this.constructor as typeof BaseModel
       const data = Object.assign({}, this)
       if (data[options.idField] === null) {
@@ -359,7 +366,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch(params?) {
+    public patch(params?: Params): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -376,7 +383,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
      * Calls service update with the current instance data
      * @param params
      */
-    public update(params) {
+    public update(params?: Params): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -393,7 +400,7 @@ export default function makeBaseModel(options: Required<FeathersVuexOptions>) {
      * Calls service remove with the current instance id
      * @param params
      */
-    public remove(params) {
+    public remove(params?: Params): Promise<this> {
       const { idField, tempIdField, _dispatch, _commit } = this
         .constructor as typeof BaseModel
       const id = getId(this, idField)
