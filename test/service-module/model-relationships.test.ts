@@ -188,7 +188,7 @@ function makeContext() {
   class Item extends BaseModel {
     public static modelName = 'Item'
     public get todos() {
-      return BaseModel.models.Todo.findInStore({ query: {} }).data
+      return (BaseModel.models as any).Todo.findInStore({ query: {} }).data
     }
     public static instanceDefaults() {
       return {

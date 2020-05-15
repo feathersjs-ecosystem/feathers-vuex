@@ -130,6 +130,7 @@ describe('makeModel / BaseModel', function () {
     const { BaseModel, makeServicePlugin } = feathersVuex(feathers, {
       serverAlias: 'myApi'
     })
+    //@ts-ignore
     BaseModel.modelName = 'TestModel'
     const plugin = makeServicePlugin({
       servicePath: 'todos',
@@ -220,19 +221,20 @@ describe('makeModel / BaseModel', function () {
       plugins: [todosPlugin, tasksPlugin]
     })
     const { models } = myApi
+    const anyModels = models as any
 
-    assert(models.myApi.Todo === Todo)
-    assert(!models.theirApi.Todo, `Todo stayed out of the 'theirApi' namespace`)
-    assert(models.theirApi.Task === Task)
-    assert(!models.myApi.Task, `Task stayed out of the 'myApi' namespace`)
+    assert(anyModels.myApi.Todo === Todo)
+    assert(!anyModels.theirApi.Todo, `Todo stayed out of the 'theirApi' namespace`)
+    assert(anyModels.theirApi.Task === Task)
+    assert(!anyModels.myApi.Task, `Task stayed out of the 'myApi' namespace`)
 
     assert.equal(
-      models.myApi.byServicePath[Todo.servicePath],
+      anyModels.myApi.byServicePath[Todo.servicePath],
       Todo,
       'also registered in models.byServicePath'
     )
     assert.equal(
-      models.theirApi.byServicePath[Task.servicePath],
+      anyModels.theirApi.byServicePath[Task.servicePath],
       Task,
       'also registered in models.byServicePath'
     )
