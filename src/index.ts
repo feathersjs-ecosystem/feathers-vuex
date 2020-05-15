@@ -27,7 +27,8 @@ import {
   ModelClone,
   Id,
   FeathersVuexStoreState,
-  FeathersVuexGlobalModels
+  FeathersVuexGlobalModels,
+  FeathersVuexTypeOptions
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -119,5 +120,6 @@ export {
   ModelSetupContext,
   ServiceState,
   FeathersVuexGlobalModels,
-  FeathersVuexStoreState
+  FeathersVuexStoreState,
+  FeathersVuexTypeOptions
 }

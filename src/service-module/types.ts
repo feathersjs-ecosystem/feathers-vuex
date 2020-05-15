@@ -112,10 +112,26 @@ export interface ModelInstanceOptions {
 
 type AnyData = { [k: string]: any }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FeathersVuexTypeOptions {
+  // 'model-readonly': true
+}
+
+type GetOption<T, K, Default = false> = K extends keyof T ? T[K] : Default
+
+// ModelData is readonly unless user explicitly says `model-readonly` is false
+type ModelData<D> = GetOption<
+  FeathersVuexTypeOptions,
+  'model-readonly',
+  true
+> extends false
+  ? D
+  : Readonly<D>
+
 /**
  * FeathersVuex Model with readonly data props
  */
-export type Model<D extends {} = AnyData> = ModelInstance<D> & Readonly<D>
+export type Model<D extends {} = AnyData> = ModelInstance<D> & ModelData<D>
 
 /**
  * FeathersVuex Model clone with writeable data props
