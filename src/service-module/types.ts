@@ -305,7 +305,7 @@ export interface ModelInstanceClone<D extends {} = {}>
   /**
    * Commit changes from clone to original
    */
-  commit(): this
+  commit(): Model<D>
 
   /**
    * Discards changes made on this clone and syncs with the original
