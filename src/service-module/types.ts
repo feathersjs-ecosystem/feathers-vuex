@@ -110,7 +110,7 @@ export interface ModelInstanceOptions {
   merge?: boolean
 }
 
-type AnyData = { [k: string]: any }
+export type AnyData = { [k: string]: any }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FeathersVuexTypeOptions {
