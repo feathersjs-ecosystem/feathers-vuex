@@ -95,7 +95,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     } = {}
 
     public __id: string
-    public __isClone: boolean
+    public __isClone: true
     public data: Record<string, any>
 
     public static merge = mergeWithAccessors

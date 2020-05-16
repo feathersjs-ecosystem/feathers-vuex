@@ -291,10 +291,6 @@ export interface ModelInstance<D extends {} = AnyData> {
    * model is temporary?
    */
   readonly __isTemp?: boolean
-  /**
-   * model is a clone?
-   */
-  readonly __isClone?: boolean
 
   /**
    * Creates a deep copy of the record and stores it on
@@ -346,7 +342,12 @@ export interface ModelInstance<D extends {} = AnyData> {
 
 /** Model instance clone interface */
 export interface ModelInstanceClone<D extends {} = AnyData>
-  extends ModelInstance<D> {
+  extends Omit<ModelInstance<D>, 'clone'> {
+  /**
+   * model is a clone?
+   */
+  readonly __isClone: true
+
   /**
    * Commit changes from clone to original
    */
