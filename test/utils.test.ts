@@ -84,7 +84,6 @@ describe('Utils', function() {
       feathersClient,
       { serverAlias: 'hydrate' }
     )
-    const anyModels = models as any
 
     class User extends BaseModel {
       public static modelName = 'User'
@@ -108,7 +107,7 @@ describe('Utils', function() {
     store.commit('users/addServerItem')
     assert(store.state.users.keyedById['abcdefg'], 'server document added')
     assert(store.state.users.keyedById['abcdefg'] instanceof Object, 'server document is pure javascript object')
-    hydrateApi({ api: anyModels.hydrate })
+    hydrateApi({ api: models.hydrate })
     assert(store.state.users.keyedById['abcdefg'] instanceof User, 'document hydrated')
   })
 

@@ -221,20 +221,19 @@ describe('makeModel / BaseModel', function () {
       plugins: [todosPlugin, tasksPlugin]
     })
     const { models } = myApi
-    const anyModels = models as any
 
-    assert(anyModels.myApi.Todo === Todo)
-    assert(!anyModels.theirApi.Todo, `Todo stayed out of the 'theirApi' namespace`)
-    assert(anyModels.theirApi.Task === Task)
-    assert(!anyModels.myApi.Task, `Task stayed out of the 'myApi' namespace`)
+    assert(models.myApi.Todo === Todo)
+    assert(!models.theirApi.Todo, `Todo stayed out of the 'theirApi' namespace`)
+    assert(models.theirApi.Task === Task)
+    assert(!models.myApi.Task, `Task stayed out of the 'myApi' namespace`)
 
     assert.equal(
-      anyModels.myApi.byServicePath[Todo.servicePath],
+      models.myApi.byServicePath[Todo.servicePath],
       Todo,
       'also registered in models.byServicePath'
     )
     assert.equal(
-      anyModels.theirApi.byServicePath[Task.servicePath],
+      models.theirApi.byServicePath[Task.servicePath],
       Task,
       'also registered in models.byServicePath'
     )
