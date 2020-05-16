@@ -51,6 +51,88 @@ User.instanceDefaults = function() {
 }
 ```
 
+### BaseModel typing <Badge text="3.11.0+" />
+
+Version `3.11.0` brings explicit typing to the BaseModel. This gives helpful IDE autocomplete and errors when Model classes or instances
+are used incorrectly.
+
+One major change here is that the BaseModel now enforces Vuex strict mode compliance by default and encourages proper state management using
+the clone and commit pattern. It does this by declaring the underlying model data `readonly`. This means the TS compiler will error at any
+attempt to directly assign to a model.
+
+Take the `User` class from above
+
+```ts
+// wrong
+const user = new User()
+user.email = 'harry.potter@hogwarts.edu' // <- TS will error here
+```
+
+The proper way to edit an existing `User` instance is to clone it, edit the *clone's* props, and then commit the changes.
+This ensures changes don't propagate to the rest of the app until ready.
+
+```ts
+// correct
+const clone = user.clone()
+clone.email = 'harry.potter@hogwarts.edu' // <- No error here
+clone.commit()
+```
+
+You can disable this `readonly` behavior if desired. In `feathers-client.ts`, augment FeathersVuex's typing
+
+```ts
+declare module 'feathers-vuex' {
+  interface FeathersVuexTypeOptions {
+    'model-readonly': false
+  }
+}
+```
+
+### Casting the BaseModel <Badge text="3.11.0+" />
+
+Typescript users can further enhance typing on Model classes and instances by passing their data's underlying structure as an interface
+to `castBaseModel<T>()`. This gives helpful type hints and autocomplete from your IDE when interacting with your underlying Model data.
+
+To take advantage of this, first we need to update `feathers-client.ts` to export the new function
+
+```ts
+// feathers-client.ts
+const {/* other props, */ castBaseModel } = feathersVuex(/* ... */)
+
+// Export `castBaseModel` too
+export { /* other props */ castBaseModel }
+```
+
+Now we can use `castBaseModel()` when defining our Model class
+
+```ts
+import feathersClient, { makeServicePlugin, castBaseModel } from '../feathers-client'
+
+// Define an interface for your underlying data
+interface UserData {
+  id: number
+  email: string
+  password: string
+}
+
+// Pass interface to castBaseModel()
+class TypedUser extends castBaseModel<UserData>() {
+  static readonly modelName = 'TypedUser'
+}
+
+// Make the plugin just as before
+const servicePath = 'users'
+const servicePlugin = makeServicePlugin({
+  Model: TypedUser,
+  service: feathersClient.service(servicePath),
+  servicePath
+})
+```
+
+Now our IDE knows that instances of `TypedUser` have all props defined by the `UserData` interface.
+
+By default, the BaseModel uses `{ [key: string]: any }` as the underlying data interface meaning any prop can be accessed/assigned to.
+
 ## Model attributes
 
 The following attributes are available on each model:
