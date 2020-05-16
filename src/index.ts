@@ -53,13 +53,6 @@ const defaults: FeathersVuexOptions = {
   whitelist: [] // Custom query operators that will be allowed in the find getter.
 }
 
-// Augment global models onto VueConstructor
-declare module 'vue' {
-  interface VueConstructor {
-    $FeathersVuex: FeathersVuexGlobalModels
-  }
-}
-
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {
     throw new Error(
