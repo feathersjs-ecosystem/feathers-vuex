@@ -11,8 +11,8 @@ import {
   ModelStatic,
   ModelInstanceClone,
   ModelClone,
-  FeathersVuexGlobalModels,
-  FeathersVuexStoreState
+  GlobalModels,
+  StoreState
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
@@ -81,14 +81,14 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
-    public static store: Store<FeathersVuexStoreState>
+    public static store: Store<StoreState>
 
     public static idField: string = options.idField
     public static tempIdField: string = options.tempIdField
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
 
-    public static readonly models = globalModels as FeathersVuexGlobalModels // Can access other Models here
+    public static readonly models = globalModels as GlobalModels // Can access other Models here
     public static copiesById: {
       [key: string]: ModelClone<D> | undefined
       [key: number]: ModelClone<D> | undefined

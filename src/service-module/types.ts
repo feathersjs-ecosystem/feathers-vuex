@@ -74,6 +74,10 @@ export interface FeathersVuexGlobalModels {
   /** Allow clients to augment Global models */
 }
 
+// Alias and default to any if user doesn't augment interfaces
+export type StoreState = keyof FeathersVuexStoreState extends never ? any : FeathersVuexStoreState
+export type GlobalModels = keyof FeathersVuexGlobalModels extends never ? any : FeathersVuexGlobalModels
+
 interface PatchParams<D> extends Params {
   data: Partial<D>
 }
@@ -82,11 +86,11 @@ export interface ModelSetupContext {
   /**
    * The global Vuex store
    */
-  store: FeathersVuexStoreState
+  store: StoreState
   /**
    * The global `models` object
    */
-  models: FeathersVuexGlobalModels
+  models: GlobalModels
 }
 
 export interface ModelInstanceOptions {
@@ -153,7 +157,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
   /**
    * The global Vuex store
    */
-  readonly store: Store<FeathersVuexStoreState>
+  readonly store: Store<StoreState>
   /**
    * The field in each record that will contain the ID
    */
@@ -177,7 +181,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
   /**
    * The global `models` object
    */
-  readonly models: FeathersVuexGlobalModels
+  readonly models: GlobalModels
   /**
    * All model copies created using `model.clone()`
    */
