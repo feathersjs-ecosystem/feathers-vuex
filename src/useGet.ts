@@ -46,7 +46,7 @@ export default function get<T extends AnyData = AnyData>(options: UseGetOptions<
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: true
+    lazy: false
   }
   const { model, id, params, queryWhen, local, lazy } = Object.assign(
     {},
@@ -113,24 +113,15 @@ export default function get<T extends AnyData = AnyData>(options: UseGetOptions<
     }
   }
 
-  watch(
+  watch([
     () => getId(),
-    id => {
-      get(id, getParams())
-    },
-    { lazy }
-  )
-  watch(
     () => getParams(),
-    params => {
-      get(getId(), params)
+  ],
+    ([id, params]) => {
+      get(id as Id, params as Params)
     },
     { lazy }
   )
-
-  if (lazy) {
-    get(id, getParams())
-  }
 
   return {
     ...toRefs(state),
