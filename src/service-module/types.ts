@@ -266,7 +266,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * A proxy for the `find` getter
    * @param params Find params
    */
-  findInStore(params?: Params): Model<D>[] | Paginated<Model<D>>
+  findInStore(params?: Params): Paginated<Model<D>>
 
   /**
    * A proxy for the `get` action
