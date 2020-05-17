@@ -34,6 +34,7 @@ import {
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
 import { ServiceState } from './service-module/service-module.state'
+import { AuthState } from './auth-module/types'
 const events = ['created', 'patched', 'updated', 'removed']
 
 const defaults: FeathersVuexOptions = {
@@ -107,6 +108,7 @@ export {
   clients,
   useFind,
   useGet,
+  AuthState,
   Id,
   Model,
   ModelClone,
