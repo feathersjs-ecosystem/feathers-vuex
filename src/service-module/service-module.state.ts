@@ -6,7 +6,7 @@ eslint
 
 import _omit from 'lodash/omit'
 
-import { MakeServicePluginOptions } from './types'
+import { MakeServicePluginOptions, AnyData, Model, ModelClone } from './types'
 
 export interface ServiceStateExclusiveDefaults {
   ids: string[]
@@ -37,7 +37,7 @@ export interface ServiceStateExclusiveDefaults {
   modelName?: string
 }
 
-export interface ServiceState {
+export interface ServiceState<D extends AnyData = AnyData> {
   options: {}
   ids: string[]
   autoRemove: boolean
@@ -55,9 +55,17 @@ export interface ServiceState {
   isRemovePending: boolean
   idField: string
   tempIdField: string
-  keyedById: {}
-  tempsById: {}
-  copiesById: {}
+  keyedById: {
+    [k: string]: Model<D>
+    [k: number]: Model<D>
+  }
+  tempsById: {
+    [k: string]: Model<D>
+    [k: number]: Model<D>
+  }
+  copiesById: {
+    [k: string]: ModelClone<D>
+  }
   whitelist: string[]
   paramsForServer: string[]
   namespace: string
