@@ -221,6 +221,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * @param options model instance options
    */
   new (data?: Partial<D>, options?: ModelInstanceOptions): Model<D>
+  prototype: Model<D>
 
   /**
    * The instanceDefaults API was created in version 1.7 to prevent
