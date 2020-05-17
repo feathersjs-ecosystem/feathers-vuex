@@ -54,6 +54,7 @@ export interface ServiceState {
   isUpdatePending: boolean
   isRemovePending: boolean
   idField: string
+  tempIdField: string
   keyedById: {}
   tempsById: {}
   copiesById: {}
