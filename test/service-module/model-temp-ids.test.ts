@@ -577,3 +577,10 @@ describe('Models - Temp Ids', function() {
     })
   })
 })
+
+// Disable readonly models in test
+declare module '../../src' {
+  interface FeathersVuexTypeOptions {
+    'model-readonly': false
+  }
+}
