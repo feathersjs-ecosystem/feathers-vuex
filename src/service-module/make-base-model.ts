@@ -9,10 +9,9 @@ import {
   ModelInstanceOptions,
   Model,
   ModelStatic,
-  ModelInstanceClone,
-  ModelClone,
   GlobalModels,
-  StoreState
+  StoreState,
+  ModelInstance
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
@@ -63,7 +62,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     return ExistingBaseModel as ModelStatic<D>
   }
 
-  abstract class BaseModel implements ModelInstanceClone<D> {
+  abstract class BaseModel implements ModelInstance<D> {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
@@ -90,8 +89,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
     public static readonly models = globalModels as GlobalModels // Can access other Models here
     public static copiesById: {
-      [key: string]: ModelClone<D> | undefined
-      [key: number]: ModelClone<D> | undefined
+      [key: string]: Model<D> | undefined
+      [key: number]: Model<D> | undefined
     } = {}
 
     public __id: string
@@ -269,7 +268,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * clone the current record using the `createCopy` mutation
      */
-    public clone(data: Partial<D>): ModelClone<D> {
+    public clone(data: Partial<D>): this {
       const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
@@ -321,7 +320,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * Update a store instance to match a clone.
      */
-    public commit(): Model<D> {
+    public commit(): this {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {

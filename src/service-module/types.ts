@@ -137,11 +137,6 @@ type ModelData<D> = GetOption<
  */
 export type Model<D extends {} = AnyData> = ModelInstance<D> & ModelData<D>
 
-/**
- * FeathersVuex Model clone with writeable data props
- */
-export type ModelClone<D extends {} = AnyData> = ModelInstanceClone<D> & D
-
 /** Static Model interface */
 export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
   /**
@@ -186,8 +181,8 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * All model copies created using `model.clone()`
    */
   readonly copiesById: {
-    [key: string]: ModelClone<D> | undefined
-    [key: number]: ModelClone<D> | undefined
+    [key: string]: Model<D> | undefined
+    [key: number]: Model<D> | undefined
   }
 
   /**
@@ -292,7 +287,10 @@ export interface ModelInstance<D extends {} = AnyData> {
    * model is temporary?
    */
   readonly __isTemp?: boolean
-
+  /**
+   * model is a clone?
+   */
+  readonly __isClone?: boolean
   /**
    * Creates a deep copy of the record and stores it on
    * `Model.copiesById`. This allows you to make changes
@@ -300,7 +298,7 @@ export interface ModelInstance<D extends {} = AnyData> {
    * commit or save the data.
    * @param data Properties to modify on the cloned instance
    */
-  clone(data?: Partial<D>): ModelClone<D>
+  clone(data?: Partial<D>): this
   /**
    * The create method calls the create action (service method)
    * using the instance data.
@@ -339,20 +337,12 @@ export interface ModelInstance<D extends {} = AnyData> {
    * @param params Params passed to the Feathers client request
    */
   save(params?: Params): Promise<this>
-}
 
-/** Model instance clone interface */
-export interface ModelInstanceClone<D extends {} = AnyData>
-  extends Omit<ModelInstance<D>, 'clone'> {
-  /**
-   * model is a clone?
-   */
-  readonly __isClone: true
 
   /**
    * Commit changes from clone to original
    */
-  commit(): Model<D>
+  commit(): this
 
   /**
    * Discards changes made on this clone and syncs with the original
