@@ -46,7 +46,7 @@ export default function get(options: UseGetOptions): UseGetData {
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: true
+    lazy: false
   }
   const { model, id, params, queryWhen, local, lazy } = Object.assign(
     {},
@@ -126,10 +126,6 @@ export default function get(options: UseGetOptions): UseGetData {
     },
     { lazy }
   )
-
-  if (lazy) {
-    get(id, getParams())
-  }
 
   return {
     servicePath,
