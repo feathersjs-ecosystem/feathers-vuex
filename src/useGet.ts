@@ -112,17 +112,12 @@ export default function get(options: UseGetOptions): UseGetData {
     }
   }
 
-  watch(
+  watch([
     () => getId(),
-    id => {
-      get(id, getParams())
-    },
-    { lazy }
-  )
-  watch(
     () => getParams(),
-    params => {
-      get(getId(), params)
+  ],
+    ([id, params]) => {
+      get(id as string | number, params as Params)
     },
     { lazy }
   )
