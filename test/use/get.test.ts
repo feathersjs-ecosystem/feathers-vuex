@@ -130,7 +130,7 @@ describe('use/get', function() {
     const { Instrument } = makeContext()
 
     const id = null
-    const instrumentData = useGet({ model: Instrument, id, lazy: true })
+    const instrumentData = useGet({ model: Instrument, id })
     const { hasBeenRequested } = instrumentData
 
     assert(isRef(hasBeenRequested))
