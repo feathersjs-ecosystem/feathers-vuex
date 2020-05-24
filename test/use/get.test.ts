@@ -18,6 +18,7 @@ import Vuex from 'vuex'
 import { mount, shallowMount } from '@vue/test-utils'
 import InstrumentComponent from './InstrumentComponent'
 import { computed, isRef } from '@vue/composition-api'
+import { HookContext } from '@feathersjs/feathers'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -150,5 +151,43 @@ describe('use/get', function() {
     get()
 
     assert(hasBeenRequested.value === false, 'no request after get')
+  })
+
+  it('API only hit once on initial render', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      serverAlias: 'useGet'
+    })
+
+    class Dohickey extends BaseModel {
+      public static modelName = 'Dohickey'
+    }
+
+    const servicePath = 'dohickies'
+    const store = new Vuex.Store({
+      plugins: [
+        makeServicePlugin({
+          Model: Dohickey,
+          servicePath,
+          service: feathersClient.service(servicePath)
+        })
+      ]
+    })
+
+    let getCalls = 0
+    feathersClient.service(servicePath).hooks({
+      before: {
+        get: [
+          (ctx: HookContext) => {
+            getCalls += 1
+            ctx.result = { id: ctx.id }
+          }
+        ]
+      }
+    })
+
+    useGet({ model: Dohickey, id: 42 })
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    assert(getCalls === 1, '`get` called once')
   })
 })
