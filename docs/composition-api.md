@@ -11,7 +11,7 @@ It's important to note that the `@vue/composition-api` plugin must be registered
 
 ```js
 import Vue from 'vue'
-import VueCompositionApi from '@vue/composition-api'
+import VueCompositionApi from 'vue'
 
 // Register the Composition API plugin BEFORE you import App.vue
 Vue.use(VueCompositionApi)
@@ -62,7 +62,7 @@ Let's use the example of creating a User Guide, where we need to pull in the var
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind } from 'feathers-vuex'
 
 export default {
@@ -175,7 +175,7 @@ Pay special attention to the properties of type `Ref`, in the TypeScript interfa
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind } from 'feathers-vuex'
 
 export default {
@@ -226,7 +226,7 @@ The `useGet` Composition API utility provides the same fall-through cache functi
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {
@@ -371,7 +371,7 @@ Here is an example of how to use it.  It assumes that you have a `/listings` ser
 </template>
 
 <script>
-import { ref, computed, watch } from '@vue/composition-api'
+import { ref, computed, watch } from 'vue'
 import { models, useFind, FeathersVuexPagination } from 'feathers-vuex'
 import PaginationUi from './PaginationUi.vue'
 
@@ -529,7 +529,7 @@ Let's look at an example where we have two separate tables and we want live-quer
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {
@@ -589,7 +589,7 @@ In the previous example, the requests for the `patient` and `appointments` are m
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {
@@ -660,7 +660,7 @@ This next example builds on the previous one and adds loading state for both the
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {
@@ -719,7 +719,7 @@ The `queryWhen` option for both `useFind` and `useGet` comes in handy when you w
 </template>
 
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {
@@ -797,7 +797,7 @@ Having a variable naming convention can really assist the developer onboarding p
 - When used, params for `useGet` result in a single record, and should indicate singularity.
 
 ```js
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 import { useFind, useGet } from 'feathers-vuex'
 
 export default {

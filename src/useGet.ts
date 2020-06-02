@@ -2,14 +2,7 @@
 eslint
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  reactive,
-  computed,
-  toRefs,
-  isRef,
-  watch,
-  Ref
-} from '@vue/composition-api'
+import { reactive, computed, toRefs, isRef, watch, Ref } from 'vue'
 import { Params } from './utils'
 
 interface UseGetOptions {

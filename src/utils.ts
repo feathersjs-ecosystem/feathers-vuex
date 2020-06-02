@@ -231,7 +231,6 @@ export function getId(item, idField) {
   if (item._id != null || item.hasOwnProperty('_id')) {
     return item._id
   }
-
 }
 
 // Creates a Model class name from the last part of the servicePath
@@ -314,11 +313,11 @@ export function updateOriginal(original, newData) {
     }
 
     if (shouldCopyProp) {
-      if (original.hasOwnProperty(key)) {
-        original[key] = newProp
-      } else {
-        Vue.set(original, key, newProp)
-      }
+      // if (original.hasOwnProperty(key)) {
+      original[key] = newProp
+      // } else {
+      // Vue. set(original, key, newProp)
+      // }
     }
   })
 }

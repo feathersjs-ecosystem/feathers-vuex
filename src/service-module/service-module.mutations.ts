@@ -42,13 +42,14 @@ export default function makeServiceMutations() {
           tempId = assignTempId(state, item)
         }
         item.__isTemp = true
-        Vue.set(state.tempsById, tempId, item)
+        state.tempsById[tempId] = item
       } else {
         // Only add the id if it's not already in the `ids` list.
         if (!state.ids.includes(id)) {
           state.ids.push(id)
         }
-        Vue.set(state.keyedById, id, item)
+        state.keyedById[id] = item
+        // Vue. set(state.keyedById, id, item)
       }
     }
   }
@@ -74,7 +75,8 @@ export default function makeServiceMutations() {
             if (Model && !(item instanceof Model)) {
               item = new Model(item)
             }
-            Vue.set(state.keyedById, id, item)
+            state.keyedById[id] = item
+            // Vue. set(state.keyedById, id, item)
             // Merge in changes
           } else {
             /**
@@ -99,7 +101,8 @@ export default function makeServiceMutations() {
           // if addOnUpsert then add the record into the state, else discard it.
         } else if (addOnUpsert) {
           state.ids.push(id)
-          Vue.set(state.keyedById, id, item)
+          state.keyedById[id] = item
+          // Vue. set(state.keyedById, id, item)
         }
         continue
       }
@@ -146,11 +149,16 @@ export default function makeServiceMutations() {
       const temp = state.tempsById[tempId]
       if (temp) {
         temp[state.idField] = id
-        Vue.delete(temp, '__isTemp')
-        Vue.delete(state.tempsById, tempId)
+
+        delete state.tempsById[tempId]
+        delete temp.__isTemp
+        // Vue. delete(state.tempsById, tempId)
+        // Vue. delete(temp, '__isTemp')
+
         // If an item already exists in the store from the `created` event firing
         // it will be replaced here
-        Vue.set(state.keyedById, id, temp)
+        state.keyedById[id] = temp
+        // Vue. set(state.keyedById, id, temp)
       }
 
       // Add _id to temp's clone as well if it exists
@@ -159,7 +167,8 @@ export default function makeServiceMutations() {
       if (tempClone) {
         tempClone[state.idField] = id
         Model.copiesById[id] = tempClone
-        Vue.delete(tempClone, '__isTemp')
+        delete tempClone.__isTemp
+        // Vue. delete(tempClone, '__isTemp')
       }
     },
 
@@ -170,8 +179,10 @@ export default function makeServiceMutations() {
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
       if (isIdOk && index !== null && index !== undefined) {
-        Vue.delete(state.ids, index)
-        Vue.delete(state.keyedById, idToBeRemoved)
+        delete state.ids[index]
+        delete state.keyedById[idToBeRemoved]
+        // Vue. delete(state.ids, index)
+        // Vue. delete(state.keyedById, idToBeRemoved)
       }
     },
 
@@ -183,7 +194,7 @@ export default function makeServiceMutations() {
           if (temp[state.idField]) {
             // Removes __isTemp if created
             delete temp.__isTemp
-            Vue.delete(temp, '__isTemp')
+            // Vue. delete(temp, '__isTemp')
           }
         }
       })
@@ -208,7 +219,8 @@ export default function makeServiceMutations() {
         return map
       }, {})
       idsToRemove.forEach(id => {
-        Vue.delete(state.keyedById, id)
+        delete state.keyedById[id]
+        // Vue. delete(state.keyedById, id)
       })
 
       // Get indexes to remove from the ids array.
@@ -231,7 +243,8 @@ export default function makeServiceMutations() {
         }
       )
       indexesInReverseOrder.forEach(indexInIdsArray => {
-        Vue.delete(state.ids, indexInIdsArray)
+        delete state.ids[indexInIdsArray]
+        // Vue. delete(state.ids, indexInIdsArray)
       })
     },
 
@@ -332,13 +345,16 @@ export default function makeServiceMutations() {
       )
 
       if (!state.pagination[qid]) {
-        Vue.set(state.pagination, qid, {})
+        state.pagination.qid = {}
+        // Vue. set(state.pagination, qid, {})
       }
       if (!query.hasOwnProperty('$limit') && response.hasOwnProperty('limit')) {
-        Vue.set(state.pagination, 'defaultLimit', response.limit)
+        state.pagination.defaultLimit = reponse.limit
+        // Vue. set(state.pagination, 'defaultLimit', response.limit)
       }
       if (!query.hasOwnProperty('$skip') && response.hasOwnProperty('skip')) {
-        Vue.set(state.pagination, 'defaultSkip', response.skip)
+        state.pagination.defaultSkip = reponse.skip
+        // Vue. set(state.pagination, 'defaultSkip', response.skip)
       }
 
       const mostRecent = {
@@ -367,7 +383,8 @@ export default function makeServiceMutations() {
 
       const newState = Object.assign({}, state.pagination[qid], qidData)
 
-      Vue.set(state.pagination, qid, newState)
+      state.pagination.qid = newState
+      // Vue. set(state.pagination, qid, newState)
     },
 
     setPending(state, method: string): void {

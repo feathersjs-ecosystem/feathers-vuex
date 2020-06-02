@@ -5,7 +5,7 @@ eslint
 @typescript-eslint/no-empty-function: 0
 */
 import Vue from 'vue'
-import VueCompositionApi from '@vue/composition-api'
+import VueCompositionApi from 'vue'
 Vue.use(VueCompositionApi)
 
 import jsdom from 'jsdom-global'
@@ -17,7 +17,7 @@ import memory from 'feathers-memory'
 import Vuex from 'vuex'
 import { mount, shallowMount } from '@vue/test-utils'
 import InstrumentComponent from './InstrumentComponent'
-import { computed, isRef } from '@vue/composition-api'
+import { computed, isRef } from 'vue'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -76,8 +76,8 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe('use/get', function() {
-  it('returns correct default data', function() {
+describe('use/get', function () {
+  it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
     const id = 1
@@ -115,7 +115,7 @@ describe('use/get', function() {
     assert(item.value === null)
   })
 
-  it('allows passing {lazy:true} to not query immediately', function() {
+  it('allows passing {lazy:true} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const id = 1
@@ -126,7 +126,7 @@ describe('use/get', function() {
     assert(hasBeenRequested.value === false)
   })
 
-  it('id can return null id to prevent the query', function() {
+  it('id can return null id to prevent the query', function () {
     const { Instrument } = makeContext()
 
     const id = null
@@ -137,7 +137,7 @@ describe('use/get', function() {
     assert(hasBeenRequested.value === false)
   })
 
-  it('allows using `local: true` to prevent API calls from being made', function() {
+  it('allows using `local: true` to prevent API calls from being made', function () {
     const { Instrument } = makeContext()
 
     const id = 1

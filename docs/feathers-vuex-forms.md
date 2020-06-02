@@ -346,7 +346,7 @@ Here's the full example, complete with TailwindCSS styles.
 import { XSelect } from '@rovit/x-select'
 import PermissionSelect from '../PermissionSelect/PermissionSelect'
 import { models, useFind } from 'feathers-vuex'
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref } from 'vue'
 import keyBy from 'lodash/keyBy'
 import capitalize from 'voca/capitalize'
 import useVuelidate from '@vuelidate/core'

@@ -108,7 +108,7 @@
     "lib": "lib"
   },
   "peerDependencies": {
-    "@vue/composition-api": "^0.5.0"
+    "vue": "^3.0.0-beta.14"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^4.5.2",
@@ -126,12 +126,6 @@
     "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
-    "lodash.isobject": "^3.0.2",
-    "lodash.isplainobject": "^4.0.6",
-    "lodash.merge": "^4.6.2",
-    "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0",
-    "lodash.trim": "^4.5.1",
     "serialize-error": "^5.0.0",
     "sift": "^9.0.4"
   },
@@ -146,7 +140,6 @@
     "@types/mocha": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
-    "@vue/composition-api": "^0.5.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
     "@vue/test-utils": "^1.0.2",
@@ -183,7 +176,7 @@
     "testee": "^0.9.1",
     "ts-node": "^8.10.1",
     "typescript": "^3.8.3",
-    "vue": "^2.6.11",
+    "vue": "^3.0.0-beta.14",
     "vue-server-renderer": "^2.6.11",
     "vue-template-compiler": "^2.6.11",
     "vuepress": "^1.4.1",

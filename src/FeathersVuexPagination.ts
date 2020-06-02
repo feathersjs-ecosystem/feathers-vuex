@@ -1,4 +1,4 @@
-import { createElement, computed, watch } from '@vue/composition-api'
+import { h, computed, watch } from 'vue'
 
 export default {
   name: 'FeathersVuexPagination',
@@ -112,9 +112,9 @@ export default {
           next
         })
       } else {
-        return createElement('div', {}, [
-          createElement('p', `FeathersVuexPagination uses the default slot:`),
-          createElement('p', `#default="{ currentPage, pageCount }"`)
+        return h('div', {}, [
+          h('p', `FeathersVuexPagination uses the default slot:`),
+          h('p', `#default="{ currentPage, pageCount }"`)
         ])
       }
     }

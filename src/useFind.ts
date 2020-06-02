@@ -2,14 +2,7 @@
 eslint
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  computed,
-  isRef,
-  reactive,
-  Ref,
-  toRefs,
-  watch
-} from '@vue/composition-api'
+import { computed, isRef, reactive, Ref, toRefs, watch } from 'vue'
 import debounce from 'lodash/debounce'
 import { getItemsFromQueryInfo, getQueryInfo, Params } from './utils'
 

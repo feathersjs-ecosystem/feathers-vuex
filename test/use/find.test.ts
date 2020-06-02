@@ -5,7 +5,7 @@ eslint
 @typescript-eslint/no-empty-function: 0
 */
 import Vue from 'vue'
-import VueCompositionApi from '@vue/composition-api'
+import VueCompositionApi from 'vue'
 Vue.use(VueCompositionApi)
 
 import jsdom from 'jsdom-global'
@@ -15,7 +15,7 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import useFind from '../../src/useFind'
 import Vuex from 'vuex'
 // import { shallowMount } from '@vue/test-utils'
-import { computed, isRef } from '@vue/composition-api'
+import { computed, isRef } from 'vue'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -43,8 +43,8 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe('use/find', function() {
-  it('returns correct default data', function() {
+describe('use/find', function () {
+  it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -106,7 +106,7 @@ describe('use/find', function() {
     assert(qid.value === 'default')
   })
 
-  it('returns correct default data even when params is not reactive', function() {
+  it('returns correct default data even when params is not reactive', function () {
     const { Instrument } = makeContext()
 
     const instrumentsData = useFind({
@@ -165,7 +165,7 @@ describe('use/find', function() {
     assert(qid.value === 'default')
   })
 
-  it('allows passing {lazy:true} to not query immediately', function() {
+  it('allows passing {lazy:true} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -185,7 +185,7 @@ describe('use/find', function() {
     assert(haveBeenRequested.value === false)
   })
 
-  it('params can return null to prevent the query', function() {
+  it('params can return null to prevent the query', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -202,7 +202,7 @@ describe('use/find', function() {
     assert(haveBeenRequested.value === false)
   })
 
-  it('allows using `local: true` to prevent API calls from being made', function() {
+  it('allows using `local: true` to prevent API calls from being made', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
