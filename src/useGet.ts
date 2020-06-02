@@ -39,7 +39,7 @@ export default function get(options: UseGetOptions): UseGetData {
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: true
+    lazy: false
   }
   const { model, id, params, queryWhen, local, lazy } = Object.assign(
     {},
@@ -105,24 +105,15 @@ export default function get(options: UseGetOptions): UseGetData {
     }
   }
 
-  watch(
+  watch([
     () => getId(),
-    id => {
-      get(id, getParams())
-    },
-    { lazy }
-  )
-  watch(
     () => getParams(),
-    params => {
-      get(getId(), params)
+  ],
+    ([id, params]) => {
+      get(id as string | number, params as Params)
     },
     { lazy }
   )
-
-  if (lazy) {
-    get(id, getParams())
-  }
 
   return {
     servicePath,

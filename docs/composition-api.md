@@ -281,7 +281,7 @@ And here's a look at each individual property:
 - `params` is a FeathersJS Params object OR a Composition API `ref` (or `computed`, since they return a `ref` instance) which returns a Params object.
   - Unlike the `useFind` utility, `useGet` does not currently have built-in debouncing.
 - `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests apart from `null` in the `id`.
-- `lazy`, which is `true` by default, determines if the internal `watch` should fire immediately.  By default a single query will be performed, independent of the watchers.  Set `lazy: false` and the watchers on the `id` and `params` will fire immediately (currently this will cause duplicate queries to be performed, so it's not recommended).
+- `lazy`, which is `false` by default, determines if the internal `watch` should fire immediately.  Set `lazy: true` and the query will not fire immediately.  It will only fire on subsequent changes to the `id` or `params`.
 
 ### Returned Attributes
 
