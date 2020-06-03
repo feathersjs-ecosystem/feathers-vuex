@@ -43,9 +43,7 @@ const defaults: FeathersVuexOptions = {
 
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {
-    throw new Error(
-      'The first argument to feathersVuex must be a feathers client.'
-    )
+    throw new Error('The first argument to feathersVuex must be a feathers client.')
   }
 
   // Setup the event handlers. By default they just return the value of `options.enableEvents`
@@ -57,9 +55,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   options = Object.assign({}, defaults, options)
 
   if (!options.serverAlias) {
-    throw new Error(
-      `You must provide a 'serverAlias' in the options to feathersVuex`
-    )
+    throw new Error(`You must provide a 'serverAlias' in the options to feathersVuex`)
   }
 
   addClient({ client: feathers, serverAlias: options.serverAlias })

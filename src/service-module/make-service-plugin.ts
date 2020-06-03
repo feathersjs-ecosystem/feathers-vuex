@@ -36,9 +36,7 @@ const events = ['created', 'patched', 'updated', 'removed']
  * prepare only wraps the makeServicePlugin to provide the globalOptions.
  * @param globalOptions
  */
-export default function prepareMakeServicePlugin(
-  globalOptions: FeathersVuexOptions
-) {
+export default function prepareMakeServicePlugin(globalOptions: FeathersVuexOptions) {
   const addModel = prepareAddModel(globalOptions)
   /**
    * (1) Make a Vuex plugin for the provided service.
@@ -64,11 +62,7 @@ export default function prepareMakeServicePlugin(
     } = options
 
     if (globalOptions.handleEvents && options.handleEvents) {
-      options.handleEvents = Object.assign(
-        {},
-        globalOptions.handleEvents,
-        options.handleEvents
-      )
+      options.handleEvents = Object.assign({}, globalOptions.handleEvents, options.handleEvents)
     }
 
     events.forEach(eventName => {
@@ -112,9 +106,7 @@ export default function prepareMakeServicePlugin(
         store
       })
       if (!Model.modelName || Model.modelName === 'BaseModel') {
-        throw new Error(
-          'The modelName property is required for Feathers-Vuex Models'
-        )
+        throw new Error('The modelName property is required for Feathers-Vuex Models')
       }
       addModel(Model)
 
