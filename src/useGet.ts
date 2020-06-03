@@ -118,7 +118,7 @@ export default function get<T extends AnyData = AnyData>(options: UseGetOptions<
     () => getParams(),
   ],
     ([id, params]) => {
-      get(id as Id, params as Params)
+      get(id as string | number, params as Params)
     },
     { lazy }
   )
