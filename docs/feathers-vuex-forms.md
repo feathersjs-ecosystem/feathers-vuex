@@ -83,7 +83,7 @@ export default {
     }
   },
   methods: {
-    handleSaveReponse(savedItem) {
+    handleSaveResponse(savedItem) {
       console.log(savedItem) // The item returned from the API call
     }
   }
@@ -129,7 +129,7 @@ export default {
     isModalVisible: true
   }),
   methods: {
-    handleSaveReponse(savedItem) {
+    handleSaveResponse(savedItem) {
       console.log(savedItem) // The item returned from the API call
     }
   }
@@ -223,7 +223,7 @@ export default {
     }
   },
   methods: {
-    handleSaveReponse(savedTodo) {
+    handleSaveResponse(savedTodo) {
       // Redirect to the newly-saved item
       if (this.id === 'new') {
         this.$router.push({ params: { id: savedTodo._id } })
