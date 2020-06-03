@@ -3,7 +3,7 @@
   "files.trimTrailingWhitespace": true,
   "jshint.enable": false,
   "semistandard.enable": false,
-  "standard.enable": true,
+  "standard.enable": false,
   "search.exclude": {
     "lib/**": true,
     "**/node_modules": true,
