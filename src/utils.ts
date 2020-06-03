@@ -47,9 +47,7 @@ export function stripSlashes(location: string) {
 export function setByDot(obj, path, value, ifDelete?) {
   if (ifDelete) {
     // eslint-disable-next-line no-console
-    console.log(
-      'DEPRECATED. Use deleteByDot instead of setByDot(obj,path,value,true). (setByDot)'
-    )
+    console.log('DEPRECATED. Use deleteByDot instead of setByDot(obj,path,value,true). (setByDot)')
   }
 
   if (path.indexOf('.') === -1) {
@@ -124,9 +122,8 @@ export function payloadIsValid(payload) {
 
 // from https://github.com/iliakan/detect-node
 export const isNode =
-  Object.prototype.toString.call(
-    typeof process !== 'undefined' ? process : 0
-  ) === '[object process]'
+  Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) ===
+  '[object process]'
 
 export const isBrowser = !isNode
 
@@ -157,14 +154,10 @@ export const initAuth = function initAuth(options) {
   )
 
   if (typeof commit !== 'function') {
-    throw new Error(
-      'You must pass the `commit` function in the `initAuth` function options.'
-    )
+    throw new Error('You must pass the `commit` function in the `initAuth` function options.')
   }
   if (!req) {
-    throw new Error(
-      'You must pass the `req` object in the `initAuth` function options.'
-    )
+    throw new Error('You must pass the `req` object in the `initAuth` function options.')
   }
 
   const accessToken = readCookie(req.headers.cookie, cookieName)
@@ -174,9 +167,7 @@ export const initAuth = function initAuth(options) {
     commit(`${moduleName}/setAccessToken`, accessToken)
     commit(`${moduleName}/setPayload`, payload)
     if (feathersClient) {
-      return feathersClient.authentication
-        .setAccessToken(accessToken)
-        .then(() => payload)
+      return feathersClient.authentication.setAccessToken(accessToken).then(() => payload)
     }
   }
   return Promise.resolve(payload)
@@ -304,11 +295,7 @@ export function updateOriginal(original, newData) {
       shouldCopyProp = true
     } else if (_isObject(oldProp)) {
       shouldCopyProp = true
-    } else if (
-      oldProp !== newProp &&
-      !Array.isArray(oldProp) &&
-      !Array.isArray(newProp)
-    ) {
+    } else if (oldProp !== newProp && !Array.isArray(oldProp) && !Array.isArray(newProp)) {
       shouldCopyProp = true
     }
 
@@ -329,13 +316,8 @@ export function getQueryInfo(
   const query = params.query || {}
   const qid: string = params.qid || 'default'
   const $limit =
-    response.limit !== null && response.limit !== undefined
-      ? response.limit
-      : query.$limit
-  const $skip =
-    response.skip !== null && response.skip !== undefined
-      ? response.skip
-      : query.$skip
+    response.limit !== null && response.limit !== undefined ? response.limit : query.$limit
+  const $skip = response.skip !== null && response.skip !== undefined ? response.skip : query.$skip
 
   const queryParams = _omit(query, ['$limit', '$skip'])
   const queryId = stringify(queryParams)
@@ -393,8 +375,7 @@ export function getServicePath(service: Service<any>, Model: any) {
 
 export function randomString(length) {
   let text = ''
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
   for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length))
@@ -419,11 +400,7 @@ export function isBaseModelInstance(item) {
   })
 }
 
-export function mergeWithAccessors(
-  dest,
-  source,
-  blacklist = ['__isClone', '__ob__']
-) {
+export function mergeWithAccessors(dest, source, blacklist = ['__isClone', '__ob__']) {
   const sourceProps = Object.getOwnPropertyNames(source)
   const destProps = Object.getOwnPropertyNames(dest)
   const sourceIsVueObservable = sourceProps.includes('__ob__')
@@ -454,10 +431,7 @@ export function mergeWithAccessors(
     if (destIsVueObservable || sourceIsVueObservable) {
       const isObject = _isObject(source[key])
       const isFeathersVuexInstance =
-        isObject &&
-        !!(
-          source[key].constructor.modelName || source[key].constructor.namespace
-        )
+        isObject && !!(source[key].constructor.modelName || source[key].constructor.namespace)
       // Do not use fastCopy directly on a feathers-vuex BaseModel instance to keep from breaking reactivity.
       if (isObject && !isFeathersVuexInstance) {
         try {
@@ -480,10 +454,7 @@ export function mergeWithAccessors(
     }
 
     // Handle defining accessors
-    if (
-      typeof sourceDesc.get === 'function' ||
-      typeof sourceDesc.set === 'function'
-    ) {
+    if (typeof sourceDesc.get === 'function' || typeof sourceDesc.set === 'function') {
       Object.defineProperty(dest, key, sourceDesc)
       return
     }

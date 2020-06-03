@@ -50,7 +50,7 @@ export default function makeServiceActions(service: Service<any>) {
         commit('setPending', 'get')
         return service
           .get(id, params)
-          .then(async function(item) {
+          .then(async function (item) {
             dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
@@ -134,7 +134,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       return service
         .update(id, data, params)
-        .then(async function(item) {
+        .then(async function (item) {
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
@@ -164,7 +164,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       return service
         .patch(id, data, params)
-        .then(async function(item) {
+        .then(async function (item) {
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
@@ -216,10 +216,7 @@ export default function makeServiceActions(service: Service<any>) {
      *         Feathers client.  The client modifies the params object.
      *   @param response
      */
-    async handleFindResponse(
-      { state, commit, dispatch },
-      { params, response }
-    ) {
+    async handleFindResponse({ state, commit, dispatch }, { params, response }) {
       const { qid = 'default', query } = params
       const { idField } = state
 
@@ -233,16 +230,13 @@ export default function makeServiceActions(service: Service<any>) {
       }
 
       // The pagination data will be under `pagination.default` or whatever qid is passed.
-      response.data &&
-        commit('updatePaginationForQuery', { qid, response, query })
+      response.data && commit('updatePaginationForQuery', { qid, response, query })
 
       // Swap out the response records for their Vue-observable store versions
       const data = response.data || response
       const mappedFromState = data.map(mapItemFromState)
       if (mappedFromState[0] !== undefined) {
-        response.data
-          ? (response.data = mappedFromState)
-          : (response = mappedFromState)
+        response.data ? (response.data = mappedFromState) : (response = mappedFromState)
       }
 
       response = await dispatch('afterFind', response)
@@ -280,10 +274,7 @@ export default function makeServiceActions(service: Service<any>) {
       if (!isPaginated && autoRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
-          if (
-            id !== state.currentId &&
-            !list.some(item => getId(item, idField) === id)
-          ) {
+          if (id !== state.currentId && !list.some(item => getId(item, idField) === id)) {
             toRemove.push(state.keyedById[id])
           }
         })
@@ -315,10 +306,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       const isIdOk = id !== null && id !== undefined
 
-      if (
-        service.FeathersVuexModel &&
-        !(item instanceof service.FeathersVuexModel)
-      ) {
+      if (service.FeathersVuexModel && !(item instanceof service.FeathersVuexModel)) {
         item = new service.FeathersVuexModel(item, { commit: false })
       }
 

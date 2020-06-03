@@ -1,9 +1,5 @@
 import { assert } from 'chai'
 import * as feathersVuex from '../src/index'
-import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
 
 describe('feathers-vuex', () => {
   it('has correct exports', () => {
@@ -22,16 +18,11 @@ describe('feathers-vuex', () => {
 
   it('requires a Feathers Client instance', () => {
     try {
-      feathersVuex.default(
-        {},
-        {
-          serverAlias: 'index-test'
-        }
-      )
+      feathersVuex.default({}, { serverAlias: 'index-test' })
     } catch (error) {
-      assert(
-        error.message ===
-          'The first argument to feathersVuex must be a feathers client.'
+      assert.equal(
+        error.message,
+        'The first argument to feathersVuex must be a feathers client.'
       )
     }
   })

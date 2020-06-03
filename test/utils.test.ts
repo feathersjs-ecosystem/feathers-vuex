@@ -12,26 +12,27 @@ import {
 } from '../src/utils'
 import feathersVuex from '../src/index'
 import { feathersSocketioClient as feathersClient } from './fixtures/feathers-client'
-import Vue from 'vue'
+// import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
+// Vue.use(Vuex)
 
 interface RootState {
-  auth: AuthState,
+  auth: AuthState
   users: ServiceState
 }
 
-describe('Utils', function() {
-  before(function() {
-    const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
-      feathersClient,
-      { serverAlias: 'utils' }
-    )
+describe('Utils', function () {
+  before(function () {
+    const {
+      makeServicePlugin,
+      makeAuthPlugin,
+      BaseModel
+    } = feathersVuex(feathersClient, { serverAlias: 'utils' })
 
     class User extends BaseModel {
       public static modelName = 'User'
-      public static test: boolean = true
+      public static test = true
     }
 
     Object.assign(this, {
@@ -41,7 +42,7 @@ describe('Utils', function() {
       User
     })
   })
-  it('properly populates auth', function() {
+  it('properly populates auth', function () {
     const store = new Vuex.Store<RootState>({
       plugins: [
         this.makeServicePlugin({
@@ -79,15 +80,16 @@ describe('Utils', function() {
       })
   })
 
-  it('properly hydrate SSR store', function() {
-    const { makeServicePlugin, BaseModel, models } = feathersVuex(
-      feathersClient,
-      { serverAlias: 'hydrate' }
-    )
+  it('properly hydrate SSR store', function () {
+    const {
+      makeServicePlugin,
+      BaseModel,
+      models
+    } = feathersVuex(feathersClient, { serverAlias: 'hydrate' })
 
     class User extends BaseModel {
       public static modelName = 'User'
-      public static test: boolean = true
+      public static test = true
     }
 
     const store = new Vuex.Store<RootState>({
@@ -97,7 +99,7 @@ describe('Utils', function() {
           servicePath: 'users',
           service: feathersClient.service('users'),
           mutations: {
-            addServerItem (state) {
+            addServerItem(state) {
               state.keyedById['abcdefg'] = { id: 'abcdefg', name: 'Guzz' }
             }
           }
@@ -106,13 +108,19 @@ describe('Utils', function() {
     })
     store.commit('users/addServerItem')
     assert(store.state.users.keyedById['abcdefg'], 'server document added')
-    assert(store.state.users.keyedById['abcdefg'] instanceof Object, 'server document is pure javascript object')
+    assert(
+      store.state.users.keyedById['abcdefg'] instanceof Object,
+      'server document is pure javascript object'
+    )
     hydrateApi({ api: models.hydrate })
-    assert(store.state.users.keyedById['abcdefg'] instanceof User, 'document hydrated')
+    assert(
+      store.state.users.keyedById['abcdefg'] instanceof User,
+      'document hydrated'
+    )
   })
 
-  describe('Inflections', function() {
-    it('properly inflects the service prefix', function() {
+  describe('Inflections', function () {
+    it('properly inflects the service prefix', function () {
       const decisionTable = [
         ['todos', 'todos'],
         ['TODOS', 'tODOS'],
@@ -131,7 +139,7 @@ describe('Utils', function() {
       })
     })
 
-    it('properly inflects the service capitalization', function() {
+    it('properly inflects the service capitalization', function () {
       const decisionTable = [
         ['todos', 'Todos'],
         ['TODOS', 'TODOS'],
@@ -162,8 +170,8 @@ describe('Utils', function() {
   })
 })
 
-describe('Pagination', function() {
-  it('getQueryInfo', function() {
+describe('Pagination', function () {
+  it('getQueryInfo', function () {
     const params = {
       qid: 'main-list',
       query: {
@@ -204,7 +212,7 @@ describe('Pagination', function() {
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 
-  it('getQueryInfo no limit or skip', function() {
+  it('getQueryInfo no limit or skip', function () {
     const params = {
       qid: 'main-list',
       query: {

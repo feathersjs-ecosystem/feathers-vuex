@@ -4,18 +4,17 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import feathersVuex from '../../src/index'
 
 interface RootState {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   todos: any
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function makeContext() {
   const todoService = feathersClient.service('todos')
   const serverAlias = 'reinitialization'
-  const { makeServicePlugin, BaseModel, models } = feathersVuex(
-    feathersClient,
-    {
-      serverAlias
-    }
-  )
+  const { makeServicePlugin, BaseModel, models } = feathersVuex(feathersClient, {
+    serverAlias
+  })
   class Todo extends BaseModel {
     public static modelName = 'Todo'
   }
@@ -29,20 +28,14 @@ function makeContext() {
   }
 }
 
-describe('Service Module - Reinitialization', function() {
+describe('Service Module - Reinitialization', function () {
   /**
    * Tests that when the make service plugin is reinitialized state
    * is reset in the vuex module/model.
    * This prevents state pollution in SSR setups.
    */
-  it('does not preserve module/model state when reinitialized', function() {
-    const {
-      makeServicePlugin,
-      todoService,
-      Todo,
-      models,
-      serverAlias
-    } = makeContext()
+  it('does not preserve module/model state when reinitialized', function () {
+    const { makeServicePlugin, todoService, Todo, models, serverAlias } = makeContext()
     const todosPlugin = makeServicePlugin({
       servicePath: 'todos',
       Model: Todo,
@@ -92,11 +85,7 @@ describe('Service Module - Reinitialization', function() {
       whitelist: []
     }
 
-    assert.deepEqual(
-      todoState,
-      virginState,
-      'vuex module state is correct on first initialization'
-    )
+    assert.deepEqual(todoState, virginState, 'vuex module state is correct on first initialization')
     assert.deepEqual(
       models[serverAlias][Todo.name].store.state[Todo.namespace],
       todoState,
@@ -112,11 +101,7 @@ describe('Service Module - Reinitialization', function() {
     store.commit('todos/addItem', todo)
     const serviceTodo = store.state['todos'].keyedById[1]
 
-    assert.equal(
-      todo.testProp,
-      serviceTodo.testProp,
-      'todo is added to the store'
-    )
+    assert.equal(todo.testProp, serviceTodo.testProp, 'todo is added to the store')
 
     assert.deepEqual(
       models[serverAlias][Todo.name].store.state[Todo.namespace],

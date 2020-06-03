@@ -3,19 +3,14 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import Vue from 'vue'
+import { reactive, isReactive } from 'vue'
 import { serializeError } from 'serialize-error'
-import {
-  updateOriginal,
-  mergeWithAccessors,
-  assignTempId,
-  getId,
-  getQueryInfo
-} from '../utils'
+import { updateOriginal, mergeWithAccessors, assignTempId, getId, getQueryInfo } from '../utils'
 import { globalModels as models } from './global-models'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
+import fastCopy from 'fast-copy'
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -86,11 +81,7 @@ export default function makeServiceMutations() {
              *
              * If there's no Model class, just call updateOriginal on the incoming data.
              */
-            if (
-              Model &&
-              !(item instanceof BaseModel) &&
-              !(item instanceof Model)
-            ) {
+            if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
               item = new Model(item)
             } else {
               const original = state.keyedById[id]
@@ -109,21 +100,11 @@ export default function makeServiceMutations() {
     }
   }
 
-  function mergeInstance(state, item) {
-    const { serverAlias, idField, tempIdField, modelName } = state
-    const id = getId(item, idField)
-    const existingItem = state.keyedById[id]
-    if (existingItem) {
-      mergeWithAccessors(existingItem, item)
-    }
-  }
-
   function merge(state, { dest, source }) {
-    mergeWithAccessors(dest, source)
+    Object.assign(dest, source)
   }
 
   return {
-    mergeInstance,
     merge,
     addItem(state, item) {
       addItems(state, [item])
@@ -134,9 +115,7 @@ export default function makeServiceMutations() {
     },
     updateItems(state, items) {
       if (!Array.isArray(items)) {
-        throw new Error(
-          'You must provide an array to the `updateItems` mutation.'
-        )
+        throw new Error('You must provide an array to the `updateItems` mutation.')
       }
       updateItems(state, items)
     },
@@ -152,13 +131,10 @@ export default function makeServiceMutations() {
 
         delete state.tempsById[tempId]
         delete temp.__isTemp
-        // Vue. delete(state.tempsById, tempId)
-        // Vue. delete(temp, '__isTemp')
 
         // If an item already exists in the store from the `created` event firing
         // it will be replaced here
         state.keyedById[id] = temp
-        // Vue. set(state.keyedById, id, temp)
       }
 
       // Add _id to temp's clone as well if it exists
@@ -168,7 +144,6 @@ export default function makeServiceMutations() {
         tempClone[state.idField] = id
         Model.copiesById[id] = tempClone
         delete tempClone.__isTemp
-        // Vue. delete(tempClone, '__isTemp')
       }
     },
 
@@ -179,10 +154,8 @@ export default function makeServiceMutations() {
       const index = state.ids.findIndex(i => i === idToBeRemoved)
 
       if (isIdOk && index !== null && index !== undefined) {
-        delete state.ids[index]
+        state.ids.splice(index, 1)
         delete state.keyedById[idToBeRemoved]
-        // Vue. delete(state.ids, index)
-        // Vue. delete(state.keyedById, idToBeRemoved)
       }
     },
 
@@ -194,7 +167,6 @@ export default function makeServiceMutations() {
           if (temp[state.idField]) {
             // Removes __isTemp if created
             delete temp.__isTemp
-            // Vue. delete(temp, '__isTemp')
           }
         }
       })
@@ -205,15 +177,11 @@ export default function makeServiceMutations() {
       const { idField } = state
 
       if (!Array.isArray(items)) {
-        throw new Error(
-          'You must provide an array to the `removeItems` mutation.'
-        )
+        throw new Error('You must provide an array to the `removeItems` mutation.')
       }
       // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && _isObject(items[0])
-      const idsToRemove = containsObjects
-        ? items.map(item => getId(item, idField))
-        : items
+      const idsToRemove = containsObjects ? items.map(item => getId(item, idField)) : items
       const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
         map[id] = true
         return map
@@ -231,20 +199,17 @@ export default function makeServiceMutations() {
         return map
       }, {})
       // Remove highest indexes first, so the indexes don't change
-      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort(
-        (a, b) => {
-          if (a < b) {
-            return 1
-          } else if (a > b) {
-            return -1
-          } else {
-            return 0
-          }
+      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort((a, b) => {
+        if (a < b) {
+          return 1
+        } else if (a > b) {
+          return -1
+        } else {
+          return 0
         }
-      )
-      indexesInReverseOrder.forEach(indexInIdsArray => {
-        delete state.ids[indexInIdsArray]
-        // Vue. delete(state.ids, indexInIdsArray)
+      })
+      indexesInReverseOrder.forEach(index => {
+        state.ids.splice(index, 1)
       })
     },
 
@@ -257,27 +222,15 @@ export default function makeServiceMutations() {
     createCopy(state, id) {
       const { servicePath, keepCopiesInStore, serverAlias } = state
       const current = state.keyedById[id] || state.tempsById[id]
-      const Model = _get(
-        models,
-        `[${serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, `[${serverAlias}].byServicePath[${servicePath}]`)
+      let item = Model ? new Model(current, { clone: true }) : mergeWithAccessors({}, current)
 
-      if (Model) {
-        var model = new Model(current, { clone: true })
-      } else {
-        var copyData = mergeWithAccessors({}, current)
-      }
-
-      let item = model || copyData
       if (keepCopiesInStore) {
         state.copiesById[id] = item
       } else {
         // Since it won't be added to the store, make it a Vue object
-        if (!item.hasOwnProperty('__ob__')) {
-          item = Vue.observable(item)
-        }
-        if (!Model.hasOwnProperty('copiesById')) {
-          Object.defineProperty(Model, 'copiesById', { value: {} })
+        if (!isReactive(item)) {
+          item = reactive(item)
         }
         Model.copiesById[id] = item
       }
@@ -286,19 +239,13 @@ export default function makeServiceMutations() {
     // Resets the copy to match the original record, locally
     resetCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(
-        models,
-        `[${state.serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, `[${state.serverAlias}].byServicePath[${servicePath}]`)
       const copy = keepCopiesInStore
         ? state.copiesById[id]
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original =
-          copy[state.idField] != null
-            ? state.keyedById[id]
-            : state.tempsById[id]
+        const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
         mergeWithAccessors(copy, original)
       }
     },
@@ -306,19 +253,13 @@ export default function makeServiceMutations() {
     // Deep assigns copy to original record, locally
     commitCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(
-        models,
-        `[${state.serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, `[${state.serverAlias}].byServicePath[${servicePath}]`)
       const copy = keepCopiesInStore
         ? state.copiesById[id]
         : Model && _get(Model, `copiesById[${id}]`)
 
       if (copy) {
-        const original =
-          copy[state.idField] != null
-            ? state.keyedById[id]
-            : state.tempsById[id]
+        const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
         mergeWithAccessors(original, copy)
       }
     },
@@ -339,22 +280,16 @@ export default function makeServiceMutations() {
       const { idField } = state
       const ids = data.map(i => i[idField])
       const queriedAt = new Date().getTime()
-      const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
-        { qid, query },
-        response
-      )
+      const { queryId, queryParams, pageId, pageParams } = getQueryInfo({ qid, query }, response)
 
       if (!state.pagination[qid]) {
-        state.pagination.qid = {}
-        // Vue. set(state.pagination, qid, {})
+        state.pagination[qid] = {}
       }
       if (!query.hasOwnProperty('$limit') && response.hasOwnProperty('limit')) {
-        state.pagination.defaultLimit = reponse.limit
-        // Vue. set(state.pagination, 'defaultLimit', response.limit)
+        state.pagination.defaultLimit = response.limit
       }
       if (!query.hasOwnProperty('$skip') && response.hasOwnProperty('skip')) {
-        state.pagination.defaultSkip = reponse.skip
-        // Vue. set(state.pagination, 'defaultSkip', response.skip)
+        state.pagination.defaultSkip = response.skip
       }
 
       const mostRecent = {
@@ -383,7 +318,7 @@ export default function makeServiceMutations() {
 
       const newState = Object.assign({}, state.pagination[qid], qidData)
 
-      state.pagination.qid = newState
+      state.pagination[qid] = newState
       // Vue. set(state.pagination, qid, newState)
     },
 
@@ -399,10 +334,7 @@ export default function makeServiceMutations() {
     setError(state, payload: { method: string; error: Error }): void {
       const { method, error } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
-      state[`errorOn${uppercaseMethod}`] = Object.assign(
-        {},
-        serializeError(error)
-      )
+      state[`errorOn${uppercaseMethod}`] = Object.assign({}, serializeError(error))
     },
     clearError(state, method: string): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)

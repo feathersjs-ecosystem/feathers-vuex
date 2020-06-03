@@ -46,10 +46,7 @@ describe('TypeScript Class Inheritance', () => {
       test: true
     })
 
-    assert(
-      todo.description === 'default description',
-      'got default description'
-    )
+    assert(todo.description === 'default description', 'got default description')
   })
 
   it('Can access static instanceDefaults from two levels of inheritance', () => {
@@ -92,10 +89,7 @@ describe('TypeScript Class Inheritance', () => {
       test: true
     })
 
-    assert(
-      todo.description === 'default description',
-      'got default description'
-    )
+    assert(todo.description === 'default description', 'got default description')
   })
 
   it('Can access static servicePath from Todo in BaseModel', () => {
@@ -105,8 +99,7 @@ describe('TypeScript Class Inheritance', () => {
       public static namespace
 
       public constructor(data, options?) {
-        const { instanceDefaults, servicePath, namespace } = this
-          .constructor as typeof BaseModel
+        const { instanceDefaults, servicePath, namespace } = this.constructor as typeof BaseModel
         const defaults = instanceDefaults(data, options)
         assert(
           defaults.description === 'default description',
@@ -120,8 +113,8 @@ describe('TypeScript Class Inheritance', () => {
 
     class Todo extends BaseModel {
       public static modelName = 'Todo'
-      public static namespace: string = 'todos'
-      public static servicePath: string = 'v1/todos'
+      public static namespace = 'todos'
+      public static servicePath = 'v1/todos'
 
       public description: string
       public _options

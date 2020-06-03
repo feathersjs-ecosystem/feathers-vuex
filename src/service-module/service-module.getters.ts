@@ -32,9 +32,7 @@ export default function makeServiceGetters() {
 
       const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
-      const customOperators = Object.keys(q).filter(
-        k => k[0] === '$' && !defaultOps.includes(k)
-      )
+      const customOperators = Object.keys(q).filter(k => k[0] === '$' && !defaultOps.includes(k))
       const cleanQuery = _omit(q, customOperators)
 
       const { query, filters } = filterQuery(cleanQuery, {
@@ -73,16 +71,12 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    get: ({ keyedById, tempsById, idField, tempIdField }) => (
-      id,
-      params = {}
-    ) => {
+    get: ({ keyedById, tempsById, idField, tempIdField }) => (id, params = {}) => {
       const record = keyedById[id] && select(params, idField)(keyedById[id])
       if (record) {
         return record
       }
-      const tempRecord =
-        tempsById[id] && select(params, tempIdField)(tempsById[id])
+      const tempRecord = tempsById[id] && select(params, tempIdField)(tempsById[id])
 
       return tempRecord || null
     },
@@ -92,10 +86,7 @@ export default function makeServiceGetters() {
       if (keepCopiesInStore) {
         return state.copiesById[id]
       } else {
-        const Model = _get(
-          models,
-          `[${serverAlias}].byServicePath[${servicePath}]`
-        )
+        const Model = _get(models, `[${serverAlias}].byServicePath[${servicePath}]`)
 
         return Model.copiesById[id]
       }

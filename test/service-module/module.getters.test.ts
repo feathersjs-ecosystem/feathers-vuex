@@ -7,10 +7,7 @@ import { assert } from 'chai'
 import makeServiceGetters from '../../src/service-module/service-module.getters'
 import makeServiceMutations from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
-import {
-  globalModels,
-  clearModels
-} from '../../src/service-module/global-models'
+import { globalModels, clearModels } from '../../src/service-module/global-models'
 
 const options = {
   idField: '_id',
@@ -24,8 +21,8 @@ const options = {
 const { find, list, get, getCopyById } = makeServiceGetters()
 const { addItems } = makeServiceMutations()
 
-describe('Service Module - Getters', function() {
-  beforeEach(function() {
+describe('Service Module - Getters', function () {
+  beforeEach(function () {
     const state = makeServiceState(options)
     this.items = [
       {
@@ -63,7 +60,7 @@ describe('Service Module - Getters', function() {
     this.state = state
   })
 
-  it('list', function() {
+  it('list', function () {
     const { state, items } = this
     const results = list(state)
 
@@ -74,7 +71,7 @@ describe('Service Module - Getters', function() {
     })
   })
 
-  it('getCopyById with keepCopiesInStore: true', function() {
+  it('getCopyById with keepCopiesInStore: true', function () {
     const state = {
       keepCopiesInStore: true,
       copiesById: {
@@ -88,7 +85,7 @@ describe('Service Module - Getters', function() {
     assert(result.test, 'got the copy')
   })
 
-  it('getCopyById with keepCopiesInStore: false', function() {
+  it('getCopyById with keepCopiesInStore: false', function () {
     const state = {
       keepCopiesInStore: false,
       servicePath: 'todos',
@@ -117,7 +114,7 @@ describe('Service Module - Getters', function() {
     clearModels()
   })
 
-  it('get works on keyedById', function() {
+  it('get works on keyedById', function () {
     const { state, items } = this
     // @ts-ignore
     const result = get(state)(1)
@@ -126,7 +123,7 @@ describe('Service Module - Getters', function() {
     assert.deepEqual(result, items[0])
   })
 
-  it('get works on tempsById', function() {
+  it('get works on tempsById', function () {
     const { state } = this
     const tempId = Object.keys(state.tempsById)[0]
     // @ts-ignore
@@ -136,7 +133,7 @@ describe('Service Module - Getters', function() {
     assert(result.__id === tempId)
   })
 
-  it('find - no temps by default', function() {
+  it('find - no temps by default', function () {
     const { state, items } = this
     const params = { query: {} }
     const results = find(state)(params)
@@ -151,7 +148,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with temps', function() {
+  it('find with temps', function () {
     const { state, items } = this
     // Set temps: false to skip the temps.
     const params = { query: {}, temps: true }
@@ -163,7 +160,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 4, 'total was correct')
   })
 
-  it('find with query', function() {
+  it('find with query', function () {
     const { state } = this
     const params = { query: { test: false } }
     const results = find(state)(params)
@@ -175,7 +172,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with custom operator', function() {
+  it('find with custom operator', function () {
     const { state } = this
     const params = { query: { test: false, $populateQuery: 'test' } }
     const results = find(state)(params)
@@ -187,7 +184,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with paramsForServer option', function() {
+  it('find with paramsForServer option', function () {
     const { state } = this
     state.paramsForServer = ['_$client']
     const params = { query: { test: false, _$client: 'test' } }
@@ -200,7 +197,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with non-whitelisted custom operator fails', function() {
+  it('find with non-whitelisted custom operator fails', function () {
     const { state } = this
     const params = { query: { $client: 'test' } }
     let results
@@ -212,7 +209,7 @@ describe('Service Module - Getters', function() {
     assert(!results[0])
   })
 
-  it('find with whitelisted custom operators', function() {
+  it('find with whitelisted custom operators', function () {
     const { state } = this
     state.whitelist = ['$regex', '$options']
     const query = {
@@ -232,7 +229,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find works with $elemMatch', function() {
+  it('find works with $elemMatch', function () {
     const { state } = this
     const query = {
       movies: {
@@ -249,7 +246,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 1, 'total was correct')
   })
 
-  it('find with limit', function() {
+  it('find with limit', function () {
     const { state } = this
     const params = { query: { $limit: 1 } }
     const results = find(state)(params)
@@ -261,7 +258,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with skip', function() {
+  it('find with skip', function () {
     const { state } = this
     const params = { query: { $skip: 1 } }
     const results = find(state)(params)
@@ -274,7 +271,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with limit and skip', function() {
+  it('find with limit and skip', function () {
     const { state } = this
     const params = { query: { $limit: 1, $skip: 1 } }
     const results = find(state)(params)
@@ -286,7 +283,7 @@ describe('Service Module - Getters', function() {
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with select', function() {
+  it('find with select', function () {
     const { state } = this
     const params = { query: { $select: ['otherField'] } }
     const results = find(state)(params)
@@ -295,17 +292,13 @@ describe('Service Module - Getters', function() {
     results.data.forEach(result => {
       assert(Object.keys(result).length <= 1, 'only one field was returned')
     })
-    assert.equal(
-      results.data.filter(i => i.otherField).length,
-      3,
-      'three records have the field.'
-    )
+    assert.equal(results.data.filter(i => i.otherField).length, 3, 'three records have the field.')
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
     assert(results.total === 3, 'total was correct')
   })
 
-  it('find with sort ascending on integers', function() {
+  it('find with sort ascending on integers', function () {
     const { state } = this
     const params = {
       query: {
@@ -322,7 +315,7 @@ describe('Service Module - Getters', function() {
       }, 0)
   })
 
-  it('find with sort descending on integers', function() {
+  it('find with sort descending on integers', function () {
     const { state } = this
     const params = {
       query: {
@@ -339,7 +332,7 @@ describe('Service Module - Getters', function() {
       }, 100)
   })
 
-  it('find with sort ascending on floats', function() {
+  it('find with sort ascending on floats', function () {
     const { state } = this
     const params = {
       query: {
@@ -351,15 +344,12 @@ describe('Service Module - Getters', function() {
     results.data
       .map(i => i.teethRemaining)
       .reduce((oldest, current) => {
-        assert(
-          current > oldest,
-          'teethRemaining should have been older than previous'
-        )
+        assert(current > oldest, 'teethRemaining should have been older than previous')
         return current
       }, 0)
   })
 
-  it('find with sort descending on floats', function() {
+  it('find with sort descending on floats', function () {
     const { state } = this
     const params = {
       query: {
@@ -371,10 +361,7 @@ describe('Service Module - Getters', function() {
     results.data
       .map(i => i.teethRemaining)
       .reduce((oldest, current) => {
-        assert(
-          current < oldest,
-          'teethRemaining should have been younger than previous'
-        )
+        assert(current < oldest, 'teethRemaining should have been younger than previous')
         return current
       }, 100)
   })

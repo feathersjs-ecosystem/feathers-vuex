@@ -152,14 +152,8 @@ describe('Service Module - Actions', () => {
           assert(todoState.errorOnFind === null, 'errorOnFind still null')
           assert(todoState.isFindPending === false, 'isFindPending is false')
           const expectedKeyedById: NumberedList = makeStore()
-          const currentKeyedById = JSON.parse(
-            JSON.stringify(todoState.keyedById)
-          )
-          assert.deepEqual(
-            currentKeyedById,
-            expectedKeyedById,
-            'keyedById matches'
-          )
+          const currentKeyedById = JSON.parse(JSON.stringify(todoState.keyedById))
+          assert.deepEqual(currentKeyedById, expectedKeyedById, 'keyedById matches')
 
           assert(
             typeof todoState.keyedById[1].save === 'function',
@@ -189,18 +183,16 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-todos', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $limit: 1 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
-            assert(response.length === 1, 'only one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 0, description: 'Do the first', isComplete: false },
-              'the first record was returned'
-            )
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $limit: 1 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response[0]))
+          assert(response.length === 1, 'only one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 0, description: 'Do the first', isComplete: false },
+            'the first record was returned'
+          )
+          done()
+        })
       })
 
       it('find with $select', done => {
@@ -217,10 +209,7 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('my-todos', ['find'])
 
         actions.find
-          .call(
-            { $store: store },
-            { query: { $limit: 1, $select: ['id', 'description'] } }
-          )
+          .call({ $store: store }, { query: { $limit: 1, $select: ['id', 'description'] } })
           .then(response => {
             const returnedRecord = JSON.parse(JSON.stringify(response[0]))
             assert(response.length === 1, 'only one record was returned')
@@ -246,18 +235,16 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-todos', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $skip: 9 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
-            assert(response.length === 1, 'one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 9, description: 'Do the tenth', isComplete: false },
-              'the tenth record was returned'
-            )
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $skip: 9 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response[0]))
+          assert(response.length === 1, 'one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 9, description: 'Do the tenth', isComplete: false },
+            'the tenth record was returned'
+          )
+          done()
+        })
       })
 
       it('Find with limit and skip', done => {
@@ -273,18 +260,16 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-todos', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response[0]))
-            assert(response.length === 1, 'one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 8, description: 'Do the ninth', isComplete: false },
-              'the ninth record was returned'
-            )
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $limit: 1, $skip: 8 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response[0]))
+          assert(response.length === 1, 'one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 8, description: 'Do the ninth', isComplete: false },
+            'the ninth record was returned'
+          )
+          done()
+        })
       })
     })
 
@@ -302,21 +287,19 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-tasks', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $limit: 1 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
-            assert(response.data.length === 1, 'only one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 0, description: 'Do the first', isComplete: false },
-              'the first record was returned'
-            )
-            assert(response.limit === 1, 'limit was correct')
-            assert(response.skip === 0, 'skip was correct')
-            assert(response.total === 10, 'total was correct')
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $limit: 1 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
+          assert(response.data.length === 1, 'only one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 0, description: 'Do the first', isComplete: false },
+            'the first record was returned'
+          )
+          assert(response.limit === 1, 'limit was correct')
+          assert(response.skip === 0, 'skip was correct')
+          assert(response.total === 10, 'total was correct')
+          done()
+        })
       })
 
       it('find with $select', done => {
@@ -333,10 +316,7 @@ describe('Service Module - Actions', () => {
         const actions = mapActions('my-tasks', ['find'])
 
         actions.find
-          .call(
-            { $store: store },
-            { query: { $limit: 1, $select: ['id', 'description'] } }
-          )
+          .call({ $store: store }, { query: { $limit: 1, $select: ['id', 'description'] } })
           .then(response => {
             const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
             assert(response.data.length === 1, 'only one record was returned')
@@ -365,21 +345,19 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-tasks', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $skip: 9 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
-            assert(response.data.length === 1, 'only one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 9, description: 'Do the tenth', isComplete: false },
-              'the tenth record was returned'
-            )
-            assert(response.limit === 10, 'limit was correct')
-            assert(response.skip === 9, 'skip was correct')
-            assert(response.total === 10, 'total was correct')
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $skip: 9 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
+          assert(response.data.length === 1, 'only one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 9, description: 'Do the tenth', isComplete: false },
+            'the tenth record was returned'
+          )
+          assert(response.limit === 10, 'limit was correct')
+          assert(response.skip === 9, 'skip was correct')
+          assert(response.total === 10, 'total was correct')
+          done()
+        })
       })
 
       it('find with limit and skip', done => {
@@ -395,21 +373,19 @@ describe('Service Module - Actions', () => {
         })
         const actions = mapActions('my-tasks', ['find'])
 
-        actions.find
-          .call({ $store: store }, { query: { $limit: 1, $skip: 8 } })
-          .then(response => {
-            const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
-            assert(response.data.length === 1, 'only one record was returned')
-            assert.deepEqual(
-              returnedRecord,
-              { id: 8, description: 'Do the ninth', isComplete: false },
-              'the ninth record was returned'
-            )
-            assert(response.limit === 1, 'limit was correct')
-            assert(response.skip === 8, 'skip was correct')
-            assert(response.total === 10, 'total was correct')
-            done()
-          })
+        actions.find.call({ $store: store }, { query: { $limit: 1, $skip: 8 } }).then(response => {
+          const returnedRecord = JSON.parse(JSON.stringify(response.data[0]))
+          assert(response.data.length === 1, 'only one record was returned')
+          assert.deepEqual(
+            returnedRecord,
+            { id: 8, description: 'Do the ninth', isComplete: false },
+            'the ninth record was returned'
+          )
+          assert(response.limit === 1, 'limit was correct')
+          assert(response.skip === 8, 'skip was correct')
+          assert(response.total === 10, 'total was correct')
+          done()
+        })
       })
 
       it('adds default pagination data to the store', done => {
@@ -488,10 +464,10 @@ describe('Service Module - Actions', () => {
           .call({ $store: store }, { query: { $limit: 5, $skip: 2 }, qid })
           .then(response => {
             assert(store.state['my-tasks'].pagination[qid])
-            assert.deepEqual(
-              store.state['my-tasks'].pagination[qid].mostRecent.query,
-              { $limit: 5, $skip: 2 }
-            )
+            assert.deepEqual(store.state['my-tasks'].pagination[qid].mostRecent.query, {
+              $limit: 5,
+              $skip: 2
+            })
             done()
           })
       })
@@ -508,21 +484,20 @@ describe('Service Module - Actions', () => {
           ]
         })
         const actions = mapActions('my-tasks', ['find'])
-        const qids = ['component-query-zero', 'component-query-one']
 
         actions.find
-        actions.find
-          .call({ $store: store }, { query: {}, qid: qids[0] })
+          .call({ $store: store }, { query: {}, qid: 'FirstComponent' })
           .then(response =>
-            actions.find.call({ $store: store }, { query: {}, qid: qids[1] })
+            actions.find.call({ $store: store }, { query: {}, qid: 'SecondComponent' })
           )
           .then(response => {
-            qids.forEach(qid => {
-              assert(store.state['my-tasks'].pagination[qid])
-            })
+            const myTasksState = store.state['my-tasks']
+            assert(myTasksState.pagination['FirstComponent'], 'pagination should have custom qid')
+            assert(myTasksState.pagination['SecondComponent'], 'pagination should have custom qid')
 
             done()
           })
+          .catch(done)
       })
 
       it(`allows non-id'd data to pass through`, done => {
@@ -541,10 +516,7 @@ describe('Service Module - Actions', () => {
 
         actions.find.call({ $store: store }, { query: {} }).then(response => {
           assert(response.data.length === 10, 'records were still returned')
-          assert(
-            store.state['no-ids'].ids.length === 0,
-            'no records were stored in the state'
-          )
+          assert(store.state['no-ids'].ids.length === 0, 'no records were stored in the state')
 
           done()
         })
@@ -561,10 +533,7 @@ describe('Service Module - Actions', () => {
               idField: '_id',
               actions: {
                 afterFind({}, response) {
-                  assert(
-                    response.data.length === 10,
-                    'records were still returned'
-                  )
+                  assert(response.data.length === 10, 'records were still returned')
                   assert(
                     store.state['no-ids'].ids.length === 0,
                     'no records were stored in the state'
@@ -597,10 +566,7 @@ describe('Service Module - Actions', () => {
       const actions = mapActions('broken', ['find'])
 
       assertRejected(actions.find.call({ $store: store }, {}), done, () => {
-        assert(
-          brokenState.errorOnFind.message === 'find error',
-          'errorOnFind was set'
-        )
+        assert(brokenState.errorOnFind.message === 'find error', 'errorOnFind was set')
         assert(brokenState.isFindPending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
       })
@@ -612,7 +578,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Get', function() {
+  describe('Get', function () {
     it('updates store list state on service success', async () => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -640,10 +606,7 @@ describe('Service Module - Actions', () => {
       let expectedKeyedById: NumberedList = {
         0: { id: 0, description: 'Do the first', isComplete: false }
       }
-      assert.deepEqual(
-        JSON.parse(JSON.stringify(todoState.keyedById)),
-        expectedKeyedById
-      )
+      assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
 
       // Make a request with the array syntax that allows passing params
       const response2 = await actions.get.call({ $store: store }, [1, {}])
@@ -652,10 +615,7 @@ describe('Service Module - Actions', () => {
         1: { id: 1, description: 'Do the second', isComplete: false }
       }
       assert(response2.description === 'Do the second')
-      assert.deepEqual(
-        JSON.parse(JSON.stringify(todoState.keyedById)),
-        expectedKeyedById
-      )
+      assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
 
       // Edit the first record in the store so the data is different.
       // Make a request for the first record again, and it should be updated.
@@ -705,10 +665,7 @@ describe('Service Module - Actions', () => {
         let expectedKeyedById: NumberedList = {
           0: { id: 0, description: 'Do the first', isComplete: false }
         }
-        assert.deepEqual(
-          JSON.parse(JSON.stringify(todoState.keyedById)),
-          expectedKeyedById
-        )
+        assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
 
         // Make a request with the array syntax that allows passing params
         actions.get.call({ $store: store }, [1, {}]).then(response2 => {
@@ -717,10 +674,7 @@ describe('Service Module - Actions', () => {
             1: { id: 1, description: 'Do the second', isComplete: false }
           }
           assert(response2.description === 'Do the second')
-          assert.deepEqual(
-            JSON.parse(JSON.stringify(todoState.keyedById)),
-            expectedKeyedById
-          )
+          assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
 
           // Make a request to an existing record and return the existing data first, then update `keyedById`
           todoState.keyedById = {
@@ -735,10 +689,7 @@ describe('Service Module - Actions', () => {
                 1: { id: 1, description: 'Do the second', isComplete: false }
               }
               assert(response3.description === 'Do the FIRST')
-              assert.deepEqual(
-                JSON.parse(JSON.stringify(todoState.keyedById)),
-                expectedKeyedById
-              )
+              assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
 
               // The remote data will never arriive
               setTimeout(() => {
@@ -746,10 +697,7 @@ describe('Service Module - Actions', () => {
                   0: { id: 0, description: 'Do the FIRST', isComplete: false },
                   1: { id: 1, description: 'Do the second', isComplete: false }
                 }
-                assert.deepEqual(
-                  JSON.parse(JSON.stringify(todoState.keyedById)),
-                  expectedKeyedById
-                )
+                assert.deepEqual(JSON.parse(JSON.stringify(todoState.keyedById)), expectedKeyedById)
                 done()
               }, 100)
             })
@@ -778,10 +726,7 @@ describe('Service Module - Actions', () => {
       const actions = mapActions('broken', ['get'])
 
       assertRejected(actions.get.call({ $store: store }, {}), done, () => {
-        assert(
-          brokenState.errorOnGet.message === 'get error',
-          'errorOnGet was set'
-        )
+        assert(brokenState.errorOnGet.message === 'get error', 'errorOnGet was set')
         assert(brokenState.isGetPending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
       })
@@ -793,7 +738,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Create', function() {
+  describe('Create', function () {
     it('updates store list state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -808,15 +753,13 @@ describe('Service Module - Actions', () => {
       const todoState = store.state['my-todos']
       const actions = mapActions('my-todos', ['create'])
 
-      actions.create
-        .call({ $store: store }, { description: 'Do the second' })
-        .then(response => {
-          assert(todoState.ids.length === 1)
-          assert(todoState.errorOnCreate === null)
-          assert(todoState.isCreatePending === false)
-          assert.deepEqual(todoState.keyedById[response.id], response)
-          done()
-        })
+      actions.create.call({ $store: store }, { description: 'Do the second' }).then(response => {
+        assert(todoState.ids.length === 1)
+        assert(todoState.errorOnCreate === null)
+        assert(todoState.isCreatePending === false)
+        assert.deepEqual(todoState.keyedById[response.id], response)
+        done()
+      })
 
       // Make sure proper state changes occurred before response
       assert(todoState.ids.length === 0)
@@ -841,14 +784,8 @@ describe('Service Module - Actions', () => {
       const actions = mapActions('broken', ['create'])
 
       assertRejected(actions.create.call({ $store: store }, {}), done, () => {
-        assert(
-          brokenState.errorOnCreate.message === 'create error',
-          'errorOnCreate was set'
-        )
-        assert(
-          brokenState.isCreatePending === false,
-          'pending state was cleared'
-        )
+        assert(brokenState.errorOnCreate.message === 'create error', 'errorOnCreate was set')
+        assert(brokenState.isCreatePending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
       })
 
@@ -878,18 +815,12 @@ describe('Service Module - Actions', () => {
         .call({ $store: store }, { description: 'Do the second' })
         .then(() => {
           actions.update
-            .call({ $store: store }, [
-              0,
-              { id: 0, description: 'Do da dishuz' }
-            ])
+            .call({ $store: store }, [0, { id: 0, description: 'Do da dishuz' }])
             .then(responseFromUpdate => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnUpdate === null)
               assert(todoState.isUpdatePending === false)
-              assert.deepEqual(
-                todoState.keyedById[responseFromUpdate.id],
-                responseFromUpdate
-              )
+              assert.deepEqual(todoState.keyedById[responseFromUpdate.id], responseFromUpdate)
               done()
             })
 
@@ -918,21 +849,11 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['update'])
 
-      assertRejected(
-        actions.update.call({ $store: store }, [0, { id: 0 }]),
-        done,
-        () => {
-          assert(
-            brokenState.errorOnUpdate.message === 'update error',
-            'errorOnUpdate was set'
-          )
-          assert(
-            brokenState.isUpdatePending === false,
-            'pending state was cleared'
-          )
-          assert(brokenState.ids.length === 0)
-        }
-      )
+      assertRejected(actions.update.call({ $store: store }, [0, { id: 0 }]), done, () => {
+        assert(brokenState.errorOnUpdate.message === 'update error', 'errorOnUpdate was set')
+        assert(brokenState.isUpdatePending === false, 'pending state was cleared')
+        assert(brokenState.ids.length === 0)
+      })
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
@@ -966,10 +887,7 @@ describe('Service Module - Actions', () => {
       }
 
       actions.create
-        .call(
-          { $store: store },
-          Object.assign({ description: 'Do the second' }, dataUnchanged)
-        )
+        .call({ $store: store }, Object.assign({ description: 'Do the second' }, dataUnchanged))
         .then(() => {
           actions.patch
             .call({ $store: store }, [
@@ -980,10 +898,7 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
               assert(todoState.isPatchPending === false)
-              assert.deepEqual(
-                todoState.keyedById[responseFromPatch.id],
-                responseFromPatch
-              )
+              assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
               done()
             })
 
@@ -1011,25 +926,22 @@ describe('Service Module - Actions', () => {
 
       actions.create.call({ $store: store }, originalData).then(() => {
         const data = {
-          description:
-            'This description should not be patched since params.data is provided'
+          description: 'This description should not be patched since params.data is provided'
         }
         const params = { data: { test: false } }
-        actions.patch
-          .call({ $store: store }, [0, data, params])
-          .then(responseFromPatch => {
-            assert.equal(
-              responseFromPatch.description,
-              originalData.description,
-              'description should not have changed'
-            )
-            assert.equal(
-              responseFromPatch.test,
-              false,
-              'Providing params.data should have set the test attribute to false.'
-            )
-            done()
-          })
+        actions.patch.call({ $store: store }, [0, data, params]).then(responseFromPatch => {
+          assert.equal(
+            responseFromPatch.description,
+            originalData.description,
+            'description should not have changed'
+          )
+          assert.equal(
+            responseFromPatch.test,
+            false,
+            'Providing params.data should have set the test attribute to false.'
+          )
+          done()
+        })
       })
     })
 
@@ -1047,28 +959,23 @@ describe('Service Module - Actions', () => {
       const todoState = store.state['my-todos']
       const actions = mapActions('my-todos', ['create', 'patch'])
 
-      actions.create
-        .call({ $store: store }, { description: 'Do the second' })
-        .then(() => {
-          actions.patch
-            .call({ $store: store }, [0, { description: 'Write a Vue app' }])
-            .then(responseFromPatch => {
-              assert(todoState.ids.length === 1)
-              assert(todoState.errorOnPatch === null)
-              assert(todoState.isPatchPending === false)
-              assert.deepEqual(
-                todoState.keyedById[responseFromPatch.id],
-                responseFromPatch
-              )
-              done()
-            })
+      actions.create.call({ $store: store }, { description: 'Do the second' }).then(() => {
+        actions.patch
+          .call({ $store: store }, [0, { description: 'Write a Vue app' }])
+          .then(responseFromPatch => {
+            assert(todoState.ids.length === 1)
+            assert(todoState.errorOnPatch === null)
+            assert(todoState.isPatchPending === false)
+            assert.deepEqual(todoState.keyedById[responseFromPatch.id], responseFromPatch)
+            done()
+          })
 
-          // Make sure proper state changes occurred before response
-          assert(todoState.ids.length === 1)
-          assert(todoState.errorOnPatch === null)
-          assert(todoState.isPatchPending === true)
-          assert(todoState.idField === 'id')
-        })
+        // Make sure proper state changes occurred before response
+        assert(todoState.ids.length === 1)
+        assert(todoState.errorOnPatch === null)
+        assert(todoState.isPatchPending === true)
+        assert(todoState.idField === 'id')
+      })
     })
 
     it('updates errorOnPatch state on service failure', done => {
@@ -1085,21 +992,11 @@ describe('Service Module - Actions', () => {
       const brokenState = store.state.broken
       const actions = mapActions('broken', ['patch'])
 
-      assertRejected(
-        actions.patch.call({ $store: store }, [0, { id: 0 }]),
-        done,
-        () => {
-          assert(
-            brokenState.errorOnPatch.message === 'patch error',
-            'errorOnPatch was set'
-          )
-          assert(
-            brokenState.isPatchPending === false,
-            'pending state was cleared'
-          )
-          assert(brokenState.ids.length === 0)
-        }
-      )
+      assertRejected(actions.patch.call({ $store: store }, [0, { id: 0 }]), done, () => {
+        assert(brokenState.errorOnPatch.message === 'patch error', 'errorOnPatch was set')
+        assert(brokenState.isPatchPending === false, 'pending state was cleared')
+        assert(brokenState.ids.length === 0)
+      })
 
       // Make sure proper state changes occurred before response
       assert(brokenState.ids.length === 0)
@@ -1123,29 +1020,27 @@ describe('Service Module - Actions', () => {
       const todoState = store.state['my-todos']
       const actions = mapActions('my-todos', ['create', 'remove'])
 
-      actions.create
-        .call({ $store: store }, { description: 'Do the second' })
-        .then(() => {
-          actions.remove
-            .call({ $store: store }, 0)
-            .then(() => {
-              assert(todoState.ids.length === 0)
-              assert(todoState.errorOnRemove === null)
-              assert(todoState.isRemovePending === false)
-              assert.deepEqual(todoState.keyedById, {})
-              done()
-            })
-            .catch(error => {
-              // eslint-disable-next-line no-console
-              console.log(error)
-            })
+      actions.create.call({ $store: store }, { description: 'Do the second' }).then(() => {
+        actions.remove
+          .call({ $store: store }, 0)
+          .then(() => {
+            assert(todoState.ids.length === 0)
+            assert(todoState.errorOnRemove === null)
+            assert(todoState.isRemovePending === false)
+            assert.deepEqual(todoState.keyedById, {})
+            done()
+          })
+          .catch(error => {
+            // eslint-disable-next-line no-console
+            console.log(error)
+          })
 
-          // Make sure proper state changes occurred before response
-          assert(todoState.ids.length === 1)
-          assert(todoState.errorOnRemove === null)
-          assert(todoState.isRemovePending === true)
-          assert(todoState.idField === 'id')
-        })
+        // Make sure proper state changes occurred before response
+        assert(todoState.ids.length === 1)
+        assert(todoState.errorOnRemove === null)
+        assert(todoState.isRemovePending === true)
+        assert(todoState.idField === 'id')
+      })
     })
 
     it('updates errorOnRemove state on service failure', done => {
@@ -1163,14 +1058,8 @@ describe('Service Module - Actions', () => {
       const actions = mapActions('broken', ['remove'])
 
       assertRejected(actions.remove.call({ $store: store }, 0), done, () => {
-        assert(
-          brokenState.errorOnRemove.message === 'remove error',
-          'errorOnRemove was set'
-        )
-        assert(
-          brokenState.isRemovePending === false,
-          'pending state was cleared'
-        )
+        assert(brokenState.errorOnRemove.message === 'remove error', 'errorOnRemove was set')
+        assert(brokenState.isRemovePending === false, 'pending state was cleared')
         assert(brokenState.ids.length === 0)
       })
 

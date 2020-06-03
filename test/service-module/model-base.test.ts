@@ -4,22 +4,19 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { assert } from 'chai'
-import Vue from 'vue'
+// import Vue from 'vue'
 import Vuex from 'vuex'
 import { clearModels } from '../../src/service-module/global-models'
-import {
-  feathersRestClient as feathers,
-  makeFeathersRestClient
-} from '../fixtures/feathers-client'
+import { feathersRestClient as feathers, makeFeathersRestClient } from '../fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 
-Vue.use(Vuex)
+// Vue.use(Vuex)
 
 process.setMaxListeners(100)
 
 describe.skip('Model - Standalone', function () {
-  it.skip('allows using a model without a service', function () { })
-  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function () { })
+  it.skip('allows using a model without a service', function () {})
+  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function () {})
 })
 
 describe('makeModel / BaseModel', function () {
@@ -56,13 +53,7 @@ describe('makeModel / BaseModel', function () {
     assert.equal(Object.keys(copiesById).length, 0, 'copiesById is empty')
 
     // Static Methods
-    const staticMethods = [
-      'getId',
-      'find',
-      'findInStore',
-      'get',
-      'getFromStore'
-    ]
+    const staticMethods = ['getId', 'find', 'findInStore', 'get', 'getFromStore']
     staticMethods.forEach(method => {
       assert(typeof BaseModel[method] === 'function', `has ${method} method`)
     })
@@ -79,21 +70,13 @@ describe('makeModel / BaseModel', function () {
       'remove'
     ]
     prototypeMethods.forEach(method => {
-      assert(
-        typeof BaseModel.prototype[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel.prototype[method] === 'function', `has ${method} method`)
     })
 
     // Utility Methods
-    const utilityMethods = [
-      'hydrateAll'
-    ]
+    const utilityMethods = ['hydrateAll']
     utilityMethods.forEach(method => {
-      assert(
-        typeof BaseModel[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel[method] === 'function', `has ${method} method`)
     })
 
     const eventMethods = [
@@ -106,10 +89,7 @@ describe('makeModel / BaseModel', function () {
       'removeAllListeners'
     ]
     eventMethods.forEach(method => {
-      assert(
-        typeof BaseModel[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel[method] === 'function', `has ${method} method`)
     })
   })
 
@@ -156,7 +136,7 @@ describe('makeModel / BaseModel', function () {
     // Create a Todo Model & Plugin
     class Todo extends BaseModel {
       public static modelName = 'Todo'
-      public test: boolean = true
+      public test = true
     }
     const todosPlugin = makeServicePlugin({
       servicePath: 'todos',
@@ -167,7 +147,7 @@ describe('makeModel / BaseModel', function () {
     // Create a Task Model & Plugin
     class Task extends BaseModel {
       public static modelName = 'Task'
-      public test: boolean = true
+      public test = true
     }
     const tasksPlugin = makeServicePlugin({
       servicePath: 'tasks',
@@ -194,7 +174,7 @@ describe('makeModel / BaseModel', function () {
     })
     class Todo extends myApi.BaseModel {
       public static modelName = 'Todo'
-      public test: boolean = true
+      public test = true
     }
     const todosPlugin = myApi.makeServicePlugin({
       Model: Todo,
@@ -208,7 +188,7 @@ describe('makeModel / BaseModel', function () {
     })
     class Task extends theirApi.BaseModel {
       public static modelName = 'Task'
-      public test: boolean = true
+      public test = true
     }
     const tasksPlugin = theirApi.makeServicePlugin({
       Model: Task,

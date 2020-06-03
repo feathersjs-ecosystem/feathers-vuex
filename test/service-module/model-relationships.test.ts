@@ -118,14 +118,8 @@ describe('Models - `setupInstance` & Relatioships', function () {
     })
 
     // Check the date
-    assert(
-      typeof todo.createdAt === 'object',
-      'module.createdAt is an instance of object'
-    )
-    assert(
-      todo.createdAt.constructor.name === 'Date',
-      'module.createdAt is an instance of date'
-    )
+    assert(typeof todo.createdAt === 'object', 'module.createdAt is an instance of object')
+    assert(todo.createdAt.constructor.name === 'Date', 'module.createdAt is an instance of date')
 
     // Check the user
     assert(todo.user instanceof User, 'the user is an instance of User')
@@ -258,10 +252,7 @@ describe('Models - Relationships', function () {
       !normalTodo.hasOwnProperty('isHighPriority'),
       'Normal todos do not have an isHighPriority default attribute'
     )
-    assert(
-      highPriorityTodo.isHighPriority,
-      'High priority todos have a unique attribute'
-    )
+    assert(highPriorityTodo.isHighPriority, 'High priority todos have a unique attribute')
   })
 
   it('adds model instances containing an id to the store', function () {
@@ -275,11 +266,7 @@ describe('Models - Relationships', function () {
       }
     })
 
-    assert.deepEqual(
-      Task.getFromStore(1),
-      todo.task,
-      'task was added to the store'
-    )
+    assert.deepEqual(Task.getFromStore(1), todo.task, 'task was added to the store')
   })
 
   it('works with multiple keys that match Model names', function () {
@@ -297,16 +284,8 @@ describe('Models - Relationships', function () {
       }
     })
 
-    assert.deepEqual(
-      Task.getFromStore(1),
-      todo.task,
-      'task was added to the store'
-    )
-    assert.deepEqual(
-      Item.getFromStore(2),
-      todo.item,
-      'item was added to the store'
-    )
+    assert.deepEqual(Task.getFromStore(1), todo.task, 'task was added to the store')
+    assert.deepEqual(Item.getFromStore(2), todo.item, 'item was added to the store')
   })
 
   it('handles nested relationships', function () {
@@ -327,10 +306,7 @@ describe('Models - Relationships', function () {
       }
     })
 
-    assert(
-      todo.item.todo.constructor.name === 'Todo',
-      'the nested todo is an instance of Todo'
-    )
+    assert(todo.item.todo.constructor.name === 'Todo', 'the nested todo is an instance of Todo')
   })
 
   it('handles circular nested relationships', function () {
@@ -350,11 +326,7 @@ describe('Models - Relationships', function () {
     })
 
     assert.deepEqual(Todo.getFromStore(1), todo, 'todo was added to the store')
-    assert.deepEqual(
-      Item.getFromStore(2),
-      todo.item,
-      'item was added to the store'
-    )
+    assert.deepEqual(Item.getFromStore(2), todo.item, 'item was added to the store')
     assert(todo.item, 'todo still has an item')
     assert(todo.item.todo, 'todo still nested in itself')
   })
@@ -381,16 +353,8 @@ describe('Models - Relationships', function () {
     store.commit('items/toggleTestBoolean', storedItem)
     // module.item.test = false
 
-    assert.equal(
-      module.item.test,
-      false,
-      'the nested module.item.test should be false'
-    )
-    assert.equal(
-      storedTodo.item.test,
-      false,
-      'the nested item.test should be false'
-    )
+    assert.equal(module.item.test, false, 'the nested module.item.test should be false')
+    assert.equal(storedTodo.item.test, false, 'the nested item.test should be false')
     assert.equal(storedItem.test, false, 'item.test should be false')
   })
 
@@ -417,21 +381,9 @@ describe('Models - Relationships', function () {
     const storedTodo = Todo.getFromStore('todo-1')
     const storedItem = Item.getFromStore('item-2')
 
-    assert.equal(
-      todo1.item.test,
-      true,
-      'the nested module.item.test should be true'
-    )
-    assert.equal(
-      todo2.item.test,
-      true,
-      'the nested module.item.test should be true'
-    )
-    assert.equal(
-      storedTodo.item.test,
-      true,
-      'the nested item.test should be true'
-    )
+    assert.equal(todo1.item.test, true, 'the nested module.item.test should be true')
+    assert.equal(todo2.item.test, true, 'the nested module.item.test should be true')
+    assert.equal(storedTodo.item.test, true, 'the nested item.test should be true')
     assert.equal(storedItem.test, true, 'item.test should be true')
   })
 
@@ -547,7 +499,10 @@ describe('Models - Relationships', function () {
     const clone1 = todo.clone()
     const clone2 = todo.clone()
 
-    assert(clone1 === clone2, 'there should only ever be one clone in memory for an instance with the same id')
+    assert(
+      clone1 === clone2,
+      'there should only ever be one clone in memory for an instance with the same id'
+    )
   })
 
   it('on clone, nested instances do not get cloned', function () {
@@ -563,7 +518,10 @@ describe('Models - Relationships', function () {
 
     const todoClone = todo.clone()
 
-    assert(todoClone.task.__isClone === undefined, 'todo.task should still be the original item and not the clone')
+    assert(
+      todoClone.task.__isClone === undefined,
+      'todo.task should still be the original item and not the clone'
+    )
   })
 
   it('on nested commit in instance, original nested instances get updated', function () {
@@ -597,6 +555,9 @@ describe('Models - Relationships', function () {
     })
     const todoClone = todo.clone()
 
-    assert(todo.task === todoClone.task, 'the same task instance should be in both the original and clone')
+    assert(
+      todo.task === todoClone.task,
+      'the same task instance should be in both the original and clone'
+    )
   })
 })
