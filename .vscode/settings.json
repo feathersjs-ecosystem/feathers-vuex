@@ -15,5 +15,9 @@
     "activityBar.background": "#2B3011",
     "titleBar.activeBackground": "#3C4418",
     "titleBar.activeForeground": "#FAFBF4"
-  }
+  },
+  "prettier.packageManager": "yarn",
+  "prettier.printWidth": 100,
+  "javascript.format.semicolons": "remove",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
