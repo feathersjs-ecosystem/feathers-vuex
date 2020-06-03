@@ -4,10 +4,6 @@ eslint
 @typescript-eslint/no-explicit-any: 0,
 @typescript-eslint/no-empty-function: 0
 */
-import Vue from 'vue'
-import VueCompositionApi from 'vue'
-Vue.use(VueCompositionApi)
-
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../../src/index'
@@ -22,8 +18,8 @@ import { HookContext } from '@feathersjs/feathers'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
+// Vue.use(Vuex)
+// Vue.use(FeathersVuex)
 
 function timeoutPromise(wait = 0) {
   return new Promise(resolve => {
@@ -88,14 +84,7 @@ describe('use/get', function () {
 
     const instrumentData = useGet({ model: Instrument, id })
 
-    const {
-      error,
-      hasBeenRequested,
-      hasLoaded,
-      isPending,
-      isLocal,
-      item
-    } = instrumentData
+    const { error, hasBeenRequested, hasLoaded, isPending, isLocal, item } = instrumentData
 
     assert(isRef(error))
     assert(error.value === null)
@@ -116,11 +105,11 @@ describe('use/get', function () {
     assert(item.value === null)
   })
 
-  it('allows passing {lazy:true} to not query immediately', function () {
+  it('allows passing {immediate:false} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const id = 1
-    const instrumentData = useGet({ model: Instrument, id, lazy: true })
+    const instrumentData = useGet({ model: Instrument, id, immediate: false })
     const { hasBeenRequested } = instrumentData
 
     assert(isRef(hasBeenRequested))
@@ -153,7 +142,7 @@ describe('use/get', function () {
     assert(hasBeenRequested.value === false, 'no request after get')
   })
 
-  it('API only hit once on initial render', async function() {
+  it('API only hit once on initial render', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'useGet'
     })

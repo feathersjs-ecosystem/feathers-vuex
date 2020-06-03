@@ -4,13 +4,11 @@ eslint
 @typescript-eslint/no-explicit-any: 0,
 @typescript-eslint/no-empty-function: 0
 */
-import Vue from 'vue'
-import VueCompositionApi from 'vue'
-Vue.use(VueCompositionApi)
-
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
+
 import feathersVuex, { FeathersVuex } from '../../src/index'
+
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import useFind from '../../src/useFind'
 import Vuex from 'vuex'
@@ -19,8 +17,8 @@ import { computed, isRef } from 'vue'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
+// Vue.use(Vuex)
+// Vue.use(FeathersVuex)
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
@@ -165,7 +163,7 @@ describe('use/find', function () {
     assert(qid.value === 'default')
   })
 
-  it('allows passing {lazy:true} to not query immediately', function () {
+  it('allows passing {immediate:false} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -177,12 +175,12 @@ describe('use/find', function () {
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      lazy: true
+      immediate: false
     })
     const { haveBeenRequested } = instrumentsData
 
-    assert(isRef(haveBeenRequested))
-    assert(haveBeenRequested.value === false)
+    assert(isRef(haveBeenRequested), 'haveBeenRequested is a ref')
+    assert(haveBeenRequested.value === false, 'should not have been requested')
   })
 
   it('params can return null to prevent the query', function () {
@@ -194,7 +192,7 @@ describe('use/find', function () {
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      lazy: true
+      immediate: false
     })
     const { haveBeenRequested } = instrumentsData
 

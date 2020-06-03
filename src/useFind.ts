@@ -13,7 +13,7 @@ interface UseFindOptions {
   queryWhen?: Ref<Function>
   qid?: string
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseFindState {
   debounceTime: null | number
@@ -50,13 +50,9 @@ export default function find(options: UseFindOptions): UseFindData {
     qid: 'default',
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, params, queryWhen, qid, local, lazy } = Object.assign(
-    {},
-    defaults,
-    options
-  )
+  const { model, params, queryWhen, qid, local, immediate } = Object.assign({}, defaults, options)
 
   const getFetchParams = (providedParams?: Params | Ref<Params>): Params => {
     const provided = unwrapParams(providedParams)
@@ -95,15 +91,10 @@ export default function find(options: UseFindOptions): UseFindData {
         const { defaultSkip, defaultLimit } = serviceState.pagination
         const skip = getterParams.query.$skip || defaultSkip
         const limit = getterParams.query.$limit || defaultLimit
-        const pagination =
-          computes.paginationData.value[getterParams.qid || state.qid] || {}
+        const pagination = computes.paginationData.value[getterParams.qid || state.qid] || {}
         const response = skip != null && limit != null ? { limit, skip } : {}
         const queryInfo = getQueryInfo(getterParams, response)
-        const items = getItemsFromQueryInfo(
-          pagination,
-          queryInfo,
-          serviceState.keyedById
-        )
+        const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
         return items
       } else {
         return model.findInStore(getterParams).data
@@ -159,10 +150,8 @@ export default function find(options: UseFindOptions): UseFindData {
 
   watch(
     () => getFetchParams(),
-    () => {
-      findProxy()
-    },
-    { lazy }
+    () => findProxy(),
+    { immediate }
   )
 
   return {

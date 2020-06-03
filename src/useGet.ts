@@ -11,7 +11,7 @@ interface UseGetOptions {
   params?: Params | Ref<Params>
   queryWhen?: Ref<Function>
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseGetState {
   item: Ref<any>
@@ -39,13 +39,9 @@ export default function get(options: UseGetOptions): UseGetData {
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, id, params, queryWhen, local, lazy } = Object.assign(
-    {},
-    defaults,
-    options
-  )
+  const { model, id, params, queryWhen, local, immediate } = Object.assign({}, defaults, options)
 
   function getId(): null | string | number {
     return isRef(id) ? id.value : id || null
@@ -86,10 +82,7 @@ export default function get(options: UseGetOptions): UseGetData {
       state.isPending = true
       state.hasBeenRequested = true
 
-      const promise =
-        paramsToUse != null
-          ? model.get(idToUse, paramsToUse)
-          : model.get(idToUse)
+      const promise = paramsToUse != null ? model.get(idToUse, paramsToUse) : model.get(idToUse)
 
       return promise
         .then(response => {
@@ -105,14 +98,11 @@ export default function get(options: UseGetOptions): UseGetData {
     }
   }
 
-  watch([
-    () => getId(),
-    () => getParams(),
-  ],
-    ([id, params]) => {
-      get(id as string | number, params as Params)
-    },
-    { lazy }
+  watch(
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    [() => getId(), () => getParams()],
+    ([id, params]) => get(id as string | number, params as Params),
+    { immediate }
   )
 
   return {
