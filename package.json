@@ -80,7 +80,8 @@
           "singleQuote": true,
           "semi": false,
           "trailingComma": "none",
-          "arrowParens": "avoid"
+          "arrowParens": "avoid",
+          "printWidth": 100
         }
       ]
     },
@@ -142,7 +143,7 @@
     "@typescript-eslint/parser": "^2.31.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
-    "@vue/test-utils": "^1.0.2",
+    "@vue/test-utils": "^2.0.0-alpha.6",
     "axios": "^0.19.2",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -181,6 +182,6 @@
     "vue-template-compiler": "^2.6.11",
     "vuepress": "^1.4.1",
     "vuepress-theme-default-prefers-color-scheme": "^1.0.7",
-    "vuex": "^3.3.0"
+    "vuex": "^4.0.0-beta.2"
   }
 }
