@@ -431,6 +431,7 @@ describe('Models - Temp Ids', function() {
     store.commit('things/updateTemp', { id: 42, tempId: thing.__id })
     assert(thing._id === 42, 'thing got _id')
     assert(store.state.things.keyedById[42] === thing, 'thing is in keyedById')
+    assert(store.state.things.ids.includes(42), "thing's _id is in ids")
     assert(
       !store.state.things.tempsById[thing.__id],
       'thing is no longer in tempsById'
