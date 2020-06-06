@@ -11,7 +11,6 @@ import {
   ModelStatic,
   GlobalModels,
   StoreState,
-  ModelInstance,
   AnyData
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
@@ -59,23 +58,23 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   // If this serverAlias already has a BaseModel, return it
   const ExistingBaseModel = _get(globalModels, `[${serverAlias}].BaseModel`)
   if (ExistingBaseModel) {
-    return ExistingBaseModel as ModelStatic<AnyData>
+    return ExistingBaseModel as ModelStatic
   }
 
-  abstract class BaseModel implements ModelInstance<AnyData> {
+  abstract class BaseModel implements Model {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
     public static keepCopiesInStore = options.keepCopiesInStore
     // eslint-disable-next-line
-    public static instanceDefaults(data: Partial<AnyData>, ctx: ModelSetupContext) {
+    public static instanceDefaults(data: AnyData, ctx: ModelSetupContext) {
       return data
     }
     // eslint-disable-next-line
-    public static setupInstance(data: Partial<AnyData>, ctx: ModelSetupContext) {
+    public static setupInstance(data: AnyData, ctx: ModelSetupContext) {
       return data
     }
-    public static diffOnPatch(data: Partial<AnyData>) {
+    public static diffOnPatch(data: AnyData) {
       return data
     }
 
@@ -89,8 +88,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
     public static readonly models = globalModels as GlobalModels // Can access other Models here
     public static copiesById: {
-      [key: string]: Model<AnyData> | undefined
-      [key: number]: Model<AnyData> | undefined
+      [key: string]: Model | undefined
+      [key: number]: Model | undefined
     } = {}
 
     public __id: string
@@ -100,7 +99,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     public static merge = mergeWithAccessors
     public static modelName = 'BaseModel'
 
-    public constructor(data: Partial<AnyData>, options: ModelInstanceOptions) {
+    public constructor(data: AnyData, options: ModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
       data = data || {}
       options = Object.assign({}, defaultOptions, options)
@@ -268,7 +267,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * clone the current record using the `createCopy` mutation
      */
-    public clone(data: Partial<AnyData>): this {
+    public clone(data: AnyData): this {
       const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
@@ -428,5 +427,5 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
   const BaseModelEventEmitter = BaseModel
   assertIsEventEmitter(BaseModelEventEmitter)
-  return BaseModelEventEmitter as ModelStatic<AnyData>
+  return BaseModelEventEmitter as ModelStatic
 }

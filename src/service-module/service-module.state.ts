@@ -37,7 +37,7 @@ export interface ServiceStateExclusiveDefaults {
   modelName?: string
 }
 
-export interface ServiceState<D extends AnyData = AnyData> {
+export interface ServiceState<M extends Model = Model> {
   options: {}
   ids: string[]
   autoRemove: boolean
@@ -56,15 +56,15 @@ export interface ServiceState<D extends AnyData = AnyData> {
   idField: string
   tempIdField: string
   keyedById: {
-    [k: string]: Model<D>
-    [k: number]: Model<D>
+    [k: string]: M
+    [k: number]: M
   }
   tempsById: {
-    [k: string]: Model<D>
-    [k: number]: Model<D>
+    [k: string]: M
+    [k: number]: M
   }
   copiesById: {
-    [k: string]: Model<D>
+    [k: string]: M
   }
   whitelist: string[]
   paramsForServer: string[]

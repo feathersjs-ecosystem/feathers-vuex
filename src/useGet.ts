@@ -13,34 +13,34 @@ import {
 import { Params } from './utils'
 import { AnyData, ModelStatic, Model, Id } from './service-module/types'
 
-interface UseGetOptions<T> {
-  model: ModelStatic<T>
+interface UseGetOptions {
+  model: ModelStatic
   id: null | string | number | Ref<null> | Ref<string> | Ref<number>
   params?: Params | Ref<Params>
   queryWhen?: Ref<boolean>
   local?: boolean
   lazy?: boolean
 }
-interface UseGetState<T> {
+interface UseGetState {
   isPending: boolean
   hasBeenRequested: boolean
   hasLoaded: boolean
   error: null | Error
   isLocal: boolean
 }
-interface UseGetData<T> {
-  item: Ref<Readonly<Model<T> | null>>
+interface UseGetData<M> {
+  item: Ref<Readonly<M | null>>
   servicePath: Ref<string>
   isPending: Ref<boolean>
   hasBeenRequested: Ref<boolean>
   hasLoaded: Ref<boolean>
   isLocal: Ref<boolean>
   error: Ref<Error>
-  get: Function
+  get(id, params?: Params): Promise<M | undefined>
 }
 
-export default function get<T extends AnyData = AnyData>(options: UseGetOptions<T>): UseGetData<T> {
-  const defaults: UseGetOptions<T> = {
+export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
+  const defaults: UseGetOptions = {
     model: null,
     id: null,
     params: null,
@@ -61,7 +61,7 @@ export default function get<T extends AnyData = AnyData>(options: UseGetOptions<
     return isRef(params) ? params.value : params
   }
 
-  const state = reactive<UseGetState<T>>({
+  const state = reactive<UseGetState>({
     isPending: false,
     hasBeenRequested: false,
     hasLoaded: false,
@@ -77,14 +77,14 @@ export default function get<T extends AnyData = AnyData>(options: UseGetOptions<
         : params == null
         ? params
         : { ...params }
-      return model.getFromStore(getterId, getterParams) || null
+      return model.getFromStore<M>(getterId, getterParams) || null
     }),
     servicePath: computed(() => model.servicePath)
   }
 
 
 
-  function get(id, params?: Params): Promise<Model<T> | undefined> {
+  function get(id, params?: Params): Promise<M | undefined> {
     const idToUse = isRef(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
 

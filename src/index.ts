@@ -21,15 +21,13 @@ import useGet from './useGet'
 import {
   FeathersVuexOptions,
   HandleEvents,
+  Model,
   ModelStatic,
   ModelSetupContext,
-  Model,
   Id,
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
-  FeathersVuexTypeOptions,
   GlobalModels,
-  ModelInstance
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
@@ -85,7 +83,6 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   return {
     makeServicePlugin,
     BaseModel: BaseModel as ModelStatic,
-    castBaseModel: <T extends {} = {}>() => BaseModel as ModelStatic<T>,
     makeAuthPlugin,
     FeathersVuex,
     models: models as GlobalModels,
@@ -112,10 +109,8 @@ export {
   Id,
   Model,
   ModelStatic,
-  ModelInstance,
   ModelSetupContext,
   ServiceState,
   FeathersVuexGlobalModels,
   FeathersVuexStoreState,
-  FeathersVuexTypeOptions
 }

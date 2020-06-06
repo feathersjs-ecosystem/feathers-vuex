@@ -114,31 +114,10 @@ export interface ModelInstanceOptions {
   merge?: boolean
 }
 
-export type AnyData = { [k: string]: any }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FeathersVuexTypeOptions {
-  // 'model-readonly': true
-}
-
-type GetOption<T, K, Default = false> = K extends keyof T ? T[K] : Default
-
-// ModelData is readonly unless user explicitly says `model-readonly` is false
-type ModelData<D> = GetOption<
-  FeathersVuexTypeOptions,
-  'model-readonly',
-  true
-> extends false
-  ? D
-  : Readonly<D>
-
-/**
- * FeathersVuex Model with readonly data props
- */
-export type Model<D extends {} = AnyData> = ModelInstance<D> & ModelData<D>
+export type AnyData = { [key: string]: any }
 
 /** Static Model interface */
-export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
+export interface ModelStatic extends EventEmitter {
   /**
    * The path passed to `FeathersClient.service()` to create the service
    */
@@ -181,8 +160,8 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * All model copies created using `model.clone()`
    */
   readonly copiesById: {
-    [key: string]: Model<D> | undefined
-    [key: number]: Model<D> | undefined
+    [key: string]: Model | undefined
+    [key: number]: Model | undefined
   }
 
   /**
@@ -215,8 +194,8 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * @param data partial model data
    * @param options model instance options
    */
-  new (data?: Partial<D>, options?: ModelInstanceOptions): Model<D>
-  prototype: Model<D>
+  new (data?: AnyData, options?: ModelInstanceOptions): Model
+  prototype: Model
 
   /**
    * The instanceDefaults API was created in version 1.7 to prevent
@@ -230,7 +209,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * @param data the instance data
    * @param ctx setup context
    */
-  instanceDefaults(data: Partial<D>, ctx: ModelSetupContext): Partial<D>
+  instanceDefaults(data: AnyData, ctx: ModelSetupContext): AnyData
 
   /**
    * A new setupInstance class method is now available in version 2.0.
@@ -241,7 +220,7 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * @param data the instance data
    * @param ctx setup context
    */
-  setupInstance(data: Partial<D>, ctx: ModelSetupContext): Partial<D>
+  setupInstance(data: AnyData, ctx: ModelSetupContext): AnyData
 
   /**
    * Gets called just before sending the data to the API server. It gets
@@ -250,35 +229,36 @@ export interface ModelStatic<D extends {} = AnyData> extends EventEmitter {
    * Default: `data => data`
    * @param data the instance data
    */
-  diffOnPatch(data: Partial<D>): Partial<D>
+  diffOnPatch(data: AnyData): AnyData
 
   /**
    * A proxy for the `find` action
    * @param params Find params
    */
-  find(params?: Params): Promise<Model<D>[] | Paginated<Model<D>>>
+  find<M extends Model = Model>(params?: Params): Promise<M[] | Paginated<M>>
   /**
    * A proxy for the `find` getter
    * @param params Find params
    */
-  findInStore(params?: Params): Paginated<Model<D>>
+  findInStore<M extends Model = Model>(params?: Params): Paginated<M>
 
   /**
    * A proxy for the `get` action
    * @param id ID of record to retrieve
    * @param params Get params
    */
-  get(id: Id, params?: Params): Promise<Model<D> | undefined>
+  get<M extends Model = Model>(id: Id, params?: Params): Promise<M | undefined>
   /**
    * A proxy for the `get` getter
    * @param id ID of record to retrieve
    * @param params Get params
    */
-  getFromStore(id: Id, params?: Params): Model<D> | undefined
+  getFromStore<M extends Model = Model>(id: Id, params?: Params): M | undefined
 }
 
 /** Model instance interface */
-export interface ModelInstance<D extends {} = AnyData> {
+export interface Model {
+  [key: string]: any
   /**
    * model's temporary ID
    */
@@ -298,7 +278,7 @@ export interface ModelInstance<D extends {} = AnyData> {
    * commit or save the data.
    * @param data Properties to modify on the cloned instance
    */
-  clone(data?: Partial<D>): this
+  clone(data?: AnyData): this
   /**
    * The create method calls the create action (service method)
    * using the instance data.
@@ -315,7 +295,7 @@ export interface ModelInstance<D extends {} = AnyData> {
    * with partial data.
    * @param params Params passed to the Feathers client request
    */
-  patch(params?: PatchParams<D>): Promise<this>
+  patch<D extends {} = AnyData>(params?: PatchParams<D>): Promise<this>
   /**
    * The remove method calls the remove action (service method)
    * using the instance data. The instance's id field is used
