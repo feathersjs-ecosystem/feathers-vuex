@@ -78,8 +78,8 @@ export interface FeathersVuexGlobalModels {
 export type StoreState = keyof FeathersVuexStoreState extends never ? any : FeathersVuexStoreState
 export type GlobalModels = keyof FeathersVuexGlobalModels extends never ? any : FeathersVuexGlobalModels
 
-interface PatchParams<D> extends Params {
-  data: Partial<D>
+export interface PatchParams<D extends {} = AnyData> extends Params {
+  data?: Partial<D>
 }
 
 export interface ModelSetupContext {

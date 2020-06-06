@@ -148,7 +148,7 @@ describe('use/get', function() {
     assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false, 'no request during init')
 
-    get()
+    get(id)
 
     assert(hasBeenRequested.value === false, 'no request after get')
   })

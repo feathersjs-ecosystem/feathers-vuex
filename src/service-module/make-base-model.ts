@@ -11,7 +11,8 @@ import {
   ModelStatic,
   GlobalModels,
   StoreState,
-  AnyData
+  AnyData,
+  PatchParams
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
 import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
@@ -93,8 +94,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     } = {}
 
     public __id: string
-    public __isClone: true
-    public data: Record<string, any>
+    public __isClone: boolean
+    public __isTemp: boolean
 
     public static merge = mergeWithAccessors
     public static modelName = 'BaseModel'
@@ -365,7 +366,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch(params?: Params): Promise<this> {
+    public patch<D extends {} = AnyData>(params?: PatchParams<D>): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 

@@ -82,7 +82,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
 
   return {
     makeServicePlugin,
-    BaseModel: BaseModel as ModelStatic,
+    BaseModel,
     makeAuthPlugin,
     FeathersVuex,
     models: models as GlobalModels,

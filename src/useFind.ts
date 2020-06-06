@@ -45,7 +45,7 @@ interface UseFindData<M> {
   latestQuery: Ref<object>
   paginationData: Ref<object>
   error: Ref<Error>
-  find(params: Params | Ref<Params>): Promise<M[] | Paginated<M>>
+  find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>>
 }
 
 const unwrapParams = (params: Params | Ref<Params>): Params =>
@@ -123,7 +123,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
     servicePath: computed<string>(() => model.servicePath)
   }
 
-  function find(params: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
+  function find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
     params = unwrapParams(params)
     if (queryWhen.value && !state.isLocal) {
       state.isPending = true

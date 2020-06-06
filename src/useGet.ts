@@ -36,7 +36,7 @@ interface UseGetData<M> {
   hasLoaded: Ref<boolean>
   isLocal: Ref<boolean>
   error: Ref<Error>
-  get(id, params?: Params): Promise<M | undefined>
+  get(id: Id, params?: Params): Promise<M | undefined>
 }
 
 export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
@@ -84,8 +84,8 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
 
 
 
-  function get(id, params?: Params): Promise<M | undefined> {
-    const idToUse = isRef(id) ? id.value : id
+  function get(id: Id, params?: Params): Promise<M | undefined> {
+    const idToUse = isRef<Id>(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
 
     if (idToUse != null && queryWhen.value && !state.isLocal) {
