@@ -1,9 +1,9 @@
-import { Service } from '@feathersjs/feathers'
+import { Service, Id } from '@feathersjs/feathers'
 import { Params, Paginated } from '../utils'
 import { EventEmitter } from 'events'
 import { Store } from 'vuex'
 
-export type Id = number | string
+export { Id } from '@feathersjs/feathers'
 
 /*
 eslint

@@ -22,15 +22,6 @@ import { EventEmitter } from 'events'
 import { ModelSetupContext } from './types'
 import { Store } from 'vuex'
 
-// A hack to prevent error with this.constructor.preferUpdate
-interface Function {
-  preferUpdate: boolean
-}
-
-interface ChildClassOptions {
-  merge?: boolean
-}
-
 const defaultOptions = {
   clone: false,
   commit: true,

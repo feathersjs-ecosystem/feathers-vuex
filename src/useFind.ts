@@ -12,7 +12,7 @@ import {
 } from '@vue/composition-api'
 import debounce from 'lodash/debounce'
 import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from './utils'
-import { AnyData, ModelStatic, Model } from './service-module/types'
+import { ModelStatic, Model } from './service-module/types'
 
 interface UseFindOptions {
   model: ModelStatic

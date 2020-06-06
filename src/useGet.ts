@@ -11,7 +11,7 @@ import {
   Ref
 } from '@vue/composition-api'
 import { Params } from './utils'
-import { AnyData, ModelStatic, Model, Id } from './service-module/types'
+import { ModelStatic, Model, Id } from './service-module/types'
 
 interface UseGetOptions {
   model: ModelStatic

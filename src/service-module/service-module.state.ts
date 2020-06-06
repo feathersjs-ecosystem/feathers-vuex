@@ -6,7 +6,7 @@ eslint
 
 import _omit from 'lodash/omit'
 
-import { MakeServicePluginOptions, AnyData, Model } from './types'
+import { MakeServicePluginOptions, Model } from './types'
 
 export interface ServiceStateExclusiveDefaults {
   ids: string[]
