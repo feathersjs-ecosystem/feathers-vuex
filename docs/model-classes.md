@@ -15,7 +15,7 @@ While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-
 ```js
 import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
 
-class User extends BaseModel {
+export class User extends BaseModel {
   // Required for $FeathersVuex plugin to work after production transpile.
   static modelName = 'User'
   // Define default properties here
@@ -53,85 +53,74 @@ User.instanceDefaults = function() {
 
 ### BaseModel typing <Badge text="3.11.0+" />
 
-Version `3.11.0` brings explicit typing to the BaseModel. This gives helpful IDE autocomplete and errors when Model classes or instances
-are used incorrectly.
+Version `3.11.0` brings explicit typing to the BaseModel. This gives helpful IDE autocomplete and errors when using Model classes.
 
-One major change here is that the BaseModel now enforces Vuex strict mode compliance by default and encourages proper state management using
-the clone and commit pattern. It does this by declaring the underlying model data `readonly`. This means the TS compiler will error at any
-attempt to directly assign to a model.
+Since Feathers-Vuex doesn't know what your data looks like, you will need to help define your underlying model data's interface.
 
-Take the `User` class from above
+By default, Model classes are `string` indexable with value of type `any`. This isn't super helpful...
 
 ```ts
-// wrong
-const user = new User()
-user.email = 'harry.potter@hogwarts.edu' // <- TS will error here
+// Just like before, we define our class as an extension of BaseModel
+export class User extends BaseModel { /* ... */ }
+
+// Augment the User Model interface
+export interface User {
+  email: string
+  password: string
+}
 ```
 
-The proper way to edit an existing `User` instance is to clone it, edit the *clone's* props, and then commit the changes.
-This ensures changes don't propagate to the rest of the app until ready.
+Now, whenever we access a `User` model, all fields defined in the interface will be available in IDE auto-complete/intellisense along with the model methods/props.
+
+If you already have a User interface defined under a different name, just define a new interface with the same name as your Model class like so
 
 ```ts
-// correct
-const clone = user.clone()
-clone.email = 'harry.potter@hogwarts.edu' // <- No error here
-clone.commit()
+// if our User interface already exists as UserRecord
+export interface User extends UserRecord {}
 ```
 
-You can disable this `readonly` behavior if desired. In `feathers-client.ts`, augment FeathersVuex's typing
+To further enhance typing, you can augment FeathersVuex types to aid development in other parts of your app. It's important to note the differences in the following example if you do or do not setup a `serverAlias`.
 
 ```ts
-declare module 'feathers-vuex' {
-  interface FeathersVuexTypeOptions {
-    'model-readonly': false
+// src/store/user.store.ts
+import { ServiceState } from 'feathers-vuex'
+
+export class User extends BaseModel { /* ... */ }
+export interface User { /* ... */ }
+const servicePath = 'users'
+
+declare module "feathers-vuex" {
+  interface FeathersVuexStoreState {
+    [servicePath]: ServiceState<User>
+  }
+
+  // Only if you setup FeathersVuex without a serverAlias!!
+  interface FeathersVuexGlobalModels {
+    User: typeof User
+  }
+}
+
+// Only if you setup FeathersVuex with a serverAlias!!
+declare module "src/store" {
+  interface MyApiModels {
+    User: typeof User
   }
 }
 ```
 
-### Casting the BaseModel <Badge text="3.11.0+" />
-
-Typescript users can further enhance typing on Model classes and instances by passing their data's underlying structure as an interface
-to `castBaseModel<T>()`. This gives helpful type hints and autocomplete from your IDE when interacting with your underlying Model data.
-
-To take advantage of this, first we need to update `feathers-client.ts` to export the new function
+If you have setup a `serverAlias`, you need to add the following to `src/store/index.ts`.
 
 ```ts
-// feathers-client.ts
-const {/* other props, */ castBaseModel } = feathersVuex(/* ... */)
-
-// Export `castBaseModel` too
-export { /* other props */ castBaseModel }
+// src/store/index.ts
+export interface MyApiModels { /* Let each service augment this interface */ }
+declare module "feathers-vuex" {
+  interface FeathersVuexGlobalModels {
+    'my-api-name': MyApiModels
+  }
+}
 ```
 
-Now we can use `castBaseModel()` when defining our Model class
-
-```ts
-import feathersClient, { makeServicePlugin, castBaseModel } from '../feathers-client'
-
-// Define an interface for your underlying data
-interface UserData {
-  id: number
-  email: string
-  password: string
-}
-
-// Pass interface to castBaseModel()
-class TypedUser extends castBaseModel<UserData>() {
-  static readonly modelName = 'TypedUser'
-}
-
-// Make the plugin just as before
-const servicePath = 'users'
-const servicePlugin = makeServicePlugin({
-  Model: TypedUser,
-  service: feathersClient.service(servicePath),
-  servicePath
-})
-```
-
-Now our IDE knows that instances of `TypedUser` have all props defined by the `UserData` interface.
-
-By default, the BaseModel uses `{ [key: string]: any }` as the underlying data interface meaning any prop can be accessed/assigned to.
+Replace `my-api-name` with the `serverAlias` you used when setting up FeathersVuex.
 
 ## Model attributes
 
