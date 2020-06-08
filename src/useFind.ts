@@ -20,7 +20,7 @@ interface UseFindOptions {
   queryWhen?: Ref<Function>
   qid?: string
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseFindState {
   debounceTime: null | number
@@ -57,9 +57,9 @@ export default function find(options: UseFindOptions): UseFindData {
     qid: 'default',
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, params, queryWhen, qid, local, lazy } = Object.assign(
+  const { model, params, queryWhen, qid, local, immediate } = Object.assign(
     {},
     defaults,
     options
@@ -128,7 +128,7 @@ export default function find(options: UseFindOptions): UseFindData {
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find(params).then(response => {
+      return model.find(params).then((response) => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
@@ -169,7 +169,7 @@ export default function find(options: UseFindOptions): UseFindData {
     () => {
       findProxy()
     },
-    { lazy }
+    { immediate }
   )
 
   return {
