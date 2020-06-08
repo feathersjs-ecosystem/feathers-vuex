@@ -151,6 +151,10 @@ export default function makeServiceMutations() {
         // If an item already exists in the store from the `created` event firing
         // it will be replaced here
         Vue.set(state.keyedById, id, temp)
+        // Only add the id if it's not already in the `ids` list.
+        if (!state.ids.includes(id)) {
+          state.ids.push(id)
+        }
       }
 
       // Add _id to temp's clone as well if it exists
