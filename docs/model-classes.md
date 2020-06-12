@@ -15,7 +15,7 @@ While [setting up Feathers-Vuex](/getting-started.html#feathers-client-feathers-
 ```js
 import feathersClient, { makeServicePlugin, BaseModel } from '../feathers-client'
 
-export class User extends BaseModel {
+class User extends BaseModel {
   // Required for $FeathersVuex plugin to work after production transpile.
   static modelName = 'User'
   // Define default properties here
@@ -61,10 +61,10 @@ By default, Model classes are `string` indexable with value of type `any`. This 
 
 ```ts
 // Just like before, we define our class as an extension of BaseModel
-export class User extends BaseModel { /* ... */ }
+class User extends BaseModel { /* ... */ }
 
 // Augment the User Model interface
-export interface User {
+interface User {
   email: string
   password: string
 }
@@ -76,7 +76,7 @@ If you already have a User interface defined under a different name, just define
 
 ```ts
 // if our User interface already exists as UserRecord
-export interface User extends UserRecord {}
+interface User extends UserRecord {}
 ```
 
 To further enhance typing, you can augment FeathersVuex types to aid development in other parts of your app. It's important to note the differences in the following example if you do or do not setup a `serverAlias`.
@@ -85,8 +85,8 @@ To further enhance typing, you can augment FeathersVuex types to aid development
 // src/store/user.store.ts
 import { ServiceState } from 'feathers-vuex'
 
-export class User extends BaseModel { /* ... */ }
-export interface User { /* ... */ }
+class User extends BaseModel { /* ... */ }
+interface User { /* ... */ }
 const servicePath = 'users'
 
 declare module "feathers-vuex" {
