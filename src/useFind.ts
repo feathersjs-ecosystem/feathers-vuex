@@ -21,7 +21,7 @@ interface UseFindOptions {
   queryWhen?: Ref<boolean>
   qid?: string
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseFindState {
   debounceTime: null | number
@@ -58,9 +58,9 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
     qid: 'default',
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, params, queryWhen, qid, local, lazy } = Object.assign(
+  const { model, params, queryWhen, qid, local, immediate } = Object.assign(
     {},
     defaults,
     options
@@ -129,7 +129,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find<M>(params).then(response => {
+      return model.find<M>(params).then((response) => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
@@ -170,7 +170,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
     () => {
       findProxy()
     },
-    { lazy }
+    { immediate }
   )
 
   return {

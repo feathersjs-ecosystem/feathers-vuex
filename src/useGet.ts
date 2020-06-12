@@ -19,7 +19,7 @@ interface UseGetOptions {
   params?: Params | Ref<Params>
   queryWhen?: Ref<boolean>
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseGetState {
   isPending: boolean
@@ -46,9 +46,9 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, id, params, queryWhen, local, lazy } = Object.assign(
+  const { model, id, params, queryWhen, local, immediate } = Object.assign(
     {},
     defaults,
     options
@@ -113,14 +113,12 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
     }
   }
 
-  watch([
-    () => getId(),
-    () => getParams(),
-  ],
+  watch(
+    [() => getId(), () => getParams()],
     ([id, params]) => {
       get(id as string | number, params as Params)
     },
-    { lazy }
+    { immediate }
   )
 
   return {
