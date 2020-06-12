@@ -51,9 +51,9 @@ User.instanceDefaults = function() {
 }
 ```
 
-### BaseModel typing <Badge text="3.11.0+" />
+### BaseModel typing
 
-Version `3.11.0` brings explicit typing to the BaseModel. This gives helpful IDE autocomplete and errors when using Model classes.
+BaseModel typing gives helpful IDE autocomplete and errors when using Model classes.
 
 Since Feathers-Vuex doesn't know what your data looks like, you will need to help define your underlying model data's interface.
 
