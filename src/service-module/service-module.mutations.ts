@@ -33,7 +33,7 @@ export default function makeServiceMutations() {
       }
 
       if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
-        item = new Model(item)
+        item = new Model(item, { commit: false })
       }
 
       if (isTemp) {
