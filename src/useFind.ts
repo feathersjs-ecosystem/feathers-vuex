@@ -97,23 +97,27 @@ export default function find(options: UseFindOptions): UseFindData {
     items: computed<any[]>(() => {
       const getterParams = unwrapParams(params)
 
-      if (getterParams && getterParams.paginate) {
-        const serviceState = model.store.state[model.servicePath]
-        const { defaultSkip, defaultLimit } = serviceState.pagination
-        const skip = getterParams.query.$skip || defaultSkip
-        const limit = getterParams.query.$limit || defaultLimit
-        const pagination =
-          computes.paginationData.value[getterParams.qid || state.qid] || {}
-        const response = skip != null && limit != null ? { limit, skip } : {}
-        const queryInfo = getQueryInfo(getterParams, response)
-        const items = getItemsFromQueryInfo(
-          pagination,
-          queryInfo,
-          serviceState.keyedById
-        )
-        return items
+      if (getterParams) {
+        if (getterParams.paginate) {
+          const serviceState = model.store.state[model.servicePath]
+          const { defaultSkip, defaultLimit } = serviceState.pagination
+          const skip = getterParams.query.$skip || defaultSkip
+          const limit = getterParams.query.$limit || defaultLimit
+          const pagination =
+            computes.paginationData.value[getterParams.qid || state.qid] || {}
+          const response = skip != null && limit != null ? { limit, skip } : {}
+          const queryInfo = getQueryInfo(getterParams, response)
+          const items = getItemsFromQueryInfo(
+            pagination,
+            queryInfo,
+            serviceState.keyedById
+          )
+          return items
+        } else {
+          return model.findInStore(getterParams).data
+        }
       } else {
-        return model.findInStore(getterParams).data
+        return []
       }
     }),
     paginationData: computed(() => {
@@ -128,7 +132,7 @@ export default function find(options: UseFindOptions): UseFindData {
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find(params).then((response) => {
+      return model.find(params).then(response => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
