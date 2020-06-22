@@ -13,6 +13,11 @@ export default function makeServiceActions(service: Service<any>) {
       params = params || {}
       params = fastCopy(params)
 
+      // For working with client-side services, paginate.default must be truthy.
+      if (params.paginate === true) {
+        params.paginate = { default: true }
+      }
+
       commit('setPending', 'find')
 
       return service

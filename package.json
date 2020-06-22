@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "3.11.0",
+  "version": "3.11.4",
   "homepage": "https:feathers-vuex.feathersjs-ecosystem.com",
   "main": "dist/",
   "module": "dist/",
@@ -121,7 +121,7 @@
     "bson-objectid": "^1.3.0",
     "debug": "^4.1.1",
     "events": "^3.1.0",
-    "fast-copy": "^2.0.5",
+    "fast-copy": "^2.1.0",
     "fast-json-stable-stringify": "^2.1.0",
     "inflection": "^1.12.0",
     "jwt-decode": "^2.2.0",
