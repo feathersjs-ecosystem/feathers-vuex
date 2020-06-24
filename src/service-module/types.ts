@@ -121,13 +121,13 @@ export interface ModelStatic extends EventEmitter {
   /**
    * The path passed to `FeathersClient.service()` to create the service
    */
-  readonly servicePath: string
+  servicePath: string
   /**
    * Holds the value that was used to register the module with Vuex.
    * This will match the servicePath unless you've provided a custom
    * namespace in the Service Module plugin options.
    */
-  readonly namespace: string
+  namespace: string
   /**
    * The global Vuex store
    */
@@ -135,23 +135,23 @@ export interface ModelStatic extends EventEmitter {
   /**
    * The field in each record that will contain the ID
    */
-  readonly idField: string
+  idField: string
   /**
    * The field in each temporary record that contains the temporary ID
    */
-  readonly tempIdField: string
+  tempIdField: string
   /**
    *  If `true`, calling `model.save()` will do an `update` instead of a `patch`.
    */
-  readonly preferUpdate: boolean
+  preferUpdate: boolean
   /**
    * Server alias in the global `models` object
    */
-  readonly serverAlias: string
+  serverAlias: string
   /**
    * Model name used to circumvent Babel transpilation errors
    */
-  readonly modelName: string
+  modelName: string
   /**
    * The global `models` object
    */
