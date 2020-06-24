@@ -235,7 +235,6 @@ describe('Models - Methods', function() {
 
   it('instance.save passes params to update', function() {
     const { Task } = makeContext()
-    //@ts-ignore
     Task.preferUpdate = true
 
     const task = new Task({ id: 1, test: true })

@@ -130,7 +130,6 @@ describe('makeModel / BaseModel', function () {
     const { BaseModel, makeServicePlugin } = feathersVuex(feathers, {
       serverAlias: 'myApi'
     })
-    //@ts-ignore
     BaseModel.modelName = 'TestModel'
     const plugin = makeServicePlugin({
       servicePath: 'todos',
