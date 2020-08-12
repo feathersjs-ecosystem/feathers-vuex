@@ -458,7 +458,7 @@ export default {
     // Optionally make the event handler async.
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -497,14 +497,14 @@ myCallback({ event, clone, prop, data }) {
 - `event {Event}`: the event which triggered the `handler` function in the slot scope.
 - `clone {clone}`: the cloned version of the `item` instance that was provided as a prop.
 - `prop {String}`: the name of the `prop` that is being edited (will always match the `prop` prop.)
-- `data {Object}`: An object containing the changes that were made to the object. Useful for calling `.patch(data)` on the original instance.
+- `data {Object}`: An object containing the changes that were made to the object. Useful for calling `.patch({ data })` on the original instance.
 
 This callback needs to be customized to fit your business logic.  You might patch the changes right away, as shown in this example callback function.
 
 ```js
 async save({ event, clone, prop, data }) {
   const user = clone.commit()
-  return user.patch(data)
+  return user.patch({ data })
 }
 ```
 
@@ -550,7 +550,7 @@ export default {
     // The callback can be async
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -593,7 +593,7 @@ export default {
     // The callback can be async
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -640,7 +640,7 @@ export default {
     // The original, non-debounced save function
     async function save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
     // The debounced wrapper around the save function
     const debouncedSave = _debounce(save, 100)
