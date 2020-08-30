@@ -12,8 +12,8 @@ Here's what it looks like to use the new component:
 
 ```html
 <template>
-  <FeathersVuexFind service="categories" :query="{}" watch="query">
-    <section class="admin-categories" slot-scope="{ items: categories }">
+  <FeathersVuexFind v-slot="{ items: categories }" service="categories" :query="{}" watch="query">
+    <section class="admin-categories">
       {{categories}}
     </section>
   </FeathersVuexFind>
@@ -67,8 +67,8 @@ export default {
 The `FeathersVuexFind` component retrieves data from the API server, puts it in the Vuex store, then transparently retrieves the live, reactive data from the store and displays it to the user.
 
 ```vue
-<FeathersVuexFind service="users" :query="{}" watch="query">
-  <section slot-scope="{ items: users }">
+<FeathersVuexFind v-slot="{ items: users }" service="users" :query="{}" watch="query">
+  <section>
     {{users}}
   </section>
 </FeathersVuexFind>
@@ -85,10 +85,8 @@ The `FeathersVuexGet` component allows fetching data from directly inside a temp
 
 ```html
 <template>
-  <FeathersVuexGet service="users" :id="id" :params="params" :watch="[id, params]">
-    <template slot-scope="{ item: user }">
+  <FeathersVuexGet v-slot="{ item: user }" service="users" :id="id" :params="params" :watch="[id, params]">
       {{ user }}
-    </template>
   </FeathersVuexGet>
 </template>
 
@@ -163,8 +161,8 @@ The `<FeathersVuexGet>` component has these unique props.
 When using these components, the scope data will become available to the first element nested inside the `FeathersVuexFind` or `FeathersVuexGet` tags.  It's accessible using the `scope-data="props"` attribute:
 
 ```html
-<FeathersVuexFind service="categories" :query="{}">
-  <div slot-scope="props">
+<FeathersVuexFind v-slot="props" service="categories" :query="{}">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -187,11 +185,11 @@ It's also possible to modify the scope data by passing a function as the `edit-s
 
 ### Destructuring props
 
-Use the object destructuring syntax to pull specific variables out of the `slot-scope` object.  In the following example, instead of using `slot-scope="props"`, it directly accesses the `items` prop through destructuring:
+Use the object destructuring syntax to pull specific variables out of the `slot-scope` object.  In the following example, instead of using `v-slot="props"`, it directly accesses the `items` prop through destructuring:
 
 ```html
-<FeathersVuexFind service="categories" :query="{}">
-  <div slot-scope="{ items }">
+<FeathersVuexFind v-slot="{ items }" service="categories" :query="{}">
+  <div>
     {{items}}
   </div>
 </FeathersVuexFind>
@@ -202,8 +200,8 @@ Use the object destructuring syntax to pull specific variables out of the `slot-
 You can also rename scope props through the Object destructuring syntax.  The  `slot-scope` in the next example shows how to give the items a more-descriptive name:
 
 ```html
-<FeathersVuexFind service="categories" :query="{}">
-  <div slot-scope="{ items: categories }">
+<FeathersVuexFind v-slot="{ items: categories } service="categories" :query="{}">
+  <div>
     {{categories}}
   </div>
 </FeathersVuexFind>
@@ -216,8 +214,8 @@ You can also rename scope props through the Object destructuring syntax.  The  `
 In this example, only the `service` attribute is provided. There is no `query` nor `id` provided, so no queries are made. So `props.items` in this example returns an empty array.
 
 ```html
-<FeathersVuexFind service="todos">
-  <div slot-scope="props">
+<FeathersVuexFind v-slot="props" service="todos">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -228,8 +226,8 @@ In this example, only the `service` attribute is provided. There is no `query` n
 This example fetches data from the API server because a query was provided.  Internally, this same `query` is used for both the `find` action and the `find` getter.  Read other examples to see how to use distinct queries.  Be aware that if you use pagination directives like `$skip` or `$limit`, you must use two queries to get the records you desire.
 
 ```html
-<FeathersVuexFind service="todos" :query="{}">
-  <div slot-scope="props">
+<FeathersVuexFind v-slot="props" service="todos" :query="{}">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -240,8 +238,8 @@ This example fetches data from the API server because a query was provided.  Int
 If you've already pulled a bunch of data from the server, you can use the `local` prop to only query the local data:
 
 ```html
-<FeathersVuexFind service="todos" :query="{}" local>
-  <div slot-scope="props">
+<FeathersVuexFind v-slot="props" service="todos" :query="{}" local>
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -253,11 +251,12 @@ Sometimes you want to query new data from the server whenever the query changes.
 
 ```html
 <FeathersVuexFind
+  v-slot="props"
   service="todos"
   :query="{ isComplete: true }"
   watch="query"
 >
-  <div slot-scope="props">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -267,11 +266,12 @@ This next example watches a single prop from the query:
 
 ```html
 <FeathersVuexFind
+  v-slot="props"
   service="todos"
   :query="{ isComplete: true, dueDate: 'today' }"
   watch="query.dueDate"
 >
-  <div slot-scope="props">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -281,11 +281,12 @@ You can also provide an array of strings to watch multiple properties:
 
 ```html
 <FeathersVuexFind
+  v-slot="props"
   service="dogs"
   :query="{ breed: 'mixed', bites: true, hasWorms: false }"
   :watch="['query.breed', 'query.bites']"
 >
-  <div slot-scope="props">
+  <div>
     {{props.items}}
   </div>
 </FeathersVuexFind>
@@ -298,12 +299,13 @@ In this scenario, the `fetchQuery` is be used to grab a larger dataset from the 
 ```html
 <template>
   <FeathersVuexFind
+    v-slot="{ items: todos }"
     service="todos"
     :query="{ isComplete }"
     :fetchQuery="{ userId }"
     watch="query.userId"
   >
-    <div slot-scope="{ items: todos }">
+    <div>
       {{todos}}
     </div>
   </FeathersVuexFind>
@@ -326,11 +328,12 @@ The `edit-scope` function allows you to modify the scope before passing it down 
 ```html
 <template>
   <FeathersVuexFind
+    v-slot="{ parentCategories, categoriesByParent }"
     service="categories"
     :query="{}"
     :edit-scope="prepareCategories"
   >
-    <ul slot-scope="{ parentCategories, categoriesByParent }">
+    <ul>
       <li v-for="parent in parentCategories" :key="parent._id">
         <p>{{parent.name}}</p>
         <ul>
@@ -367,12 +370,13 @@ When you want to use server-side pagination you need to pass the ids from the se
 ```html
 <template>
   <FeathersVuexFind
+    v-slot="{ items: todos }"
     :service="service"
     :query="internalQuery"
     :fetch-query="fetchQuery"
     :edit-scope="getPaginationInfo"
   >
-    <div slot-scope="{ items: todos }">
+    <div>
       {{todos}}
     </div>
   </FeathersVuexFind>
@@ -429,15 +433,13 @@ Sometimes you only want to query the API server when certain conditions are met.
     <input type="text" v-model="userSearch"/>
 
     <FeathersVuexFind
+      v-slot="{ items: users, isFindPending: areUsersLoading }"
       service="users"
       :query="usersQuery"
       watch="query"
       :queryWhen="userSearch.length > 2"
     >
-      <ul
-        slot-scope="{ items: users, isFindPending: areUsersLoading }"
-        :class="[ areUsersLoading && 'is-loading' ]"
-      >
+      <ul :class="[ areUsersLoading && 'is-loading' ]">
         <li v-for="user in users" :key="user._id">
           {{user.email}}
         </li>
@@ -469,10 +471,11 @@ You can perform `get` requests with the `FeathersVuexGet` component and its `id`
 
 ```html
 <FeathersVuexGet
+  v-slot="{ item: currentUser, isGetPending }"
   service="todos"
   :id="selectedUserId"
 >
-  <div slot-scope="{ item: currentUser, isGetPending }">
+  <div>
     <div v-if="isGetPending" class="loading"> loading... </div>
     {{currentUser}}
   </div>
