@@ -85,9 +85,11 @@ created () {
 }
 ```
 
-### count(params)
+### count(params) <Badge text="3.11.0+" />
 
-Model classes have a `count` method, which is a proxy to the [`find` action] with the param `$limit: 0` automaticalluy appended. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params). <Badge text="3.10.5+" />
+Model classes have a `count` method, which is a proxy to the `count` action. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params).
+
+> **Note:** it only works for services with enabled pagination!
 
 ```js
 // In your Vue component
@@ -99,9 +101,9 @@ async created () {
 }
 ```
 
-### countInStore(params)
+### countInStore(params) <Badge text="3.11.0+" />
 
-Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).  <Badge text="3.10.5+" />
+Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).
 
 ```js
 // In your Vue component
