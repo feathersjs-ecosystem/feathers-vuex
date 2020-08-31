@@ -612,7 +612,49 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Get', function() {
+  describe('Count', () => {
+    it('count without params fails', done => {
+      const { makeServicePlugin, Task } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-tasks',
+            Model: Task,
+            service: feathersClient.service('my-tasks')
+          })
+        ]
+      })
+      const actions = mapActions('my-tasks', ['count'])
+
+      try {
+        actions.count.call({ $store: store })
+      } catch (err) {
+        assert(err)
+        done()
+      }
+    })
+
+    it('count with query returns number', done => {
+      const { makeServicePlugin, Task } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-tasks',
+            Model: Task,
+            service: feathersClient.service('my-tasks')
+          })
+        ]
+      })
+      const actions = mapActions('my-tasks', ['count'])
+
+      actions.count.call({ $store: store }, { query: {} }).then(response => {
+        assert(response === 10, 'total is 10')
+        done()
+      })
+    })
+  })
+
+  describe('Get', function () {
     it('updates store list state on service success', async () => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -793,7 +835,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Create', function() {
+  describe('Create', function () {
     it('updates store list state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
