@@ -50,7 +50,7 @@ export default function makeServiceActions(service: Service<any>) {
         commit('setPending', 'get')
         return service
           .get(id, params)
-          .then(async function(item) {
+          .then(async function (item) {
             dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
@@ -134,7 +134,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       return service
         .update(id, data, params)
-        .then(async function(item) {
+        .then(async function (item) {
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'update')
           return state.keyedById[id]
@@ -164,7 +164,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       return service
         .patch(id, data, params)
-        .then(async function(item) {
+        .then(async function (item) {
           dispatch('addOrUpdate', item)
           commit('unsetPending', 'patch')
           return state.keyedById[id]
@@ -208,6 +208,22 @@ export default function makeServiceActions(service: Service<any>) {
   }
 
   const actions = {
+    count({ dispatch }, params) {
+      params = params || {}
+      params = fastCopy(params)
+
+      if (!params.query) {
+        throw 'params must contain a query-object'
+      }
+
+      params.query.$limit = 0 // <- limit 0 in feathers is a fast count query
+
+      return dispatch('find', params)
+        .then(response => {
+          return response.total || response.length
+        })
+        .catch(error => dispatch('handleFindError', { params, error }))
+    },
     /**
      * Handle the response from the find action.
      *
