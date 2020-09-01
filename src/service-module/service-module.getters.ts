@@ -74,6 +74,18 @@ export default function makeServiceGetters() {
       }
     },
     count: (state, getters) => params => {
+      if (isRef(params)) {
+        params = params.value
+      }
+      if (!params.query) {
+        throw 'params must contain a query-object'
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { $sort, $limit, $skip, $select, ...cleanQuery } = params.query
+
+      params.query = cleanQuery
+
       return getters.find(state)(params).total
     },
     get: ({ keyedById, tempsById, idField, tempIdField }) => (
