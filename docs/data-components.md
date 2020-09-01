@@ -5,7 +5,7 @@ sidebarDepth: 3
 
 # Renderless Data Components
 
-There are two new renderless data provider components: `<FeathersVuexFind>` and `<FeathersVuexGet>`. They simplify performing queries against the store and/or the API server. They make the data available inside each component's default slot.
+There are three renderless data provider components: `<FeathersVuexFind>`, `<FeathersVuexGet>` and `<FeathersVuexCount>`. They simplify performing queries against the store and/or the API server. They make the data available inside each component's default slot.
 
 To see why you might want to use these components, below are two example components that are functionally equivalent.
 
@@ -13,7 +13,12 @@ Here's what it looks like to use the new component:
 
 ```html
 <template>
-  <FeathersVuexFind v-slot="{ items: categories }" service="categories" :params="{ query: {} }" watch="params">
+  <FeathersVuexFind
+    v-slot="{ items: categories }"
+    service="categories"
+    :params="{ query: {} }"
+    watch="params"
+  >
     <section class="admin-categories">
       {{categories}}
     </section>
@@ -70,7 +75,12 @@ The `FeathersVuexFind` component retrieves data from the API server, puts it in 
 ### Example
 
 ```vue
-<FeathersVuexFind v-slot="{ items: users }" service="users" :params="{ query: {} }" watch="query">
+<FeathersVuexFind
+  v-slot="{ items: users }"
+  service="users"
+  :params="{ query: {} }"
+  watch="query"
+>
   <section>
     {{users}}
   </section>
@@ -107,7 +117,13 @@ The `FeathersVuexGet` component allows fetching data from directly inside a temp
 
 ```html
 <template>
-  <FeathersVuexGet v-slot="{ item: user }" service="users" :id="id" :params="params" :watch="[id, params]">
+  <FeathersVuexGet
+    v-slot="{ item: user }"
+    service="users"
+    :id="id"
+    :params="params"
+    :watch="[id, params]"
+  >
       {{ user }}
   </FeathersVuexGet>
 </template>
@@ -156,10 +172,10 @@ The `FeathersVuexCount` component allows displaying a count of records. It makes
 > **Note:** it only works for services with enabled pagination!
 
 ```vue
-<FeathersVuexCount v-slot="{ total }" service="users">
-  <section>
-    {{users}}
-  </section>
+<FeathersVuexCount v-slot="{ total }" service="users" :params="{ query: {} }">
+  <span>
+    {{ total }}
+  </span>
 </FeathersVuexCount>
 ```
 
@@ -205,7 +221,7 @@ Vue.component('FeathersVuexCount', FeathersVuexCount)
 
 ## Scope Data
 
-When using these components, the scope data will become available to the `FeathersVuexFind` or `FeathersVuexGet` tags. It's accessible using the `v-slot="props"` attribute:
+When using these components, the scope data will become available to the `FeathersVuexFind`, `FeathersVuexGet` and `FeathersVuexCount` tags. It's accessible using the `v-slot="props"` attribute:
 
 ```html
 <FeathersVuexFind v-slot="props" service="categories" :params="{ query: {} }">
@@ -214,8 +230,6 @@ When using these components, the scope data will become available to the `Feathe
   </div>
 </FeathersVuexFind>
 ```
-
-By default, the following props are available in the scope data:
 
 It's also possible to modify the scope data by passing a function as the `edit-scope` prop. See the example for [modifying scope data](#Modify-the-scope-data)
 
@@ -236,7 +250,11 @@ Use the object destructuring syntax to pull specific variables out of the `v-slo
 You can also rename scope props through the Object destructuring syntax.  The  `v-slot` in the next example shows how to give the items a more-descriptive name:
 
 ```html
-<FeathersVuexFind v-slot="{ items: categories } service="categories" :params="{ query: {} }"">
+<FeathersVuexFind
+  v-slot="{ items: categories }"
+  service="categories"
+  :params="{ query: {} }"
+>
   <div>
     {{categories}}
   </div>
@@ -245,7 +263,7 @@ You can also rename scope props through the Object destructuring syntax.  The  `
 
 ## Usage Examples
 
-### A basic find all
+#### A basic find all
 
 In this example, only the `service` attribute is provided. There is no `query` nor `id` provided, so no queries are made. So `props.items` in this example returns an empty array.
 
@@ -257,9 +275,9 @@ In this example, only the `service` attribute is provided. There is no `query` n
 </FeathersVuexFind>
 ```
 
-### Fetch data from the API and the same data from the Vuex store
+#### Fetch data from the API and the same data from the Vuex store
 
-This example fetches data from the API server because a query was provided.  Internally, this same `query` is used for both the `find` action and the `find` getter.  Read other examples to see how to use distinct queries.  Be aware that if you use pagination directives like `$skip` or `$limit`, you must use two queries to get the records you desire.
+This example fetches data from the API server because a query was provided.  Internally, this same `query` is used for both the `find` action and the `find` getter. Read other examples to see how to use distinct queries. Be aware that if you use pagination directives like `$skip` or `$limit`, you must use two queries to get the records you desire.
 
 ```html
 <FeathersVuexFind v-slot="props" service="todos" :params="{ query: {} }">
@@ -269,7 +287,7 @@ This example fetches data from the API server because a query was provided.  Int
 </FeathersVuexFind>
 ```
 
-### Only get data from the local Vuex store
+#### Only get data from the local Vuex store
 
 If you've already pulled a bunch of data from the server, you can use the `local` prop to only query the local data:
 
@@ -281,7 +299,7 @@ If you've already pulled a bunch of data from the server, you can use the `local
 </FeathersVuexFind>
 ```
 
-### Watch the query and re-fetch from the API
+#### Watch the query and re-fetch from the API
 
 Sometimes you want to query new data from the server whenever the query changes.  Pass an array of attribute names to the `watch` attribute re-query whenever upon change.  This example watches the entire query object:
 
@@ -328,7 +346,7 @@ You can also provide an array of strings to watch multiple properties:
 </FeathersVuexFind>
 ```
 
-### Use a distinct `params` and `fetchParams`
+#### Use a distinct `params` and `fetchParams`
 
 In this scenario, the `fetchParams` is be used to grab a larger dataset from the API server (all todos with a matching `userId`). The `params` is used by the `find` getter to display a subset of this data from the store.  If the `isComplete` attribute gets set to `true`, only completed todos will be displayed.  Since a `fetchParams` is provided, the `watch` strings will be modified internally to watch the `fetchParams` object.  This means if you are watching `params.query.userId` and you add a `fetchParams`, the component is smart enough to know you meant `fetchParams.query.userId`. You don't have to rewrite your `watch` attribute after adding a `fetchParams` prop.
 
@@ -357,7 +375,7 @@ export default {
 </script>
 ```
 
-### Modify the scope data
+#### Modify the scope data
 
 The `edit-scope` function allows you to modify the scope before passing it down to the default slot.  This feature can be super useful for preparing the data for the template.  The `prepareCategories` method in this next example adds two properties to the scope data, which are used to create a nested category structure:
 
@@ -399,7 +417,7 @@ export default {
 </script>
 ```
 
-### server-side pagination
+#### server-side pagination
 
 When you want to use server-side pagination you need to pass the ids from the server to vuex. It can be done by a combination of `params`, `fetchParams` and `editScope` as described below. The `fetchParams`-prop is only computed after items from the server arrived. The ids for the `find` getter as well as the total amount of available values `total` are extracted by the `edit-scope` function and stored in `data`:
 
@@ -465,7 +483,7 @@ export default {
 </script>
 ```
 
-### Query when certain conditions are met
+#### Query when certain conditions are met
 
 Sometimes you only want to query the API server when certain conditions are met.  This example shows how to query the API server when the `userSearch` has as least three characters.  This property does not affect the internal `find` getter, so the `items` will still update when the `userSearch` property has fewer than three characters, just no API request will be made.  The `isFindPending` attribute is used to indicate when data is being loaded from the server.
 
@@ -509,7 +527,7 @@ export default {
 </script>
 ```
 
-### Use a get request
+#### Use a get request
 
 You can perform `get` requests with the `FeathersVuexGet` component and its `id` property.  In the next example, when the `selectedUserId` changes, a get request will automatically fetch and display the matching user record.  It also shows how to use the `isGetPending` prop to update the UI
 
