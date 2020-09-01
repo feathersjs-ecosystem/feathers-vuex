@@ -81,9 +81,7 @@ export default function makeServiceGetters() {
         throw 'params must contain a query-object'
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { $sort, $limit, $skip, $select, ...cleanQuery } = params.query
-
+      const cleanQuery = _omit(params.query, FILTERS)
       params.query = cleanQuery
 
       return getters.find(state)(params).total
