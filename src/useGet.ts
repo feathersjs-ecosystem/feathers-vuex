@@ -77,7 +77,11 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
         : params == null
         ? params
         : { ...params }
-      return model.getFromStore<M>(getterId, getterParams) || null
+      if (getterParams != null) {
+        return model.getFromStore<M>(getterId, getterParams) || null
+      } else {
+        return model.getFromStore<M>(getterId) || null
+      }
     }),
     servicePath: computed(() => model.servicePath)
   }
