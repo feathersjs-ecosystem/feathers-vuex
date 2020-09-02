@@ -151,6 +151,10 @@ The default slot contains only four attributes.  The `clone` data can be passed 
 - `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
 - `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
 
+### Usage with `diffOnPatch`
+
+If you plan to use the `diffOnPatch` static Model method together with the `FeathersVuexFormWrapper`, be sure to set the `eager` prop to `false`.  See [this GitHub issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/520) for more details.
+
 ## FormWrapper Example: CRUD Form
 
 ### TodoView
