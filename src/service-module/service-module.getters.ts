@@ -89,6 +89,9 @@ export default function makeServiceGetters() {
       if (isRef(id)) {
         id = id.value
       }
+      if (isRef(params)) {
+        params = params.value
+      }
       const record = keyedById[id] && select(params, idField)(keyedById[id])
       if (record) {
         return record
