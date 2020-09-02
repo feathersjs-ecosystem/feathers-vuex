@@ -250,12 +250,12 @@ export interface ModelStatic extends EventEmitter {
    * A proxy for the `count` action
    * @param params Find params
    */
-  count<M extends Model = Model>(params?: Params): Promise<M[] | Paginated<M>>
+  count(params?: Params): Promise<number>
   /**
    * A proxy for the `count` getter
    * @param params Find params
    */
-  countInStore<M extends Model = Model>(params?: Params): Paginated<M>
+  countInStore(params?: Params): number
 
   /**
    * A proxy for the `get` action
