@@ -156,6 +156,34 @@ created () {
 }
 ```
 
+### count(params) <Badge text="3.11.0+" />
+
+Model classes have a `count` method, which is a proxy to the `count` action. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params).
+
+> **Note:** it only works for services with enabled pagination!
+
+```js
+// In your Vue component
+async created () {
+  const { Todo } = this.$FeathersVuex.api
+  const todosCount = await Todo.count({ query: { priority: 'critical' }})
+  // or
+  Todo.count().then((total) => { this.todoCount = total })
+}
+```
+
+### countInStore(params) <Badge text="3.11.0+" />
+
+Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).
+
+```js
+// In your Vue component
+created () {
+  const { Todo } = this.$FeathersVuex.api
+  const todosCount = Todo.countInStore({ query: { priority: 'critical' }})
+}
+```
+
 ### get(id, params)
 
 Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.

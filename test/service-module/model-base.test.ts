@@ -60,6 +60,8 @@ describe('makeModel / BaseModel', function () {
       'getId',
       'find',
       'findInStore',
+      'count',
+      'countInStore',
       'get',
       'getFromStore'
     ]

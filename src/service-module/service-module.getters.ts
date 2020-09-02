@@ -73,6 +73,19 @@ export default function makeServiceGetters() {
         data: values
       }
     },
+    count: (state, getters) => params => {
+      if (isRef(params)) {
+        params = params.value
+      }
+      if (!params.query) {
+        throw 'params must contain a query-object'
+      }
+
+      const cleanQuery = _omit(params.query, FILTERS)
+      params.query = cleanQuery
+
+      return getters.find(state)(params).total
+    },
     get: ({ keyedById, tempsById, idField, tempIdField }) => (
       id,
       params = {}

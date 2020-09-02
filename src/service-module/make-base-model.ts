@@ -188,6 +188,14 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._getters('find', params)
     }
 
+    public static count(params?: Params) {
+      return this._dispatch('count', params)
+    }
+
+    public static countInStore(params?: Params) {
+      return this._getters('count', params)
+    }
+
     public static get(id: Id, params?: Params) {
       if (params) {
         return this._dispatch('get', [id, params])

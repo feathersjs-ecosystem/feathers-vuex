@@ -20,6 +20,22 @@ export default {
     fetchQuery: {
       type: Object
     },
+    /**
+     * Can be used in place of the `query` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    params: {
+      type: Object,
+      default: null
+    },
+    /**
+     * Can be used in place of the `fetchQuery` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    fetchParams: {
+      type: Object,
+      default: null
+    },
     watch: {
       type: [String, Array],
       default() {
@@ -58,7 +74,9 @@ export default {
   computed: {
     items() {
       const { query, service, $store, temps } = this
-      const params = { query, temps }
+      let { params } = this
+
+      params = params || { query, temps }
 
       return query ? $store.getters[`${service}/find`](params).data : []
     },
@@ -94,16 +112,21 @@ export default {
   methods: {
     findData() {
       const query = this.fetchQuery || this.query
+      let params = this.fetchParams || this.params
 
       if (
         typeof this.queryWhen === 'function'
-          ? this.queryWhen(this.query)
+          ? this.queryWhen(this.params || this.query)
           : this.queryWhen
       ) {
         this.isFindPending = true
 
-        if (query) {
-          const params = { query, qid: this.qid || 'default' }
+        if (params || query) {
+          if (params) {
+            params = Object.assign({}, params, { qid: this.qid || 'default' })
+          } else {
+            params = { query, qid: this.qid || 'default' }
+          }
 
           return this.$store
             .dispatch(`${this.service}/find`, params)
@@ -118,7 +141,7 @@ export default {
     },
     fetchData() {
       if (!this.local) {
-        if (this.query) {
+        if (this.params || this.query) {
           return this.findData()
         } else {
           // TODO: access debug boolean from the store config, somehow.
@@ -144,7 +167,7 @@ export default {
 
     const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
 
-    if (this.fetchQuery || this.query) {
+    if (this.fetchQuery || this.query || this.params) {
       watch.forEach(prop => {
         if (typeof prop !== 'string') {
           throw new Error(`Values in the 'watch' array must be strings.`)
@@ -152,6 +175,11 @@ export default {
         if (this.fetchQuery) {
           if (prop.startsWith('query')) {
             prop = prop.replace('query', 'fetchQuery')
+          }
+        }
+        if (this.fetchParams) {
+          if (prop.startsWith('params')) {
+            prop = prop.replace('params', 'fetchParams')
           }
         }
         this.$watch(prop, this.fetchData)

@@ -8,6 +8,7 @@ import FeathersVuexGet from '../FeathersVuexGet'
 import FeathersVuexFormWrapper from '../FeathersVuexFormWrapper'
 import FeathersVuexInputWrapper from '../FeathersVuexInputWrapper'
 import FeathersVuexPagination from '../FeathersVuexPagination'
+import FeathersVuexCount from '../FeathersVuexCount'
 import { globalModels } from '../service-module/global-models'
 import { GlobalModels } from '../service-module/types'
 
@@ -34,6 +35,7 @@ export const FeathersVuex = {
       Vue.component('FeathersVuexFormWrapper', FeathersVuexFormWrapper)
       Vue.component('FeathersVuexInputWrapper', FeathersVuexInputWrapper)
       Vue.component('FeathersVuexPagination', FeathersVuexPagination)
+      Vue.component('FeathersVuexCount', FeathersVuexCount)
     }
   }
 }
