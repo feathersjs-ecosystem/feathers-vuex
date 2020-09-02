@@ -2,6 +2,7 @@ export interface AuthState {
   accessToken: string
   payload: {}
   entityIdField: string
+  responseEntityField: string
 
   isAuthenticatePending: boolean
   isLogoutPending: boolean
@@ -9,4 +10,6 @@ export interface AuthState {
   errorOnAuthenticate: Error
   errorOnLogout: Error
   user: {}
+  userService: string
+  serverAlias: string
 }

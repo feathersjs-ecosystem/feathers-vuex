@@ -245,7 +245,7 @@ const requireModule = require.context(
   // Whether to look in subfolders
   false,
   // Only include .js files (prevents duplicate imports`)
-  /.js$/
+  /\.js$/
 )
 const servicePlugins = requireModule
   .keys()

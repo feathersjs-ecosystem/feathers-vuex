@@ -322,11 +322,11 @@ describe('Models - Default Values', function() {
       public constructor(data?, options?) {
         // Pass { merge: false } in the third arg to prevent BaseModel from
         // doing its own merge
-        super(data, options, { merge: false })
+        super(data, { merge: false })
 
         // Calling merge here overwrites the Class's default location.
         // You could also write `this.location = data.location`
-        return Person.merge(this, data)
+        Person.merge(this, data)
       }
     }
 

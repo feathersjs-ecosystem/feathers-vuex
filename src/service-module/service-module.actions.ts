@@ -13,6 +13,11 @@ export default function makeServiceActions(service: Service<any>) {
       params = params || {}
       params = fastCopy(params)
 
+      // For working with client-side services, paginate.default must be truthy.
+      if (params.paginate === true) {
+        params.paginate = { default: true }
+      }
+
       commit('setPending', 'find')
 
       return service
@@ -155,7 +160,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       params = fastCopy(params)
 
-      if (service.FeathersVuexModel && params && !params.data) {
+      if (service.FeathersVuexModel && (!params || !params.data)) {
         data = service.FeathersVuexModel.diffOnPatch(data)
       }
       if (params && params.data) {

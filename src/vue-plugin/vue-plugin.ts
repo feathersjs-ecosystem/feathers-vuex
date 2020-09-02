@@ -10,6 +10,17 @@ import FeathersVuexInputWrapper from '../FeathersVuexInputWrapper'
 import FeathersVuexPagination from '../FeathersVuexPagination'
 import FeathersVuexCount from '../FeathersVuexCount'
 import { globalModels } from '../service-module/global-models'
+import { GlobalModels } from '../service-module/types'
+
+// Augment global models onto VueConstructor and instance
+declare module 'vue/types/vue' {
+  interface VueConstructor {
+    $FeathersVuex: GlobalModels
+  }
+  interface Vue {
+    $FeathersVuex: GlobalModels
+  }
+}
 
 export const FeathersVuex = {
   install(Vue, options = { components: true }) {

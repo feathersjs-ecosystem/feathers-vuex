@@ -105,7 +105,7 @@ interface UseFindOptions {
   fetchParams?: Params | Ref<Params>
   queryWhen?: Ref<Function>
   qid?: string
-  lazy?: boolean
+  immediate?: boolean
 }
 ```
 
@@ -123,7 +123,7 @@ And here's a look at each individual property:
   - Explicitly returning `null` will prevent an API request from being made.
 - `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests *outside* of the `params`.
 - `qid` allows you to specify a query identifier (used in the pagination data in the store).  This can also be set dynamically by returning a `qid` in the params.
-- `lazy`, which is `false` by default, determines if the internal `watch` should fire immediately.  Set `lazy: true` and the query will not fire immediately.  It will only fire on subsequent changes to the params.
+- `immediate`, which is `true` by default, determines if the internal `watch` should fire immediately.  Set `immediate: false` and the query will not fire immediately.  It will only fire on subsequent changes to the params.
 
 ### Returned Attributes
 
@@ -208,7 +208,7 @@ If you have already used the `makeFindMixin`, the `useFind` composition function
 
 1. `useFind` is more TypeScript friendly. Since the mixins depended on adding dynamic attribute names that wouldn't overlap, TypeScript tooling and autocomplete weren't very effective.  The attributes returned from `useFind` are always consistent.
 1. Instead of providing a service name, you provide a service Model from the `$FeathersVuex` Vue plugin.
-1. The default behavior of `useFind` is to immediately query the API server. The `makeFindMixin`, by default, would wait until the watcher noticed the change.  This is to match the default behavior of `watch` in the Vue Composition API.  You can pass `{ lazy: true }` in the `useFind` options, which will be passed directly to the internal `watch` on the params.
+1. The default behavior of `useFind` is to immediately query the API server. The `makeFindMixin`, by default, would wait until the watcher noticed the change.  This is to match the default behavior of `watch` in the Vue Composition API.  You can pass `{ immediate: false }` in the `useFind` options, which will be passed directly to the internal `watch` on the params.
 
 Note that with the Vue Options API (aka the only way to write components in Vue 2.0) the models are found in `this.$FeathersVuex`.  With the Vue Composition API, this object is now at `context.root.$FeathersVuex`.
 
@@ -268,7 +268,7 @@ interface UseGetOptions {
   params?: Params | Ref<Params>
   queryWhen?: Ref<Function>
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 ```
 
@@ -281,7 +281,7 @@ And here's a look at each individual property:
 - `params` is a FeathersJS Params object OR a Composition API `ref` (or `computed`, since they return a `ref` instance) which returns a Params object.
   - Unlike the `useFind` utility, `useGet` does not currently have built-in debouncing.
 - `queryWhen` must be a `computed` property which returns a `boolean`. It provides a logical separation for preventing API requests apart from `null` in the `id`.
-- `lazy`, which is `true` by default, determines if the internal `watch` should fire immediately.  By default a single query will be performed, independent of the watchers.  Set `lazy: false` and the watchers on the `id` and `params` will fire immediately (currently this will cause duplicate queries to be performed, so it's not recommended).
+- `immediate`, which is `true` by default, determines if the internal `watch` should fire immediately.  Set `immediate: false` and the query will not fire immediately.  It will only fire on subsequent changes to the `id` or `params`.
 
 ### Returned Attributes
 
@@ -778,6 +778,21 @@ export default new Router({
 ```
 
 Now, the `Post.vue` file only requires to have a `prop` named `id`.  Vue Router will pass the params from the route as props to the component.  See the [first useGet example](#useget) for a component that would work with the above route.  The vue-router documentation has more information about [Passing Props to Route Components](https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components)
+
+### Composing with Model types
+
+Both `useGet` and `useFind` have an optional type parameter for the Model type which is used as the type for the returned item(s).
+
+```ts
+// Destructure Model class from global models object
+const { User } = Vue.$FeathersVuex.api
+
+// use useGet with User Model
+useGet<typeof User.prototype>(/* ... */)
+
+// use useFind with User Model
+useFind<typeof User.prototype>(/* ... */)
+```
 
 ## Conventions for Development
 

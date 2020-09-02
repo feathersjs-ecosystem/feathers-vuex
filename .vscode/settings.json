@@ -15,5 +15,8 @@
     "activityBar.background": "#2B3011",
     "titleBar.activeBackground": "#3C4418",
     "titleBar.activeForeground": "#FAFBF4"
-  }
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.arrowParens": "avoid",
+  "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false
 }
