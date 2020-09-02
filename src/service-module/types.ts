@@ -75,8 +75,12 @@ export interface FeathersVuexGlobalModels {
 }
 
 // Alias and default to any if user doesn't augment interfaces
-export type StoreState = keyof FeathersVuexStoreState extends never ? any : FeathersVuexStoreState
-export type GlobalModels = keyof FeathersVuexGlobalModels extends never ? any : FeathersVuexGlobalModels
+export type StoreState = keyof FeathersVuexStoreState extends never
+  ? any
+  : FeathersVuexStoreState
+export type GlobalModels = keyof FeathersVuexGlobalModels extends never
+  ? any
+  : FeathersVuexGlobalModels
 
 export interface PatchParams<D extends {} = AnyData> extends Params {
   data?: Partial<D>
@@ -317,7 +321,6 @@ export interface Model {
    * @param params Params passed to the Feathers client request
    */
   save(params?: Params): Promise<this>
-
 
   /**
    * Commit changes from clone to original
