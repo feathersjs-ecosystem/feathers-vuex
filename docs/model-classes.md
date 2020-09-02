@@ -51,6 +51,77 @@ User.instanceDefaults = function() {
 }
 ```
 
+### BaseModel typing
+
+BaseModel typing gives helpful IDE autocomplete and errors when using Model classes.
+
+Since Feathers-Vuex doesn't know what your data looks like, you will need to help define your underlying model data's interface.
+
+By default, Model classes are `string` indexable with value of type `any`. This isn't super helpful...
+
+```ts
+// Just like before, we define our class as an extension of BaseModel
+class User extends BaseModel { /* ... */ }
+
+// Augment the User Model interface
+interface User {
+  email: string
+  password: string
+}
+```
+
+Now, whenever we access a `User` model, all fields defined in the interface will be available in IDE auto-complete/intellisense along with the model methods/props.
+
+If you already have a User interface defined under a different name, just define a new interface with the same name as your Model class like so
+
+```ts
+// if our User interface already exists as UserRecord
+interface User extends UserRecord {}
+```
+
+To further enhance typing, you can augment FeathersVuex types to aid development in other parts of your app. It's important to note the differences in the following example if you do or do not setup a `serverAlias`.
+
+```ts
+// src/store/user.store.ts
+import { ServiceState } from 'feathers-vuex'
+
+class User extends BaseModel { /* ... */ }
+interface User { /* ... */ }
+const servicePath = 'users'
+
+declare module "feathers-vuex" {
+  interface FeathersVuexStoreState {
+    [servicePath]: ServiceState<User>
+  }
+
+  // Only if you setup FeathersVuex without a serverAlias!!
+  interface FeathersVuexGlobalModels {
+    User: typeof User
+  }
+}
+
+// Only if you setup FeathersVuex with a serverAlias!!
+declare module "src/store" {
+  interface MyApiModels {
+    User: typeof User
+  }
+}
+```
+
+If you have setup a `serverAlias`, you need to add the following to `src/store/index.ts`.
+
+```ts
+// src/store/index.ts
+export interface MyApiModels { /* Let each service augment this interface */ }
+declare module "feathers-vuex" {
+  interface FeathersVuexGlobalModels {
+    'my-api-name': MyApiModels
+  }
+}
+```
+
+Replace `my-api-name` with the `serverAlias` you used when setting up FeathersVuex.
+
 ## Model attributes
 
 The following attributes are available on each model:

@@ -11,13 +11,14 @@ import {
   watch
 } from '@vue/composition-api'
 import debounce from 'lodash/debounce'
-import { getItemsFromQueryInfo, getQueryInfo, Params } from './utils'
+import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from './utils'
+import { ModelStatic, Model } from './service-module/types'
 
 interface UseFindOptions {
-  model: Function
+  model: ModelStatic
   params: Params | Ref<Params>
   fetchParams?: Params | Ref<Params>
-  queryWhen?: Ref<Function>
+  queryWhen?: Ref<boolean>
   qid?: string
   local?: boolean
   immediate?: boolean
@@ -32,8 +33,8 @@ interface UseFindState {
   latestQuery: null | object
   isLocal: boolean
 }
-interface UseFindData {
-  items: Ref<any>
+interface UseFindData<M> {
+  items: Ref<Readonly<M[]>>
   servicePath: Ref<string>
   isPending: Ref<boolean>
   haveBeenRequested: Ref<boolean>
@@ -44,14 +45,14 @@ interface UseFindData {
   latestQuery: Ref<object>
   paginationData: Ref<object>
   error: Ref<Error>
-  find: Function
+  find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>>
 }
 
 const unwrapParams = (params: Params | Ref<Params>): Params =>
   isRef(params) ? params.value : params
 
-export default function find(options: UseFindOptions): UseFindData {
-  const defaults = {
+export default function find<M extends Model = Model>(options: UseFindOptions): UseFindData<M> {
+  const defaults: UseFindOptions = {
     model: null,
     params: null,
     qid: 'default',
@@ -94,7 +95,7 @@ export default function find(options: UseFindOptions): UseFindData {
   })
   const computes = {
     // The find getter
-    items: computed<any[]>(() => {
+    items: computed<M[]>(() => {
       const getterParams = unwrapParams(params)
 
       if (getterParams) {
@@ -126,33 +127,33 @@ export default function find(options: UseFindOptions): UseFindData {
     servicePath: computed<string>(() => model.servicePath)
   }
 
-  function find<T>(params: Params | Ref<Params>): T {
+  function find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
     params = unwrapParams(params)
     if (queryWhen.value && !state.isLocal) {
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find(params).then(response => {
+      return model.find<M>(params).then(response => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
-
-        const queryInfo = getQueryInfo(params, response)
-        queryInfo.response = response
-        queryInfo.isOutdated = false
-
-        state.latestQuery = queryInfo
+        if(!Array.isArray(response)) {
+          const queryInfo = getQueryInfo(params, response)
+          queryInfo.response = response
+          queryInfo.isOutdated = false
+          state.latestQuery = queryInfo
+        }
         state.isPending = false
         return response
       })
     }
   }
   const methods = {
-    findDebounced<Promise>(params?: Params): Promise {
+    findDebounced(params?: Params) {
       return find(params)
     }
   }
-  function findProxy<T>(params?: Params | Ref<Params>): T {
+  function findProxy(params?: Params | Ref<Params>) {
     const paramsToUse = getFetchParams(params)
 
     if (paramsToUse && paramsToUse.debounce) {

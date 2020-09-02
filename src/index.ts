@@ -18,9 +18,21 @@ import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
 import useFind from './useFind'
 import useGet from './useGet'
 
-import { FeathersVuexOptions, HandleEvents } from './service-module/types'
+import {
+  FeathersVuexOptions,
+  HandleEvents,
+  Model,
+  ModelStatic,
+  ModelSetupContext,
+  Id,
+  FeathersVuexStoreState,
+  FeathersVuexGlobalModels,
+  GlobalModels,
+} from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
+import { ServiceState } from './service-module/service-module.state'
+import { AuthState } from './auth-module/types'
 const events = ['created', 'patched', 'updated', 'removed']
 
 const defaults: FeathersVuexOptions = {
@@ -73,7 +85,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     BaseModel,
     makeAuthPlugin,
     FeathersVuex,
-    models,
+    models: models as GlobalModels,
     clients
   }
 }
@@ -92,5 +104,13 @@ export {
   models,
   clients,
   useFind,
-  useGet
+  useGet,
+  AuthState,
+  Id,
+  Model,
+  ModelStatic,
+  ModelSetupContext,
+  ServiceState,
+  FeathersVuexGlobalModels,
+  FeathersVuexStoreState,
 }

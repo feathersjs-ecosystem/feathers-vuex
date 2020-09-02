@@ -779,6 +779,21 @@ export default new Router({
 
 Now, the `Post.vue` file only requires to have a `prop` named `id`.  Vue Router will pass the params from the route as props to the component.  See the [first useGet example](#useget) for a component that would work with the above route.  The vue-router documentation has more information about [Passing Props to Route Components](https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components)
 
+### Composing with Model types
+
+Both `useGet` and `useFind` have an optional type parameter for the Model type which is used as the type for the returned item(s).
+
+```ts
+// Destructure Model class from global models object
+const { User } = Vue.$FeathersVuex.api
+
+// use useGet with User Model
+useGet<typeof User.prototype>(/* ... */)
+
+// use useFind with User Model
+useFind<typeof User.prototype>(/* ... */)
+```
+
 ## Conventions for Development
 
 ### Params are Computed
