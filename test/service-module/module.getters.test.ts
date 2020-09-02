@@ -177,7 +177,7 @@ describe('Service Module - Getters', function () {
 
   it('find with custom operator', function () {
     const { state } = this
-    const params = { query: { test: false, $populateQuery: 'test' } }
+    const params = { query: { test: false, $populateParams: 'test' } }
     const results = find(state)(params)
 
     assert(results.data.length === 1, 'the length was correct')
@@ -203,13 +203,11 @@ describe('Service Module - Getters', function () {
   it('find with non-whitelisted custom operator fails', function () {
     const { state } = this
     const params = { query: { $client: 'test' } }
-    let results
     try {
-      results = find(state)(params)
+      find(state)(params)
     } catch (error) {
       assert(error)
     }
-    assert(!results[0])
   })
 
   it('find with whitelisted custom operators', function () {

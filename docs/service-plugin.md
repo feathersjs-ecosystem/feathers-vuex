@@ -37,7 +37,7 @@ const servicePlugin = makeServicePlugin({
   replaceItems: false,
   skipRequestIfExists: false,
 
-  paramsForServer: [],
+  paramsForServer: ['$populateParams'],
   whitelist: [],
 
   enableEvents: true,
@@ -75,7 +75,7 @@ The following options can also be configured in [Global Configuration](getting-s
 - `preferUpdate {Boolean}` - **Default:** `globalConfig: false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `globalConfig: false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `globalConfig: false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `paramsForServer {Array}` - Custom query operators that are ignored in the find getter, but will pass through to the server.
+- `paramsForServer {Array}` - **Default:** `['$populateParams']` - Custom query operators that are ignored in the find getter, but will pass through to the server. It is preconfigured to work with the `$populateParams` custom operator from [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
 - `whitelist {Array}` - Custom query operators that will be allowed in the find getter.
 - `enableEvents {Boolean}` - **Default:** `globalConfig: true` - If `false` socket event listeners will be turned off
 - `handleEvents {Object}`: For this to work `enableEvents` must be `true`
@@ -141,7 +141,7 @@ Each service comes loaded with the following default state:
       mostRecent: any
     },
 
-    paramsForServer: [],
+    paramsForServer: ['$populateParams'],
     whitelist: [],
 
     isFindPending: false,

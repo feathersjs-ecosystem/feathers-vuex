@@ -293,7 +293,7 @@ const defaultOptions = {
   replaceItems: false,
   skipRequestIfExists: false,
 
-  paramsForServer: [],
+  paramsForServer: ['$populateParams'],
   whitelist: [],
 
   handleEvents: {
@@ -316,7 +316,7 @@ const defaultOptions = {
 - `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `paramsForServer {Array}` - **Default:** `[]` - Custom query operators that are ignored in the find getter, but will pass through to the server.
+- `paramsForServer {Array}` - **Default:** `['$populateParams']` - Custom query operators that are ignored in the find getter, but will pass through to the server. It is preconfigured to work with the `$populateParams` custom operator from [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
 - `whitelist {Array}` - **Default:** `[]` - Custom query operators that will be allowed in the find getter.
 - `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services
 - `handleEvents {Object}`: For this to work `enableEvents` must be `true`

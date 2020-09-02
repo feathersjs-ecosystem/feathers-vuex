@@ -82,7 +82,7 @@ describe('Service Module - Reinitialization', function() {
         defaultLimit: null,
         defaultSkip: null
       },
-      paramsForServer: [],
+      paramsForServer: ['$populateParams'],
       preferUpdate: false,
       replaceItems: false,
       serverAlias,

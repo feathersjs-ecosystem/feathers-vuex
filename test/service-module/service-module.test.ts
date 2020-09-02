@@ -662,7 +662,7 @@ describe('Service Module', function() {
           defaultLimit: null,
           defaultSkip: null
         },
-        paramsForServer: [],
+        paramsForServer: ['$populateParams'],
         whitelist: []
       }
 

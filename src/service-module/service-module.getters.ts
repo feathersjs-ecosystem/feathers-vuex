@@ -32,12 +32,8 @@ export default function makeServiceGetters() {
 
       const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
-      const customOperators = Object.keys(q).filter(
-        k => k[0] === '$' && !defaultOps.includes(k)
-      )
-      const cleanQuery = _omit(q, customOperators)
 
-      const { query, filters } = filterQuery(cleanQuery, {
+      const { query, filters } = filterQuery(q, {
         operators: additionalOperators.concat(whitelist)
       })
       let values = _.values(keyedById)

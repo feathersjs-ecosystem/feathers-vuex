@@ -34,6 +34,7 @@ export interface ServiceStateExclusiveDefaults {
     defaultSkip: number
     default?: PaginationState
   }
+  paramsForServer: string[]
   modelName?: string
 }
 
@@ -109,6 +110,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
       defaultLimit: null,
       defaultSkip: null
     },
+    paramsForServer: ['$populateParams'],
 
     isFindPending: false,
     isGetPending: false,
