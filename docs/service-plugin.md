@@ -200,7 +200,7 @@ Service modules include the following getters:
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
 - `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common) and [Query API](https://docs.feathersjs.com/api/databases/querying) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
   - `params {Object}` - an object with a `query` object and optional `paginate` and `temps` boolean properties. The `query` is in the FeathersJS query format. You can set `params.paginate` to `false` to disable pagination for a single request.
-- `count(params) {Function}` - a helper function that counts items in the store matching the provided query in the params and returns this number <Badge text="3.11.0+" />
+- `count(params) {Function}` - a helper function that counts items in the store matching the provided query in the params and returns this number <Badge text="3.12.0+" />
   - `params {Object}` - an object with a `query` object and an optional `temps` boolean property.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
@@ -296,7 +296,7 @@ See the section about pagination, below, for more information that is applicable
 
 The `afterFind` action is called by the `find` action after a successful response is added to the store.  It is called with the current response.  By default, it is a no-op (it literally does nothing), and is just a placeholder for you to use when necessary.  See the sections on [customizing the default store](#Customizing-a-Service’s-Default-Store) and [Handling custom server responses](./common-patterns.html#Handling-custom-server-responses) for example usage.
 
-### `count(params)` <Badge text="3.11.0+" />
+### `count(params)` <Badge text="3.12.0+" />
 
 Count items on the server matching the provided query.
 

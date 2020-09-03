@@ -156,7 +156,7 @@ created () {
 }
 ```
 
-### count(params) <Badge text="3.11.0+" />
+### count(params) <Badge text="3.12.0+" />
 
 Model classes have a `count` method, which is a proxy to the `count` action. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params).
 
@@ -172,7 +172,7 @@ async created () {
 }
 ```
 
-### countInStore(params) <Badge text="3.11.0+" />
+### countInStore(params) <Badge text="3.12.0+" />
 
 Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).
 

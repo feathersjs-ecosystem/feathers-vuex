@@ -93,8 +93,8 @@ The `FeathersVuexFind` component retrieves data from the API server, puts it in 
 - `query {Object}` <Badge text="deprecated" type="warning"/> **use `params` instead** - the query object. If only the `query` attribute is provided, the same query will be used for both the `find` getter and the `find` action. See the `fetchQuery` attribute for more information. When using server-side pagination, use the `fetchQuery` prop and the `query` prop for querying data from the local store. If the query is `null` or `undefined`, the query against both the API and store will be skipped. The find getter will return an empty array.
 - `watch {String|Array}` - specify the attributes of the `params` or `fetchParams` to watch. Pass 'params' to watch the entire params object. Pass 'params.query.name' to watch the 'name' property of the query. Watch is turned off by default, so the API server will only be queried once, by default. **Default: []**
 - `fetchQuery {Object}` <Badge text="deprecated" type="warning"/> **use `fetchParams` instead** - when provided, the `fetchQuery` serves as the query for the API server. The `query` param will be used against the service's local Vuex store. **Default: undefined**
-- `params {Object}` - the params object. If only the `params` attribute is provided, te same params will be used for both the `find` getter and the `find` action. See the `fetchParams` attribute for more information. <Badge text="3.11.0+" />
-- `fetchParams {Object}` - when provided, the `fetchParams` servers as the params for the API server. The `params` will be used against the service's local Vuex store. <Badge text="3.11.0+" />
+- `params {Object}` - the params object. If only the `params` attribute is provided, te same params will be used for both the `find` getter and the `find` action. See the `fetchParams` attribute for more information. <Badge text="3.12.0+" />
+- `fetchParams {Object}` - when provided, the `fetchParams` servers as the params for the API server. The `params` will be used against the service's local Vuex store. <Badge text="3.12.0+" />
 - `queryWhen {Boolean|Function}` - the query to the server will only be made when this evaluates to true.  **Default: true**
 - `local {Boolean}` - when set to true, will only use the `query` prop to get data from the local Vuex store. It will disable queries to the API server. **Default:false**
 - `editScope {Function}` - a utility function that allows you to modify the scope data, and even add attributes to it, before providing it to the default slot. You can also use it to pull data into the current component's data (though that may be less recommended, it can come in handy).  See the "Scope Data" section to learn more about what props are available in the scope object. **Default: scope => scope**
@@ -165,7 +165,7 @@ export default {
 - `item {Object}` - The resulting record for the get operation.
 - `isGetPending {Boolean}` - When there's an active request to the API server, this will be `true`.  This is not the same as the `isGetPending` from the Vuex state.  The value in the Vuex state is `true` whenever **any** component is querying data from that same service.  This `isGetPending` attribute is specific to each component instance.
 
-## FeathersVuexCount <Badge text="3.11.0+" />
+## FeathersVuexCount <Badge text="3.12.0+" />
 
 The `FeathersVuexCount` component allows displaying a count of records. It makes the slot scope available to the child components. It adds `$limit: 0` to the passed params in the background. This will only run a (fast) counting query against the database.
 
