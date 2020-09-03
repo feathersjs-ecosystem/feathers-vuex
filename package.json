@@ -108,7 +108,7 @@
     "lib": "lib"
   },
   "peerDependencies": {
-    "@vue/composition-api": "^0.6.1"
+    "@vue/composition-api": "*"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^4.5.2",
