@@ -21,6 +21,7 @@ import _get from 'lodash/get'
 import { EventEmitter } from 'events'
 import { ModelSetupContext } from './types'
 import { Store } from 'vuex'
+import { GetterName } from './service-module.getters'
 
 const defaultOptions = {
   clone: false,
@@ -175,6 +176,34 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this
     }
 
+    /**
+     * Calls `getter`, passing this model's ID as the parameter
+     * @param getter name of getter to call
+     */
+    private getGetterWithId(getter: GetterName): unknown {
+      const { _getters, idField, tempIdField } = this
+        .constructor as typeof BaseModel
+      const id =
+        getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+      return _getters.call(this.constructor, getter, id)
+    }
+
+    get isCreatePending(): boolean {
+      return this.getGetterWithId('isCreatePendingById') as boolean
+    }
+    get isUpdatePending(): boolean {
+      return this.getGetterWithId('isUpdatePendingById') as boolean
+    }
+    get isPatchPending(): boolean {
+      return this.getGetterWithId('isPatchPendingById') as boolean
+    }
+    get isRemovePending(): boolean {
+      return this.getGetterWithId('isRemovePendingById') as boolean
+    }
+    get isPending(): boolean {
+      return this.getGetterWithId('isPendingById') as boolean
+    }
+
     public static getId(record: Record<string, any>): string {
       const { idField } = this.constructor as typeof BaseModel
       return getId(record, idField)
@@ -214,7 +243,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param method the vuex getter name without the namespace
      * @param payload if provided, the getter will be called as a function
      */
-    public static _getters(name: string, idOrParams?: any, params?: any) {
+    public static _getters(name: GetterName, idOrParams?: any, params?: any) {
       const { namespace, store } = this
 
       if (checkNamespace(namespace, this, options.debug)) {

@@ -287,6 +287,28 @@ export interface Model {
    * model is a clone?
    */
   readonly __isClone?: boolean
+
+  /**
+   * `Create` is currently pending on this model
+   */
+  readonly isCreatePending: boolean
+  /**
+   * `Update` is currently pending on this model
+   */
+  readonly isUpdatePending: boolean
+  /**
+   * `Patch` is currently pending on this model
+   */
+  readonly isPatchPending: boolean
+  /**
+   * `Remove` is currently pending on this model
+   */
+  readonly isRemovePending: boolean
+  /**
+   * Any method is currently pending on this model
+   */
+  readonly isPending: boolean
+
   /**
    * Creates a deep copy of the record and stores it on
    * `Model.copiesById`. This allows you to make changes
