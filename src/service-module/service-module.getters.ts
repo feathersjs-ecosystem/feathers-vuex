@@ -133,3 +133,5 @@ export default function makeServiceGetters() {
       getters.isRemovePendingById(id)
   }
 }
+
+export type GetterName = keyof ReturnType<typeof makeServiceGetters>
