@@ -16,6 +16,11 @@ import { globalModels as models } from './global-models'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
+import { Id } from '@feathersjs/feathers'
+import { ServiceState } from '..'
+
+type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
+type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -374,16 +379,38 @@ export default function makeServiceMutations() {
       Vue.set(state.pagination, qid, newState)
     },
 
-    setPending(state, method: string): void {
+    setPending(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`is${uppercaseMethod}Pending`] = true
     },
-    unsetPending(state, method: string): void {
+    unsetPending(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`is${uppercaseMethod}Pending`] = false
     },
 
-    setError(state, payload: { method: string; error: Error }): void {
+    setIdPending(state, payload: { method: PendingIdServiceMethodName, id: Id | Id[] }): void {
+      const { method, id } = payload
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      const isIdMethodPending = state[`isId${uppercaseMethod}Pending`] as ServiceState['isIdCreatePending']
+      // if `id` is an array, ensure it doesn't have duplicates
+      const ids = Array.isArray(id) ? [...new Set(id)] : [id]
+      ids.forEach(id => isIdMethodPending.push(id))
+    },
+    unsetIdPending(state, payload: { method: PendingIdServiceMethodName, id: Id | Id[] }): void {
+      const { method, id } = payload
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      const isIdMethodPending = state[`isId${uppercaseMethod}Pending`] as ServiceState['isIdCreatePending']
+      // if `id` is an array, ensure it doesn't have duplicates
+      const ids = Array.isArray(id) ? [...new Set(id)] : [id]
+      ids.forEach(id => {
+        const idx = isIdMethodPending.indexOf(id);
+        if (idx >= 0) {
+          Vue.delete(isIdMethodPending, idx);
+        }
+      })
+    },
+
+    setError(state, payload: { method: PendingServiceMethodName; error: Error }): void {
       const { method, error } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = Object.assign(
@@ -391,7 +418,7 @@ export default function makeServiceMutations() {
         serializeError(error)
       )
     },
-    clearError(state, method: string): void {
+    clearError(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = null
     }
