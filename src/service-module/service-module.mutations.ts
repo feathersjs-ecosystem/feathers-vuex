@@ -19,8 +19,17 @@ import _isObject from 'lodash/isObject'
 import { Id } from '@feathersjs/feathers'
 import { ServiceState } from '..'
 
-type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
-type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
+export type PendingServiceMethodName =
+  | 'find'
+  | 'get'
+  | 'create'
+  | 'update'
+  | 'patch'
+  | 'remove'
+export type PendingIdServiceMethodName = Exclude<
+  PendingServiceMethodName,
+  'find' | 'get'
+>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {

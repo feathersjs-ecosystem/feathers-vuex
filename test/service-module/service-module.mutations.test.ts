@@ -5,7 +5,9 @@ eslint
 */
 import { assert } from 'chai'
 import { assertGetter } from '../test-utils'
-import makeServiceMutations from '../../src/service-module/service-module.mutations'
+import makeServiceMutations, {
+  PendingServiceMethodName
+} from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
@@ -1143,7 +1145,14 @@ describe('Service Module - Mutations', function() {
   describe('Pending', function() {
     it('setPending && unsetPending', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1163,7 +1172,14 @@ describe('Service Module - Mutations', function() {
   describe('Errors', function() {
     it('setError', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1176,7 +1192,14 @@ describe('Service Module - Mutations', function() {
 
     it('setError with feathers-errors', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1196,7 +1219,14 @@ describe('Service Module - Mutations', function() {
 
     it('clearError', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
