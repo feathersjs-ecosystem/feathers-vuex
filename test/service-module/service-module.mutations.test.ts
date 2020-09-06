@@ -1166,7 +1166,7 @@ describe('Service Module - Mutations', function() {
 
         // Unset pending & check
         unsetPending(state, method)
-        assert(!state[`!is${uppercaseMethod}Pending`])
+        assert(!state[`is${uppercaseMethod}Pending`])
       })
     })
   })
