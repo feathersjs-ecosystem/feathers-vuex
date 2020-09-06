@@ -113,6 +113,21 @@ describe('makeModel / BaseModel', function () {
         `has ${method} method`
       )
     })
+
+    const getterMethods = [
+      'isCreatePending',
+      'isUpdatePending',
+      'isPatchPending',
+      'isRemovePending',
+      'isPending'
+    ]
+    const m = new BaseModel()
+    getterMethods.forEach(method => {
+      assert(
+        typeof Object.getOwnPropertyDescriptor(Object.getPrototypeOf(m), method).get === 'function',
+        `has ${method} getter`
+      )
+    })
   })
 
   it('allows customization through the FeathersVuexOptions', function () {
