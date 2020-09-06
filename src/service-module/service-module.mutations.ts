@@ -403,9 +403,9 @@ export default function makeServiceMutations() {
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
       ids.forEach(id => {
-        const idx = isIdMethodPending.indexOf(id);
+        const idx = isIdMethodPending.indexOf(id)
         if (idx >= 0) {
-          Vue.delete(isIdMethodPending, idx);
+          Vue.delete(isIdMethodPending, idx)
         }
       })
     },
