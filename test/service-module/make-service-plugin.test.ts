@@ -88,7 +88,11 @@ describe('makeServicePlugin', function() {
       servicePath: 'todos',
       skipRequestIfExists: false,
       tempsById: {},
-      whitelist: []
+      whitelist: [],
+      isIdCreatePending: [],
+      isIdUpdatePending: [],
+      isIdPatchPending: [],
+      isIdRemovePending: [],
     }
 
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
