@@ -21,8 +21,8 @@ const options = {
   service: null
 }
 
-const { find, count, list, get, getCopyById } = makeServiceGetters()
-const { addItems } = makeServiceMutations()
+const { find, count, list, get, getCopyById, isCreatePendingById, isUpdatePendingById, isPatchPendingById, isRemovePendingById, isPendingById } = makeServiceGetters()
+const { addItems, setIdPending, unsetIdPending } = makeServiceMutations()
 
 describe('Service Module - Getters', function () {
   beforeEach(function () {
@@ -402,5 +402,64 @@ describe('Service Module - Getters', function () {
 
     const total = count(state, { find })({ query: {} })
     assert(total === 3, 'count is 3')
+  })
+
+  it('is*PendingById', function() {
+    const { state } = this
+    const getters = { isCreatePendingById, isUpdatePendingById, isPatchPendingById, isRemovePendingById }
+
+    assert(isCreatePendingById(state)(42) === false, 'creating status is clear')
+    assert(isUpdatePendingById(state)(42) === false, 'updating status is clear')
+    assert(isPatchPendingById(state)(42) === false, 'patching status is clear')
+    assert(isRemovePendingById(state)(42) === false, 'removing status is clear')
+    assert(isPendingById(state, getters)(42), 'any method pending status is clear')
+
+    // Create
+    setIdPending(state, { method: 'create', id: 42})
+    assert(isCreatePendingById(state)(42) === true, 'creating status is set')
+    assert(isPendingById(state, getters)(42), 'any method pending status is set')
+
+    unsetIdPending(state, { method: 'create', id: 42 })
+    assert(isCreatePendingById(state)(42) === false, 'creating status is clear')
+    assert(isUpdatePendingById(state)(42) === false, 'updating status is clear')
+    assert(isPatchPendingById(state)(42) === false, 'patching status is clear')
+    assert(isRemovePendingById(state)(42) === false, 'removing status is clear')
+    assert(isPendingById(state, getters)(42), 'any method pending status is clear')
+
+    // Update
+    setIdPending(state, { method: 'update', id: 42})
+    assert(isUpdatePendingById(state)(42) === true, 'updating status is set')
+    assert(isPendingById(state, getters)(42), 'any method pending status is set')
+
+    unsetIdPending(state, { method: 'update', id: 42 })
+    assert(isCreatePendingById(state)(42) === false, 'creating status is clear')
+    assert(isUpdatePendingById(state)(42) === false, 'updating status is clear')
+    assert(isPatchPendingById(state)(42) === false, 'patching status is clear')
+    assert(isRemovePendingById(state)(42) === false, 'removing status is clear')
+    assert(isPendingById(state, getters)(42), 'any method pending status is clear')
+
+    // Patch
+    setIdPending(state, { method: 'patch', id: 42})
+    assert(isPatchPendingById(state)(42) === true, 'patching status is set')
+    assert(isPendingById(state, getters)(42), 'any method pending status is set')
+
+    unsetIdPending(state, { method: 'patch', id: 42 })
+    assert(isCreatePendingById(state)(42) === false, 'creating status is clear')
+    assert(isUpdatePendingById(state)(42) === false, 'updating status is clear')
+    assert(isPatchPendingById(state)(42) === false, 'patching status is clear')
+    assert(isRemovePendingById(state)(42) === false, 'removing status is clear')
+    assert(isPendingById(state, getters)(42), 'any method pending status is clear')
+
+    // Remove
+    setIdPending(state, { method: 'remove', id: 42})
+    assert(isRemovePendingById(state)(42) === true, 'removing status is set')
+    assert(isPendingById(state, getters)(42), 'any method pending status is set')
+
+    unsetIdPending(state, { method: 'remove', id: 42 })
+    assert(isCreatePendingById(state)(42) === false, 'creating status is clear')
+    assert(isUpdatePendingById(state)(42) === false, 'updating status is clear')
+    assert(isPatchPendingById(state)(42) === false, 'patching status is clear')
+    assert(isRemovePendingById(state)(42) === false, 'removing status is clear')
+    assert(isPendingById(state, getters)(42), 'any method pending status is clear')
   })
 })
