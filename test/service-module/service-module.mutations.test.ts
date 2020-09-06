@@ -6,7 +6,7 @@ eslint
 import { assert } from 'chai'
 import { assertGetter } from '../test-utils'
 import makeServiceMutations, {
-  PendingServiceMethodName
+  PendingServiceMethodName, PendingIdServiceMethodName
 } from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
 import errors from '@feathersjs/errors'
@@ -55,7 +55,9 @@ const {
   setPending,
   unsetPending,
   setError,
-  clearError
+  clearError,
+  setIdPending,
+  unsetIdPending
 } = makeServiceMutations()
 
 describe('Service Module - Mutations', function() {
@@ -1165,6 +1167,31 @@ describe('Service Module - Mutations', function() {
         // Unset pending & check
         unsetPending(state, method)
         assert(!state[`!is${uppercaseMethod}Pending`])
+      })
+    })
+  })
+
+  describe('Per-instance Pending', function() {
+    it('setIdPending && unsetIdPending', function() {
+      const state = this.state
+      const methods: PendingIdServiceMethodName[] = [
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
+
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        assert(state[`isId${uppercaseMethod}Pending`].length === 0)
+
+        // Set pending & check
+        setIdPending(state, { method, id: 42 })
+        assert(state[`isId${uppercaseMethod}Pending`].includes(42))
+
+        // Unset pending & check
+        unsetIdPending(state, { method, id: 42 })
+        assert(state[`isId${uppercaseMethod}Pending`].length === 0)
       })
     })
   })
