@@ -577,4 +577,56 @@ describe('Models - Temp Ids', function() {
       }
     })
   })
+
+  it('Model pending status updated for tempIds and clones', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class PendingThing extends BaseModel {
+      public static modelName = 'PendingThing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: PendingThing,
+          service: feathersClient.service('pending-things')
+        })
+      ]
+    })
+
+    // Create instance
+    const thing = new PendingThing({ description: 'PendingThing 1' })
+    const clone = thing.clone()
+    assert(!!thing.__id, "thing has a tempId")
+    assert(clone.__id === thing.__id, "clone has thing's tempId")
+
+    // Manually set the result in a hook to simulate the server request.
+    feathersClient.service('pending-things').hooks({
+      before: {
+        create: [
+          context => {
+            context.result = { _id: 42, ...context.data }
+            // Check pending status
+            assert(thing.isCreatePending === true, 'isCreatePending set')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isCreatePending === true, 'isCreatePending set')
+            assert(clone.isPending === true, 'isPending set')
+            return context
+          }
+        ]
+      }
+    })
+
+    // Save and verify status
+    await thing.save()
+    assert(thing.isCreatePending === false, 'isCreatePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isCreatePending === false, 'isCreatePending cleared')
+    assert(clone.isPending === false, 'isPending cleared')
+  })
 })
