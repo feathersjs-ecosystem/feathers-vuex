@@ -78,7 +78,7 @@ export default {
 
       params = params || { query, temps }
 
-      return query ? $store.getters[`${service}/find`](params).data : []
+      return (params && params.query) ? $store.getters[`${service}/find`](params).data : []
     },
     pagination() {
       return this.$store.state[this.service].pagination[this.qid]
