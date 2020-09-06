@@ -403,7 +403,7 @@ export default function makeServiceMutations() {
       const isIdMethodPending = state[`isId${uppercaseMethod}Pending`] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
-      ids.forEach(id => isIdMethodPending.push(id))
+      ids.forEach(id => { if(typeof id === 'number' || typeof id === 'string') isIdMethodPending.push(id) })
     },
     unsetIdPending(state, payload: { method: PendingIdServiceMethodName, id: Id | Id[] }): void {
       const { method, id } = payload
