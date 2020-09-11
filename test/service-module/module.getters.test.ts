@@ -400,8 +400,6 @@ describe('Service Module - Getters', function () {
   it('count returns the number of records in the store', function () {
     const { state } = this
 
-    const c = count(state, { find })
-
     const total = count(state, { find: find(state) })({ query: {} })
     assert(total === 3, 'count is 3')
   })
