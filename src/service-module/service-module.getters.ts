@@ -126,10 +126,12 @@ export default function makeServiceGetters() {
       isIdPatchPending.includes(id),
     isRemovePendingById: ({ isIdRemovePending }: ServiceState) => (id: Id) =>
       isIdRemovePending.includes(id),
-    isPendingById: (state: ServiceState, getters) => (id: Id) =>
+    isSavePendingById: (state: ServiceState, getters) => (id: Id) =>
       getters.isCreatePendingById(id) ||
       getters.isUpdatePendingById(id) ||
-      getters.isPatchPendingById(id) ||
+      getters.isPatchPendingById(id),
+    isPendingById: (state: ServiceState, getters) => (id: Id) =>
+      getters.isSavePendingById(id) ||
       getters.isRemovePendingById(id)
   }
 }

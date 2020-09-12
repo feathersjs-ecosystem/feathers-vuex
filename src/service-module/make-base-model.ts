@@ -200,6 +200,9 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     get isRemovePending(): boolean {
       return this.getGetterWithId('isRemovePendingById') as boolean
     }
+    get isSavePending(): boolean {
+      return this.getGetterWithId('isSavePendingById') as boolean
+    }
     get isPending(): boolean {
       return this.getGetterWithId('isPendingById') as boolean
     }

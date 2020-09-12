@@ -305,6 +305,10 @@ export interface Model {
    */
   readonly isRemovePending: boolean
   /**
+   * Any of `create`, `update` or `patch` is currently pending on this model
+   */
+  readonly isSavePending: boolean
+  /**
    * Any method is currently pending on this model
    */
   readonly isPending: boolean
