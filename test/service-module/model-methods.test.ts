@@ -387,9 +387,11 @@ describe('Models - Methods', function () {
             context.result = { _id: 42, ...context.data }
             // Check pending status
             assert(thing.isCreatePending === true, 'isCreatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
             assert(thing.isPending === true, 'isPending set')
             // Check clone's pending status
             assert(clone.isCreatePending === true, 'isCreatePending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
           }
@@ -399,9 +401,11 @@ describe('Models - Methods', function () {
             context.result = { ...context.data }
             // Check pending status
             assert(thing.isUpdatePending === true, 'isUpdatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
             assert(thing.isPending === true, 'isPending set')
             // Check clone's pending status
             assert(clone.isUpdatePending === true, 'isUpdatePending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
           }
@@ -411,9 +415,11 @@ describe('Models - Methods', function () {
             context.result = { ...context.data }
             // Check pending status
             assert(thing.isPatchPending === true, 'isPatchPending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
             assert(thing.isPending === true, 'isPending set')
             // Check clone's pending status
             assert(clone.isPatchPending === true, 'isPatchPending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
           }
@@ -423,9 +429,11 @@ describe('Models - Methods', function () {
             context.result = { ...context.data }
             // Check pending status
             assert(thing.isRemovePending === true, 'isRemovePending set')
+            assert(thing.isSavePending === false, 'isSavePending clear on remove')
             assert(thing.isPending === true, 'isPending set')
             // Check clone's pending status
             assert(clone.isRemovePending === true, 'isRemovePending set on clone')
+            assert(clone.isSavePending === false, 'isSavePending clear on remove on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
           }
@@ -436,29 +444,37 @@ describe('Models - Methods', function () {
     // Create and verify status
     await thing.create()
     assert(thing.isCreatePending === false, 'isCreatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
     assert(thing.isPending === false, 'isPending cleared')
     assert(clone.isCreatePending === false, 'isCreatePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
     assert(clone.isPending === false, 'isPending cleared on clone')
 
     // Update and verify status
     await thing.update()
     assert(thing.isUpdatePending === false, 'isUpdatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
     assert(thing.isPending === false, 'isPending cleared')
     assert(clone.isUpdatePending === false, 'isUpdatePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
     assert(clone.isPending === false, 'isPending cleared on clone')
 
     // Patch and verify status
     await thing.patch()
     assert(thing.isPatchPending === false, 'isPatchPending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
     assert(thing.isPending === false, 'isPending cleared')
     assert(clone.isPatchPending === false, 'isPatchPending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
     assert(clone.isPending === false, 'isPending cleared on clone')
 
     // Remove and verify status
     await thing.remove()
     assert(thing.isRemovePending === false, 'isRemovePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
     assert(thing.isPending === false, 'isPending cleared')
     assert(clone.isRemovePending === false, 'isRemovePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
     assert(clone.isPending === false, 'isPending cleared on clone')
   })
 })

@@ -612,9 +612,11 @@ describe('Models - Temp Ids', function() {
             context.result = { _id: 42, ...context.data }
             // Check pending status
             assert(thing.isCreatePending === true, 'isCreatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
             assert(thing.isPending === true, 'isPending set')
             // Check clone's pending status
             assert(clone.isCreatePending === true, 'isCreatePending set')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set')
             return context
           }
@@ -625,8 +627,10 @@ describe('Models - Temp Ids', function() {
     // Save and verify status
     await thing.save()
     assert(thing.isCreatePending === false, 'isCreatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
     assert(thing.isPending === false, 'isPending cleared')
     assert(clone.isCreatePending === false, 'isCreatePending cleared')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
     assert(clone.isPending === false, 'isPending cleared')
   })
 })

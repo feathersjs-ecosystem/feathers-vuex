@@ -119,6 +119,7 @@ describe('makeModel / BaseModel', function () {
       'isUpdatePending',
       'isPatchPending',
       'isRemovePending',
+      'isSavePending',
       'isPending'
     ]
     const m = new BaseModel()
