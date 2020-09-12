@@ -391,7 +391,7 @@ describe('Service Module - Getters', function () {
     const { state } = this
 
     try {
-      count(state, { find })({})
+      count(state, { find: find(state) })({})
     } catch (error) {
       assert(error)
     }
@@ -400,7 +400,7 @@ describe('Service Module - Getters', function () {
   it('count returns the number of records in the store', function () {
     const { state } = this
 
-    const total = count(state, { find })({ query: {} })
+    const total = count(state, { find: find(state) })({ query: {} })
     assert(total === 3, 'count is 3')
   })
 

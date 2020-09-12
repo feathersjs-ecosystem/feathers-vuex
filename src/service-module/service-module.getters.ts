@@ -82,7 +82,7 @@ export default function makeServiceGetters() {
       const cleanQuery = _omit(params.query, FILTERS)
       params.query = cleanQuery
 
-      return getters.find(state)(params).total
+      return getters.find(params).total
     },
     get: ({ keyedById, tempsById, idField, tempIdField }) => (
       id,
