@@ -72,6 +72,7 @@ export default {
     },
     reset() {
       this.clone.reset()
+      this.isDirty = false
       this.$emit('reset', this.item)
     },
     async remove() {
