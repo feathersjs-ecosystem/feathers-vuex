@@ -28,6 +28,8 @@ interface Params {
   provider?: string
   route?: { [key: string]: string }
   headers?: { [key: string]: any }
+  temps?: boolean
+  copies?: boolean
 
   [key: string]: any // (JL) not sure if we want this
 }
@@ -231,7 +233,6 @@ export function getId(item, idField) {
   if (item._id != null || item.hasOwnProperty('_id')) {
     return item._id
   }
-
 }
 
 // Creates a Model class name from the last part of the servicePath

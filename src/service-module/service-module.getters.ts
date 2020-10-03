@@ -16,6 +16,21 @@ const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
 const additionalOperators = ['$elemMatch']
 const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
+const getCopiesById = ({
+  keepCopiesInStore,
+  servicePath,
+  serverAlias,
+  copiesById
+}) => {
+  if (keepCopiesInStore) {
+    return copiesById
+  } else {
+    const Model = _get(models, `[${serverAlias}].byServicePath[${servicePath}]`)
+
+    return Model.copiesById
+  }
+}
+
 export default function makeServiceGetters() {
   return {
     list(state) {
@@ -30,6 +45,9 @@ export default function makeServiceGetters() {
       // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
+      // Set params.copies to true to include the copiesById records
+      params.copies = params.hasOwnProperty('copies') ? params.copies : false
+
       const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
 
@@ -43,6 +61,18 @@ export default function makeServiceGetters() {
       }
 
       values = values.filter(sift(query))
+
+      if (params.copies) {
+        const { idField } = state
+        const copiesById = getCopiesById(state)
+        values.forEach((val, i, arr) => {
+          const copy = copiesById[val[idField]]
+          if (copy) {
+            // replace keyedById value with existing clone value
+            arr[i] = copy
+          }
+        })
+      }
 
       const total = values.length
 
@@ -102,18 +132,8 @@ export default function makeServiceGetters() {
       return tempRecord || null
     },
     getCopyById: state => id => {
-      const { servicePath, keepCopiesInStore, serverAlias } = state
-
-      if (keepCopiesInStore) {
-        return state.copiesById[id]
-      } else {
-        const Model = _get(
-          models,
-          `[${serverAlias}].byServicePath[${servicePath}]`
-        )
-
-        return Model.copiesById[id]
-      }
+      const copiesById = getCopiesById(state)
+      return copiesById[id]
     }
   }
 }
