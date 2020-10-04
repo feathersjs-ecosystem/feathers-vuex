@@ -57,7 +57,7 @@ export default function makeServiceGetters() {
       let values = _.values(keyedById)
 
       if (params.temps) {
-        values = values.concat(_.values(state.tempsById))
+        values.push(..._.values(state.tempsById))
       }
 
       values = values.filter(sift(query))
