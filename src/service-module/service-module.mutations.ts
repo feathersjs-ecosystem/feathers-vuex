@@ -321,9 +321,17 @@ export default function makeServiceMutations() {
 
     // Removes the copy from copiesById
     clearCopy(state, id) {
-      const newCopiesById = Object.assign({}, state.copiesById)
-      delete newCopiesById[id]
-      state.copiesById = newCopiesById
+      const { keepCopiesInStore } = state
+      if (keepCopiesInStore) {
+        Vue.delete(state.copiesById, id)
+      } else {
+        const { serverAlias, servicePath } = state
+        const Model = _get(
+          models,
+          `[${serverAlias}].byServicePath[${servicePath}]`
+        )
+        Vue.delete(Model.copiesById, id)
+      }
     },
 
     /**
