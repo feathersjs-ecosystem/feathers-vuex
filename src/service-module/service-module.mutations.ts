@@ -253,13 +253,18 @@ export default function makeServiceMutations() {
         `[${serverAlias}].byServicePath[${servicePath}]`
       )
 
+      let item
+
       if (Model) {
-        var model = new Model(current, { clone: true })
+        item = new Model(current, { clone: true })
       } else {
-        var copyData = mergeWithAccessors({}, current)
+        const existingClone = state.copiesById[id]
+
+        item = existingClone
+          ? mergeWithAccessors(existingClone, current)
+          : mergeWithAccessors({}, current)
       }
 
-      let item = model || copyData
       if (keepCopiesInStore) {
         state.copiesById[id] = item
       } else {
