@@ -98,6 +98,14 @@ function makeContext() {
     }
   }
 
+  class Person extends BaseModel {
+    public static modelName = 'Person'
+    public static servicePath: 'persons'
+    public constructor(data?, options?) {
+      super(data, options)
+    }
+  }
+
   const store = new Vuex.Store<RootState>({
     strict: true,
     plugins: [
@@ -114,6 +122,12 @@ function makeContext() {
         Model: Letter,
         servicePath: 'letters',
         service: feathersClient.service('letters')
+      }),
+      makeServicePlugin({
+        Model: Person,
+        servicePath: 'persons',
+        service: feathersClient.service('persons'),
+        keepCopiesInStore: true
       })
     ]
   })
@@ -122,6 +136,7 @@ function makeContext() {
     Task,
     Todo,
     Letter,
+    Person,
     lettersService,
     store
   }
@@ -284,8 +299,38 @@ describe('Models - Methods', function () {
     assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
   })
 
-  it.skip('instance.remove removes cloned records from the store', function () {})
-  it.skip('instance.remove removes cloned records from the Model.copiesById', function () {})
+  it.skip('instance.remove removes cloned records from the store', function () {
+    const { Person, store } = makeContext()
+    const person = new Person({ test: true })
+    const tempId = person.__id
+
+    person.clone()
+
+    // @ts-ignore
+    assert(store.state.persons.copiesById[tempId], 'clone exists')
+
+    person.remove()
+
+    // @ts-ignore
+    assert(!store.state.persons.copiesById[tempId], 'clone was removed')
+  })
+
+  it.skip('instance.remove removes cloned records from the Model.copiesById', function () {
+    const { Task, store } = makeContext()
+    const task = new Task({ test: true })
+    const tempId = task.__id
+
+    task.clone()
+
+    // @ts-ignore
+    assert(Task.copiesById[tempId], 'clone exists')
+
+    task.remove()
+
+    // @ts-ignore
+    assert(!Task.copiesById[tempId], 'clone was removed')
+  })
+
   it.skip('removes clone and original upon calling clone.remove()', function () {})
 
   it('instance methods still available in store data after updateItem mutation (or socket event)', async function () {
