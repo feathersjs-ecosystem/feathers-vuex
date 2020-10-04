@@ -52,51 +52,181 @@ In the above example, any records returned from the server will automatically sh
 
 Notice in the above example that using the mixin automatically makes the `serverTasks` available in the template.  The mixins automatically setup a few properties in the viewModel based on the camelCased name of the service.  You can also provide a `name` attribute to override the defaults:
 
-## Options
+## makeFindMixin
 
-### for `makeFindMixin` and `makeGetMixin`
+### Options
 
-The `makeFindMixin` and `makeGetMixin` utilities share the following options in common. Unique options are found further down.
-
-- **service {String}** - **required** the service path. This must match a service that has already been registered with FeathersVuex.
-- **name {String}** - The name to use in all of the dynamically-generated property names. See the section about Dynamically Generated Props
-- **items {String}** - The attribute name to use for the records.
-
-- **params {String|Function}** - One of two possible params attributes.  (The other is `fetchParams`)  When only `params` is provided, it will be used for both the `find` getter and the `find` action.  When using server-side pagination, use `fetchParams` for server communciation and the `params` prop for pulling data from the local store. If the params is `null` or `undefined`, the query against both the API will be skipped. The find getter will return an empty array. **Default {String}: `${camelCasedService}Params`** (So, by default, it will attempt to use the property on the component called serviceName + "Params")
+- `service {String|Function}` - **required** the service path. This must match a service that has already been registered with FeathersVuex.
+  - **{String}** - The service namespace
+  - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
+- `name {String}` - The name to use in all of the dynamically-generated property names. See the section about Dynamically Generated Props
+- `items {String}` - The attribute name to use for the records.
+- `params {String|Function}` - One of two possible params attributes.  (The other is `fetchParams`)  When only `params` is provided, it will be used for both the `find` getter and the `find` action.  When using server-side pagination, use `fetchParams` for server communciation and the `params` prop for pulling data from the local store. If the params is `null` or `undefined`, the query against both the API will be skipped. The find getter will return an empty array. **Default {String}: `${camelCasedService}Params`** (So, by default, it will attempt to use the property on the component called serviceName + "Params")
   - **{String}** - The name of the attribute in the current component which holds or returns the query object.
   - **{Function}** - A provided function will become a computed property in the current component.
+- `watch {String|Array<String>}` - specifies the attributes of the `params` or `fetchParams` to watch.  When a watched prop changes, a new request will be made to the API server. Pass 'params' to watch the entire params object.  Pass 'params.query.name' to watch the 'name' property of the query. Watch is turned off by default, meaning only one initial request is made. **Default {String}: `${camelCasedService}Params`**
+  - **{Boolean}** - If `true`: `[${camelCasedService}Params]` will be watched, else `[]`
+  - **{String}** - The name of the component's prop to use as the value. Transformed to an `Array<String>`
+  - **{Array<String>}** - Names of the component's prop
+- `fetchParams {String|Function}` - when provided, the `fetchParams` serves as the params for the API server request. When `fetchParams` is used, the `param` attribute will be used against the service's local Vuex store. **Default: undefined**
+  - **{String}** - The name of the attribute in the current component which holds or returns the params object.
+  - **{Function}** - A provided function will become a computed property in the current component.
+- `queryWhen {Boolean|String|Function}` - the query to the server will only be made when this evaluates to true.  **Default: true**
+  - **{Boolean}** - As a boolean, the value provided determines whether this is on or off.
+  - **{String}** - The name of the component's prop to use as the value.
+  - **{Function}** - Any provided function will become a method in the component and will receive the current params object as an argument.
+- `local {Boolean|String|Function}` - when true, will only use the `params` prop to pull data from the local Vuex store. It will disable queries to the API server. The value of `local` will override `queryWhen`. **Default:false**
+  - **{Boolean}** - As a boolean, the value provided determines whether this is on or off.
+  - **{String}** - The name of the component's prop to use as the value.
+  - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
+- `qid {String}` - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
 
-- **watch {String|Array}** - specifies the attributes of the `params` or `fetchParams` to watch.  When a watched prop changes, a new request will be made to the API server. Pass 'params' to watch the entire params object.  Pass 'params.query.name' to watch the 'name' property of the query. Watch is turned off by default, meaning only one initial request is made. **Default {String}: `${camelCasedService}Params`**
+### Injected Properties
 
-- **fetchParams {String|Function}** - when provided, the `fetchParams` serves as the params for the API server request. When `fetchParams` is used, the `param` attribute will be used against the service's local Vuex store. **Default: undefined**
+With `makeFindMixin` the following properties will be injected into your component and can become handy to use manually. Since the names of the mixin are basically dynamically generated by the `service` and `name` props you pass. Here the general names to understand what's going on under the hood:
+
+#### Dynamically Generated Props:
+```vue
+<script>
+// general
+export default {
+  data: {
+    [IS_FIND_PENDING]: false, // `isFind${capitalized}Pending`
+    [HAVE_ITEMS_BEEN_REQUESTED_ONCE]: false, // `have${capitalized}BeenRequestedOnce`
+    [HAVE_ITEMS_LOADED_ONCE]: false, // `have${capitalized}LoadedOnce`
+    [MOST_RECENT_QUERY]: null, // `${prefix}LatestQuery`
+    [ERROR]: null // ${prefix}Error
+  },
+  computed: {
+    [PAGINATION]() {/* ... */} // `${prefix}PaginationData`
+    [ITEMS]() {/* ... */}, // `${items}` || `${name}` || `${camelCasedPluralService}`
+    [ITEMS_FETCHED]() {/* ... */} // `${items}Fetched` || `${name}Fetched` || `${camelCasedPluralService}Fetched`
+    [FIND_GETTER]() {/* ... */} // `find${capitalized}InStore``
+  },
+  methods: {
+    [`${FIND_ACTION}DebouncedProxy`](params) {/* ... */}  // `get${capitalized}`
+    [FIND_ACTION](params) {/* ... */}
+  }
+}
+```
+#### Example with `service: 'server-tasks`
+```vue
+<script>
+// example with 'server-tasks' service
+export default {
+  mixins: [
+    makeGetMixin({
+      service: 'server-tasks' // depending on service
+    })
+  ],
+  data: {
+    isFindServerTasksPending: false,
+    haveServerTasksBeenRequestedOnce: false,
+    haveServerTasksLoadedOnce: false,
+    serverTasksError: null
+  },
+  computed: {
+    serverTasksPaginationData() { /* ... */ }
+    serverTasks() { /* ... */ },
+    serverTasksFetched() { /* .. */ },
+    findServerTasksInStore(params) { /* ... */ },
+  },
+  methods: {
+    findServerTasksDebouncedProxy(params) { /* ... */ },
+    findServerTasks(params) { /* ... */ }
+  }
+}
+</script>
+
+```
+
+## makeGetMixin
+
+### Options
+
+- `id {String|Function}` - when performing a `get` request, serves as the id for the request. This is automatically watched, so if the `id` changes, an API request will be made and the data will be updated.  If `undefined` or `null`, no request will be made.  **Default: undefined**
+  - **{String}** - The name of the component's prop to use as the value.
+  - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
+- `service {String|Function}` - **required** the service path. This must match a service that has already been registered with FeathersVuex.
+  - **{String}** - The service namespace
+  - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
+- `name {String}` - The name to use in all of the dynamically-generated property names. See the section about Dynamically Generated Props
+- `item {String}` - The attribute name to use for the record.
+- `params {String|Function}` - One of two possible params attributes.  (The other is `fetchParams`)  When only `params` is provided, it will be used for both the `find` getter and the `find` action.  When using server-side pagination, use `fetchParams` for server communciation and the `params` prop for pulling data from the local store. If the params is `null` or `undefined`, the query against both the API will be skipped. The find getter will return an empty array. **Default {String}: `${camelCasedSingularizedService}Params`** (So, by default, it will attempt to use the property on the component called serviceName + "Params")
+  - **{String}** - The name of the attribute in the current component which holds or returns the query object.
+  - **{Function}** - A provided function will become a computed property in the current component.
+- `watch {Boolean|String|Array<String>}` - specifies the attributes of the `params` or `fetchParams` to watch.  When a watched prop changes, a new request will be made to the API server. Pass 'params' to watch the entire params object.  Pass 'params.query.name' to watch the 'name' property of the query. Watch is turned off by default, meaning only one initial request is made. **Default {Array}: `[]`**
+  - **{Boolean}** - If `true`: `[${camelCasedService}Params]` will be watched, else `[]`
+  - **{String}** - The name of the component's prop to use as the value. Transformed to an `Array<String>`
+  - **{Array<String>}** - Names of the component's prop
+- `fetchParams {String|Function}` - when provided, the `fetchParams` serves as the params for the API server request. When `fetchParams` is used, the `param` attribute will be used against the service's local Vuex store. **Default: undefined**
   - **{String}** - The name of the attribute in the current component which holds or returns the params object.
   - **{Function}** - A provided function will become a computed property in the current component.
 
-- **queryWhen {Boolean|String|Function}** - the query to the server will only be made when this evaluates to true.  **Default: true**
+- `queryWhen {Boolean|String|Function}` - the query to the server will only be made when this evaluates to true.  **Default: true**
   - **{Boolean}** - As a boolean, the value provided determines whether this is on or off.
   - **{String}** - The name of the component's prop to use as the value.
   - **{Function}** - Any provided function will become a method in the component and will receive the current params object as an argument.
 
-- **local {Boolean|String|Function}** - when true, will only use the `params` prop to pull data from the local Vuex store. It will disable queries to the API server. The value of `local` will override `queryWhen`. **Default:false**
+- `local {Boolean|String|Function}` - when true, will only use the `params` prop to pull data from the local Vuex store. It will disable queries to the API server. The value of `local` will override `queryWhen`. **Default:false**
   - **{Boolean}** - As a boolean, the value provided determines whether this is on or off.
   - **{String}** - The name of the component's prop to use as the value.
   - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
 
-### Options for only `makeFindMixin`
+### Injected Properties
 
-The `makeFindMixin` has these unique options:
+With `makeGetMixin` the following properties will be injected into your component and can become handy to use manually. Since the names of the mixin are basically dynamically generated by the `service` and `name` props you pass. Here the general names to understand what's going on under the hood:
 
-- **qid {String}** - The "query identifier" ("qid", for short) is used for storing pagination data in the Vuex store. See the service module docs to see what you'll find inside.  The `qid` and its accompanying pagination data from the store will eventually be used for cacheing and preventing duplicate queries to the API.
+#### Dynamically Generated Props:
+```vue
+<script>
+export default {
+  data: {
+    [IS_GET_Pending]: false, // `isGet${capitalized}Pending`
+    [HAS_ITEM_BEEN_REQUESTED_ONCE]: false, // `has${capitalized}BeenRequestedOnce`
+    [HAS_ITEM_LOADED_ONCE]: false, // `has${capitalized}LoadedOnce`
+    [ERROR]: null // `${prefix}Error`
+  },
+  computed: {
+    [ITEM]() { /* ... */ }, // `${item}` || `${name}` || ${camelCasedSingularService}`
+    [GET_GETTER]() { /* ... */ } // `get${capitalized}FromStore`
+  },
+  methods: {
+    [GET_ACTION]() { /* ... */ }  // `get${capitalized}`
+  }
+}
+```
+#### Example with `service: 'server-tasks`
+```vue
+<script>
+// example
+export default {
+  mixins: [
+    makeGetMixin({
+      service: 'server-tasks' // depending on service
+    })
+  ],
+  data: {
+    isGetServerTaskPending: false,
+    hasServerTaskBeenRequestedOnce: false,
+    hasServerTaskLoadedOnce: false,
+    serverTaskError: null
+  },
+  computed: {
+    serverTask() { /* ... */ },
+    getServerTaskFromStore(params) { /* ... */ },
+  },
+  methods: {
+    getServerTask(params) { /* ... */ }
+  }
+}
+</script>
 
-### Options for only `makeGetMixin`
+```
 
-The `makeGetMixin` has these unique options:
+## Patterns & Examples
 
-- **id {String|Function}** - when performing a `get` request, serves as the id for the request. This is automatically watched, so if the `id` changes, an API request will be made and the data will be updated.  If `undefined` or `null`, no request will be made.  **Default: undefined**
-  - **{String}** - The name of the component's prop to use as the value.
-  - **{Function}** - Any provided function will become a computed property in the component and will be used to determine its value.
-
-## Dynamically Generated Props
+### Dynamically Generated Props
 
 Based on what options you provide to each mixin, some dynamically-generated props will be added to the current component.  Note that the example below only shows the return values from the computes, not the functions.
 
@@ -166,7 +296,7 @@ makeFindMixin({ service: 'videos', name: 'myVideos' }) = {
 }
 ```
 
-## Using a dynamic service
+### Using a dynamic service
 
 It's possible to change the service name on the fly.  To do this, pass a function (which becomes a computed property) that returns another string property from the viewModel.  Below is an example of how to set that up.  The `serviceName` attribute is set to `"videos"`, initially.  The `setTimeout` in the `created` method changes the value to `"users"` after three seconds.  When the serviceName changes, the users service is queried automatically.  The `items` property will then update to be the newly fetched users instead of the video records that it contained before.  The `items` option is used to rename the items to something more generic.
 
@@ -233,7 +363,7 @@ const mixedInDataFromAboveExample = {
 }
 ```
 
-## Pagination with fall-through cacheing
+### Pagination with fall-through cacheing
 
 The `makeFindMixin` in `feathers-vuex@2.x` features a great new, high performance, fall-through cacheing feature, which only uses a single query!  Read the service module documentation for details of how it works under the hood.  It really makes easy work of high-performance pagination.  To use the pagination, provide `$limit` and `$skip` attributes in `params.query`.  This is exactly the same way you would normally do with any FeathersJS query.  So this is completely transparent to how you'd normally do it.
 
@@ -290,7 +420,7 @@ export default {
 
 In the above example, since we've enabled the `watch` attribute on the makeFindMixin, every time the params change, the query will run again.  `feathers-vuex` will keep track of the queries and the pages that are visited, noting which records are returned on each page.  When a page is revisited, the data in the store will *immedately* display to the user.  The query will (by default) go out to the API server, and data will be updated in the background when the response arrives.
 
-## Debouncing requests
+### Debouncing requests
 
 What happens when a query with a watcher is attached to an attribute that might change rapidly?  A lot of API requests can get sent in succession.  If too many are sent, some of them will start to fail (a.k.a. bounce).  The `makeFindMixin` has a built-in utility for debouncing requests.  Enabling it makes it so requests only are sent after a specific amount of time has passed.  To enable it, pass a `debounce` attribute in the `params`, as shown in the next example.
 
@@ -366,7 +496,7 @@ We also added a `$regex` search to the params.  This is a MongoDB feature, which
 
 Feel free to make a PR for using something else that could be useful to the community!  We love those!
 
-## Enabling live lists with pagination
+### Enabling live lists with pagination
 
 The new fall-through cacheing pagination does not currently support live sorting of lists.  This means that when a new record arrives from the database, it doesn't automatically get sorted into the correct page and shuffle the other records around it.  The lists will update as the user navigates to previous/next pages.  Coming up with a solution for this will be a top priority after 2.x ships.  In the meantime, here are some alternatives.
 
@@ -487,7 +617,7 @@ export default {
 </template>
 ```
 
-## Debugging the makeFindMixin
+### Debugging the makeFindMixin
 
 **Important: For the built in pagination features to work, you must not directly manipulate the `context.params` object in any hooks.**
 
