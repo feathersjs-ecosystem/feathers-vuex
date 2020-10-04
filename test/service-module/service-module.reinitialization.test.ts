@@ -89,7 +89,11 @@ describe('Service Module - Reinitialization', function() {
       servicePath: 'todos',
       skipRequestIfExists: false,
       tempsById: {},
-      whitelist: []
+      whitelist: [],
+      isIdCreatePending: [],
+      isIdUpdatePending: [],
+      isIdPatchPending: [],
+      isIdRemovePending: [],
     }
 
     assert.deepEqual(
