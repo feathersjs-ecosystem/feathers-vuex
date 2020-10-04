@@ -301,10 +301,7 @@ export default function makeServiceActions(service: Service<any>) {
       if (!isPaginated && autoRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
-          if (
-            id !== state.currentId &&
-            !list.some(item => getId(item, idField) === id)
-          ) {
+          if (!list.some(item => getId(item, idField) === id)) {
             toRemove.push(state.keyedById[id])
           }
         })
