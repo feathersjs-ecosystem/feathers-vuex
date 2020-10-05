@@ -289,6 +289,8 @@ export default function makeServiceActions(service: Service<any>) {
       const toRemove = []
       const { idField, autoRemove } = state
 
+      const disableRemove = response.disableRemove || !autoRemove
+
       list.forEach(item => {
         const id = getId(item, idField)
         const existingItem = state.keyedById[id]
@@ -298,7 +300,7 @@ export default function makeServiceActions(service: Service<any>) {
         }
       })
 
-      if (!isPaginated && autoRemove) {
+      if (!isPaginated && !disableRemove) {
         // Find IDs from the state which are not in the list
         state.ids.forEach(id => {
           if (!list.some(item => getId(item, idField) === id)) {
