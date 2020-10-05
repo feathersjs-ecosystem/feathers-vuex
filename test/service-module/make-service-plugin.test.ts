@@ -16,7 +16,7 @@ import _omit from 'lodash/omit'
 
 Vue.use(Vuex)
 
-describe('makeServicePlugin', function() {
+describe('makeServicePlugin', function () {
   beforeEach(() => {
     clearModels()
   })
@@ -28,7 +28,7 @@ describe('makeServicePlugin', function() {
     assert(clients.byAlias['this is a test'], 'got a reference to the client.')
   })
 
-  it('registers the vuex module with options', function() {
+  it('registers the vuex module with options', function () {
     interface RootState {
       todos: {}
     }
@@ -73,6 +73,7 @@ describe('makeServicePlugin', function() {
       isRemovePending: false,
       isUpdatePending: false,
       keepCopiesInStore: false,
+      debounceEventsTime: null,
       keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',
@@ -94,7 +95,7 @@ describe('makeServicePlugin', function() {
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
   })
 
-  it('sets up Model.store && service.FeathersVuexModel', function() {
+  it('sets up Model.store && service.FeathersVuexModel', function () {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
@@ -114,7 +115,7 @@ describe('makeServicePlugin', function() {
     assert.equal(service.FeathersVuexModel, Todo, 'Model accessible on service')
   })
 
-  it('allows accessing other models', function() {
+  it('allows accessing other models', function () {
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
@@ -140,7 +141,7 @@ describe('makeServicePlugin', function() {
     assert(Todo.store === store)
   })
 
-  it('allows service specific handleEvents', async function() {
+  it('allows service specific handleEvents', async function () {
     // feathers.use('todos', new TodosService())
     const serverAlias = 'default'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
@@ -235,7 +236,7 @@ describe('makeServicePlugin', function() {
     assert(removedCalled, 'removed handler called')
   })
 
-  it('fall back to globalOptions handleEvents if service specific handleEvents handler is missing', async function() {
+  it('fall back to globalOptions handleEvents if service specific handleEvents handler is missing', async function () {
     // feathers.use('todos', new TodosService())
     const serverAlias = 'default'
 
@@ -339,7 +340,7 @@ describe('makeServicePlugin', function() {
     assert(globalRemovedCalled, 'global removed handler called')
   })
 
-  it('allow handleEvents handlers to return extracted event data', async function() {
+  it('allow handleEvents handlers to return extracted event data', async function () {
     const serverAlias = 'default'
 
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {

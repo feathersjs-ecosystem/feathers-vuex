@@ -29,13 +29,13 @@ function makeContext() {
   }
 }
 
-describe('Service Module - Reinitialization', function() {
+describe('Service Module - Reinitialization', function () {
   /**
    * Tests that when the make service plugin is reinitialized state
    * is reset in the vuex module/model.
    * This prevents state pollution in SSR setups.
    */
-  it('does not preserve module/model state when reinitialized', function() {
+  it('does not preserve module/model state when reinitialized', function () {
     const {
       makeServicePlugin,
       todoService,
@@ -74,6 +74,7 @@ describe('Service Module - Reinitialization', function() {
       isRemovePending: false,
       isUpdatePending: false,
       keepCopiesInStore: false,
+      debounceEventsTime: null,
       keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',

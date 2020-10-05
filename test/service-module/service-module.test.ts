@@ -176,12 +176,64 @@ function makeAutoRemoveContext() {
   }
 }
 
-describe('Service Module', function() {
+function makeSocketIoContext() {
+  const { makeServicePlugin, BaseModel } = feathersVuex(
+    feathersSocketioClient,
+    {
+      serverAlias: 'updates-store-on-events'
+    }
+  )
+
+  class Thing extends BaseModel {
+    public static modelName = 'Thing'
+    public static test = true
+    public constructor(data = {}, options?) {
+      super(data, options)
+    }
+  }
+
+  class ThingDebounced extends BaseModel {
+    public static modelName = 'ThingDebounced'
+    public static test = true
+    public constructor(data = {}, options?) {
+      super(data, options)
+    }
+  }
+
+  const store = new Vuex.Store<RootState>({
+    strict: true,
+    plugins: [
+      makeServicePlugin({
+        Model: Thing,
+        service: feathersSocketioClient.service('things'),
+        servicePath: 'things'
+      }),
+      makeServicePlugin({
+        Model: Thing,
+        service: feathersSocketioClient.service('things-debounced'),
+        servicePath: 'things-debounced',
+        debounceEventsTime: 20,
+        namespace: 'things-debounced'
+      })
+    ]
+  })
+
+  return {
+    feathersSocketioClient,
+    makeServicePlugin,
+    BaseModel,
+    Thing,
+    ThingDebounced,
+    store
+  }
+}
+
+describe('Service Module', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('registers a vuex plugin and Model for the service', function() {
+  it('registers a vuex plugin and Model for the service', function () {
     const { makeServicePlugin, ServiceTodo, BaseModel } = makeContext()
     const serviceName = 'service-todos'
     const feathersService = feathersClient.service(serviceName)
@@ -212,8 +264,8 @@ describe('Service Module', function() {
     assert(store.state[serviceName])
   })
 
-  describe('Models', function() {
-    beforeEach(function() {
+  describe('Models', function () {
+    beforeEach(function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -247,7 +299,7 @@ describe('Service Module', function() {
       this.ServiceTodo = ServiceTodo
     })
 
-    it('allows creating model clones', function() {
+    it('allows creating model clones', function () {
       const { ServiceTodo } = this
       const serviceTodoClone = this.serviceTodo.clone()
 
@@ -261,7 +313,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows modifying clones without affecting the original', function() {
+    it('allows modifying clones without affecting the original', function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -273,7 +325,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows commiting changes back to the original in the store', function() {
+    it('allows commiting changes back to the original in the store', function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -286,7 +338,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('performs a shallow merge when commiting back to the original record', function() {
+    it('performs a shallow merge when commiting back to the original record', function () {
       const { serviceTodo, owners } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -309,14 +361,14 @@ describe('Service Module', function() {
       )
     })
 
-    it(`the object returned from clone is not the same as the original`, function() {
+    it(`the object returned from clone is not the same as the original`, function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
       assert(serviceTodo !== serviceTodoClone, 'the objects are distinct')
     })
 
-    it(`the object returned from commit is not the same as the clone`, function() {
+    it(`the object returned from commit is not the same as the clone`, function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
       const committedTodo = serviceTodoClone.commit()
@@ -324,7 +376,7 @@ describe('Service Module', function() {
       assert(committedTodo !== serviceTodoClone, 'the objects are distinct')
     })
 
-    it(`the object returned from commit is the same as the original`, function() {
+    it(`the object returned from commit is the same as the original`, function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
       const committedTodo = serviceTodoClone.commit()
@@ -332,7 +384,7 @@ describe('Service Module', function() {
       assert(serviceTodo === committedTodo, 'the objects are the same')
     })
 
-    it(`nested arrays are distinct after clone`, function() {
+    it(`nested arrays are distinct after clone`, function () {
       const { ServiceTodo } = this
 
       const todo = new ServiceTodo({
@@ -347,7 +399,7 @@ describe('Service Module', function() {
       )
     })
 
-    it.skip(`modifying a clone after calling commit() does not change the original `, function() {
+    it.skip(`modifying a clone after calling commit() does not change the original `, function () {
       const { serviceTodo, owners } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -367,7 +419,7 @@ describe('Service Module', function() {
       )
     })
 
-    it(`changes the original if you modify return value of a commit`, function() {
+    it(`changes the original if you modify return value of a commit`, function () {
       const { serviceTodo, owners } = this
       let serviceTodoClone = serviceTodo.clone()
 
@@ -387,7 +439,7 @@ describe('Service Module', function() {
       )
     })
 
-    it(`allows shallow assign of data when cloning`, function() {
+    it(`allows shallow assign of data when cloning`, function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone({
         isComplete: !serviceTodo.isComplete
@@ -408,7 +460,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows reseting copy changes back to match the original', function() {
+    it('allows reseting copy changes back to match the original', function () {
       const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
@@ -425,7 +477,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('adds additional properties to model instances when more data arrives for the same id', function() {
+    it('adds additional properties to model instances when more data arrives for the same id', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -444,7 +496,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('ignores when new data with matching id has fewer props than current record', function() {
+    it('ignores when new data with matching id has fewer props than current record', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -463,7 +515,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('updates the new record when non-null, non-undefined values do not match', function() {
+    it('updates the new record when non-null, non-undefined values do not match', function () {
       const { serviceTodo, owners } = this
       const newData = {
         id: 1,
@@ -486,7 +538,7 @@ describe('Service Module', function() {
   })
 
   describe('Setting Up', () => {
-    it('service stores have global defaults', function() {
+    it('service stores have global defaults', function () {
       const { makeServicePlugin, BaseModel, Task } = makeContext()
       class Todo extends BaseModel {
         public static modelName = 'Todo'
@@ -511,7 +563,7 @@ describe('Service Module', function() {
       assert(state.todos, 'uses `short` nameStyle by default')
     })
 
-    it('can customize the idField for each service', function() {
+    it('can customize the idField for each service', function () {
       const { makeServicePlugin, Test, Person } = makeContext()
       const store = new Vuex.Store<RootState>({
         plugins: [
@@ -539,7 +591,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows enabling autoRemove', function() {
+    it('allows enabling autoRemove', function () {
       const { makeServicePlugin, Test } = makeContext()
       const autoRemove = true
       const store = new Vuex.Store<RootState>({
@@ -558,7 +610,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('can switch to path name as namespace', function() {
+    it('can switch to path name as namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const plugin = makeServicePlugin({
         Model: Test,
@@ -576,7 +628,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('can explicitly provide a namespace', function() {
+    it('can explicitly provide a namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const store = new Vuex.Store<RootState>({
@@ -591,7 +643,7 @@ describe('Service Module', function() {
       assert(store.state.blah, 'the namespace option was used as the namespace')
     })
 
-    it('prioritizes the explicit namespace', function() {
+    it('prioritizes the explicit namespace', function () {
       const { makeServicePlugin, Test } = makeContext()
       const namespace = 'blah'
       const nameStyle = 'path'
@@ -610,7 +662,7 @@ describe('Service Module', function() {
   })
 
   describe('Basics', () => {
-    it('populates default store', function() {
+    it('populates default store', function () {
       const {
         makeServicePlugin,
         feathers,
@@ -647,6 +699,7 @@ describe('Service Module', function() {
         isPatchPending: false,
         isRemovePending: false,
         keepCopiesInStore: false,
+        debounceEventsTime: null,
         keyedById: {},
         nameStyle: 'short',
         namespace: 'service-todos',
@@ -673,7 +726,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('throws an error if no service is provided', function() {
+    it('throws an error if no service is provided', function () {
       const { makeServicePlugin } = makeContext()
       try {
         new Vuex.Store({
@@ -689,12 +742,12 @@ describe('Service Module', function() {
       }
     })
 
-    describe('Auto-Remove Items', function() {
-      beforeEach(function() {
+    describe('Auto-Remove Items', function () {
+      beforeEach(function () {
         clearModels()
       })
 
-      it(`removes missing items when pagination is off`, function(done) {
+      it(`removes missing items when pagination is off`, function (done) {
         const {
           makeServicePlugin,
           Todo,
@@ -746,7 +799,7 @@ describe('Service Module', function() {
           })
       })
 
-      it(`does not remove missing items when pagination is on`, function(done) {
+      it(`does not remove missing items when pagination is on`, function (done) {
         const {
           makeServicePlugin,
           Task,
@@ -798,7 +851,7 @@ describe('Service Module', function() {
           })
       })
 
-      it(`does not remove missing items when autoRemove is off`, function(done) {
+      it(`does not remove missing items when autoRemove is off`, function (done) {
         const {
           makeServicePlugin,
           Todo,
@@ -851,8 +904,8 @@ describe('Service Module', function() {
     })
   })
 
-  describe('Customizing Service Stores', function() {
-    it('allows adding custom state', function() {
+  describe('Customizing Service Stores', function () {
+    it('allows adding custom state', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
 
       const customState = {
@@ -878,7 +931,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows custom mutations', function() {
+    it('allows custom mutations', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const state = { test: true }
       const customMutations = {
@@ -904,7 +957,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows custom getters', function() {
+    it('allows custom getters', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const customGetters = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -928,7 +981,7 @@ describe('Service Module', function() {
       )
     })
 
-    it('allows adding custom actions', function() {
+    it('allows adding custom actions', function () {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const config = {
         state: {
@@ -963,45 +1016,58 @@ describe('Service Module', function() {
     })
   })
 
-  describe.skip('Updates the Store on Events', function() {
-    const fv = feathersVuex(feathersSocketioClient, {
-      serverAlias: 'updates-store-on-events'
-    })
+  describe('Updates the Store on Events', function () {
+    const {
+      feathersSocketioClient,
+      BaseModel,
+      Thing,
+      ThingDebounced,
+      store
+    } = makeSocketIoContext()
 
-    it('created', function(done) {
-      const { Thing } = this
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          fv.makeServicePlugin({
-            Model: Thing,
-            service: feathersSocketioClient.service('things')
-          })
-        ]
-      })
-
+    it('created', function (done) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      feathersSocketioClient.service('things').on('created', item => {
+      const listener = item => {
         assert(
+          // @ts-ignore
           store.state.things.keyedById[0].test,
           'the item received from the socket event was added to the store'
         )
+
+        feathersSocketioClient.service('things').off('created', listener)
+
         done()
-      })
+      }
+      feathersSocketioClient.service('things').on('created', listener)
 
       feathersSocketioClient.service('things').create({ test: true })
     })
 
-    it('patched', function(done) {
-      const { Thing } = this
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          fv.makeServicePlugin({
-            Model: Thing,
-            service: feathersSocketioClient.service('things')
-          })
-        ]
-      })
+    it('created debounced', function (done) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const listener = item => {
+        assert(
+          !store.state['things-debounced'].keyedById[0],
+          'the item is not added immediately'
+        )
+        setTimeout(() => {
+          assert(
+            store.state['things-debounced'].keyedById[0].test,
+            'the item received from the socket event was added to the store'
+          )
+          feathersSocketioClient
+            .service('things-debounced')
+            .off('created', listener)
+          done()
+        }, 30)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      feathersSocketioClient.service('things-debounced').on('created', listener)
 
+      feathersSocketioClient.service('things-debounced').create({ test: true })
+    })
+
+    it('patched', function (done) {
       store.commit('things/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1016,17 +1082,35 @@ describe('Service Module', function() {
       feathersSocketioClient.service('things').patch(1, { test: true })
     })
 
-    it('updated', function(done) {
-      const { Thing } = this
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          fv.makeServicePlugin({
-            Model: Thing,
-            service: feathersSocketioClient.service('things')
-          })
-        ]
-      })
+    it('patched debounced', function (done) {
+      store.commit('things-debounced/addItem', { id: 1, test: false })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const listener = item => {
+        assert(
+          !store.state['things-debounced'].keyedById[1].test,
+          'the item is not updated immediately'
+        )
+        setTimeout(() => {
+          assert(
+            store.state['things-debounced'].keyedById[1].test,
+            'the item received from the socket event was updated in the store'
+          )
+        }, 30)
+        feathersSocketioClient
+          .service('things-debounced')
+          .off('patched', listener)
+        done()
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      feathersSocketioClient.service('things-debounced').on('patched', listener)
+      feathersSocketioClient
+        .service('things-debounced')
+        .patch(1, { test: true })
+    })
+
+    it('updated', function (done) {
       store.commit('things/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1041,17 +1125,36 @@ describe('Service Module', function() {
       feathersSocketioClient.service('things').update(1, { test: true })
     })
 
-    it('removed', function(done) {
-      const { Thing } = this
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          fv.makeServicePlugin({
-            Model: Thing,
-            service: feathersSocketioClient.service('things')
-          })
-        ]
-      })
+    it('updated debounced', function (done) {
+      store.commit('things-debounced/addItem', { id: 1, test: false })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const listener = item => {
+        assert(
+          !store.state['things-debounced'].keyedById[1].test,
+          'the item is not updated immediately'
+        )
+        setTimeout(() => {
+          assert(
+            store.state['things-debounced'].keyedById[1].test,
+            'the item received from the socket event was updated in the store'
+          )
+          done()
+        }, 30)
+        feathersSocketioClient
+          .service('things-debounced')
+          .off('updated', listener)
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      feathersSocketioClient.service('things-debounced').on('updated', listener)
+
+      feathersSocketioClient
+        .service('things-debounced')
+        .update(1, { test: true })
+    })
+
+    it('removed', function (done) {
       store.commit('things/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1064,6 +1167,34 @@ describe('Service Module', function() {
       })
 
       feathersSocketioClient.service('things').remove(1)
+    })
+
+    it('removed debounced', function (done) {
+      store.commit('things-debounced/addItem', { id: 1, test: false })
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const listener = item => {
+        assert(
+          store.state['things-debounced'].keyedById[1],
+          'the item is not removed immediately'
+        )
+
+        setTimeout(() => {
+          assert(
+            !store.state.things.keyedById[1],
+            'the item received from the socket event was removed from the store'
+          )
+          done()
+        }, 30)
+
+        feathersSocketioClient
+          .service('things-debounced')
+          .off('removed', listener)
+      }
+
+      feathersSocketioClient.service('things-debounced').on('removed', listener)
+
+      feathersSocketioClient.service('things-debounced').remove(1)
     })
   })
 })
