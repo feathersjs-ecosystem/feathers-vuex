@@ -54,7 +54,6 @@ export function enableServiceEvents({ service, Model, store, options }): void {
           ? store.commit(`${options.namespace}/removeItem`, modified)
           : store.dispatch(`${options.namespace}/${mutationName}`, modified)
       } else {
-        const id = getId(item, options.idField)
         eventName === 'removed'
           ? debounceMap.removeItem(item)
           : debounceMap.addOrUpdate(item)
