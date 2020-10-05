@@ -36,6 +36,7 @@ export interface ServiceStateExclusiveDefaults {
   }
   paramsForServer: string[]
   modelName?: string
+  debounceEventsTime: number
 }
 
 export interface ServiceState<M extends Model = Model> {
@@ -77,6 +78,7 @@ export interface ServiceState<M extends Model = Model> {
     default?: PaginationState
   }
   modelName?: string
+  debounceEventsTime: number
 }
 
 export interface PaginationState {
@@ -111,6 +113,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
       defaultSkip: null
     },
     paramsForServer: ['$populateParams'],
+    debounceEventsTime: null,
 
     isFindPending: false,
     isGetPending: false,
