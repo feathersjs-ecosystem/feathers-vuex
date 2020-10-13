@@ -1169,13 +1169,36 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true /*,
+        test: true
+      }
+      store.commit('comics/addItem', item1)
+
+      // Create a copy and modify it.
+      store.commit('comics/createCopy', item1._id)
+      const copy = Comic.copiesById[item1._id]
+      copy.test = false
+
+      // Call resetCopy and check that it's back to the original value
+      store.commit('comics/resetCopy', item1._id)
+
+      assert(copy.test === true, 'the copy was reset')
+
+      clearModels()
+    })
+
+    it.skip('resetCopy with keepCopiesInStore: false and with intact getter/setter', function () {
+      const context = makeContext()
+      const { Comic, store } = context
+
+      const item1 = {
+        _id: 1,
+        test: true,
         get getter() {
           return 'Life is a Joy!'
         },
         set setter(val) {
           this.test = val
-        }*/
+        }
       }
       store.commit('comics/addItem', item1)
 
@@ -1190,9 +1213,9 @@ describe('Service Module - Mutations', function () {
       assert(copy.test === true, 'the copy was reset')
 
       // Make sure accessors stayed intact
-      //assertGetter(copy, 'getter', 'Life is a Joy!')
-      //copy.setter = false
-      //assert(copy.test === false, 'the setter is intact')
+      assertGetter(copy, 'getter', 'Life is a Joy!')
+      copy.setter = false
+      assert(copy.test === false, 'the setter is intact')
 
       clearModels()
     })
