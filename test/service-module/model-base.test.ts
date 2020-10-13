@@ -18,8 +18,8 @@ Vue.use(Vuex)
 process.setMaxListeners(100)
 
 describe.skip('Model - Standalone', function () {
-  it.skip('allows using a model without a service', function () { })
-  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function () { })
+  it.skip('allows using a model without a service', function () {})
+  it.skip('rename serverAlias to just `alias` or maybe `groupName`', function () {})
 })
 
 describe('makeModel / BaseModel', function () {
@@ -28,7 +28,7 @@ describe('makeModel / BaseModel', function () {
   })
 
   it('properly sets up the BaseModel', function () {
-    const alias = 'default'
+    const alias = 'model-base'
     const { BaseModel } = feathersVuex(feathers, { serverAlias: alias })
     const {
       name,
@@ -51,7 +51,7 @@ describe('makeModel / BaseModel', function () {
     assert(!preferUpdate, 'prefer fetch by default')
 
     // Readonly props
-    assert(serverAlias === 'default', 'serverAlias')
+    assert(serverAlias === 'model-base', 'serverAlias')
     assert(models, 'models are available')
     assert.equal(Object.keys(copiesById).length, 0, 'copiesById is empty')
 
@@ -88,14 +88,9 @@ describe('makeModel / BaseModel', function () {
     })
 
     // Utility Methods
-    const utilityMethods = [
-      'hydrateAll'
-    ]
+    const utilityMethods = ['hydrateAll']
     utilityMethods.forEach(method => {
-      assert(
-        typeof BaseModel[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel[method] === 'function', `has ${method} method`)
     })
 
     const eventMethods = [
@@ -108,10 +103,7 @@ describe('makeModel / BaseModel', function () {
       'removeAllListeners'
     ]
     eventMethods.forEach(method => {
-      assert(
-        typeof BaseModel[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel[method] === 'function', `has ${method} method`)
     })
   })
 
@@ -149,7 +141,7 @@ describe('makeModel / BaseModel', function () {
   })
 
   it('allows access to other models after Vuex plugins are registered', function () {
-    const serverAlias = 'default'
+    const serverAlias = 'model-base'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
       serverAlias
@@ -158,7 +150,7 @@ describe('makeModel / BaseModel', function () {
     // Create a Todo Model & Plugin
     class Todo extends BaseModel {
       public static modelName = 'Todo'
-      public test: boolean = true
+      public test = true
     }
     const todosPlugin = makeServicePlugin({
       servicePath: 'todos',
@@ -169,7 +161,7 @@ describe('makeModel / BaseModel', function () {
     // Create a Task Model & Plugin
     class Task extends BaseModel {
       public static modelName = 'Task'
-      public test: boolean = true
+      public test = true
     }
     const tasksPlugin = makeServicePlugin({
       servicePath: 'tasks',
@@ -196,7 +188,7 @@ describe('makeModel / BaseModel', function () {
     })
     class Todo extends myApi.BaseModel {
       public static modelName = 'Todo'
-      public test: boolean = true
+      public test = true
     }
     const todosPlugin = myApi.makeServicePlugin({
       Model: Todo,
@@ -210,7 +202,7 @@ describe('makeModel / BaseModel', function () {
     })
     class Task extends theirApi.BaseModel {
       public static modelName = 'Task'
-      public test: boolean = true
+      public test = true
     }
     const tasksPlugin = theirApi.makeServicePlugin({
       Model: Task,

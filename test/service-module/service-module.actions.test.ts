@@ -75,7 +75,7 @@ function makeContext() {
   })
 
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'default'
+    serverAlias: 'service-module-actions'
   })
   class Todo extends BaseModel {
     public static modelName = 'Todo'

@@ -16,7 +16,7 @@ import _omit from 'lodash/omit'
 
 Vue.use(Vuex)
 
-describe('makeServicePlugin', function() {
+describe('makeServicePlugin', function () {
   beforeEach(() => {
     clearModels()
   })
@@ -28,16 +28,16 @@ describe('makeServicePlugin', function() {
     assert(clients.byAlias['this is a test'], 'got a reference to the client.')
   })
 
-  it('registers the vuex module with options', function() {
+  it('registers the vuex module with options', function () {
     interface RootState {
       todos: {}
     }
 
-    const serverAlias = 'default'
+    const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
     })
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
       public static modelName = 'Todo'
       public static servicePath = servicePath
@@ -45,12 +45,13 @@ describe('makeServicePlugin', function() {
     const todosPlugin = makeServicePlugin({
       servicePath,
       Model: Todo,
-      service: feathers.service(servicePath)
+      service: feathers.service(servicePath),
+      namespace: 'make-service-plugin-todos'
     })
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
-    const keys = Object.keys(store.state.todos)
-    const received = _pick(store.state.todos, keys)
+    const keys = Object.keys(store.state['make-service-plugin-todos'])
+    const received = _pick(store.state['make-service-plugin-todos'], keys)
     const expected = {
       addOnUpsert: false,
       autoRemove: false,
@@ -76,7 +77,7 @@ describe('makeServicePlugin', function() {
       keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',
-      namespace: 'todos',
+      namespace: 'make-service-plugin-todos',
       pagination: {
         defaultLimit: null,
         defaultSkip: null
@@ -84,8 +85,8 @@ describe('makeServicePlugin', function() {
       paramsForServer: ['$populateParams'],
       preferUpdate: false,
       replaceItems: false,
-      serverAlias: 'default',
-      servicePath: 'todos',
+      serverAlias: 'make-service-plugin',
+      servicePath: 'make-service-plugin-todos',
       skipRequestIfExists: false,
       tempsById: {},
       whitelist: []
@@ -94,13 +95,13 @@ describe('makeServicePlugin', function() {
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
   })
 
-  it('sets up Model.store && service.FeathersVuexModel', function() {
-    const serverAlias = 'default'
+  it('sets up Model.store && service.FeathersVuexModel', function () {
+    const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       serverAlias
     })
 
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     const service = feathers.service(servicePath)
     class Todo extends BaseModel {
       public static modelName = 'Todo'
@@ -114,14 +115,14 @@ describe('makeServicePlugin', function() {
     assert.equal(service.FeathersVuexModel, Todo, 'Model accessible on service')
   })
 
-  it('allows accessing other models', function() {
-    const serverAlias = 'default'
+  it('allows accessing other models', function () {
+    const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
       serverAlias
     })
 
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
       public static modelName = 'Todo'
       public static servicePath = servicePath
@@ -140,18 +141,19 @@ describe('makeServicePlugin', function() {
     assert(Todo.store === store)
   })
 
-  it('allows service specific handleEvents', async function() {
+  it('allows service specific handleEvents', async function () {
     // feathers.use('todos', new TodosService())
-    const serverAlias = 'default'
+    const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       idField: '_id',
       serverAlias
     })
 
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
       public static modelName = 'Todo'
       public static servicePath = servicePath
+      public static namespace = 'make-service-plugin-todos'
     }
 
     let createdCalled = false
@@ -189,7 +191,7 @@ describe('makeServicePlugin', function() {
     const todo = new Todo()
 
     // Fake server call
-    feathers.service('todos').hooks({
+    feathers.service('make-service-plugin-todos').hooks({
       before: {
         create: [
           context => {
@@ -235,9 +237,9 @@ describe('makeServicePlugin', function() {
     assert(removedCalled, 'removed handler called')
   })
 
-  it('fall back to globalOptions handleEvents if service specific handleEvents handler is missing', async function() {
+  it('fall back to globalOptions handleEvents if service specific handleEvents handler is missing', async function () {
     // feathers.use('todos', new TodosService())
-    const serverAlias = 'default'
+    const serverAlias = 'make-service-plugin'
 
     let globalCreatedCalled = false
     let globalUpdatedCalled = false
@@ -266,10 +268,11 @@ describe('makeServicePlugin', function() {
       }
     })
 
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
       public static modelName = 'Todo'
       public static servicePath = servicePath
+      public static namespace = 'make-service-plugin-todos'
     }
 
     let specificUpdatedCalled = false
@@ -277,6 +280,7 @@ describe('makeServicePlugin', function() {
       servicePath,
       Model: Todo,
       service: feathers.service(servicePath),
+      namespace: 'make-service-plugin-todos',
       handleEvents: {
         updated() {
           specificUpdatedCalled = true
@@ -292,7 +296,7 @@ describe('makeServicePlugin', function() {
     const todo = new Todo()
 
     // Fake server call
-    feathers.service('todos').hooks({
+    feathers.service('make-service-plugin-todos').hooks({
       before: {
         create: [
           context => {
@@ -339,8 +343,8 @@ describe('makeServicePlugin', function() {
     assert(globalRemovedCalled, 'global removed handler called')
   })
 
-  it('allow handleEvents handlers to return extracted event data', async function() {
-    const serverAlias = 'default'
+  it('allow handleEvents handlers to return extracted event data', async function () {
+    const serverAlias = 'make-service-plugin'
 
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       idField: '_id',
@@ -361,7 +365,7 @@ describe('makeServicePlugin', function() {
       }
     })
 
-    const servicePath = 'todos'
+    const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
       public static modelName = 'Todo'
       public static servicePath = servicePath
@@ -371,13 +375,14 @@ describe('makeServicePlugin', function() {
     const todosPlugin = makeServicePlugin({
       servicePath,
       Model: Todo,
-      service: todosService
+      service: todosService,
+      namespace: 'make-service-plugin-todos'
     })
 
     const store = new Vuex.Store<{ todos: ServiceState }>({
       plugins: [todosPlugin]
     })
-    const { keyedById } = store.state.todos
+    const { keyedById } = store.state['make-service-plugin-todos']
 
     let createdData = null
     let updatedData = null

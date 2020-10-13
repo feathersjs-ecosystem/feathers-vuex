@@ -42,11 +42,11 @@ function makeContext() {
     new ComicService({ store: makeStore() })
   )
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'default'
+    serverAlias: 'model-temp-ids'
   })
   class Comic extends BaseModel {
     public static modelName = 'Comic'
-    public static test: boolean = true
+    public static test = true
 
     public constructor(data, options?) {
       super(data, options)
@@ -70,12 +70,12 @@ function makeContext() {
   }
 }
 
-describe('Models - Temp Ids', function() {
+describe('Models - Temp Ids', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('adds tempIds for items without an [idField]', function() {
+  it('adds tempIds for items without an [idField]', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -109,7 +109,7 @@ describe('Models - Temp Ids', function() {
     assert(desc.enumerable, 'it is enumerable')
   })
 
-  it('allows specifying the value for the tempId', function() {
+  it('allows specifying the value for the tempId', function () {
     const context = makeContext()
     const Comic = context.Comic
     const oid = new ObjectID().toHexString()
@@ -120,7 +120,7 @@ describe('Models - Temp Ids', function() {
     assert.equal(comic.__id, oid, 'the objectid was used')
   })
 
-  it('adds to state.tempsById', function() {
+  it('adds to state.tempsById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -151,7 +151,7 @@ describe('Models - Temp Ids', function() {
     assert(store.state.transactions.tempsById[txn.__id], 'it is in the store')
   })
 
-  it('maintains reference to temp item after save', function() {
+  it('maintains reference to temp item after save', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -216,7 +216,7 @@ describe('Models - Temp Ids', function() {
     })
   })
 
-  it('removes uncreated temp', function() {
+  it('removes uncreated temp', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -250,7 +250,7 @@ describe('Models - Temp Ids', function() {
     assert(!store.state.things.tempsById[thing.__id], 'temp item was removed')
   })
 
-  it('clones into Model.copiesById', function() {
+  it('clones into Model.copiesById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -281,7 +281,7 @@ describe('Models - Temp Ids', function() {
     assert(Transaction.copiesById[txn.__id], 'it is in the copiesById')
   })
 
-  it('commits into store.tempsById', function() {
+  it('commits into store.tempsById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -316,7 +316,7 @@ describe('Models - Temp Ids', function() {
     assert.equal(originalTemp.amount, 11.99, 'original was updated')
   })
 
-  it('can reset a temp clone', function() {
+  it('can reset a temp clone', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       serverAlias: 'temp-ids'
     })
@@ -348,7 +348,7 @@ describe('Models - Temp Ids', function() {
     assert.equal(clone.amount, 1.99, 'clone was reset')
   })
 
-  it('returns the keyedById record after create, not the tempsById record', function(done) {
+  it('returns the keyedById record after create, not the tempsById record', function (done) {
     const { Comic, store } = makeContext()
 
     const comic = new Comic({
@@ -377,7 +377,7 @@ describe('Models - Temp Ids', function() {
       .catch(done)
   })
 
-  it('removes __isTemp from temp and clone', function() {
+  it('removes __isTemp from temp and clone', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -406,7 +406,7 @@ describe('Models - Temp Ids', function() {
     assert(!clone.hasOwnProperty('__isTemp'), '__isTemp was removed from clone')
   })
 
-  it('updateTemp assigns ID to temp and migrates it from tempsById to keyedById', function() {
+  it('updateTemp assigns ID to temp and migrates it from tempsById to keyedById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
@@ -438,7 +438,7 @@ describe('Models - Temp Ids', function() {
     )
   })
 
-  it('Clone gets _id after save (create only called once)', async function() {
+  it('Clone gets _id after save (create only called once)', async function () {
     // Test ensures subsequent calls to clone.save() do not call create
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
@@ -510,7 +510,7 @@ describe('Models - Temp Ids', function() {
     assert(thing.description === 'Thing 3', "thing got clone's new changes")
   })
 
-  it('find() getter does not return duplicates with temps: true', async function() {
+  it('find() getter does not return duplicates with temps: true', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
       serverAlias: 'temp-ids'
