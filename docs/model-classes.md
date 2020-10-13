@@ -51,6 +51,77 @@ User.instanceDefaults = function() {
 }
 ```
 
+### BaseModel typing
+
+BaseModel typing gives helpful IDE autocomplete and errors when using Model classes.
+
+Since Feathers-Vuex doesn't know what your data looks like, you will need to help define your underlying model data's interface.
+
+By default, Model classes are `string` indexable with value of type `any`. This isn't super helpful...
+
+```ts
+// Just like before, we define our class as an extension of BaseModel
+class User extends BaseModel { /* ... */ }
+
+// Augment the User Model interface
+interface User {
+  email: string
+  password: string
+}
+```
+
+Now, whenever we access a `User` model, all fields defined in the interface will be available in IDE auto-complete/intellisense along with the model methods/props.
+
+If you already have a User interface defined under a different name, just define a new interface with the same name as your Model class like so
+
+```ts
+// if our User interface already exists as UserRecord
+interface User extends UserRecord {}
+```
+
+To further enhance typing, you can augment FeathersVuex types to aid development in other parts of your app. It's important to note the differences in the following example if you do or do not setup a `serverAlias`.
+
+```ts
+// src/store/user.store.ts
+import { ServiceState } from 'feathers-vuex'
+
+class User extends BaseModel { /* ... */ }
+interface User { /* ... */ }
+const servicePath = 'users'
+
+declare module "feathers-vuex" {
+  interface FeathersVuexStoreState {
+    [servicePath]: ServiceState<User>
+  }
+
+  // Only if you setup FeathersVuex without a serverAlias!!
+  interface FeathersVuexGlobalModels {
+    User: typeof User
+  }
+}
+
+// Only if you setup FeathersVuex with a serverAlias!!
+declare module "src/store" {
+  interface MyApiModels {
+    User: typeof User
+  }
+}
+```
+
+If you have setup a `serverAlias`, you need to add the following to `src/store/index.ts`.
+
+```ts
+// src/store/index.ts
+export interface MyApiModels { /* Let each service augment this interface */ }
+declare module "feathers-vuex" {
+  interface FeathersVuexGlobalModels {
+    'my-api-name': MyApiModels
+  }
+}
+```
+
+Replace `my-api-name` with the `serverAlias` you used when setting up FeathersVuex.
+
 ## Model attributes
 
 The following attributes are available on each model:
@@ -85,6 +156,34 @@ created () {
 }
 ```
 
+### count(params) <Badge text="3.12.0+" />
+
+Model classes have a `count` method, which is a proxy to the `count` action. On the Feathers server, `$limit: 0` results in a fast count query. (./service-plugin.html#find-params).
+
+> **Note:** it only works for services with enabled pagination!
+
+```js
+// In your Vue component
+async created () {
+  const { Todo } = this.$FeathersVuex.api
+  const todosCount = await Todo.count({ query: { priority: 'critical' }})
+  // or
+  Todo.count().then((total) => { this.todoCount = total })
+}
+```
+
+### countInStore(params) <Badge text="3.12.0+" />
+
+Model classes have a `countInStore` method, which is a proxy to the [`count` getter](./service-plugin.html#Service-Getters).
+
+```js
+// In your Vue component
+created () {
+  const { Todo } = this.$FeathersVuex.api
+  const todosCount = Todo.countInStore({ query: { priority: 'critical' }})
+}
+```
+
 ### get(id, params)
 
 Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
@@ -111,7 +210,7 @@ created () {
 
 ### instanceDefaults  <Badge text="1.7.0+" />
 
-`instanceDefaults(data, { store, Models })`
+`instanceDefaults(data, { store, models })`
 
 The `instanceDefaults` API was created in version 1.7 to prevent requiring to specify data for new instances created throughout the app.  Depending on the complexity of the service's "business logic", it can save a lot of boilerplate.  Notice that it is similar to the `setupInstance` method added in 2.0.  The instanceDefaults method should ONLY be used to return default values for a new instance.  Use `setupInstance` to handle other transformations on the data.
 
@@ -142,7 +241,7 @@ One important note, the `isAdmin` attribute is specified in the above example in
 
 ### setupInstance  <Badge text="2.0.0+" />
 
-`setupInstance(data, { store, Models })`
+`setupInstance(data, { store, models })`
 
 A new `setupinstance` class method is now available in version 2.0.  This method allows you to transform the data and setup the final instance based on incoming data.  For example, you can access the `models` object to reference other service Model classes and create data associations.
 
@@ -154,6 +253,9 @@ The function will be called during model instance construction with the followin
   - `models {Object}` The `globalModels` object, which is the same as you'll find inside a component at `this.$FeathersVuex`.
 
 For an example of how you might use `setupInstance`, suppose we have two services: Users and Posts.  Assume that the API request to get a user includes their `posts`, already populated on the data.  The `instanceDefaults` allows us to convert the array of `posts` into an array of `Post` instances.
+
+> If you're looking for a great solution for populating data to work with Feathers-Vuex, check out [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+
 
 ```js
 // The setupInstance method on an imaginary User model.
@@ -237,7 +339,9 @@ const todo = new Todo({ description: 'Do something!' })
 
 The examples above show instantiating a new Model instance without an `id` field. In this case, the record is not added to the Vuex store.  If you instantiate a record **with an `id`** field, it **will** get added to the Vuex store. *Note: This field is customizable using the `idField` option for this service.*
 
-Now that we have Model instances, let's take a look at the functionality they provide. Each instance will include the following methods:
+Now that we have Model instances, let's take a look at the functionality they provide.
+
+Each instance will include the following methods:
 
 - `.save()`
 - `.create()`
@@ -246,6 +350,15 @@ Now that we have Model instances, let's take a look at the functionality they pr
 - `.clone()`
 - `.commit()`
 - `.reset()`
+
+and the following readonly attributes:
+
+- `isCreatePending` - `create` is currently pending on this model
+- `isUpdatePending` - `update` is currently pending on this model
+- `isPatchPending` - `patch` is currently pending on this model
+- `isRemovePending` - `remove` is currently pending on this model
+- `isSavePending` - Any of `create`, `update` or `patch` is currently pending on this model
+- `isPending` - Any method is currently pending on this model
 
 *Remember, if a record already has an attribute with any of these method names, it will be overwritten with the method.*
 
@@ -302,6 +415,7 @@ The `patch` method calls the `patch` action (service method) using the instance 
 
 Similar to the `.create()` method, you might not ever need to use `.patch()` if you just use `.save()` and let `feathers-vuex` figure out how to handle it.
 
+
 ```js
 const { Todo } = this.$FeathersVuex.api
 const todo = new Todo({ id: 1, description: 'Do something!' })
@@ -311,7 +425,16 @@ todo.description = 'Do something else'
 todo.patch() // --> Sends a `patch` request the with the id and description.
 ```
 
-*Note: Currently, patch sends all data, not just what has changed. In a future update, it will only send the fields that have changed.*
+<Badge text="3.9.0+" /> As of version 3.9.0, you can provide an object as `params.data`, and Feathers-Vuex will use `params.data` as the patch data.  This allows patching with partial data:
+
+```js
+import { models } from 'feathers-vuex'
+const { Todo } = models.api
+
+const todo = new Todo({ description: 'Do Something', isComplete: false })
+
+todo.patch({ data: { isComplete: true } })
+```
 
 ### `instance.update(params)`
 

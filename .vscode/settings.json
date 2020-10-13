@@ -8,11 +8,15 @@
     "lib/**": true,
     "**/node_modules": true,
     "**/bower_components": true,
-    "**/yarn.lock": true
+    "**/yarn.lock": true,
+    "**/package-lock.json": true
   },
   "workbench.colorCustomizations": {
     "activityBar.background": "#2B3011",
     "titleBar.activeBackground": "#3C4418",
     "titleBar.activeForeground": "#FAFBF4"
-  }
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.arrowParens": "avoid",
+  "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false
 }

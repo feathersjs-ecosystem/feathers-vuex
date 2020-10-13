@@ -14,9 +14,9 @@ describe('feathers-vuex:auth', () => {
   })
 
   it('throws an error if the auth plugin is missing', () => {
-    var app = {}
-    var store = {}
-    var plugin = feathersVuexAuth(store).bind(app)
+    const app = {}
+    const store = {}
+    const plugin = feathersVuexAuth(store).bind(app)
     assert.throws(
       plugin,
       'You must first register the @feathersjs/authentication-client plugin'
@@ -24,11 +24,11 @@ describe('feathers-vuex:auth', () => {
   })
 
   it('returns the app, is chainable', () => {
-    var app = {
+    const app = {
       authenticate() {}
     }
-    var store = {}
-    var returnValue = feathersVuexAuth(store).bind(app)()
+    const store = {}
+    const returnValue = feathersVuexAuth(store).bind(app)()
     assert(returnValue === app)
   })
 

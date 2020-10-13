@@ -60,6 +60,8 @@ describe('makeModel / BaseModel', function () {
       'getId',
       'find',
       'findInStore',
+      'count',
+      'countInStore',
       'get',
       'getFromStore'
     ]
@@ -109,6 +111,22 @@ describe('makeModel / BaseModel', function () {
       assert(
         typeof BaseModel[method] === 'function',
         `has ${method} method`
+      )
+    })
+
+    const getterMethods = [
+      'isCreatePending',
+      'isUpdatePending',
+      'isPatchPending',
+      'isRemovePending',
+      'isSavePending',
+      'isPending'
+    ]
+    const m = new BaseModel()
+    getterMethods.forEach(method => {
+      assert(
+        typeof Object.getOwnPropertyDescriptor(Object.getPrototypeOf(m), method).get === 'function',
+        `has ${method} getter`
       )
     })
   })

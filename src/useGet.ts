@@ -11,44 +11,44 @@ import {
   Ref
 } from '@vue/composition-api'
 import { Params } from './utils'
+import { ModelStatic, Model, Id } from './service-module/types'
 
 interface UseGetOptions {
-  model: Function
+  model: ModelStatic
   id: null | string | number | Ref<null> | Ref<string> | Ref<number>
   params?: Params | Ref<Params>
-  queryWhen?: Ref<Function>
+  queryWhen?: Ref<boolean>
   local?: boolean
-  lazy?: boolean
+  immediate?: boolean
 }
 interface UseGetState {
-  item: Ref<any>
   isPending: boolean
   hasBeenRequested: boolean
   hasLoaded: boolean
   error: null | Error
   isLocal: boolean
 }
-interface UseGetData {
-  item: Ref<any>
+interface UseGetData<M> {
+  item: Ref<Readonly<M | null>>
   servicePath: Ref<string>
   isPending: Ref<boolean>
   hasBeenRequested: Ref<boolean>
   hasLoaded: Ref<boolean>
   isLocal: Ref<boolean>
   error: Ref<Error>
-  get: Function
+  get(id: Id, params?: Params): Promise<M | undefined>
 }
 
-export default function get(options: UseGetOptions): UseGetData {
-  const defaults = {
+export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
+  const defaults: UseGetOptions = {
     model: null,
     id: null,
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    lazy: false
+    immediate: true
   }
-  const { model, id, params, queryWhen, local, lazy } = Object.assign(
+  const { model, id, params, queryWhen, local, immediate } = Object.assign(
     {},
     defaults,
     options
@@ -61,8 +61,15 @@ export default function get(options: UseGetOptions): UseGetData {
     return isRef(params) ? params.value : params
   }
 
-  const servicePath = computed<string>(() => model.servicePath)
   const state = reactive<UseGetState>({
+    isPending: false,
+    hasBeenRequested: false,
+    hasLoaded: false,
+    error: null,
+    isLocal: local
+  })
+
+  const computes = {
     item: computed(() => {
       const getterId = isRef(id) ? id.value : id
       const getterParams = isRef(params)
@@ -71,22 +78,18 @@ export default function get(options: UseGetOptions): UseGetData {
         ? params
         : { ...params }
       if (getterParams != null) {
-        return model.getFromStore(getterId, getterParams) || null
+        return model.getFromStore<M>(getterId, getterParams) || null
       } else {
-        return model.getFromStore(getterId) || null
+        return model.getFromStore<M>(getterId) || null
       }
-      // return model.store.state[model.servicePath].keyedById[id.value] || null
-      // return model.getFromStore(id.value) || null
     }),
-    isPending: false,
-    hasBeenRequested: false,
-    hasLoaded: false,
-    error: null,
-    isLocal: local
-  })
+    servicePath: computed(() => model.servicePath)
+  }
 
-  function get<T>(id, params?: Params): T {
-    const idToUse = isRef(id) ? id.value : id
+
+
+  function get(id: Id, params?: Params): Promise<M | undefined> {
+    const idToUse = isRef<Id>(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
 
     if (idToUse != null && queryWhen.value && !state.isLocal) {
@@ -109,27 +112,22 @@ export default function get(options: UseGetOptions): UseGetData {
           state.error = error
           return error
         })
+    } else {
+      return Promise.resolve(undefined)
     }
   }
 
   watch(
-    () => getId(),
-    id => {
-      get(id, getParams())
+    [() => getId(), () => getParams()],
+    ([id, params]) => {
+      get(id as string | number, params as Params)
     },
-    { lazy }
-  )
-  watch(
-    () => getParams(),
-    params => {
-      get(getId(), params)
-    },
-    { lazy }
+    { immediate }
   )
 
   return {
-    servicePath,
     ...toRefs(state),
+    ...computes,
     get
   }
 }

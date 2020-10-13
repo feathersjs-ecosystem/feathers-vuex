@@ -49,6 +49,7 @@ function makeContext() {
     public constructor(data, options?) {
       super(data, options)
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public static instanceDefaults(data) {
       return {
         description: ''
@@ -309,14 +310,14 @@ describe('Service Module', function() {
     })
 
     it(`the object returned from clone is not the same as the original`, function() {
-      const { serviceTodo, owners } = this
+      const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
 
       assert(serviceTodo !== serviceTodoClone, 'the objects are distinct')
     })
 
     it(`the object returned from commit is not the same as the clone`, function() {
-      const { serviceTodo, owners } = this
+      const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
       const committedTodo = serviceTodoClone.commit()
 
@@ -324,7 +325,7 @@ describe('Service Module', function() {
     })
 
     it(`the object returned from commit is the same as the original`, function() {
-      const { serviceTodo, owners } = this
+      const { serviceTodo } = this
       const serviceTodoClone = serviceTodo.clone()
       const committedTodo = serviceTodoClone.commit()
 
@@ -657,13 +658,16 @@ describe('Service Module', function() {
         servicePath: 'service-todos',
         tempIdField: '__id',
         tempsById: {},
-        tempsByNewId: {},
         pagination: {
           defaultLimit: null,
           defaultSkip: null
         },
-        paramsForServer: [],
-        whitelist: []
+        paramsForServer: ['$populateParams'],
+        whitelist: [],
+        isIdCreatePending: [],
+        isIdUpdatePending: [],
+        isIdPatchPending: [],
+        isIdRemovePending: [],
       }
 
       assert.deepEqual(
@@ -718,6 +722,7 @@ describe('Service Module', function() {
         // Load some data into the store
         store
           .dispatch('todos/find', { query: {} })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then(todos => {
             // Remove the third item from the service
             // @ts-ignore
@@ -731,6 +736,7 @@ describe('Service Module', function() {
             // Perform the same query again
             return store.dispatch('todos/find', { query: {} })
           })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then(todos => {
             assert(
               todoState.ids.length === 2,
@@ -768,6 +774,7 @@ describe('Service Module', function() {
         // Load some data into the store
         store
           .dispatch('tasks/find', { query: {} })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then(todos => {
             // Remove the third item from the service
             // @ts-ignore
@@ -818,6 +825,7 @@ describe('Service Module', function() {
         // Load some data into the store
         store
           .dispatch('todos/find', { query: {} })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then(todos => {
             // Remove the third item from the service
             // @ts-ignore
@@ -831,6 +839,7 @@ describe('Service Module', function() {
             // Perform the same query again
             return store.dispatch('todos/find', { query: {} })
           })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then(todos => {
             assert(
               todoState.ids.length === 3,
@@ -902,6 +911,7 @@ describe('Service Module', function() {
     it('allows custom getters', function() {
       const { makeServicePlugin, ServiceTodo } = makeContext()
       const customGetters = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         oneTwoThree(state) {
           return 123
         }
@@ -973,6 +983,7 @@ describe('Service Module', function() {
         ]
       })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things').on('created', item => {
         assert(
           store.state.things.keyedById[0].test,
@@ -997,6 +1008,7 @@ describe('Service Module', function() {
 
       store.commit('things/addItem', { id: 1, test: false })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things').on('patched', item => {
         assert(
           store.state.things.keyedById[1].test,
@@ -1021,6 +1033,7 @@ describe('Service Module', function() {
 
       store.commit('things/addItem', { id: 1, test: false })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things').on('updated', item => {
         assert(
           store.state.things.keyedById[1].test,
@@ -1045,6 +1058,7 @@ describe('Service Module', function() {
 
       store.commit('things/addItem', { id: 1, test: false })
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things').on('removed', item => {
         assert(
           !store.state.things.keyedById[1],

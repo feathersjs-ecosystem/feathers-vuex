@@ -3,31 +3,41 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions } from './types'
+import {
+  FeathersVuexOptions,
+  Id,
+  ModelInstanceOptions,
+  Model,
+  ModelStatic,
+  GlobalModels,
+  StoreState,
+  AnyData,
+  PatchParams
+} from './types'
 import { globalModels, prepareAddModel } from './global-models'
-import { mergeWithAccessors, checkNamespace, getId } from '../utils'
+import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
-import EventEmitter from 'events'
-
-// A hack to prevent error with this.constructor.preferUpdate
-interface Function {
-  preferUpdate: boolean
-}
-
-interface BaseModelInstanceOptions {
-  clone?: boolean
-  commit?: boolean
-  merge?: boolean
-}
-interface ChildClassOptions {
-  merge?: boolean
-}
+import { EventEmitter } from 'events'
+import { ModelSetupContext } from './types'
+import { Store } from 'vuex'
+import { GetterName } from './service-module.getters'
 
 const defaultOptions = {
   clone: false,
   commit: true,
   merge: true
+}
+
+/** Ensures value has EventEmitter instance props */
+function assertIsEventEmitter(val: unknown): asserts val is EventEmitter {
+  if (
+    !Object.keys(EventEmitter.prototype).every(eeKey =>
+      Object.prototype.hasOwnProperty.call(val, eeKey)
+    )
+  ) {
+    throw new Error(`Expected EventEmitter, but got ${val}`)
+  }
 }
 
 /**
@@ -38,48 +48,51 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   const addModel = prepareAddModel(options)
   const { serverAlias } = options
 
-  // If this serverAlias already has a BaseModel, nreturn it
+  // If this serverAlias already has a BaseModel, return it
   const ExistingBaseModel = _get(globalModels, `[${serverAlias}].BaseModel`)
   if (ExistingBaseModel) {
-    return ExistingBaseModel
+    return ExistingBaseModel as ModelStatic
   }
 
-  abstract class BaseModel {
+  abstract class BaseModel implements Model {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
     public static keepCopiesInStore = options.keepCopiesInStore
     // eslint-disable-next-line
-    public static instanceDefaults(data, { models, store }) {
+    public static instanceDefaults(data: AnyData, ctx: ModelSetupContext) {
       return data
     }
     // eslint-disable-next-line
-    public static setupInstance(data, { models, store }) {
+    public static setupInstance(data: AnyData, ctx: ModelSetupContext) {
       return data
     }
-    public static diffOnPatch(data) {
+    public static diffOnPatch(data: AnyData) {
       return data
     }
 
     // Monkey patched onto the Model class in `makeServicePlugin()`
-    public static store: Record<string, any>
+    public static store: Store<StoreState>
 
     public static idField: string = options.idField
     public static tempIdField: string = options.tempIdField
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
 
-    public static readonly models = globalModels // Can access other Models here
-    public static copiesById = {}
+    public static readonly models = globalModels as GlobalModels // Can access other Models here
+    public static copiesById: {
+      [key: string]: Model | undefined
+      [key: number]: Model | undefined
+    } = {}
 
     public __id: string
     public __isClone: boolean
-    public data: Record<string, any>
+    public __isTemp: boolean
 
     public static merge = mergeWithAccessors
     public static modelName = 'BaseModel'
 
-    public constructor(data, options: BaseModelInstanceOptions) {
+    public constructor(data: AnyData, options: ModelInstanceOptions) {
       // You have to pass at least an empty object to get a tempId.
       data = data || {}
       options = Object.assign({}, defaultOptions, options)
@@ -163,20 +176,59 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this
     }
 
+    /**
+     * Calls `getter`, passing this model's ID as the parameter
+     * @param getter name of getter to call
+     */
+    private getGetterWithId(getter: GetterName): unknown {
+      const { _getters, idField, tempIdField } = this
+        .constructor as typeof BaseModel
+      const id =
+        getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+      return _getters.call(this.constructor, getter, id)
+    }
+
+    get isCreatePending(): boolean {
+      return this.getGetterWithId('isCreatePendingById') as boolean
+    }
+    get isUpdatePending(): boolean {
+      return this.getGetterWithId('isUpdatePendingById') as boolean
+    }
+    get isPatchPending(): boolean {
+      return this.getGetterWithId('isPatchPendingById') as boolean
+    }
+    get isRemovePending(): boolean {
+      return this.getGetterWithId('isRemovePendingById') as boolean
+    }
+    get isSavePending(): boolean {
+      return this.getGetterWithId('isSavePendingById') as boolean
+    }
+    get isPending(): boolean {
+      return this.getGetterWithId('isPendingById') as boolean
+    }
+
     public static getId(record: Record<string, any>): string {
       const { idField } = this.constructor as typeof BaseModel
       return getId(record, idField)
     }
 
-    public static find(params) {
+    public static find(params?: Params) {
       return this._dispatch('find', params)
     }
 
-    public static findInStore(params) {
+    public static findInStore(params?: Params) {
       return this._getters('find', params)
     }
 
-    public static get(id, params) {
+    public static count(params?: Params) {
+      return this._dispatch('count', params)
+    }
+
+    public static countInStore(params?: Params) {
+      return this._getters('count', params)
+    }
+
+    public static get(id: Id, params?: Params) {
       if (params) {
         return this._dispatch('get', [id, params])
       } else {
@@ -184,12 +236,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       }
     }
 
-    public static getFromStore(id, params?) {
-      if (params) {
-        return this._getters('get', id, params)
-      } else {
-        return this._getters('get', id)
-      }
+    public static getFromStore(id: Id, params?: Params) {
+      return this._getters('get', id, params)
     }
 
     /**
@@ -198,7 +246,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param method the vuex getter name without the namespace
      * @param payload if provided, the getter will be called as a function
      */
-    public static _getters(name: string, idOrParams?: any, params?: any) {
+    public static _getters(name: GetterName, idOrParams?: any, params?: any) {
       const { namespace, store } = this
 
       if (checkNamespace(namespace, this, options.debug)) {
@@ -251,7 +299,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * clone the current record using the `createCopy` mutation
      */
-    public clone(data) {
+    public clone(data: AnyData): this {
       const { idField, tempIdField } = this.constructor as typeof BaseModel
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
@@ -284,7 +332,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * Reset a clone to match the instance in the store.
      */
-    public reset() {
+    public reset(): this {
       const { idField, tempIdField, _commit } = this
         .constructor as typeof BaseModel
 
@@ -303,7 +351,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     /**
      * Update a store instance to match a clone.
      */
-    public commit() {
+    public commit(): this {
       const { idField, tempIdField, _commit, _getters } = this
         .constructor as typeof BaseModel
       if (this.__isClone) {
@@ -323,7 +371,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * A shortcut to either call create or patch/update
      * @param params
      */
-    public save(params) {
+    public save(params?: Params): Promise<this> {
       const { idField, preferUpdate } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
       if (id != null) {
@@ -336,7 +384,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service create with the current instance data
      * @param params
      */
-    public create(params) {
+    public create(params?: Params): Promise<this> {
       const { _dispatch } = this.constructor as typeof BaseModel
       const data = Object.assign({}, this)
       if (data[options.idField] === null) {
@@ -349,7 +397,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch(params?) {
+    public patch<D extends {} = AnyData>(params?: PatchParams<D>): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -366,7 +414,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service update with the current instance data
      * @param params
      */
-    public update(params) {
+    public update(params?: Params): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -383,7 +431,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service remove with the current instance id
      * @param params
      */
-    public remove(params) {
+    public remove(params?: Params): Promise<this> {
       const { idField, tempIdField, _dispatch, _commit } = this
         .constructor as typeof BaseModel
       const id = getId(this, idField)
@@ -408,5 +456,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   }
 
   addModel(BaseModel)
-  return BaseModel
+
+  const BaseModelEventEmitter = BaseModel
+  assertIsEventEmitter(BaseModelEventEmitter)
+  return BaseModelEventEmitter as ModelStatic
 }

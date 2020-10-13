@@ -43,7 +43,6 @@ function makeContext() {
   const taskService = feathersClient.service('my-tasks')
   const noIdService = feathersClient.use(
     'no-ids',
-    // @ts-ignore
     memory({
       store: makeStoreWithAtypicalIds(),
       paginate: {
@@ -71,6 +70,7 @@ function makeContext() {
     remove() {
       return Promise.reject(new Error('remove error'))
     },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     setup() {}
   })
 
@@ -79,19 +79,19 @@ function makeContext() {
   })
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public static test: boolean = true
+    public static test = true
   }
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static test: boolean = true
+    public static test = true
   }
   class NoId extends BaseModel {
     public static modelName = 'NoId'
-    public static test: boolean = true
+    public static test = true
   }
   class Broken extends BaseModel {
     public static modelName = 'Broken'
-    public static test: boolean = true
+    public static test = true
   }
   return {
     makeServicePlugin,
@@ -151,7 +151,7 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 10, 'three ids populated')
           assert(todoState.errorOnFind === null, 'errorOnFind still null')
           assert(todoState.isFindPending === false, 'isFindPending is false')
-          let expectedKeyedById: NumberedList = makeStore()
+          const expectedKeyedById: NumberedList = makeStore()
           const currentKeyedById = JSON.parse(
             JSON.stringify(todoState.keyedById)
           )
@@ -612,7 +612,49 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Get', function() {
+  describe('Count', () => {
+    it('count without params fails', done => {
+      const { makeServicePlugin, Task } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-tasks',
+            Model: Task,
+            service: feathersClient.service('my-tasks')
+          })
+        ]
+      })
+      const actions = mapActions('my-tasks', ['count'])
+
+      try {
+        actions.count.call({ $store: store })
+      } catch (err) {
+        assert(err)
+        done()
+      }
+    })
+
+    it('count with query returns number', done => {
+      const { makeServicePlugin, Task } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-tasks',
+            Model: Task,
+            service: feathersClient.service('my-tasks')
+          })
+        ]
+      })
+      const actions = mapActions('my-tasks', ['count'])
+
+      actions.count.call({ $store: store }, { query: {} }).then(response => {
+        assert(response === 10, 'total is 10')
+        done()
+      })
+    })
+  })
+
+  describe('Get', function () {
     it('updates store list state on service success', async () => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -793,7 +835,7 @@ describe('Service Module - Actions', () => {
     })
   })
 
-  describe('Create', function() {
+  describe('Create', function () {
     it('updates store list state on service success', done => {
       const { makeServicePlugin, Todo } = makeContext()
       const store = new Vuex.Store<RootState>({
@@ -886,6 +928,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnUpdate === null)
               assert(todoState.isUpdatePending === false)
+              assert(store.getters['my-todos/isUpdatePendingById'](0) === false, 'ID pending update clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromUpdate.id],
                 responseFromUpdate
@@ -897,6 +942,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnUpdate === null)
           assert(todoState.isUpdatePending === true)
+          assert(store.getters['my-todos/isUpdatePendingById'](0) === true, 'ID pending update set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
         .catch(error => {
@@ -980,6 +1028,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
               assert(todoState.isPatchPending === false)
+              assert(store.getters['my-todos/isPatchPendingById'](0) === false, 'ID pending patch clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromPatch.id],
                 responseFromPatch
@@ -991,8 +1042,49 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnPatch === null)
           assert(todoState.isPatchPending === true)
+          assert(store.getters['my-todos/isPatchPendingById'](0) === true, 'ID pending patch set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
+    })
+
+    it('overrides patch data with params.data', done => {
+      const { makeServicePlugin, Todo } = makeContext()
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            servicePath: 'my-todos',
+            Model: Todo,
+            service: feathersClient.service('my-todos')
+          })
+        ]
+      })
+      const actions = mapActions('my-todos', ['create', 'patch'])
+      const originalData = { description: 'Do something', test: true }
+
+      actions.create.call({ $store: store }, originalData).then(() => {
+        const data = {
+          description:
+            'This description should not be patched since params.data is provided'
+        }
+        const params = { data: { test: false } }
+        actions.patch
+          .call({ $store: store }, [0, data, params])
+          .then(responseFromPatch => {
+            assert.equal(
+              responseFromPatch.description,
+              originalData.description,
+              'description should not have changed'
+            )
+            assert.equal(
+              responseFromPatch.test,
+              false,
+              'Providing params.data should have set the test attribute to false.'
+            )
+            done()
+          })
+      })
     })
 
     it('updates store state on service success', done => {
@@ -1018,6 +1110,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
               assert(todoState.isPatchPending === false)
+              assert(store.getters['my-todos/isPatchPendingById'](0) === false, 'ID pending patch clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromPatch.id],
                 responseFromPatch
@@ -1029,6 +1124,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnPatch === null)
           assert(todoState.isPatchPending === true)
+          assert(store.getters['my-todos/isPatchPendingById'](0) === true, 'ID pending patch set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
     })
@@ -1094,6 +1192,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 0)
               assert(todoState.errorOnRemove === null)
               assert(todoState.isRemovePending === false)
+              assert(store.getters['my-todos/isRemovePendingById'](0) === false, 'ID pending remove clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(todoState.keyedById, {})
               done()
             })
@@ -1106,6 +1207,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnRemove === null)
           assert(todoState.isRemovePending === true)
+          assert(store.getters['my-todos/isRemovePendingById'](0) === true, 'ID pending remove set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
     })

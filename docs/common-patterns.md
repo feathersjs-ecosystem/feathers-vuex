@@ -278,6 +278,8 @@ class Post extends BaseModel {
 
 ## Relationships for Populated Data
 
+If you're looking for a great solution for populating data to work with Feathers-Vuex, check out [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+
 A common task with almost any API is properly handling relationships between endpoints.  Imagine an API where you have `/todos` and `/users` services.  Each todo record can belong to a single user, so a todo has a `userId`.
 
 ```js

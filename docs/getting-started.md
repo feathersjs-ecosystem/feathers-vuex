@@ -55,6 +55,8 @@ module.exports = {
 
 ### Quasar
 
+> In newer Quasar apps, the following `transpileDependencies` setup may not be necessary, anymore. See [this issue on GitHub](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/450)
+
 For Quasar apps, `transpileDependencies` can be updated in `quasar.conf.js` under build as
 
 ```
@@ -243,7 +245,7 @@ const requireModule = require.context(
   // Whether to look in subfolders
   false,
   // Only include .js files (prevents duplicate imports`)
-  /.js$/
+  /\.js$/
 )
 const servicePlugins = requireModule
   .keys()
@@ -274,15 +276,15 @@ The following default options are available for configuration:
 
 ```js
 const defaultOptions = {
-  // configured globally
+  // only configured globally
   serverAlias: 'api',
   keepCopiesInStore: false,
-  paramsForServer: [],
-  whitelist: []
 
   // also configurable per service
   idField: 'id',
   tempIdField: '__id',
+  nameStyle: 'short',
+
   debug: false,
   addOnUpsert: false,
   autoRemove: false,
@@ -290,24 +292,38 @@ const defaultOptions = {
   preferUpdate: false,
   replaceItems: false,
   skipRequestIfExists: false,
-  nameStyle: 'short',
+
+  paramsForServer: ['$populateParams'],
+  whitelist: [],
+
+  handleEvents: {
+    created: (item, { model, models }) => options.enableEvents,
+    patched: (item, { model, models }) => options.enableEvents,
+    updated: (item, { model, models }) => options.enableEvents,
+    removed: (item, { model, models }) => options.enableEvents
+  },
 }
 ```
 - `serverAlias` - **Default:** `api` - Models are keyed by `serverAlias`. Access the `$FeathersVuex` Plugin and its models in your components by `this.$FeathersVuex.api.${Model}`
 - `keepCopiesInStore` - **Default:** `false` - Set to true to store cloned copies in the store instead of on the Model. <Badge text="deprecated" type="warning" />
-- `paramsForServer {Array}` - **Default:** `[]` - Custom query operators that are ignored in the find getter, but will pass through to the server.
-- `whitelist {Array}` - **Default:** `[]` - Custom query operators that will be allowed in the find getter.
 
 - `idField {String}` - **Default:** `'id'` - The field in each record that will contain the id
 - `tempIdField {Boolean}` - **Default:** `'__id'` - The field in each temporary record that contains the id
+- `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
 - `debug {Boolean}` - **Default:** `false` - Enable some logging for debugging
 - `addOnUpsert {Boolean}` - **Default:** `false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
 - `autoRemove {Boolean}` - **Default:** `false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
-- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services [handleEvents API](/service-plugin.html#configuration)
 - `preferUpdate {Boolean}` - **Default:** `false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `nameStyle {'short'|'path'}` - **Default:** `'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+- `paramsForServer {Array}` - **Default:** `['$populateParams']` - Custom query operators that are ignored in the find getter, but will pass through to the server. It is preconfigured to work with the `$populateParams` custom operator from [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+- `whitelist {Array}` - **Default:** `[]` - Custom query operators that will be allowed in the find getter.
+- `enableEvents {Boolean}` - **Default:** `true` - If `false` socket event listeners will be turned off. See the services
+- `handleEvents {Object}`: For this to work `enableEvents` must be `true`
+  - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
+  - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
 
 Also see the [Configs per Service](/service-plugin.html#configuration)
 

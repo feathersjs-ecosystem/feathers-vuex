@@ -43,8 +43,8 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe('use/find', function() {
-  it('returns correct default data', function() {
+describe('use/find', function () {
+  it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -106,7 +106,7 @@ describe('use/find', function() {
     assert(qid.value === 'default')
   })
 
-  it('returns correct default data even when params is not reactive', function() {
+  it('returns correct default data even when params is not reactive', function () {
     const { Instrument } = makeContext()
 
     const instrumentsData = useFind({
@@ -165,7 +165,7 @@ describe('use/find', function() {
     assert(qid.value === 'default')
   })
 
-  it('allows passing {lazy:true} to not query immediately', function() {
+  it('allows passing {immediate:false} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -177,7 +177,7 @@ describe('use/find', function() {
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      lazy: true
+      immediate: false
     })
     const { haveBeenRequested } = instrumentsData
 
@@ -185,7 +185,7 @@ describe('use/find', function() {
     assert(haveBeenRequested.value === false)
   })
 
-  it('params can return null to prevent the query', function() {
+  it('params can return null to prevent the query', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {
@@ -194,7 +194,7 @@ describe('use/find', function() {
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      lazy: true
+      immediate: true
     })
     const { haveBeenRequested } = instrumentsData
 
@@ -202,7 +202,7 @@ describe('use/find', function() {
     assert(haveBeenRequested.value === false)
   })
 
-  it('allows using `local: true` to prevent API calls from being made', function() {
+  it('allows using `local: true` to prevent API calls from being made', function () {
     const { Instrument } = makeContext()
 
     const instrumentParams = computed(() => {

@@ -5,12 +5,18 @@ eslint
 */
 import fastCopy from 'fast-copy'
 import { getId } from '../utils'
+import { Service } from '@feathersjs/feathers'
 
-export default function makeServiceActions(service) {
+export default function makeServiceActions(service: Service<any>) {
   const serviceActions = {
     find({ commit, dispatch }, params) {
       params = params || {}
       params = fastCopy(params)
+
+      // For working with client-side services, paginate.default must be truthy.
+      if (params.paginate === true) {
+        params.paginate = { default: true }
+      }
 
       commit('setPending', 'find')
 
@@ -49,8 +55,8 @@ export default function makeServiceActions(service) {
         commit('setPending', 'get')
         return service
           .get(id, params)
-          .then(async function(item) {
-            await dispatch('addOrUpdate', item)
+          .then(async function (item) {
+            dispatch('addOrUpdate', item)
             commit('unsetPending', 'get')
             return state.keyedById[id]
           })
@@ -93,12 +99,13 @@ export default function makeServiceActions(service) {
       params = params || {}
 
       commit('setPending', 'create')
+      commit('setIdPending', { method: 'create', id: tempIds })
 
       return service
         .create(data, params)
         .then(async response => {
           if (Array.isArray(response)) {
-            await dispatch('addOrUpdateList', response)
+            dispatch('addOrUpdateList', response)
             response = response.map(item => {
               const id = getId(item, idField)
 
@@ -111,60 +118,75 @@ export default function makeServiceActions(service) {
             if (id != null && tempId != null) {
               commit('updateTemp', { id, tempId })
             }
-            response = await dispatch('addOrUpdate', response)
+            response = dispatch('addOrUpdate', response)
 
             // response = state.keyedById[id]
           }
-          commit('unsetPending', 'create')
           commit('removeTemps', tempIds)
           return response
         })
         .catch(error => {
           commit('setError', { method: 'create', error })
-          commit('unsetPending', 'create')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'create')
+          commit('unsetIdPending', { method: 'create', id: tempIds })
         })
     },
 
     update({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'update')
+      commit('setIdPending', { method: 'update', id })
 
       params = fastCopy(params)
 
       return service
         .update(id, data, params)
-        .then(async function(item) {
-          await dispatch('addOrUpdate', item)
-          commit('unsetPending', 'update')
+        .then(async function (item) {
+          dispatch('addOrUpdate', item)
           return state.keyedById[id]
         })
         .catch(error => {
           commit('setError', { method: 'update', error })
-          commit('unsetPending', 'update')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'update')
+          commit('unsetIdPending', { method: 'update', id })
         })
     },
 
+    /**
+     * If params.data is provided, it will be passed as the patch data (instead of the `data` arg).
+     * This provides a simple way to patch with partial data.
+     */
     patch({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'patch')
+      commit('setIdPending', { method: 'patch', id })
 
       params = fastCopy(params)
 
-      if (service.FeathersVuexModel) {
+      if (service.FeathersVuexModel && (!params || !params.data)) {
         data = service.FeathersVuexModel.diffOnPatch(data)
+      }
+      if (params && params.data) {
+        data = params.data
       }
 
       return service
         .patch(id, data, params)
-        .then(async function(item) {
-          await dispatch('addOrUpdate', item)
-          commit('unsetPending', 'patch')
+        .then(async function (item) {
+          dispatch('addOrUpdate', item)
           return state.keyedById[id]
         })
         .catch(error => {
           commit('setError', { method: 'patch', error })
-          commit('unsetPending', 'patch')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'patch')
+          commit('unsetIdPending', { method: 'patch', id })
         })
     },
 
@@ -183,23 +205,42 @@ export default function makeServiceActions(service) {
       params = fastCopy(params)
 
       commit('setPending', 'remove')
+      commit('setIdPending', { method: 'remove', id })
 
       return service
         .remove(id, params)
         .then(item => {
           commit('removeItem', id)
-          commit('unsetPending', 'remove')
           return item
         })
         .catch(error => {
           commit('setError', { method: 'remove', error })
-          commit('unsetPending', 'remove')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'remove')
+          commit('unsetIdPending', { method: 'remove', id })
         })
     }
   }
 
   const actions = {
+    count({ dispatch }, params) {
+      params = params || {}
+      params = fastCopy(params)
+
+      if (!params.query) {
+        throw 'params must contain a query-object'
+      }
+
+      params.query.$limit = 0 // <- limit 0 in feathers is a fast count query
+
+      return dispatch('find', params)
+        .then(response => {
+          return response.total || response.length
+        })
+        .catch(error => dispatch('handleFindError', { params, error }))
+    },
     /**
      * Handle the response from the find action.
      *
@@ -215,7 +256,7 @@ export default function makeServiceActions(service) {
       const { qid = 'default', query } = params
       const { idField } = state
 
-      await dispatch('addOrUpdateList', response)
+      dispatch('addOrUpdateList', response)
       commit('unsetPending', 'find')
 
       const mapItemFromState = item => {
@@ -237,7 +278,7 @@ export default function makeServiceActions(service) {
           : (response = mappedFromState)
       }
 
-      response = await await dispatch('afterFind', response)
+      response = await dispatch('afterFind', response)
 
       return response
     },
@@ -252,7 +293,7 @@ export default function makeServiceActions(service) {
       return response
     },
 
-    async addOrUpdateList({ state, commit }, response) {
+    addOrUpdateList({ state, commit }, response) {
       const list = response.data || response
       const isPaginated = response.hasOwnProperty('total')
       const toAdd = []
@@ -261,8 +302,8 @@ export default function makeServiceActions(service) {
       const { idField, autoRemove } = state
 
       list.forEach(item => {
-        let id = getId(item, idField)
-        let existingItem = state.keyedById[id]
+        const id = getId(item, idField)
+        const existingItem = state.keyedById[id]
 
         if (id !== null && id !== undefined) {
           existingItem ? toUpdate.push(item) : toAdd.push(item)
@@ -284,9 +325,7 @@ export default function makeServiceActions(service) {
 
       if (service.FeathersVuexModel) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.FeathersVuexModel(item, {
-            skipCommit: true
-          })
+          toAdd[index] = new service.FeathersVuexModel(item, { commit: false })
         })
       }
 
@@ -303,33 +342,27 @@ export default function makeServiceActions(service) {
      * the `create` response returns to create the record. The reference to the
      * original temporary record must be maintained in order to preserve reactivity.
      */
-    async addOrUpdate({ state, commit }, item) {
+    addOrUpdate({ state, commit }, item) {
       const { idField } = state
-      let id = getId(item, idField)
-      let existingItem = state.keyedById[id]
+      const id = getId(item, idField)
 
       const isIdOk = id !== null && id !== undefined
 
-      if (service.FeathersVuexModel && !item.isFeathersVuexInstance) {
-        item = new service.FeathersVuexModel(item)
+      if (
+        service.FeathersVuexModel &&
+        !(item instanceof service.FeathersVuexModel)
+      ) {
+        item = new service.FeathersVuexModel(item, { commit: false })
       }
 
-      // If the item has a matching temp, update the temp and provide it as the new item.
-      const temp = state.tempsByNewId[id]
-      if (temp) {
-        commit('merge', { dest: temp, source: item })
-        commit('remove__isTemp', temp)
-      }
       if (isIdOk) {
-        if (existingItem && temp) {
-          commit('replaceItemWithTemp', { item, temp })
+        if (state.keyedById[id]) {
+          commit('updateItem', item)
         } else {
-          existingItem
-            ? commit('updateItem', temp || item)
-            : commit('addItem', temp || item)
+          commit('addItem', item)
         }
       }
-      return temp || item
+      return item
     }
   }
   /**

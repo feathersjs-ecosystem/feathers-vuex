@@ -9,6 +9,9 @@ import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
 import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
+import { isRef } from '@vue/composition-api'
+import { ServiceState } from '..'
+import { Id } from '@feathersjs/feathers'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
 const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
@@ -21,22 +24,21 @@ export default function makeServiceGetters() {
       return state.ids.map(id => state.keyedById[id])
     },
     find: state => params => {
+      if (isRef(params)) {
+        params = params.value
+      }
       params = { ...params } || {}
 
       // Set params.temps to true to include the tempsById records
       params.temps = params.hasOwnProperty('temps') ? params.temps : false
 
-      const { paramsForServer, whitelist } = state
+      const { paramsForServer, whitelist, keyedById } = state
       const q = _omit(params.query || {}, paramsForServer)
-      const customOperators = Object.keys(q).filter(
-        k => k[0] === '$' && !defaultOps.includes(k)
-      )
-      const cleanQuery = _omit(q, customOperators)
 
-      const { query, filters } = filterQuery(cleanQuery, {
+      const { query, filters } = filterQuery(q, {
         operators: additionalOperators.concat(whitelist)
       })
-      let values = _.values(state.keyedById)
+      let values = _.values(keyedById)
 
       if (params.temps) {
         values = values.concat(_.values(state.tempsById))
@@ -69,15 +71,37 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    get: state => (id, params = {}) => {
-      const { keyedById, tempsById, idField, tempIdField } = state
-      const record = keyedById[id]
-        ? select(params, idField)(keyedById[id])
-        : undefined
-      const tempRecord = tempsById[id]
-        ? select(params, tempIdField)(tempsById[id])
-        : undefined
-      return record || tempRecord || null
+    count: (state, getters) => params => {
+      if (isRef(params)) {
+        params = params.value
+      }
+      if (!params.query) {
+        throw 'params must contain a query-object'
+      }
+
+      const cleanQuery = _omit(params.query, FILTERS)
+      params.query = cleanQuery
+
+      return getters.find(params).total
+    },
+    get: ({ keyedById, tempsById, idField, tempIdField }) => (
+      id,
+      params = {}
+    ) => {
+      if (isRef(id)) {
+        id = id.value
+      }
+      if (isRef(params)) {
+        params = params.value
+      }
+      const record = keyedById[id] && select(params, idField)(keyedById[id])
+      if (record) {
+        return record
+      }
+      const tempRecord =
+        tempsById[id] && select(params, tempIdField)(tempsById[id])
+
+      return tempRecord || null
     },
     getCopyById: state => id => {
       const { servicePath, keepCopiesInStore, serverAlias } = state
@@ -92,6 +116,24 @@ export default function makeServiceGetters() {
 
         return Model.copiesById[id]
       }
-    }
+    },
+
+    isCreatePendingById: ({ isIdCreatePending }: ServiceState) => (id: Id) =>
+      isIdCreatePending.includes(id),
+    isUpdatePendingById: ({ isIdUpdatePending }: ServiceState) => (id: Id) =>
+      isIdUpdatePending.includes(id),
+    isPatchPendingById: ({ isIdPatchPending }: ServiceState) => (id: Id) =>
+      isIdPatchPending.includes(id),
+    isRemovePendingById: ({ isIdRemovePending }: ServiceState) => (id: Id) =>
+      isIdRemovePending.includes(id),
+    isSavePendingById: (state: ServiceState, getters) => (id: Id) =>
+      getters.isCreatePendingById(id) ||
+      getters.isUpdatePendingById(id) ||
+      getters.isPatchPendingById(id),
+    isPendingById: (state: ServiceState, getters) => (id: Id) =>
+      getters.isSavePendingById(id) ||
+      getters.isRemovePendingById(id)
   }
 }
+
+export type GetterName = keyof ReturnType<typeof makeServiceGetters>

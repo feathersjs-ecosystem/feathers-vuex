@@ -129,18 +129,18 @@ function makeContext() {
 
 export { makeContext }
 
-describe('Models - Methods', function() {
+describe('Models - Methods', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('Model.find is a function', function() {
+  it('Model.find is a function', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.find === 'function')
   })
 
-  it('Model.find returns a Promise', function() {
+  it('Model.find returns a Promise', function () {
     const { Task } = makeContext()
     const result = Task.find()
     assert(typeof result.then !== 'undefined')
@@ -149,25 +149,46 @@ describe('Models - Methods', function() {
     })
   })
 
-  it('Model.findInStore', function() {
+  it('Model.findInStore', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.findInStore === 'function')
   })
 
-  it('Model.get', function() {
+  it('Model.count is a function', function () {
+    const { Task } = makeContext()
+
+    assert(typeof Task.count === 'function')
+  })
+
+  it('Model.count returns a Promise', function () {
+    const { Task } = makeContext()
+    const result = Task.count({ query: {} })
+    assert(typeof result.then !== 'undefined')
+    result.catch(err => {
+      /* noop -- prevents UnhandledPromiseRejectionWarning */
+    })
+  })
+
+  it('Model.countInStore', function () {
+    const { Task } = makeContext()
+
+    assert(typeof Task.countInStore === 'function')
+  })
+
+  it('Model.get', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.get === 'function')
   })
 
-  it('Model.getFromStore', function() {
+  it('Model.getFromStore', function () {
     const { Task } = makeContext()
 
     assert(typeof Task.getFromStore === 'function')
   })
 
-  it('allows listening to Feathers events on Model', function(done) {
+  it('allows listening to Feathers events on Model', function (done) {
     const { Letter } = makeContext()
 
     Letter.on('created', data => {
@@ -182,7 +203,7 @@ describe('Models - Methods', function() {
     }).save()
   })
 
-  it('instance.save calls create with correct arguments', function() {
+  it('instance.save calls create with correct arguments', function () {
     const { Task } = makeContext()
     const task = new Task({ test: true })
 
@@ -199,7 +220,7 @@ describe('Models - Methods', function() {
     task.save()
   })
 
-  it('instance.save passes params to create', function() {
+  it('instance.save passes params to create', function () {
     const { Task } = makeContext()
     const task = new Task({ test: true })
     let called = false
@@ -216,7 +237,7 @@ describe('Models - Methods', function() {
     assert(called, 'create should have been called')
   })
 
-  it('instance.save passes params to patch', function() {
+  it('instance.save passes params to patch', function () {
     const { Todo } = makeContext()
     const todo = new Todo({ id: 1, test: true })
     let called = false
@@ -233,7 +254,7 @@ describe('Models - Methods', function() {
     assert(called, 'patch should have been called')
   })
 
-  it('instance.save passes params to update', function() {
+  it('instance.save passes params to update', function () {
     const { Task } = makeContext()
     Task.preferUpdate = true
 
@@ -252,7 +273,7 @@ describe('Models - Methods', function() {
     assert(called, 'update should have been called')
   })
 
-  it('instance.remove works with temp records', function() {
+  it('instance.remove works with temp records', function () {
     const { Task, store } = makeContext()
     const task = new Task({ test: true })
     const tempId = task.__id
@@ -263,11 +284,11 @@ describe('Models - Methods', function() {
     assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
   })
 
-  it.skip('instance.remove removes cloned records from the store', function() {})
-  it.skip('instance.remove removes cloned records from the Model.copiesById', function() {})
-  it.skip('removes clone and original upon calling clone.remove()', function() {})
+  it.skip('instance.remove removes cloned records from the store', function () {})
+  it.skip('instance.remove removes cloned records from the Model.copiesById', function () {})
+  it.skip('removes clone and original upon calling clone.remove()', function () {})
 
-  it('instance methods still available in store data after updateItem mutation (or socket event)', async function() {
+  it('instance methods still available in store data after updateItem mutation (or socket event)', async function () {
     const { Letter, store, lettersService } = makeContext()
     let letter = new Letter({ name: 'Garmadon', age: 1025 })
 
@@ -298,7 +319,7 @@ describe('Models - Methods', function() {
     )
   })
 
-  it('Dates remain as dates after changes', async function() {
+  it('Dates remain as dates after changes', async function () {
     const { Letter, store, lettersService } = makeContext()
     let letter = new Letter({
       name: 'Garmadon',
@@ -315,7 +336,7 @@ describe('Models - Methods', function() {
     assert(isDate(letter.createdAt), 'createdAt should be a date')
   })
 
-  it('instance.toJSON', function() {
+  it('instance.toJSON', function () {
     const { Task } = makeContext()
     const task = new Task({ id: 1, test: true })
 
@@ -330,5 +351,130 @@ describe('Models - Methods', function() {
     const json = task.toJSON()
 
     assert(json, 'got json')
+  })
+
+  it('Model pending status sets/clears for create/update/patch/remove', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'model-methods'
+    })
+    class PendingThing extends BaseModel {
+      public static modelName = 'PendingThing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: PendingThing,
+          service: feathersClient.service('methods-pending-things')
+        })
+      ]
+    })
+
+    // Create instance
+    const thing = new PendingThing({ description: 'pending test' })
+    const clone = thing.clone()
+    assert(!!thing.__id, "thing has a tempId")
+    assert(clone.__id === thing.__id, "clone has thing's tempId")
+
+    // Manually set the result in a hook to simulate the server request.
+    feathersClient.service('methods-pending-things').hooks({
+      before: {
+        create: [
+          context => {
+            context.result = { _id: 42, ...context.data }
+            // Check pending status
+            assert(thing.isCreatePending === true, 'isCreatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isCreatePending === true, 'isCreatePending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
+            assert(clone.isPending === true, 'isPending set on clone')
+            return context
+          }
+        ],
+        update: [
+          context => {
+            context.result = { ...context.data }
+            // Check pending status
+            assert(thing.isUpdatePending === true, 'isUpdatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isUpdatePending === true, 'isUpdatePending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
+            assert(clone.isPending === true, 'isPending set on clone')
+            return context
+          }
+        ],
+        patch: [
+          context => {
+            context.result = { ...context.data }
+            // Check pending status
+            assert(thing.isPatchPending === true, 'isPatchPending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isPatchPending === true, 'isPatchPending set on clone')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
+            assert(clone.isPending === true, 'isPending set on clone')
+            return context
+          }
+        ],
+        remove: [
+          context => {
+            context.result = { ...context.data }
+            // Check pending status
+            assert(thing.isRemovePending === true, 'isRemovePending set')
+            assert(thing.isSavePending === false, 'isSavePending clear on remove')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isRemovePending === true, 'isRemovePending set on clone')
+            assert(clone.isSavePending === false, 'isSavePending clear on remove on clone')
+            assert(clone.isPending === true, 'isPending set on clone')
+            return context
+          }
+        ]
+      }
+    })
+
+    // Create and verify status
+    await thing.create()
+    assert(thing.isCreatePending === false, 'isCreatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isCreatePending === false, 'isCreatePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
+    assert(clone.isPending === false, 'isPending cleared on clone')
+
+    // Update and verify status
+    await thing.update()
+    assert(thing.isUpdatePending === false, 'isUpdatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isUpdatePending === false, 'isUpdatePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
+    assert(clone.isPending === false, 'isPending cleared on clone')
+
+    // Patch and verify status
+    await thing.patch()
+    assert(thing.isPatchPending === false, 'isPatchPending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isPatchPending === false, 'isPatchPending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
+    assert(clone.isPending === false, 'isPending cleared on clone')
+
+    // Remove and verify status
+    await thing.remove()
+    assert(thing.isRemovePending === false, 'isRemovePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isRemovePending === false, 'isRemovePending cleared on clone')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
+    assert(clone.isPending === false, 'isPending cleared on clone')
   })
 })

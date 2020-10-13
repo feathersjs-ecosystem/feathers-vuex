@@ -5,7 +5,9 @@ eslint
 */
 import { assert } from 'chai'
 import { assertGetter } from '../test-utils'
-import makeServiceMutations from '../../src/service-module/service-module.mutations'
+import makeServiceMutations, {
+  PendingServiceMethodName, PendingIdServiceMethodName
+} from '../../src/service-module/service-module.mutations'
 import makeServiceState from '../../src/service-module/service-module.state'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
@@ -14,13 +16,27 @@ import fakeData from '../fixtures/fake-data'
 import { getQueryInfo } from '../../src/utils'
 import { diff as deepDiff } from 'deep-object-diff'
 import omitDeep from 'omit-deep-lodash'
+import feathersVuex from '../../src/index'
+
+import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
+
+const { BaseModel } = feathersVuex(feathersClient, {
+  serverAlias: 'mutations'
+})
 
 Vue.use(Vuex)
+
+class Todo extends BaseModel {
+  public static modelName = 'Todo'
+  public static test = true
+}
 
 const options = {
   idField: '_id',
   autoRemove: false,
-  serverAlias: 'myApi'
+  serverAlias: 'myApi',
+  service: feathersClient.service('mutations-todo'),
+  Model: Todo
 }
 
 const {
@@ -39,12 +55,14 @@ const {
   setPending,
   unsetPending,
   setError,
-  clearError
+  clearError,
+  setIdPending,
+  unsetIdPending
 } = makeServiceMutations()
 
 describe('Service Module - Mutations', function() {
   beforeEach(function() {
-    this.state = makeServiceState('mutation-todos', options)
+    this.state = makeServiceState(options)
     this.state.keepCopiesInStore = true
   })
 
@@ -165,7 +183,10 @@ describe('Service Module - Mutations', function() {
         { _id: 4, test: true }
       ]
       addItems(state, items)
-      const itemsToRemove = [{ _id: 1, test: true }, { _id: 2, test: true }]
+      const itemsToRemove = [
+        { _id: 1, test: true },
+        { _id: 2, test: true }
+      ]
       removeItems(state, itemsToRemove)
 
       assert(state.ids.length === 2, 'should have 2 ids left')
@@ -857,7 +878,7 @@ describe('Service Module - Mutations', function() {
   })
 
   describe('Pagination', function() {
-    it('updatePaginationForQuery', function () {
+    it('updatePaginationForQuery', function() {
       this.timeout(600000)
       const state = this.state
       const qid = 'main-list'
@@ -1126,7 +1147,14 @@ describe('Service Module - Mutations', function() {
   describe('Pending', function() {
     it('setPending && unsetPending', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1138,7 +1166,32 @@ describe('Service Module - Mutations', function() {
 
         // Unset pending & check
         unsetPending(state, method)
-        assert(!state[`!is${uppercaseMethod}Pending`])
+        assert(!state[`is${uppercaseMethod}Pending`])
+      })
+    })
+  })
+
+  describe('Per-instance Pending', function() {
+    it('setIdPending && unsetIdPending', function() {
+      const state = this.state
+      const methods: PendingIdServiceMethodName[] = [
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
+
+      methods.forEach(method => {
+        const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+        assert(state[`isId${uppercaseMethod}Pending`].length === 0)
+
+        // Set pending & check
+        setIdPending(state, { method, id: 42 })
+        assert(state[`isId${uppercaseMethod}Pending`].includes(42))
+
+        // Unset pending & check
+        unsetIdPending(state, { method, id: 42 })
+        assert(state[`isId${uppercaseMethod}Pending`].length === 0)
       })
     })
   })
@@ -1146,7 +1199,14 @@ describe('Service Module - Mutations', function() {
   describe('Errors', function() {
     it('setError', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1159,7 +1219,14 @@ describe('Service Module - Mutations', function() {
 
     it('setError with feathers-errors', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1179,7 +1246,14 @@ describe('Service Module - Mutations', function() {
 
     it('clearError', function() {
       const state = this.state
-      const methods = ['find', 'get', 'create', 'update', 'patch', 'remove']
+      const methods: PendingServiceMethodName[] = [
+        'find',
+        'get',
+        'create',
+        'update',
+        'patch',
+        'remove'
+      ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)

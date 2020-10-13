@@ -1,4 +1,20 @@
-import { createElement, computed, watch } from '@vue/composition-api'
+import {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  createElement as baseCreateElement,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  h,
+  computed,
+  watch
+} from '@vue/composition-api'
+import { CreateElement } from 'vue'
+
+/**
+ * Allow for usage with newer (^1.0.0) @vue/composition-api releases
+ * See: https://github.com/feathersjs-ecosystem/feathers-vuex/issues/504
+ */
+const createElement = (baseCreateElement || h) as CreateElement
 
 export default {
   name: 'FeathersVuexPagination',
@@ -56,7 +72,7 @@ export default {
       get() {
         const params = props.value
         if (params) {
-          return params.$skip / params.$limit + 1
+          return pageCount.value === 0 ? 0 : params.$skip / params.$limit + 1
         } else {
           return 1
         }

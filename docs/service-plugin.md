@@ -26,17 +26,27 @@ const servicePlugin = makeServicePlugin({
   Model,
   service: feathersClient.service(servicePath),
 
-  // optional and configurable by global config
+  // optional and configurable also by global config
   idField: 'id',
   tempIdField: '__id',
+  nameStyle: 'short',
   debug: false,
   addOnUpsert: false,
   autoRemove: false,
-  enableEvents: true,
   preferUpdate: false,
   replaceItems: false,
   skipRequestIfExists: false,
-  nameStyle: 'short',
+
+  paramsForServer: ['$populateParams'],
+  whitelist: [],
+
+  enableEvents: true,
+  handleEvents: {
+    created: (item, { model, models }) => options.enableEvents,
+    patched: (item, { model, models }) => options.enableEvents,
+    updated: (item, { model, models }) => options.enableEvents,
+    removed: (item, { model, models }) => options.enableEvents
+  },
 
   // optional and only configurable per service
   servicePath: '',
@@ -45,12 +55,6 @@ const servicePlugin = makeServicePlugin({
 
   instanceDefaults: () => ({}),
   setupInstance: instance => instance,
-  handleEvents: {
-    created: (item, { model, models }) => options.enableEvents,
-    patched: (item, { model, models }) => options.enableEvents,
-    updated: (item, { model, models }) => options.enableEvents,
-    removed: (item, { model, models }) => options.enableEvents
-  },
 
   state: {},
   getters: {},
@@ -64,14 +68,22 @@ The following options can also be configured in [Global Configuration](getting-s
 
 - `idField {String}` - **Default:** `globalConfig: 'id'` - The field in each record that will contain the id
 - `tempIdField {Boolean}` - **Default:** `globalConfig: '__id'` - The field in each temporary record that contains the id
+- `nameStyle {'short'|'path'}` - **Default:** `globalConfig: 'short'` - Use the full service path as the Vuex module name, instead of just the last section.
 - `debug {Boolean}` - **Default:** `globalConfig: false` - Enable some logging for debugging
 - `addOnUpsert {Boolean}` - **Default:** `globalConfig: false` - If `true` add new records pushed by 'updated/patched' socketio events into store, instead of discarding them.
 - `autoRemove {Boolean}` - **Default:** `globalConfig: false` - If `true` automatically remove records missing from responses (only use with feathers-rest)
-- `enableEvents {Boolean}` - **Default:** `globalConfig: true` - If `false` socket event listeners will be turned off
 - `preferUpdate {Boolean}` - **Default:** `globalConfig: false` - If `true`, calling `model.save()` will do an `update` instead of a `patch`.
 - `replaceItems {Boolean}` - **Default:** `globalConfig: false` - If `true`, updates & patches replace the record in the store. Default is false, which merges in changes.
 - `skipRequestIfExists {Boolean}` - **Default:** `globalConfig: false` - For get action, if `true` the record already exists in store, skip the remote request.
-- `nameStyle {'short'|'path'}` - **Default:** `globalConfig: 'short'` - Use the full service path as the Vuex module name, instead of just the last section.
+- `paramsForServer {Array}` - **Default:** `['$populateParams']` - Custom query operators that are ignored in the find getter, but will pass through to the server. It is preconfigured to work with the `$populateParams` custom operator from [feathers-graph-populate](https://feathers-graph-populate.netlify.app/).
+- `whitelist {Array}` - Custom query operators that will be allowed in the find getter.
+- `enableEvents {Boolean}` - **Default:** `globalConfig: true` - If `false` socket event listeners will be turned off
+- `handleEvents {Object}`: For this to work `enableEvents` must be `true`
+  - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
+  - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
+  - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
+  -
 
 The following options can only configured individually per service plugin
 
@@ -80,11 +92,6 @@ The following options can only configured individually per service plugin
 - `modelName {String}` - **Default:** `${ServicePlugin.Model.modelName}`
 - `instanceDefaults {Function}` - **Default:** `() => ({})` - Override this method to provide default data for new instances. If using Model classes, specify this as a static class property.
 - `setupInstance {Function}` - **Default:** `instance => instance` - Override this method to setup data types or related data on an instance. If using Model classes, specify this as a static class property.
-- `handleEvents {Object}`: For this to work `enableEvents` must not be `false`
-  - `created {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to add to the store
-  - `patched {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
-  - `updated {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `created` events, return true to update in the store
-  - `removed {Function}` - **Default:** `(item, { model, models }) => options.enableEvents` - handle `removed` events, return true to remove from the store
 
   - `state {Object}` - **Default:**: `null` - Pass custom `states` to the service plugin or modify existing ones
   - `getters {Object}` - **Default:** `null` - Pass custom `getters` to the service plugin or modify existing ones
@@ -134,7 +141,7 @@ Each service comes loaded with the following default state:
       mostRecent: any
     },
 
-    paramsForServer: [],
+    paramsForServer: ['$populateParams'],
     whitelist: [],
 
     isFindPending: false,
@@ -149,7 +156,12 @@ Each service comes loaded with the following default state:
     errorOnCreate: undefined,
     errorOnUpdate: undefined,
     errorOnPatch: undefined,
-    errorOnRemove: undefined
+    errorOnRemove: undefined,
+
+    isIdCreatePending: [],
+    isIdUpdatePending: [],
+    isIdPatchPending: [],
+    isIdRemovePending: [],
   }
 ```
 
@@ -186,16 +198,34 @@ The following state attribute will be populated with any request error, serializ
 - `errorOnPatch {Error}`
 - `errorOnRemo {Error}`
 
+The following state attributes allow you to bind to the pending state of requests *per item ID*
+
+- `isIdCreatePending {Array}` - Contains `id` if there's a pending `create` request for `id`.
+- `isIdUpdatePending {Array}` -Contains `id` if there's a pending `update` request for `id`.
+- `isIdPatchPending {Array}` - Contains `id` if there's a pending `patch` request for `id`.
+- `isIdRemovePending {Array}` - Contains `id` if there's a pending `remove` request for `id`.
+
 ## Service Getters
 
 Service modules include the following getters:
 
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
 - `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common) and [Query API](https://docs.feathersjs.com/api/databases/querying) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
-  - `params {Object}` - an object with a `query` object and an optional `paginate` boolean property. The `query` is in the FeathersJS query format.  You can set `params.paginate` to `false` to disable pagination for a single request.
+  - `params {Object}` - an object with a `query` object and optional `paginate` and `temps` boolean properties. The `query` is in the FeathersJS query format. You can set `params.paginate` to `false` to disable pagination for a single request.
+- `count(params) {Function}` - a helper function that counts items in the store matching the provided query in the params and returns this number <Badge text="3.12.0+" />
+  - `params {Object}` - an object with a `query` object and an optional `temps` boolean property.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
+
+The following getters ease access to per-instance pending status
+
+- `isCreatePendingById(id) {Function}` - Check if `create` is pending for `id`
+- `isUpdatePendingById(id) {Function}` - Check if `update` is pending for `id`
+- `isPatchPendingById(id) {Function}` - Check if `patch` is pending for `id`
+- `isRemovePendingById(id) {Function}` - Check if `remove` is pending for `id`
+- `isSavePendingById(id) {Function}` - Check if `create`, `update`, or `patch` is pending for `id`
+- `isPendingById(id) {Function}` - Check if `create`, `update`, `patch` or `remove` is pending for `id`
 
 ## Service Mutations
 
@@ -253,7 +283,9 @@ Clears all data from `ids`, `keyedById`, and `currentId`
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
 
 - `setPending(state, method)` - sets the `is${method}Pending` attribute to true
+- `setIdPending(state, { method, id })` - adds `id` to `isId${method}Pending` array
 - `unsetPending(state, method)` - sets the `is${method}Pending` attribute to false
+- `unsetIdPending(state, { method, id })` - removes `id` from `isId${method}Pending` array
 
 ### Mutations for Managing Errors
 
@@ -286,6 +318,21 @@ See the section about pagination, below, for more information that is applicable
 ### `afterFind(response)`
 
 The `afterFind` action is called by the `find` action after a successful response is added to the store.  It is called with the current response.  By default, it is a no-op (it literally does nothing), and is just a placeholder for you to use when necessary.  See the sections on [customizing the default store](#Customizing-a-Service’s-Default-Store) and [Handling custom server responses](./common-patterns.html#Handling-custom-server-responses) for example usage.
+
+### `count(params)` <Badge text="3.12.0+" />
+
+Count items on the server matching the provided query.
+
+- `params {Object}` - An object containing a `query` object. In the background `$limit: 0` will be added to the `query` to perform a (fast) counting query against the database.
+
+> **Note:** it only works for services with enabled pagination!
+
+```js
+let params = {query: {completed: false}}
+store.dispatch('todos/count', params)
+```
+
+This will run a (fast) counting query against the database and return a page object with the total and an empty data array.
 
 ### `get(id)` or `get([id, params])`
 
@@ -363,7 +410,7 @@ Patch (merge in changes) one or more records
 - `paramArray {Array}` - array containing the three parameters patch takes.
   - `id {Number|String}` - the `id` of the existing record being requested from the API server.
   - `data {Object}` - the data that will be merged into the existing record
-  - `params {Object}` - An object containing a `query` object.
+  - `params {Object}` - An object containing a `query` object. If params.data is provided, it will be used as the patch data, providing a simple way to patch with partial data.
 
 ```js
 let data = {description: 'write your tests', completed: true}
@@ -441,6 +488,50 @@ Each handler receives the following arguments:
 - `utils`: an object containing the following properties
    - `model` The current service's Model class.
    - `models` The same as the `$FeathersVuex` object, gives you access to each api with their respective model classes.
+
+You do not have to specify a handler for every event. Any that are not specified in your service-specific `handleEvents`, will fall back to using the `handleEvents` handler in your global options. If none are defined for the service or globally, the default behavior is controlled by the `enableEvents` option.
+
+#### Handling complex events <Badge text="3.10.0+" />
+
+If your application emits the standard Feathers service events inside a nested object with additional data, you can use `handleEvents` to tell FeathersVuex what part of that data is actually the model data that should be used to update the store.
+
+To do this, use `handleEvents` as described before, but return a tuple `[affectsStore, modelData]` from your handler.
+
+- `affectsStore` a truthy value indicates the event should update the store
+- `modelData` is the model data used to update the store
+
+For example, you've configured your Feathers API to emit `patched` events for your `Todos` service that include context about the event which look like
+
+```json
+{
+  "$context": {
+    "time": 1445411009000,
+    "userId": 121,
+    "deviceId": "Marty's iPhone"
+  },
+  "event": {
+    "id": 88,
+    "text": "Get back to the past",
+    "done": true
+  }
+}
+```
+
+For this service to play nicely with FeathersVuex, you'll need to use `handleEvents`
+
+```js
+handleEvents: {
+  patched: (item, { model, models }) => {
+    // Perform any side effects...
+
+    // If the first element is truthy, the item will update the store
+    // The second element is the actual model data to add to the store
+    return [true, item.event]
+  }
+}
+```
+
+The original event data is bubbled to [Model events](./model-classes.md#model-events) so listeners receive the full event context.
 
 ## Pagination and the `find` action
 

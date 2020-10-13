@@ -3,10 +3,9 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-// TODO: use this in the src
 export interface ServiceState {
   options: {}
-  ids: string[]
+  ids: (string | number)[]
   autoRemove: boolean
   errorOnFind: any
   errorOnGet: any
@@ -23,11 +22,15 @@ export interface ServiceState {
   idField: string
   keyedById: {}
   tempsById: {}
+  tempsByNewId: {}
+  whitelist: string[]
+  paramsForServer: string[]
   namespace: string
   nameStyle: string // Should be enum of 'short' or 'path'
   pagination?: {
     default: PaginationState
   }
+  modelName: string
 }
 
 export interface PaginationState {
@@ -35,7 +38,7 @@ export interface PaginationState {
   limit: number
   skip: number
   ip: number
-  total: number,
+  total: number
   mostRecent: any
 }
 

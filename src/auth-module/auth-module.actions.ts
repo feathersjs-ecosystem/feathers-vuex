@@ -3,19 +3,24 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
+import fastCopy from 'fast-copy'
 import { globalModels as models } from '../service-module/global-models'
+import { getNameFromPath } from '../utils'
 
 export default function makeAuthActions(feathersClient) {
   return {
-    authenticate(store, data) {
+    authenticate(store, dataOrArray) {
       const { commit, state, dispatch } = store
+      const [data, params] = Array.isArray(dataOrArray)
+        ? dataOrArray
+        : [dataOrArray]
 
       commit('setAuthenticatePending')
       if (state.errorOnAuthenticate) {
         commit('clearAuthenticateError')
       }
       return feathersClient
-        .authenticate(data)
+        .authenticate(data, params)
         .then(response => {
           return dispatch('responseHandler', response)
         })
@@ -38,9 +43,10 @@ export default function makeAuthActions(feathersClient) {
           if (state.serverAlias && state.userService) {
             const Model = Object.keys(models[state.serverAlias])
               .map(modelName => models[state.serverAlias][modelName])
-              .find(model => model.servicePath === state.userService)
+              .find(model => getNameFromPath(model.servicePath) === getNameFromPath(state.userService))
             if (Model) {
-              user = new Model(user)
+              // Copy user object to avoid setupInstance modifying payload state
+              user = new Model(fastCopy(user))
             }
           }
           commit('setUser', user)

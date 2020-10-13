@@ -15,22 +15,23 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import useGet from '../../src/useGet'
 import memory from 'feathers-memory'
 import Vuex from 'vuex'
-import { mount, shallowMount } from '@vue/test-utils'
-import InstrumentComponent from './InstrumentComponent'
-import { computed, isRef } from '@vue/composition-api'
+// import { mount, shallowMount } from '@vue/test-utils'
+// import InstrumentComponent from './InstrumentComponent'
+import { isRef } from '@vue/composition-api'
+import { HookContext } from '@feathersjs/feathers'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
-function timeoutPromise(wait = 0) {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, wait)
-  })
-}
+// function timeoutPromise(wait = 0) {
+//   return new Promise(resolve => {
+//     setTimeout(() => {
+//       resolve()
+//     }, wait)
+//   })
+// }
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
@@ -76,8 +77,8 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe('use/get', function() {
-  it('returns correct default data', function() {
+describe('use/get', function () {
+  it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
     const id = 1
@@ -115,29 +116,29 @@ describe('use/get', function() {
     assert(item.value === null)
   })
 
-  it('allows passing {lazy:true} to not query immediately', function() {
+  it('allows passing {immediate:false} to not query immediately', function () {
     const { Instrument } = makeContext()
 
     const id = 1
-    const instrumentData = useGet({ model: Instrument, id, lazy: true })
+    const instrumentData = useGet({ model: Instrument, id, immediate: false })
     const { hasBeenRequested } = instrumentData
 
     assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false)
   })
 
-  it('id can return null id to prevent the query', function() {
+  it('id can return null id to prevent the query', function () {
     const { Instrument } = makeContext()
 
     const id = null
-    const instrumentData = useGet({ model: Instrument, id, lazy: true })
+    const instrumentData = useGet({ model: Instrument, id })
     const { hasBeenRequested } = instrumentData
 
     assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false)
   })
 
-  it('allows using `local: true` to prevent API calls from being made', function() {
+  it('allows using `local: true` to prevent API calls from being made', function () {
     const { Instrument } = makeContext()
 
     const id = 1
@@ -147,8 +148,46 @@ describe('use/get', function() {
     assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false, 'no request during init')
 
-    get()
+    get(id)
 
     assert(hasBeenRequested.value === false, 'no request after get')
+  })
+
+  it('API only hit once on initial render', async function () {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      serverAlias: 'useGet'
+    })
+
+    class Dohickey extends BaseModel {
+      public static modelName = 'Dohickey'
+    }
+
+    const servicePath = 'dohickies'
+    const store = new Vuex.Store({
+      plugins: [
+        makeServicePlugin({
+          Model: Dohickey,
+          servicePath,
+          service: feathersClient.service(servicePath)
+        })
+      ]
+    })
+
+    let getCalls = 0
+    feathersClient.service(servicePath).hooks({
+      before: {
+        get: [
+          (ctx: HookContext) => {
+            getCalls += 1
+            ctx.result = { id: ctx.id }
+          }
+        ]
+      }
+    })
+
+    useGet({ model: Dohickey, id: 42 })
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    assert(getCalls === 1, '`get` called once')
   })
 })

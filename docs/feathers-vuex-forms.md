@@ -151,6 +151,10 @@ The default slot contains only four attributes.  The `clone` data can be passed 
 - `reset`: {Function} When called, the clone data will be reset back to the data that is currently found in the store for the same record.
 - `remove`: {Function} When called, it removes the record from the API server and the Vuex store.
 
+### Usage with `diffOnPatch`
+
+If you plan to use the `diffOnPatch` static Model method together with the `FeathersVuexFormWrapper`, be sure to set the `eager` prop to `false`.  See [this GitHub issue](https://github.com/feathersjs-ecosystem/feathers-vuex/issues/520) for more details.
+
 ## FormWrapper Example: CRUD Form
 
 ### TodoView
@@ -458,7 +462,7 @@ export default {
     // Optionally make the event handler async.
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -497,14 +501,14 @@ myCallback({ event, clone, prop, data }) {
 - `event {Event}`: the event which triggered the `handler` function in the slot scope.
 - `clone {clone}`: the cloned version of the `item` instance that was provided as a prop.
 - `prop {String}`: the name of the `prop` that is being edited (will always match the `prop` prop.)
-- `data {Object}`: An object containing the changes that were made to the object. Useful for calling `.patch(data)` on the original instance.
+- `data {Object}`: An object containing the changes that were made to the object. Useful for calling `.patch({ data })` on the original instance.
 
 This callback needs to be customized to fit your business logic.  You might patch the changes right away, as shown in this example callback function.
 
 ```js
 async save({ event, clone, prop, data }) {
   const user = clone.commit()
-  return user.patch(data)
+  return user.patch({ data })
 }
 ```
 
@@ -550,7 +554,7 @@ export default {
     // The callback can be async
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -593,7 +597,7 @@ export default {
     // The callback can be async
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
   }
 }
@@ -640,7 +644,7 @@ export default {
     // The original, non-debounced save function
     async function save({ event, clone, prop, data }) {
       const user = clone.commit()
-      return user.patch(data)
+      return user.patch({ data })
     }
     // The debounced wrapper around the save function
     const debouncedSave = _debounce(save, 100)

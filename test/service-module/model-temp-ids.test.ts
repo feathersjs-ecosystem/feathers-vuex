@@ -9,9 +9,11 @@ import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
 import { Service as MemoryService } from 'feathers-memory'
+import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
 import { makeStore } from '../test-utils'
 import ObjectID from 'bson-objectid'
+import fastCopy from 'fast-copy'
 
 interface RootState {
   transactions: ServiceState
@@ -180,9 +182,12 @@ describe('Models - Temp Ids', function() {
           },
           context => {
             assert(!context.data.__id, '__id was not sent to API server')
-            assert(!context.data.__id, '__isTemp was not sent to API server')
+            assert(
+              !context.data.__isTemp,
+              '__isTemp was not sent to API server'
+            )
             context.result = {
-              id: 1,
+              _id: 1,
               description: 'Robb Wolf - the Paleo Solution',
               website:
                 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
@@ -207,8 +212,6 @@ describe('Models - Temp Ids', function() {
       assert(response._id === 1)
       assert(response.__id, 'the temp id is still intact')
       assert(!store.state.things.tempsById[response.__id])
-      //@ts-ignore
-      assert(!Object.keys(store.state.things.tempsByNewId).length)
       assert(response === thing, 'maintained the reference')
     })
   })
@@ -372,5 +375,262 @@ describe('Models - Temp Ids', function() {
         done()
       })
       .catch(done)
+  })
+
+  it('removes __isTemp from temp and clone', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    const thing = new Thing()
+    assert(thing.__isTemp, 'thing has __isTemp')
+
+    const clone = thing.clone()
+    assert(clone.__isTemp, 'Clone also has __isTemp')
+
+    store.commit('things/updateTemp', { id: 42, tempId: thing.__id })
+
+    assert(!thing.hasOwnProperty('__isTemp'), '__isTemp was removed from thing')
+    assert(!clone.hasOwnProperty('__isTemp'), '__isTemp was removed from clone')
+  })
+
+  it('updateTemp assigns ID to temp and migrates it from tempsById to keyedById', function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    const thing = new Thing()
+    assert(thing.__id, 'thing has tempId')
+    assert(!thing._id, 'thing does not have _id')
+    assert(store.state.things.tempsById[thing.__id], 'thing is in tempsById')
+
+    store.commit('things/updateTemp', { id: 42, tempId: thing.__id })
+    assert(thing._id === 42, 'thing got _id')
+    assert(store.state.things.keyedById[42] === thing, 'thing is in keyedById')
+    assert(store.state.things.ids.includes(42), "thing's _id is in ids")
+    assert(
+      !store.state.things.tempsById[thing.__id],
+      'thing is no longer in tempsById'
+    )
+  })
+
+  it('Clone gets _id after save (create only called once)', async function() {
+    // Test ensures subsequent calls to clone.save() do not call create
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class Thing extends BaseModel {
+      public static modelName = 'Thing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: Thing,
+          service: feathersClient.service('things')
+        })
+      ]
+    })
+
+    // Manually set the result in a hook to simulate the server request.
+    let createCalled = false
+    feathersClient.service('things').hooks({
+      before: {
+        create: [
+          context => {
+            assert(createCalled === false, 'Create is only called once')
+            createCalled = true
+            context.result = { _id: 42, ...context.data }
+            return context
+          }
+        ],
+        patch: [
+          context => {
+            assert(context.data.__isClone, 'Patch called on clone')
+            assert(context.id === 42, 'context has correct ID')
+            assert(context.data._id === 42, 'patch called with correct _id')
+            assert(
+              context.data.description === 'Thing 3',
+              'patch called with correct description'
+            )
+            context.result = { ...context.data }
+            return context
+          }
+        ]
+      }
+    })
+
+    // Create instance and clone
+    const thing = new Thing({ description: 'Thing 1' })
+    const clone = thing.clone()
+    assert(thing.__id === clone.__id, "clone has thing's tempId")
+    assert(clone.description === 'Thing 1', "clone got thing's description")
+    assert(!thing.hasOwnProperty('_id'), 'thing has no _id')
+    assert(!clone.hasOwnProperty('_id'), 'clone has no _id')
+
+    // Modify clone and save
+    clone.description = 'Thing 2'
+    const response = await clone.save()
+    assert(response === thing, 'response from clone.save() is thing')
+    assert(thing._id === 42, 'thing got _id')
+    assert(thing.description === 'Thing 2', "thing got clone's changes")
+    assert(clone._id === response._id, 'clone got _id')
+
+    // Modify clone again and save again
+    clone.description = 'Thing 3'
+    const response2 = await clone.save()
+    assert(response2 === thing, 'response2 is still thing')
+    assert(thing.description === 'Thing 3', "thing got clone's new changes")
+  })
+
+  it('find() getter does not return duplicates with temps: true', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class FooModel extends BaseModel {
+      public static modelName = 'FooModel'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: FooModel,
+          service: feathersClient.service('foos'),
+          servicePath: 'foos'
+        })
+      ]
+    })
+
+    // Fake server call
+    feathersClient.service('foos').hooks({
+      before: {
+        create: [
+          context => {
+            delete context.data.__id
+            delete context.data.__isTemp
+          },
+          context => {
+            context.result = { _id: 24, ...context.data }
+            return context
+          }
+        ]
+      }
+    })
+
+    // Create component with find() computed prop
+    const watchEvents = []
+    new Vue({
+      template: `<div></div>`,
+      computed: {
+        things() {
+          return store.getters['foos/find']({
+            query: { test: true },
+            temps: true
+          }).data
+        }
+      },
+      watch: {
+        things(items) {
+          watchEvents.push(fastCopy(items))
+        }
+      }
+    }).$mount()
+
+    const item = new FooModel({ test: true })
+    await item.save()
+
+    assert(watchEvents.length > 0, 'watch fired at least once')
+    watchEvents.forEach(items => {
+      if (items.length === 2) {
+        assert(items[0]._id !== items[1]._id, 'no duplicate id')
+        assert(items[0].__id !== items[1].__id, 'no duplicate tempId')
+      }
+    })
+  })
+
+  it('Model pending status updated for tempIds and clones', async function() {
+    const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
+      idField: '_id',
+      serverAlias: 'temp-ids'
+    })
+    class PendingThing extends BaseModel {
+      public static modelName = 'PendingThing'
+      public constructor(data?, options?) {
+        super(data, options)
+      }
+    }
+    const store = new Vuex.Store<RootState>({
+      plugins: [
+        makeServicePlugin({
+          Model: PendingThing,
+          service: feathersClient.service('pending-things')
+        })
+      ]
+    })
+
+    // Create instance
+    const thing = new PendingThing({ description: 'PendingThing 1' })
+    const clone = thing.clone()
+    assert(!!thing.__id, "thing has a tempId")
+    assert(clone.__id === thing.__id, "clone has thing's tempId")
+
+    // Manually set the result in a hook to simulate the server request.
+    feathersClient.service('pending-things').hooks({
+      before: {
+        create: [
+          context => {
+            context.result = { _id: 42, ...context.data }
+            // Check pending status
+            assert(thing.isCreatePending === true, 'isCreatePending set')
+            assert(thing.isSavePending === true, 'isSavePending set')
+            assert(thing.isPending === true, 'isPending set')
+            // Check clone's pending status
+            assert(clone.isCreatePending === true, 'isCreatePending set')
+            assert(clone.isSavePending === true, 'isSavePending set on clone')
+            assert(clone.isPending === true, 'isPending set')
+            return context
+          }
+        ]
+      }
+    })
+
+    // Save and verify status
+    await thing.save()
+    assert(thing.isCreatePending === false, 'isCreatePending cleared')
+    assert(thing.isSavePending === false, 'isSavePending cleared')
+    assert(thing.isPending === false, 'isPending cleared')
+    assert(clone.isCreatePending === false, 'isCreatePending cleared')
+    assert(clone.isSavePending === false, 'isSavePending cleared on clone')
+    assert(clone.isPending === false, 'isPending cleared')
   })
 })

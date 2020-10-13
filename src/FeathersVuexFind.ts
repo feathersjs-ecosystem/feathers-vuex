@@ -20,6 +20,22 @@ export default {
     fetchQuery: {
       type: Object
     },
+    /**
+     * Can be used in place of the `query` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    params: {
+      type: Object,
+      default: null
+    },
+    /**
+     * Can be used in place of the `fetchQuery` prop to provide more params. Only params.query is
+     * passed to the getter.
+     */
+    fetchParams: {
+      type: Object,
+      default: null
+    },
     watch: {
       type: [String, Array],
       default() {
@@ -58,7 +74,9 @@ export default {
   computed: {
     items() {
       const { query, service, $store, temps } = this
-      const params = { query, temps }
+      let { params } = this
+
+      params = params || { query, temps }
 
       return query ? $store.getters[`${service}/find`](params).data : []
     },
@@ -67,15 +85,26 @@ export default {
     },
     queryInfo() {
       if (this.pagination == null || this.queryId == null) return {}
-      return _get(this.pagination, `[${this.queryId}]`) || {}
+      return _get(this.pagination, this.queryId, {})
     },
     pageInfo() {
-      if (this.pagination == null || this.queryId == null || this.pageId == null) return {}
-      return _get(this.pagination, `[${this.queryId}][${this.pageId}]`) || {}
+      if (
+        this.pagination == null ||
+        this.queryId == null ||
+        this.pageId == null
+      )
+        return {}
+      return _get(this.pagination, [this.queryId, this.pageId], {})
     },
     scope() {
       const { items, isFindPending, pagination, queryInfo, pageInfo } = this
-      const defaultScope = { isFindPending, pagination, items, queryInfo, pageInfo }
+      const defaultScope = {
+        isFindPending,
+        pagination,
+        items,
+        queryInfo,
+        pageInfo
+      }
 
       return this.editScope(defaultScope) || defaultScope
     }
@@ -83,20 +112,25 @@ export default {
   methods: {
     findData() {
       const query = this.fetchQuery || this.query
+      let params = this.fetchParams || this.params
 
       if (
         typeof this.queryWhen === 'function'
-          ? this.queryWhen(this.query)
+          ? this.queryWhen(this.params || this.query)
           : this.queryWhen
       ) {
         this.isFindPending = true
 
-        if (query) {
-          const params = { query, qid: this.qid || 'default' }
+        if (params || query) {
+          if (params) {
+            params = Object.assign({}, params, { qid: this.qid || 'default' })
+          } else {
+            params = { query, qid: this.qid || 'default' }
+          }
 
           return this.$store
             .dispatch(`${this.service}/find`, params)
-            .then((response) => {
+            .then(response => {
               this.isFindPending = false
               const { queryId, pageId } = getQueryInfo(params, response)
               this.queryId = queryId
@@ -107,10 +141,10 @@ export default {
     },
     fetchData() {
       if (!this.local) {
-        if (this.query) {
+        if (this.params || this.query) {
           return this.findData()
         } else {
-          // TODO: access debug boolean from from the store config, somehow.
+          // TODO: access debug boolean from the store config, somehow.
           // eslint-disable-next-line no-console
           console.log(
             `No query and no id provided, so no data will be fetched.`
@@ -127,20 +161,25 @@ export default {
     }
     if (!this.$store.state[this.service]) {
       throw new Error(
-        `The '${ this.service }' plugin not registered with feathers-vuex`
+        `The '${this.service}' plugin not registered with feathers-vuex`
       )
     }
 
     const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
 
-    if (this.fetchQuery || this.query) {
+    if (this.fetchQuery || this.query || this.params) {
       watch.forEach(prop => {
         if (typeof prop !== 'string') {
           throw new Error(`Values in the 'watch' array must be strings.`)
         }
         if (this.fetchQuery) {
           if (prop.startsWith('query')) {
-            prop.replace('query', 'fetchQuery')
+            prop = prop.replace('query', 'fetchQuery')
+          }
+        }
+        if (this.fetchParams) {
+          if (prop.startsWith('params')) {
+            prop = prop.replace('params', 'fetchParams')
           }
         }
         this.$watch(prop, this.fetchData)
