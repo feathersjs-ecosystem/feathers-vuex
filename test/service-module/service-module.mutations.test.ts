@@ -85,7 +85,7 @@ function makeContext() {
     new ComicService({ store: makeStore() })
   )
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'default'
+    serverAlias: 'service-module-mutations'
   })
   class Comic extends BaseModel {
     public static modelName = 'Comic'
@@ -210,6 +210,37 @@ describe('Service Module - Mutations', function () {
       assert(Object.keys(state.keyedById).length === 0)
     })
 
+    it('removeItem also removes clone', function () {
+      const state = this.state
+
+      const _id = 1
+
+      addItem(state, { _id, test: true })
+      createCopy(state, _id)
+
+      assert(state.copiesById[_id], 'clone exists')
+
+      removeItem(state, _id)
+
+      assert(!state.copiesById[_id], 'clone is removed')
+    })
+
+    it('removeItem also removes clone with keepCopiesInStore', function () {
+      const context = makeContext()
+      const { Comic, store } = context
+
+      const _id = 1
+
+      store.commit('comics/addItem', { _id, test: true })
+      store.commit('comics/createCopy', _id)
+
+      assert(Comic.copiesById[_id], 'clone exists')
+
+      store.commit('comics/removeItem', _id)
+
+      assert(!Comic.copiesById[_id], 'clone is removed')
+    })
+
     it('removeItems with array of ids', function () {
       const state = this.state
       const items = [
@@ -251,8 +282,57 @@ describe('Service Module - Mutations', function () {
       )
     })
 
+    it('removeItems also removes clone', function () {
+      const state = this.state
+
+      addItems(state, [
+        { _id: 1, test: true },
+        { _id: 2, test: true },
+        { _id: 3, test: true },
+        { _id: 4, test: true }
+      ])
+      const itemsToRemove = [1, 2]
+      createCopy(state, 1)
+      createCopy(state, 3)
+
+      assert(state.copiesById[1], 'clone exists')
+
+      removeItems(state, itemsToRemove)
+
+      assert(!state.copiesById[1], 'clone is removed')
+      assert(state.copiesById[3], 'other clone is not affected')
+    })
+
+    it('removeItems also removes clone with keepCopiesInStore', function () {
+      const context = makeContext()
+      const { Comic, store } = context
+
+      store.commit('comics/addItems', [
+        { _id: 1, test: true },
+        { _id: 2, test: true },
+        { _id: 3, test: true },
+        { _id: 4, test: true }
+      ])
+
+      const itemsToRemove = [1, 2]
+      store.commit('comics/createCopy', 1)
+      store.commit('comics/createCopy', 3)
+
+      assert(Comic.copiesById[1], 'clone exists')
+
+      store.commit('comics/removeItems', itemsToRemove)
+
+      assert(!Comic.copiesById[1], 'clone is removed')
+      assert(Comic.copiesById[3], 'other clone is not affected')
+    })
+
     it('clearAll', function () {
       const state = this.state
+
+      assert(state.ids.length === 0, 'initialy empty')
+      assert(Object.keys(state.keyedById).length === 0, 'initialy empty')
+      assert(Object.keys(state.copiesById).length === 0, 'initialy empty')
+
       const item1 = {
         _id: 1,
         test: true
@@ -264,9 +344,61 @@ describe('Service Module - Mutations', function () {
       const items = [item1, item2]
       addItems(state, items)
 
+      createCopy(state, item1._id)
+
+      assert(state.ids.length === 2, 'ids are added correctly')
+      assert(
+        Object.keys(state.keyedById).length === 2,
+        'items are added correctly'
+      )
+      assert(
+        Object.keys(state.copiesById).length === 1,
+        'clone is added correctly'
+      )
+
       clearAll(state)
-      assert(state.ids.length === 0)
-      assert(Object.keys(state.keyedById).length === 0)
+      assert(state.ids.length === 0, 'ids empty again')
+      assert(Object.keys(state.keyedById).length === 0, 'items empty again')
+      assert(Object.keys(state.copiesById).length === 0, 'clones empty again')
+    })
+
+    it('clearAll with keepCopiesInStore: false', function () {
+      const context = makeContext()
+      const { Comic, store } = context
+      // @ts-ignore
+      const state = store.state.comics
+
+      assert(state.ids.length === 0, 'initialy empty')
+      assert(Object.keys(state.keyedById).length === 0, 'initialy empty')
+      assert(Object.keys(Comic.copiesById).length === 0, 'initialy empty')
+
+      const item1 = {
+        _id: 1,
+        test: true
+      }
+      const item2 = {
+        _id: 2,
+        test: true
+      }
+      const items = [item1, item2]
+      store.commit('comics/addItems', items)
+      store.commit('comics/createCopy', item1._id)
+
+      assert(state.ids.length === 2, 'ids are added correctly')
+      assert(
+        Object.keys(state.keyedById).length === 2,
+        'items are added correctly'
+      )
+      assert(
+        Object.keys(Comic.copiesById).length === 1,
+        'clone is added correctly'
+      )
+
+      store.commit('comics/clearAll')
+
+      assert(state.ids.length === 0, 'ids empty again')
+      assert(Object.keys(state.keyedById).length === 0, 'items empty again')
+      assert(Object.keys(Comic.copiesById).length === 0, 'clones empty again')
     })
   })
 
@@ -877,6 +1009,7 @@ describe('Service Module - Mutations', function () {
         test: true
       }
       store.commit('comics/addItem', item1)
+
       // @ts-ignore
       const original = store.state.comics.keyedById[1]
 
@@ -931,6 +1064,7 @@ describe('Service Module - Mutations', function () {
         test: true
       }
       store.commit('comics/addItem', item1)
+
       // @ts-ignore
       const original = store.state.comics.tempsById[item1.__id]
 
@@ -980,6 +1114,7 @@ describe('Service Module - Mutations', function () {
         test: true
       }
       store.commit('comics/addItem', item1)
+
       // @ts-ignore
       const original = store.state.comics.keyedById[1]
 
