@@ -66,6 +66,10 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
     options
   )
 
+  if (!model) {
+    throw new Error('No model provided for useFind(). Did you define and register it with FeathersVuex?')
+  }
+
   const getFetchParams = (providedParams?: Params | Ref<Params>): Params => {
     const provided = unwrapParams(providedParams)
 
