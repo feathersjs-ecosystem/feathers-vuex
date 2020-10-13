@@ -18,7 +18,7 @@ const options = {
   idField: '_id',
   tempIdField: '__id',
   autoRemove: false,
-  serverAlias: 'default',
+  serverAlias: 'service-module-getters',
   Model: null,
   service: null
 }
