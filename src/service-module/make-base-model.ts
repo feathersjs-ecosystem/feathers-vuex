@@ -79,7 +79,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     public static serverAlias: string = options.serverAlias
 
     public static readonly models = globalModels as GlobalModels // Can access other Models here
-    public static copiesById: {
+
+    public static readonly copiesById: {
       [key: string]: Model | undefined
       [key: number]: Model | undefined
     } = {}
@@ -365,7 +366,9 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch<D extends {} = AnyData>(params?: PatchParams<D>): Promise<this> {
+    public patch<D extends {} = AnyData>(
+      params?: PatchParams<D>
+    ): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -410,7 +413,9 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         }
         return _dispatch.call(this.constructor, 'remove', [id, params])
       } else {
+        // is temp
         _commit.call(this.constructor, 'removeTemps', [this[tempIdField]])
+        _commit.call(this.constructor, 'clearCopy', [this[tempIdField]])
         return Promise.resolve(this)
       }
     }
