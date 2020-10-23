@@ -54,6 +54,12 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
     options
   )
 
+  if (!model) {
+    throw new Error(
+      `No model provided for useGet(). Did you define and register it with FeathersVuex?`
+    )
+  }
+
   function getId(): null | string | number {
     return isRef(id) ? id.value : id || null
   }
