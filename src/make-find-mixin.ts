@@ -224,9 +224,8 @@ export default function makeFindMixin(options) {
       getPaginationForQuery(params = {}) {
         const pagination = this[PAGINATION]
         const { qid, queryId, pageId } = getQueryInfo(params)
-        const queryInfo = _get(pagination, `[${qid}][${queryId}]`) || {}
-        const pageInfo =
-          _get(pagination, `[${qid}][${queryId}][${pageId}]`) || {}
+        const queryInfo = _get(pagination, [qid, queryId], {})
+        const pageInfo = _get(pagination, [qid, queryId, pageId], {})
 
         return { queryInfo, pageInfo }
       }
