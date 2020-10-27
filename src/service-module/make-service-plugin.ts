@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
-import { enableServiceEvents } from './service-module.events'
+import enableServiceEvents from './service-module.events'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import _get from 'lodash/get'
 
@@ -19,6 +19,7 @@ interface ServiceOptionsDefaults {
   actions: {}
   instanceDefaults: () => {}
   setupInstance: (instance: {}) => {}
+  debounceEventsMaxWait: number
 }
 
 const defaults: ServiceOptionsDefaults = {
@@ -29,7 +30,8 @@ const defaults: ServiceOptionsDefaults = {
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
-  setupInstance: instance => instance // Default setupInstance returns the instance
+  setupInstance: instance => instance, // Default setupInstance returns the instance
+  debounceEventsMaxWait: 1000
 }
 const events = ['created', 'patched', 'updated', 'removed']
 

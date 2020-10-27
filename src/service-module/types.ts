@@ -21,6 +21,7 @@ export interface FeathersVuexOptions {
   tempIdField?: string
   keepCopiesInStore?: boolean
   debounceEventsTime?: number
+  debounceEventsMaxWait?: number
   nameStyle?: string
   paramsForServer?: string[]
   preferUpdate?: boolean
@@ -52,6 +53,7 @@ export interface MakeServicePluginOptions {
   skipRequestIfExists?: boolean
   nameStyle?: string
   debounceEventsTime?: number
+  debounceEventsMaxWait?: number
 
   servicePath?: string
   namespace?: string

@@ -79,6 +79,7 @@ export interface ServiceState<M extends Model = Model> {
   }
   modelName?: string
   debounceEventsTime: number
+  debounceEventsMaxWait: number
 }
 
 export interface PaginationState {

@@ -2,11 +2,25 @@ import { getId } from '../utils'
 import _debounce from 'lodash/debounce'
 import { globalModels } from './global-models'
 
-export function enableServiceEvents({ service, Model, store, options }): void {
-  const debounceMap = {
+export interface ServiceEventsDebouncedQueue {
+  addOrUpdateById: {}
+  removeItemById: {}
+  enqueueAddOrUpdate(item: any): void
+  enqueueRemoval(item: any): void
+  flushAddOrUpdateQueue(): void
+  flushRemoveItemQueue(): void
+}
+
+export default function enableServiceEvents({
+  service,
+  Model,
+  store,
+  options
+}): ServiceEventsDebouncedQueue {
+  const debouncedQueue: ServiceEventsDebouncedQueue = {
     addOrUpdateById: {},
     removeItemById: {},
-    queueAddOrUpdate(item): void {
+    enqueueAddOrUpdate(item): void {
       const id = getId(item, options.idField)
       this.addOrUpdateById[id] = item
       if (this.removeItemById.hasOwnProperty(id)) {
@@ -14,7 +28,7 @@ export function enableServiceEvents({ service, Model, store, options }): void {
       }
       this.flushAddOrUpdateQueue()
     },
-    queueRemoval(item): void {
+    enqueueRemoval(item): void {
       const id = getId(item, options.idField)
       this.removeItemById[id] = item
       if (this.addOrUpdateById.hasOwnProperty(id)) {
@@ -22,21 +36,29 @@ export function enableServiceEvents({ service, Model, store, options }): void {
       }
       this.flushRemoveItemQueue()
     },
-    flushAddOrUpdateQueue: _debounce(async function () {
-      const values = Object.values(this.addOrUpdateById)
-      if (values.length === 0) return
-      await store.dispatch(`${options.namespace}/addOrUpdateList`, {
-        data: values,
-        disableRemove: true
-      })
-      this.addOrUpdateById = {}
-    }, options.debounceEventsTime || 20),
-    flushRemoveItemQueue: _debounce(function () {
-      const values = Object.values(this.removeItemById)
-      if (values.length === 0) return
-      store.commit(`${options.namespace}/removeItems`, values)
-      this.removeItemById = {}
-    }, options.debounceEventsTime || 20)
+    flushAddOrUpdateQueue: _debounce(
+      async function () {
+        const values = Object.values(this.addOrUpdateById)
+        if (values.length === 0) return
+        await store.dispatch(`${options.namespace}/addOrUpdateList`, {
+          data: values,
+          disableRemove: true
+        })
+        this.addOrUpdateById = {}
+      },
+      options.debounceEventsTime || 20,
+      { maxWait: options.debounceEventsMaxWait }
+    ),
+    flushRemoveItemQueue: _debounce(
+      function () {
+        const values = Object.values(this.removeItemById)
+        if (values.length === 0) return
+        store.commit(`${options.namespace}/removeItems`, values)
+        this.removeItemById = {}
+      },
+      options.debounceEventsTime || 20,
+      { maxWait: options.debounceEventsMaxWait }
+    )
   }
 
   const handleEvent = (eventName, item, mutationName): void => {
@@ -55,8 +77,8 @@ export function enableServiceEvents({ service, Model, store, options }): void {
           : store.dispatch(`${options.namespace}/${mutationName}`, modified)
       } else {
         eventName === 'removed'
-          ? debounceMap.queueRemoval(item)
-          : debounceMap.queueAddOrUpdate(item)
+          ? debouncedQueue.enqueueRemoval(item)
+          : debouncedQueue.enqueueAddOrUpdate(item)
       }
     }
   }
@@ -78,4 +100,6 @@ export function enableServiceEvents({ service, Model, store, options }): void {
     handleEvent('removed', item, 'removeItem')
     Model.emit && Model.emit('removed', item)
   })
+
+  return debouncedQueue
 }
