@@ -17,6 +17,8 @@ import { stripSlashes } from '../../src/utils'
 import memory from 'feathers-memory'
 import { makeTodos } from '../fixtures/todos'
 import Vuex from 'vuex'
+import { performance } from 'perf_hooks'
+import enableServiceEvents from '../../src/service-module/service-module.events'
 
 interface Options {
   idField: string
@@ -200,6 +202,14 @@ function makeSocketIoContext() {
     }
   }
 
+  class TodoDebounced extends BaseModel {
+    public static modelName = 'TodoDebounced'
+    public static test = true
+    public constructor(data = {}, options?) {
+      super(data, options)
+    }
+  }
+
   const store = new Vuex.Store<RootState>({
     strict: true,
     plugins: [
@@ -209,13 +219,27 @@ function makeSocketIoContext() {
         servicePath: 'things'
       }),
       makeServicePlugin({
-        Model: Thing,
+        Model: ThingDebounced,
         service: feathersSocketioClient.service('things-debounced'),
         servicePath: 'things-debounced',
         debounceEventsTime: 20,
         namespace: 'things-debounced'
+      }),
+      makeServicePlugin({
+        Model: TodoDebounced,
+        service: feathersSocketioClient.service('todos-debounced'),
+        servicePath: 'todos-debounced',
+        debounceEventsTime: 20,
+        namespace: 'todos-debounced'
       })
     ]
+  })
+
+  const debouncedQueue = enableServiceEvents({
+    Model: TodoDebounced,
+    service: feathersSocketioClient.service('todos-debounced'),
+    store,
+    options: store.state['todos-debounced']
   })
 
   return {
@@ -224,7 +248,9 @@ function makeSocketIoContext() {
     BaseModel,
     Thing,
     ThingDebounced,
-    store
+    TodoDebounced,
+    store,
+    debouncedQueue
   }
 }
 
@@ -700,6 +726,7 @@ describe('Service Module', function () {
         isRemovePending: false,
         keepCopiesInStore: false,
         debounceEventsTime: null,
+        debounceEventsMaxWait: 1000,
         keyedById: {},
         nameStyle: 'short',
         namespace: 'service-todos',
@@ -1022,6 +1049,8 @@ describe('Service Module', function () {
       BaseModel,
       Thing,
       ThingDebounced,
+      TodoDebounced,
+      debouncedQueue,
       store
     } = makeSocketIoContext()
 
@@ -1044,6 +1073,8 @@ describe('Service Module', function () {
     })
 
     it('created debounced', function (done) {
+      const { debounceEventsTime } = store.state['things-debounced']
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const listener = item => {
         assert(
@@ -1059,7 +1090,7 @@ describe('Service Module', function () {
             .service('things-debounced')
             .off('created', listener)
           done()
-        }, 30)
+        }, debounceEventsTime * 2)
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things-debounced').on('created', listener)
@@ -1083,6 +1114,9 @@ describe('Service Module', function () {
     })
 
     it('patched debounced', function (done) {
+      const { debounceEventsTime } = store.state['things-debounced']
+
+      store.commit('things-debounced/clearAll')
       store.commit('things-debounced/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1096,7 +1130,7 @@ describe('Service Module', function () {
             store.state['things-debounced'].keyedById[1].test,
             'the item received from the socket event was updated in the store'
           )
-        }, 30)
+        }, debounceEventsTime * 2)
         feathersSocketioClient
           .service('things-debounced')
           .off('patched', listener)
@@ -1126,6 +1160,9 @@ describe('Service Module', function () {
     })
 
     it('updated debounced', function (done) {
+      const { debounceEventsTime } = store.state['things-debounced']
+
+      store.commit('things-debounced/clearAll')
       store.commit('things-debounced/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1140,7 +1177,7 @@ describe('Service Module', function () {
             'the item received from the socket event was updated in the store'
           )
           done()
-        }, 30)
+        }, debounceEventsTime * 2)
         feathersSocketioClient
           .service('things-debounced')
           .off('updated', listener)
@@ -1170,6 +1207,9 @@ describe('Service Module', function () {
     })
 
     it('removed debounced', function (done) {
+      const { debounceEventsTime } = store.state['things-debounced']
+
+      store.commit('things-debounced/clearAll')
       store.commit('things-debounced/addItem', { id: 1, test: false })
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1185,7 +1225,7 @@ describe('Service Module', function () {
             'the item received from the socket event was removed from the store'
           )
           done()
-        }, 30)
+        }, debounceEventsTime * 2)
 
         feathersSocketioClient
           .service('things-debounced')
@@ -1195,6 +1235,138 @@ describe('Service Module', function () {
       feathersSocketioClient.service('things-debounced').on('removed', listener)
 
       feathersSocketioClient.service('things-debounced').remove(1)
+    })
+
+    it('debounce works with plenty items', function (done) {
+      store.commit('things-debounced/clearAll')
+
+      const { debounceEventsTime } = store.state['things-debounced']
+
+      const itemsCount = 100
+      let i = 0
+
+      assert(
+        Object.keys(store.state['things-debounced'].keyedById).length === 0,
+        'no items at start'
+      )
+
+      const setTimeoutCreate = () => {
+        setTimeout(() => {
+          feathersSocketioClient
+            .service('things-debounced')
+            .create({ test: true, i })
+          i++
+          assert(
+            Object.keys(store.state['things-debounced'].keyedById).length === 0,
+            `no items at i: ${i}`
+          )
+          if (i < itemsCount) {
+            setTimeoutCreate()
+          } else {
+            setTimeout(() => {
+              assert(
+                Object.keys(
+                  store.state['things-debounced'].keyedById.length ===
+                    itemsCount
+                ),
+                'all items are in store'
+              )
+              done()
+            }, debounceEventsTime * 2)
+          }
+        }, debounceEventsTime / 4)
+      }
+      setTimeoutCreate()
+    })
+
+    it('debounced events get invoked during continuous events', function (done) {
+      store.commit('things-debounced/clearAll')
+
+      const { debounceEventsTime, debounceEventsMaxWait } = store.state[
+        'things-debounced'
+      ]
+
+      assert(
+        Object.keys(store.state['things-debounced'].keyedById).length === 0,
+        'no items at start'
+      )
+      assert(debounceEventsMaxWait > 0, 'maxWait is set')
+
+      const startedAt = performance.now()
+      let i = 0
+
+      const setTimeoutCreate = () => {
+        setTimeout(() => {
+          feathersSocketioClient
+            .service('things-debounced')
+            .create({ test: true, i })
+          i++
+          const timePassed = Math.floor(
+            performance.now() - startedAt - debounceEventsTime
+          )
+          if (timePassed <= debounceEventsMaxWait) {
+            if (performance.now() - startedAt <= debounceEventsMaxWait) {
+              assert(
+                Object.keys(store.state['things-debounced'].keyedById)
+                  .length === 0,
+                `no items at i: ${i}, milliseconds passed: ${timePassed}`
+              )
+            }
+            setTimeoutCreate()
+          } else {
+            assert(
+              Object.keys(store.state['things-debounced'].keyedById).length ===
+                i - 1,
+              `items are inserted after maxWait`
+            )
+            done()
+          }
+        }, debounceEventsTime / 4)
+      }
+      setTimeoutCreate()
+    })
+
+    it('debounded remove after addOrUpdate also removes addOrUpdate queue and vise versa', function () {
+      const { idField } = store.state['todos-debounced']
+
+      assert(
+        Object.keys(debouncedQueue.addOrUpdateById).length === 0,
+        "'addOrUpdateById' initially empty"
+      )
+
+      assert(
+        Object.keys(debouncedQueue.removeItemById).length === 0,
+        "'removeItemById' initially empty"
+      )
+
+      debouncedQueue.enqueueAddOrUpdate({ [idField]: 1, test: true })
+
+      assert(
+        debouncedQueue.addOrUpdateById[1],
+        "queued item for 'addOrUpdate' correctly"
+      )
+
+      debouncedQueue.enqueueRemoval({ [idField]: 1, test: false })
+
+      assert(
+        !debouncedQueue.addOrUpdateById[1],
+        "queued item for 'addOrUpdate' removed immediately"
+      )
+      assert(
+        debouncedQueue.removeItemById[1],
+        'queued item for removal correctly'
+      )
+
+      debouncedQueue.enqueueAddOrUpdate({ [idField]: 1, test: true })
+
+      assert(
+        debouncedQueue.addOrUpdateById[1],
+        "queued item for 'addOrUpdate' correctly again"
+      )
+      assert(
+        !debouncedQueue.removeItemById[1],
+        "queued item for 'remove' removed immediately"
+      )
     })
   })
 })
