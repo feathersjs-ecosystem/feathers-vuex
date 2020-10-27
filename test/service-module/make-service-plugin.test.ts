@@ -74,6 +74,7 @@ describe('makeServicePlugin', function () {
       isUpdatePending: false,
       keepCopiesInStore: false,
       debounceEventsTime: null,
+      debounceEventsMaxWait: 1000,
       keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',
