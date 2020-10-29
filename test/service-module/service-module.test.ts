@@ -747,7 +747,7 @@ describe('Service Module', function () {
         isIdCreatePending: [],
         isIdUpdatePending: [],
         isIdPatchPending: [],
-        isIdRemovePending: [],
+        isIdRemovePending: []
       }
 
       assert.deepEqual(
@@ -1096,7 +1096,6 @@ describe('Service Module', function () {
           done()
         }, debounceEventsTime * 2)
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       feathersSocketioClient.service('things-debounced').on('created', listener)
 
       feathersSocketioClient.service('things-debounced').create({ test: true })
