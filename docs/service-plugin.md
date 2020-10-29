@@ -730,7 +730,36 @@ The `find` getter queries data from the local store using the same Feathers quer
 
 ## Customizing a Service's Default Store
 
-As shown in the example below, the service module allows you to customize its store:
+### New `extend` option for `makeServicePlugin` <Badge text="3.14.0+" />
+
+As of version `3.14.0`, the `makeServicePlugin` now supports an `extend` method that allows customizing the store and gives access to the actual Vuex `store` object, as shown in this example:
+
+```js
+import { makeServicePlugin } from ‘feathers-vuex’
+import { feathersClient } from ‘./feathers-client.js’
+
+class Todo { /* truncated */ }
+
+export default makeServicePlugin({
+  Model: Todo,
+  service: feathersClient.service(‘todos’),
+  extend({ store, module }) {
+    // Listen to other parts of the store
+    store.watch(/* truncated */)
+
+    return {
+      state: {},
+      getters: {},
+      mutations: {},
+      actions: {}
+    }
+  }
+})
+```
+
+### Deprecated options for customizing the store
+
+Before version `3.14.0`, you can customize the store using the options for `state`, `getters`, `mutations`, and `actions`, as shown below.  This method is now deprecated and will be removed from Feathers-Vuex 4.0.
 
 ```js
 // src/store/services/users.js
