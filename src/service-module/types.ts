@@ -269,7 +269,10 @@ export interface ModelStatic extends EventEmitter {
    * @param id ID of record to retrieve
    * @param params Get params
    */
-  getFromStore<M extends Model = Model>(id: Id | Ref<Id>, params?: Params | Ref<Params>): M | undefined
+  getFromStore<M extends Model = Model>(
+    id: Id | Ref<Id>,
+    params?: Params | Ref<Params>
+  ): M | undefined
 }
 
 /** Model instance interface */

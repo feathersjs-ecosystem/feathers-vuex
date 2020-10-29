@@ -139,7 +139,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     isIdCreatePending: [],
     isIdUpdatePending: [],
     isIdPatchPending: [],
-    isIdRemovePending: [],
+    isIdRemovePending: []
   }
 
   if (options.Model) {
