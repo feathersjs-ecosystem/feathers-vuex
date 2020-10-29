@@ -99,6 +99,7 @@ export default function makeServiceActions(service: Service<any>) {
       params = params || {}
 
       commit('setPending', 'create')
+      commit('setIdPending', { method: 'create', id: tempIds })
 
       return service
         .create(data, params)
@@ -121,19 +122,22 @@ export default function makeServiceActions(service: Service<any>) {
 
             // response = state.keyedById[id]
           }
-          commit('unsetPending', 'create')
           commit('removeTemps', tempIds)
           return response
         })
         .catch(error => {
           commit('setError', { method: 'create', error })
-          commit('unsetPending', 'create')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'create')
+          commit('unsetIdPending', { method: 'create', id: tempIds })
         })
     },
 
     update({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'update')
+      commit('setIdPending', { method: 'update', id })
 
       params = fastCopy(params)
 
@@ -141,13 +145,15 @@ export default function makeServiceActions(service: Service<any>) {
         .update(id, data, params)
         .then(async function (item) {
           dispatch('addOrUpdate', item)
-          commit('unsetPending', 'update')
           return state.keyedById[id]
         })
         .catch(error => {
           commit('setError', { method: 'update', error })
-          commit('unsetPending', 'update')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'update')
+          commit('unsetIdPending', { method: 'update', id })
         })
     },
 
@@ -157,6 +163,7 @@ export default function makeServiceActions(service: Service<any>) {
      */
     patch({ commit, dispatch, state }, [id, data, params]) {
       commit('setPending', 'patch')
+      commit('setIdPending', { method: 'patch', id })
 
       params = fastCopy(params)
 
@@ -171,13 +178,15 @@ export default function makeServiceActions(service: Service<any>) {
         .patch(id, data, params)
         .then(async function (item) {
           dispatch('addOrUpdate', item)
-          commit('unsetPending', 'patch')
           return state.keyedById[id]
         })
         .catch(error => {
           commit('setError', { method: 'patch', error })
-          commit('unsetPending', 'patch')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'patch')
+          commit('unsetIdPending', { method: 'patch', id })
         })
     },
 
@@ -196,18 +205,21 @@ export default function makeServiceActions(service: Service<any>) {
       params = fastCopy(params)
 
       commit('setPending', 'remove')
+      commit('setIdPending', { method: 'remove', id })
 
       return service
         .remove(id, params)
         .then(item => {
           commit('removeItem', id)
-          commit('unsetPending', 'remove')
           return item
         })
         .catch(error => {
           commit('setError', { method: 'remove', error })
-          commit('unsetPending', 'remove')
           return Promise.reject(error)
+        })
+        .finally(() => {
+          commit('unsetPending', 'remove')
+          commit('unsetIdPending', { method: 'remove', id })
         })
     }
   }

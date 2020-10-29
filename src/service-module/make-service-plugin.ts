@@ -96,7 +96,7 @@ export default function prepareMakeServicePlugin(
       store.registerModule(options.namespace, module, { preserveState: false })
 
       // (2a^) Monkey patch the BaseModel in globalModels
-      const BaseModel = _get(globalModels, `[${options.serverAlias}].BaseModel`)
+      const BaseModel = _get(globalModels, [options.serverAlias, 'BaseModel'])
       if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
           store

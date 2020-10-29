@@ -743,7 +743,11 @@ describe('Service Module', function () {
           defaultSkip: null
         },
         paramsForServer: ['$populateParams'],
-        whitelist: []
+        whitelist: [],
+        isIdCreatePending: [],
+        isIdUpdatePending: [],
+        isIdPatchPending: [],
+        isIdRemovePending: [],
       }
 
       assert.deepEqual(

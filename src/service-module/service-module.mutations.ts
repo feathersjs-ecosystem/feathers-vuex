@@ -16,12 +16,26 @@ import { globalModels as models } from './global-models'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
+import { Id } from '@feathersjs/feathers'
+import { ServiceState } from '..'
+
+export type PendingServiceMethodName =
+  | 'find'
+  | 'get'
+  | 'create'
+  | 'update'
+  | 'patch'
+  | 'remove'
+export type PendingIdServiceMethodName = Exclude<
+  PendingServiceMethodName,
+  'find' | 'get'
+>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
     const { serverAlias, idField, tempIdField, modelName } = state
-    const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    const BaseModel = _get(models, `[${serverAlias}].BaseModel`)
+    const Model = _get(models, [serverAlias, modelName])
+    const BaseModel = _get(models, [serverAlias, 'BaseModel'])
 
     for (let item of items) {
       const id = getId(item, idField)
@@ -55,8 +69,8 @@ export default function makeServiceMutations() {
 
   function updateItems(state, items) {
     const { idField, replaceItems, addOnUpsert, serverAlias, modelName } = state
-    const Model = _get(models, `[${serverAlias}][${modelName}]`)
-    const BaseModel = _get(models, `[${state.serverAlias}].BaseModel`)
+    const Model = _get(models, [serverAlias, modelName])
+    const BaseModel = _get(models, [state.serverAlias, 'BaseModel'])
 
     for (let item of items) {
       const id = getId(item, idField)
@@ -107,7 +121,7 @@ export default function makeServiceMutations() {
   }
 
   function mergeInstance(state, item) {
-    const { serverAlias, idField, tempIdField, modelName } = state
+    const { idField } = state
     const id = getId(item, idField)
     const existingItem = state.keyedById[id]
     if (existingItem) {
@@ -158,7 +172,7 @@ export default function makeServiceMutations() {
       }
 
       // Add _id to temp's clone as well if it exists
-      const Model = _get(models, `[${state.serverAlias}][${state.modelName}]`)
+      const Model = _get(models, [state.serverAlias, state.modelName])
       const tempClone = Model && Model.copiesById && Model.copiesById[tempId]
       if (tempClone) {
         tempClone[state.idField] = id
@@ -248,10 +262,7 @@ export default function makeServiceMutations() {
     createCopy(state, id) {
       const { servicePath, keepCopiesInStore, serverAlias } = state
       const current = state.keyedById[id] || state.tempsById[id]
-      const Model = _get(
-        models,
-        `[${serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, [serverAlias, 'byServicePath', servicePath])
 
       if (Model) {
         var model = new Model(current, { clone: true })
@@ -277,13 +288,14 @@ export default function makeServiceMutations() {
     // Resets the copy to match the original record, locally
     resetCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(
-        models,
-        `[${state.serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, [
+        state.serverAlias,
+        'byServicePath',
+        servicePath
+      ])
       const copy = keepCopiesInStore
         ? state.copiesById[id]
-        : Model && _get(Model, `copiesById[${id}]`)
+        : Model && _get(Model, ['copiesById', id])
 
       if (copy) {
         const original =
@@ -297,13 +309,14 @@ export default function makeServiceMutations() {
     // Deep assigns copy to original record, locally
     commitCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(
-        models,
-        `[${state.serverAlias}].byServicePath[${servicePath}]`
-      )
+      const Model = _get(models, [
+        state.serverAlias,
+        'byServicePath',
+        servicePath
+      ])
       const copy = keepCopiesInStore
         ? state.copiesById[id]
-        : Model && _get(Model, `copiesById[${id}]`)
+        : Model && _get(Model, ['copiesById', id])
 
       if (copy) {
         const original =
@@ -374,16 +387,52 @@ export default function makeServiceMutations() {
       Vue.set(state.pagination, qid, newState)
     },
 
-    setPending(state, method: string): void {
+    setPending(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`is${uppercaseMethod}Pending`] = true
     },
-    unsetPending(state, method: string): void {
+    unsetPending(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`is${uppercaseMethod}Pending`] = false
     },
 
-    setError(state, payload: { method: string; error: Error }): void {
+    setIdPending(
+      state,
+      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
+    ): void {
+      const { method, id } = payload
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      const isIdMethodPending = state[
+        `isId${uppercaseMethod}Pending`
+      ] as ServiceState['isIdCreatePending']
+      // if `id` is an array, ensure it doesn't have duplicates
+      const ids = Array.isArray(id) ? [...new Set(id)] : [id]
+      ids.forEach(id => {
+        if (typeof id === 'number' || typeof id === 'string') {
+          isIdMethodPending.push(id)
+        }
+      })
+    },
+    unsetIdPending(
+      state,
+      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
+    ): void {
+      const { method, id } = payload
+      const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
+      const isIdMethodPending = state[
+        `isId${uppercaseMethod}Pending`
+      ] as ServiceState['isIdCreatePending']
+      // if `id` is an array, ensure it doesn't have duplicates
+      const ids = Array.isArray(id) ? [...new Set(id)] : [id]
+      ids.forEach(id => {
+        const idx = isIdMethodPending.indexOf(id)
+        if (idx >= 0) {
+          Vue.delete(isIdMethodPending, idx)
+        }
+      })
+    },
+
+    setError(state, payload: { method: PendingServiceMethodName; error: Error }): void {
       const { method, error } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = Object.assign(
@@ -391,7 +440,7 @@ export default function makeServiceMutations() {
         serializeError(error)
       )
     },
-    clearError(state, method: string): void {
+    clearError(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = null
     }
