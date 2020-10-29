@@ -20,6 +20,8 @@ export interface FeathersVuexOptions {
   idField?: string
   tempIdField?: string
   keepCopiesInStore?: boolean
+  debounceEventsTime?: number
+  debounceEventsMaxWait?: number
   nameStyle?: string
   paramsForServer?: string[]
   preferUpdate?: boolean
@@ -50,6 +52,8 @@ export interface MakeServicePluginOptions {
   replaceItems?: boolean
   skipRequestIfExists?: boolean
   nameStyle?: string
+  debounceEventsTime?: number
+  debounceEventsMaxWait?: number
 
   servicePath?: string
   namespace?: string
@@ -245,7 +249,9 @@ export interface ModelStatic extends EventEmitter {
    * A proxy for the `find` getter
    * @param params Find params
    */
-  findInStore<M extends Model = Model>(params?: Params | Ref<Params>): Paginated<M>
+  findInStore<M extends Model = Model>(
+    params?: Params | Ref<Params>
+  ): Paginated<M>
 
   /**
    * A proxy for the `count` action
@@ -269,7 +275,10 @@ export interface ModelStatic extends EventEmitter {
    * @param id ID of record to retrieve
    * @param params Get params
    */
-  getFromStore<M extends Model = Model>(id: Id | Ref<Id>, params?: Params | Ref<Params>): M | undefined
+  getFromStore<M extends Model = Model>(
+    id: Id | Ref<Id>,
+    params?: Params | Ref<Params>
+  ): M | undefined
 }
 
 /** Model instance interface */

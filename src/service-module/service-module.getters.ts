@@ -14,9 +14,7 @@ import { ServiceState } from '..'
 import { Id } from '@feathersjs/feathers'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
-const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
 const additionalOperators = ['$elemMatch']
-const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
 export default function makeServiceGetters() {
   return {
@@ -109,10 +107,7 @@ export default function makeServiceGetters() {
       if (keepCopiesInStore) {
         return state.copiesById[id]
       } else {
-        const Model = _get(
-          models,
-          `[${serverAlias}].byServicePath[${servicePath}]`
-        )
+        const Model = _get(models, [serverAlias, 'byServicePath', servicePath])
 
         return Model.copiesById[id]
       }

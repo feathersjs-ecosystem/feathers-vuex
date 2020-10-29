@@ -49,7 +49,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   const { serverAlias } = options
 
   // If this serverAlias already has a BaseModel, return it
-  const ExistingBaseModel = _get(globalModels, `[${serverAlias}].BaseModel`)
+  const ExistingBaseModel = _get(globalModels, [serverAlias, 'BaseModel'])
   if (ExistingBaseModel) {
     return ExistingBaseModel as ModelStatic
   }
