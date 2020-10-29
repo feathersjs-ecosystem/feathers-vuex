@@ -131,7 +131,7 @@ describe('Utils', function() {
       })
     })
 
-    it('properly inflects the service capitalization', function() {
+    it('properly inflects the service capitalization', function () {
       const decisionTable = [
         ['todos', 'Todos'],
         ['TODOS', 'TODOS'],
@@ -162,8 +162,8 @@ describe('Utils', function() {
   })
 })
 
-describe('Pagination', function() {
-  it('getQueryInfo', function() {
+describe('Pagination', function () {
+  it('getQueryInfo', function () {
     const params = {
       qid: 'main-list',
       query: {
@@ -200,11 +200,10 @@ describe('Pagination', function() {
     }
     const diff = deepDiff(info, expected)
 
-    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 
-  it('getQueryInfo no limit or skip', function() {
+  it('getQueryInfo no limit or skip', function () {
     const params = {
       qid: 'main-list',
       query: {
@@ -237,7 +236,6 @@ describe('Pagination', function() {
     }
     const diff = deepDiff(info, expected)
 
-    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 })

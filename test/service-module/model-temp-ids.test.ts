@@ -46,7 +46,7 @@ function makeContext() {
   })
   class Comic extends BaseModel {
     public static modelName = 'Comic'
-    public static test: boolean = true
+    public static test = true
 
     public constructor(data, options?) {
       super(data, options)
@@ -601,7 +601,7 @@ describe('Models - Temp Ids', function() {
     // Create instance
     const thing = new PendingThing({ description: 'PendingThing 1' })
     const clone = thing.clone()
-    assert(!!thing.__id, "thing has a tempId")
+    assert(!!thing.__id, 'thing has a tempId')
     assert(clone.__id === thing.__id, "clone has thing's tempId")
 
     // Manually set the result in a hook to simulate the server request.

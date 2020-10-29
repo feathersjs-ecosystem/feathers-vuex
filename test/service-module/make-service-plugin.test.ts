@@ -94,7 +94,7 @@ describe('makeServicePlugin', function () {
       isIdCreatePending: [],
       isIdUpdatePending: [],
       isIdPatchPending: [],
-      isIdRemovePending: [],
+      isIdRemovePending: []
     }
 
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
