@@ -1,7 +1,8 @@
 /*
 eslint
 @typescript-eslint/explicit-function-return-type: 0,
-@typescript-eslint/no-explicit-any: 0
+@typescript-eslint/no-explicit-any: 0,
+no-var: 0
 */
 import Vue from 'vue'
 import { serializeError } from 'serialize-error'
@@ -397,10 +398,15 @@ export default function makeServiceMutations() {
       state[`is${uppercaseMethod}Pending`] = false
     },
 
-    setIdPending(state, payload: { method: PendingIdServiceMethodName, id: Id | Id[] }): void {
+    setIdPending(
+      state,
+      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
+    ): void {
       const { method, id } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
-      const isIdMethodPending = state[`isId${uppercaseMethod}Pending`] as ServiceState['isIdCreatePending']
+      const isIdMethodPending = state[
+        `isId${uppercaseMethod}Pending`
+      ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
       ids.forEach(id => {
@@ -409,10 +415,15 @@ export default function makeServiceMutations() {
         }
       })
     },
-    unsetIdPending(state, payload: { method: PendingIdServiceMethodName, id: Id | Id[] }): void {
+    unsetIdPending(
+      state,
+      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
+    ): void {
       const { method, id } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
-      const isIdMethodPending = state[`isId${uppercaseMethod}Pending`] as ServiceState['isIdCreatePending']
+      const isIdMethodPending = state[
+        `isId${uppercaseMethod}Pending`
+      ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
       ids.forEach(id => {
@@ -423,7 +434,10 @@ export default function makeServiceMutations() {
       })
     },
 
-    setError(state, payload: { method: PendingServiceMethodName; error: Error }): void {
+    setError(
+      state,
+      payload: { method: PendingServiceMethodName; error: Error }
+    ): void {
       const { method, error } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = Object.assign(
