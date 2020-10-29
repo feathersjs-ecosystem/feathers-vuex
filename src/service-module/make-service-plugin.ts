@@ -3,7 +3,12 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
+import {
+  FeathersVuexOptions,
+  MakeServicePluginOptions,
+  ServicePluginExtendOptions
+} from './types'
+
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
 import enableServiceEvents from './service-module.events'
@@ -13,6 +18,14 @@ import _get from 'lodash/get'
 interface ServiceOptionsDefaults {
   servicePath: string
   namespace: string
+  extend: (
+    options: ServicePluginExtendOptions
+  ) => {
+    state: any
+    getters: any
+    mutations: any
+    actions: any
+  }
   state: {}
   getters: {}
   mutations: {}
@@ -25,6 +38,7 @@ interface ServiceOptionsDefaults {
 const defaults: ServiceOptionsDefaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
   servicePath: '',
+  extend: ({ module }) => module, // for custom plugin (replaces state, getters, mutations, and actions)
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
@@ -91,7 +105,7 @@ export default function prepareMakeServicePlugin(
     return store => {
       // (1^) Create and register the Vuex module
       options.namespace = makeNamespace(namespace, servicePath, nameStyle)
-      const module = makeServiceModule(service, options)
+      const module = makeServiceModule(service, options, store)
       // Don't preserve state if reinitialized (prevents state pollution in SSR)
       store.registerModule(options.namespace, module, { preserveState: false })
 

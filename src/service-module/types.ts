@@ -37,6 +37,11 @@ export interface HandleEvents {
   removed?: Function
 }
 
+export interface ServicePluginExtendOptions {
+  store: Store<any>
+  module: any
+}
+
 export interface MakeServicePluginOptions {
   Model: any
   service: Service<any>
@@ -64,6 +69,15 @@ export interface MakeServicePluginOptions {
   instanceDefaults?: () => {}
   setupInstance?: (data: any, { models, store }) => {}
   handleEvents?: HandleEvents
+
+  extend?: (
+    options: ServicePluginExtendOptions
+  ) => {
+    state?: any
+    getters?: any
+    mutations?: any
+    actions?: any
+  }
   state?: {}
   getters?: {}
   mutations?: {}

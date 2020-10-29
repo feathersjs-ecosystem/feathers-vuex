@@ -936,114 +936,257 @@ describe('Service Module', function () {
   })
 
   describe('Customizing Service Stores', function () {
-    it('allows adding custom state', function () {
-      const { makeServicePlugin, ServiceTodo } = makeContext()
+    describe('New "extend" method', () => {
+      it('allows access to the store and default module', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
 
-      const customState = {
-        test: true,
-        test2: {
-          test: true
-        }
-      }
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: ServiceTodo,
-            service: feathersClient.service('service-todos'),
-            state: customState
-          })
-        ]
+        new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              extend: ({ store, module }) => {
+                assert.ok(store, 'should have received received the store')
+                assert.ok(module.state, 'should have default state')
+                assert.ok(module.getters, 'should have default getters')
+                assert.ok(module.mutations, 'should have default mutations')
+                assert.ok(module.actions, 'should have default actions')
+                assert.ok(module.namespaced, 'should have default namespaced')
+                return {}
+              }
+            })
+          ]
+        })
       })
 
-      assert(store.state['service-todos'].test === true, 'added custom state')
-      assert(
-        store.state['service-todos'].test2.test === true,
-        'added custom state'
-      )
-    })
+      it('allows adding custom state', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
 
-    it('allows custom mutations', function () {
-      const { makeServicePlugin, ServiceTodo } = makeContext()
-      const state = { test: true }
-      const customMutations = {
-        setTestToFalse(state) {
-          state.test = false
-        }
-      }
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: ServiceTodo,
-            service: feathersClient.service('service-todos'),
-            state,
-            mutations: customMutations
-          })
-        ]
-      })
-
-      store.commit('service-todos/setTestToFalse')
-      assert(
-        store.state['service-todos'].test === false,
-        'the custom state was modified by the custom mutation'
-      )
-    })
-
-    it('allows custom getters', function () {
-      const { makeServicePlugin, ServiceTodo } = makeContext()
-      const customGetters = {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        oneTwoThree(state) {
-          return 123
-        }
-      }
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: ServiceTodo,
-            service: feathersClient.service('service-todos'),
-            getters: customGetters
-          })
-        ]
-      })
-
-      assert(
-        store.getters['service-todos/oneTwoThree'] === 123,
-        'the custom getter was available'
-      )
-    })
-
-    it('allows adding custom actions', function () {
-      const { makeServicePlugin, ServiceTodo } = makeContext()
-      const config = {
-        state: {
-          isTrue: false
-        },
-        mutations: {
-          setToTrue(state) {
-            state.isTrue = true
-          }
-        },
-        actions: {
-          trigger(context) {
-            context.commit('setToTrue')
+        const customState = {
+          test: true,
+          test2: {
+            test: true
           }
         }
-      }
-      const store = new Vuex.Store<RootState>({
-        plugins: [
-          makeServicePlugin({
-            Model: ServiceTodo,
-            service: feathersClient.service('service-todos'),
-            ...config
-          })
-        ]
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              extend: () => {
+                return {
+                  state: customState
+                }
+              }
+            })
+          ]
+        })
+
+        assert(store.state['service-todos'].test === true, 'added custom state')
+        assert(
+          store.state['service-todos'].test2.test === true,
+          'added custom state'
+        )
       })
 
-      store.dispatch('service-todos/trigger')
-      assert(
-        store.state['service-todos'].isTrue === true,
-        'the custom action was run'
-      )
+      it('allows custom mutations', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const state = { test: true }
+        const customMutations = {
+          setTestToFalse(state) {
+            state.test = false
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              extend: () => ({
+                state,
+                mutations: customMutations
+              })
+            })
+          ]
+        })
+
+        store.commit('service-todos/setTestToFalse')
+        assert(
+          store.state['service-todos'].test === false,
+          'the custom state was modified by the custom mutation'
+        )
+      })
+
+      it('allows custom getters', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const customGetters = {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          oneTwoThree(state) {
+            return 123
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              extend: () => ({
+                getters: customGetters
+              })
+            })
+          ]
+        })
+
+        assert(
+          store.getters['service-todos/oneTwoThree'] === 123,
+          'the custom getter was available'
+        )
+      })
+
+      it('allows adding custom actions', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              extend: () => ({
+                state: {
+                  isTrue: false
+                },
+                mutations: {
+                  setToTrue(state) {
+                    state.isTrue = true
+                  }
+                },
+                actions: {
+                  trigger(context) {
+                    context.commit('setToTrue')
+                  }
+                }
+              })
+            })
+          ]
+        })
+
+        store.dispatch('service-todos/trigger')
+        assert(
+          store.state['service-todos'].isTrue === true,
+          'the custom action was run'
+        )
+      })
+    })
+
+    describe('Deprecated options', () => {
+      it('allows adding custom state', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+
+        const customState = {
+          test: true,
+          test2: {
+            test: true
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              state: customState
+            })
+          ]
+        })
+
+        assert(store.state['service-todos'].test === true, 'added custom state')
+        assert(
+          store.state['service-todos'].test2.test === true,
+          'added custom state'
+        )
+      })
+
+      it('allows custom mutations', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const state = { test: true }
+        const customMutations = {
+          setTestToFalse(state) {
+            state.test = false
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              state,
+              mutations: customMutations
+            })
+          ]
+        })
+
+        store.commit('service-todos/setTestToFalse')
+        assert(
+          store.state['service-todos'].test === false,
+          'the custom state was modified by the custom mutation'
+        )
+      })
+
+      it('allows custom getters', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const customGetters = {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          oneTwoThree(state) {
+            return 123
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              getters: customGetters
+            })
+          ]
+        })
+
+        assert(
+          store.getters['service-todos/oneTwoThree'] === 123,
+          'the custom getter was available'
+        )
+      })
+
+      it('allows adding custom actions', function () {
+        const { makeServicePlugin, ServiceTodo } = makeContext()
+        const config = {
+          state: {
+            isTrue: false
+          },
+          mutations: {
+            setToTrue(state) {
+              state.isTrue = true
+            }
+          },
+          actions: {
+            trigger(context) {
+              context.commit('setToTrue')
+            }
+          }
+        }
+        const store = new Vuex.Store<RootState>({
+          plugins: [
+            makeServicePlugin({
+              Model: ServiceTodo,
+              service: feathersClient.service('service-todos'),
+              ...config
+            })
+          ]
+        })
+
+        store.dispatch('service-todos/trigger')
+        assert(
+          store.state['service-todos'].isTrue === true,
+          'the custom action was run'
+        )
+      })
     })
   })
 
