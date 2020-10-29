@@ -37,7 +37,7 @@ export interface ServiceStateExclusiveDefaults {
   }
   paramsForServer: string[]
   modelName?: string
-
+  debounceEventsTime: number
   isIdCreatePending: Id[]
   isIdUpdatePending: Id[]
   isIdPatchPending: Id[]
@@ -83,6 +83,8 @@ export interface ServiceState<M extends Model = Model> {
     default?: PaginationState
   }
   modelName?: string
+  debounceEventsTime: number
+  debounceEventsMaxWait: number
   isIdCreatePending: Id[]
   isIdUpdatePending: Id[]
   isIdPatchPending: Id[]
@@ -121,6 +123,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
       defaultSkip: null
     },
     paramsForServer: ['$populateParams'],
+    debounceEventsTime: null,
 
     isFindPending: false,
     isGetPending: false,
