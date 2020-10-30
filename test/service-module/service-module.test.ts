@@ -19,6 +19,7 @@ import { makeTodos } from '../fixtures/todos'
 import Vuex from 'vuex'
 import { performance } from 'perf_hooks'
 import enableServiceEvents from '../../src/service-module/service-module.events'
+import { Service } from '@feathersjs/feathers'
 
 interface Options {
   idField: string
@@ -1191,15 +1192,17 @@ describe('Service Module', function () {
   })
 
   describe('Updates the Store on Events', function () {
-    const {
-      feathersSocketioClient,
-      BaseModel,
-      Thing,
-      ThingDebounced,
-      TodoDebounced,
+    let feathersSocketioClient,
       debouncedQueue,
-      store
-    } = makeSocketIoContext()
+      store,
+      debouncedService: Service<any>
+    beforeEach(() => {
+      const context = makeSocketIoContext()
+      feathersSocketioClient = context.feathersSocketioClient
+      debouncedQueue = context.debouncedQueue
+      store = context.store
+      debouncedService = feathersSocketioClient.service('things-debounced')
+    })
 
     it('created', function (done) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1233,15 +1236,12 @@ describe('Service Module', function () {
             store.state['things-debounced'].keyedById[0].test,
             'the item received from the socket event was added to the store'
           )
-          feathersSocketioClient
-            .service('things-debounced')
-            .off('created', listener)
+          debouncedService.off('created', listener)
           done()
         }, debounceEventsTime * 2)
       }
-      feathersSocketioClient.service('things-debounced').on('created', listener)
-
-      feathersSocketioClient.service('things-debounced').create({ test: true })
+      debouncedService.on('created', listener)
+      debouncedService.create({ test: true })
     })
 
     it('patched', function (done) {
@@ -1277,17 +1277,12 @@ describe('Service Module', function () {
             'the item received from the socket event was updated in the store'
           )
         }, debounceEventsTime * 2)
-        feathersSocketioClient
-          .service('things-debounced')
-          .off('patched', listener)
+        debouncedService.off('patched', listener)
         done()
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      feathersSocketioClient.service('things-debounced').on('patched', listener)
-      feathersSocketioClient
-        .service('things-debounced')
-        .patch(1, { test: true })
+      debouncedService.on('patched', listener)
+      debouncedService.patch(1, { test: true })
     })
 
     it('updated', function (done) {
@@ -1324,17 +1319,11 @@ describe('Service Module', function () {
           )
           done()
         }, debounceEventsTime * 2)
-        feathersSocketioClient
-          .service('things-debounced')
-          .off('updated', listener)
+        debouncedService.off('updated', listener)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      feathersSocketioClient.service('things-debounced').on('updated', listener)
-
-      feathersSocketioClient
-        .service('things-debounced')
-        .update(1, { test: true })
+      debouncedService.on('updated', listener)
+      debouncedService.update(1, { test: true })
     })
 
     it('removed', function (done) {
@@ -1372,21 +1361,19 @@ describe('Service Module', function () {
           )
           done()
         }, debounceEventsTime * 2)
-
-        feathersSocketioClient
-          .service('things-debounced')
-          .off('removed', listener)
+        debouncedService.off('removed', listener)
       }
 
-      feathersSocketioClient.service('things-debounced').on('removed', listener)
-
-      feathersSocketioClient.service('things-debounced').remove(1)
+      debouncedService.on('removed', listener)
+      debouncedService.remove(1)
     })
 
     it('debounce works with plenty items', function (done) {
       store.commit('things-debounced/clearAll')
 
-      const { debounceEventsTime } = store.state['things-debounced']
+      const { debounceEventsTime, debounceEventsMaxWait } = store.state[
+        'things-debounced'
+      ]
 
       const itemsCount = 100
       let i = 0
@@ -1396,17 +1383,20 @@ describe('Service Module', function () {
         'no items at start'
       )
 
+      const now = performance.now()
+
       const setTimeoutCreate = () => {
         setTimeout(() => {
-          feathersSocketioClient
-            .service('things-debounced')
-            .create({ test: true, i })
+          debouncedService.create({ test: true, i })
           i++
-          assert(
-            Object.keys(store.state['things-debounced'].keyedById).length === 0,
-            `no items at i: ${i}`
-          )
           if (i < itemsCount) {
+            if (performance.now() - now < debounceEventsMaxWait) {
+              assert(
+                Object.keys(store.state['things-debounced'].keyedById)
+                  .length === 0,
+                `no items at i: ${i}`
+              )
+            }
             setTimeoutCreate()
           } else {
             setTimeout(() => {
@@ -1443,9 +1433,7 @@ describe('Service Module', function () {
 
       const setTimeoutCreate = () => {
         setTimeout(() => {
-          feathersSocketioClient
-            .service('things-debounced')
-            .create({ test: true, i })
+          debouncedService.create({ test: true, i })
           i++
           const timePassed = Math.floor(
             performance.now() - startedAt - debounceEventsTime
