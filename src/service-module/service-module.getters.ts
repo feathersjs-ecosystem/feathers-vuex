@@ -25,7 +25,7 @@ const getCopiesById = ({
   if (keepCopiesInStore) {
     return copiesById
   } else {
-    const Model = _get(models, `[${serverAlias}].byServicePath[${servicePath}]`)
+    const Model = _get(models, [serverAlias, 'byServicePath', servicePath])
 
     return Model.copiesById
   }
