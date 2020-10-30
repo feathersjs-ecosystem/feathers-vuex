@@ -107,6 +107,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     'instanceDefaults',
     'setupInstance',
     'handleEvents',
+    'extend',
     'state',
     'getters',
     'mutations',
