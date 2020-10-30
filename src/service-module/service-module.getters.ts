@@ -10,11 +10,11 @@ import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
 import { isRef } from '@vue/composition-api'
+import { ServiceState } from '..'
+import { Id } from '@feathersjs/feathers'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
-const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
 const additionalOperators = ['$elemMatch']
-const defaultOps = FILTERS.concat(OPERATORS).concat(additionalOperators)
 
 const getCopiesById = ({
   keepCopiesInStore,
@@ -134,6 +134,23 @@ export default function makeServiceGetters() {
     getCopyById: state => id => {
       const copiesById = getCopiesById(state)
       return copiesById[id]
-    }
+    },
+
+    isCreatePendingById: ({ isIdCreatePending }: ServiceState) => (id: Id) =>
+      isIdCreatePending.includes(id),
+    isUpdatePendingById: ({ isIdUpdatePending }: ServiceState) => (id: Id) =>
+      isIdUpdatePending.includes(id),
+    isPatchPendingById: ({ isIdPatchPending }: ServiceState) => (id: Id) =>
+      isIdPatchPending.includes(id),
+    isRemovePendingById: ({ isIdRemovePending }: ServiceState) => (id: Id) =>
+      isIdRemovePending.includes(id),
+    isSavePendingById: (state: ServiceState, getters) => (id: Id) =>
+      getters.isCreatePendingById(id) ||
+      getters.isUpdatePendingById(id) ||
+      getters.isPatchPendingById(id),
+    isPendingById: (state: ServiceState, getters) => (id: Id) =>
+      getters.isSavePendingById(id) || getters.isRemovePendingById(id)
   }
 }
+
+export type GetterName = keyof ReturnType<typeof makeServiceGetters>

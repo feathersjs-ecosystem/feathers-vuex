@@ -212,6 +212,13 @@ export function assignTempId(state, item) {
   return newId
 }
 
+function stringifyIfObject(val): string | any {
+  if (typeof val === 'object' && val != null) {
+    return val.toString()
+  }
+  return val
+}
+
 /**
  * Get the id from a record in this order:
  *   1. the `idField`
@@ -220,18 +227,18 @@ export function assignTempId(state, item) {
  * @param item
  * @param idField
  */
-export function getId(item, idField) {
+export function getId(item, idField?) {
   if (!item) {
     return
   }
   if (item[idField] != null || item.hasOwnProperty(idField)) {
-    return item[idField]
+    return stringifyIfObject(item[idField])
   }
   if (item.id != null || item.hasOwnProperty('id')) {
-    return item.id
+    return stringifyIfObject(item.id)
   }
   if (item._id != null || item.hasOwnProperty('_id')) {
-    return item._id
+    return stringifyIfObject(item._id)
   }
 }
 

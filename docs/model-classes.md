@@ -339,7 +339,9 @@ const todo = new Todo({ description: 'Do something!' })
 
 The examples above show instantiating a new Model instance without an `id` field. In this case, the record is not added to the Vuex store.  If you instantiate a record **with an `id`** field, it **will** get added to the Vuex store. *Note: This field is customizable using the `idField` option for this service.*
 
-Now that we have Model instances, let's take a look at the functionality they provide. Each instance will include the following methods:
+Now that we have Model instances, let's take a look at the functionality they provide.
+
+Each instance will include the following methods:
 
 - `.save()`
 - `.create()`
@@ -348,6 +350,15 @@ Now that we have Model instances, let's take a look at the functionality they pr
 - `.clone()`
 - `.commit()`
 - `.reset()`
+
+and the following readonly attributes:
+
+- `isCreatePending` - `create` is currently pending on this model
+- `isUpdatePending` - `update` is currently pending on this model
+- `isPatchPending` - `patch` is currently pending on this model
+- `isRemovePending` - `remove` is currently pending on this model
+- `isSavePending` - Any of `create`, `update` or `patch` is currently pending on this model
+- `isPending` - Any method is currently pending on this model
 
 *Remember, if a record already has an attribute with any of these method names, it will be overwritten with the method.*
 

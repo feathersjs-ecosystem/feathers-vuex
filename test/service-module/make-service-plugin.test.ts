@@ -74,6 +74,8 @@ describe('makeServicePlugin', function () {
       isRemovePending: false,
       isUpdatePending: false,
       keepCopiesInStore: false,
+      debounceEventsTime: null,
+      debounceEventsMaxWait: 1000,
       keyedById: {},
       modelName: 'Todo',
       nameStyle: 'short',
@@ -89,7 +91,11 @@ describe('makeServicePlugin', function () {
       servicePath: 'make-service-plugin-todos',
       skipRequestIfExists: false,
       tempsById: {},
-      whitelist: []
+      whitelist: [],
+      isIdCreatePending: [],
+      isIdUpdatePending: [],
+      isIdPatchPending: [],
+      isIdRemovePending: []
     }
 
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')

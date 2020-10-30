@@ -7,6 +7,7 @@ eslint
 import _omit from 'lodash/omit'
 
 import { MakeServicePluginOptions, Model } from './types'
+import { Id } from '@feathersjs/feathers'
 
 export interface ServiceStateExclusiveDefaults {
   ids: string[]
@@ -36,6 +37,11 @@ export interface ServiceStateExclusiveDefaults {
   }
   paramsForServer: string[]
   modelName?: string
+  debounceEventsTime: number
+  isIdCreatePending: Id[]
+  isIdUpdatePending: Id[]
+  isIdPatchPending: Id[]
+  isIdRemovePending: Id[]
 }
 
 export interface ServiceState<M extends Model = Model> {
@@ -77,6 +83,12 @@ export interface ServiceState<M extends Model = Model> {
     default?: PaginationState
   }
   modelName?: string
+  debounceEventsTime: number
+  debounceEventsMaxWait: number
+  isIdCreatePending: Id[]
+  isIdUpdatePending: Id[]
+  isIdPatchPending: Id[]
+  isIdRemovePending: Id[]
 }
 
 export interface PaginationState {
@@ -111,6 +123,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
       defaultSkip: null
     },
     paramsForServer: ['$populateParams'],
+    debounceEventsTime: null,
 
     isFindPending: false,
     isGetPending: false,
@@ -124,7 +137,12 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     errorOnCreate: null,
     errorOnUpdate: null,
     errorOnPatch: null,
-    errorOnRemove: null
+    errorOnRemove: null,
+
+    isIdCreatePending: [],
+    isIdUpdatePending: [],
+    isIdPatchPending: [],
+    isIdRemovePending: []
   }
 
   if (options.Model) {

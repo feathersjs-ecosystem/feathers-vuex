@@ -18,7 +18,7 @@ export default function makeFindMixin(options) {
   const {
     service,
     params,
-    fetchQuery,
+    fetchParams,
     queryWhen = () => true,
     local = false,
     qid = 'default',
@@ -224,9 +224,8 @@ export default function makeFindMixin(options) {
       getPaginationForQuery(params = {}) {
         const pagination = this[PAGINATION]
         const { qid, queryId, pageId } = getQueryInfo(params)
-        const queryInfo = _get(pagination, `[${qid}][${queryId}]`) || {}
-        const pageInfo =
-          _get(pagination, `[${qid}][${queryId}][${pageId}]`) || {}
+        const queryInfo = _get(pagination, [qid, queryId], {})
+        const pageInfo = _get(pagination, [qid, queryId, pageId], {})
 
         return { queryInfo, pageInfo }
       }
@@ -319,7 +318,7 @@ export default function makeFindMixin(options) {
 
   setupAttribute(SERVICE_NAME, service, 'computed', true)
   setupAttribute(PARAMS, params)
-  setupAttribute(FETCH_PARAMS, fetchQuery)
+  setupAttribute(FETCH_PARAMS, fetchParams)
   setupAttribute(QUERY_WHEN, queryWhen, 'computed')
   setupAttribute(LOCAL, local)
 

@@ -73,12 +73,14 @@ export default {
   }),
   computed: {
     items() {
-      const { query, service, $store, temps } = this
+      let { query, service, $store, temps } = this
       let { params } = this
+      
+      query = query || {}
 
       params = params || { query, temps }
 
-      return query ? $store.getters[`${service}/find`](params).data : []
+      return $store.getters[`${service}/find`](params).data
     },
     pagination() {
       return this.$store.state[this.service].pagination[this.qid]

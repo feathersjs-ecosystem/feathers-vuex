@@ -928,6 +928,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnUpdate === null)
               assert(todoState.isUpdatePending === false)
+              assert(store.getters['my-todos/isUpdatePendingById'](0) === false, 'ID pending update clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromUpdate.id],
                 responseFromUpdate
@@ -939,6 +942,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnUpdate === null)
           assert(todoState.isUpdatePending === true)
+          assert(store.getters['my-todos/isUpdatePendingById'](0) === true, 'ID pending update set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
         .catch(error => {
@@ -1022,6 +1028,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
               assert(todoState.isPatchPending === false)
+              assert(store.getters['my-todos/isPatchPendingById'](0) === false, 'ID pending patch clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromPatch.id],
                 responseFromPatch
@@ -1033,6 +1042,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnPatch === null)
           assert(todoState.isPatchPending === true)
+          assert(store.getters['my-todos/isPatchPendingById'](0) === true, 'ID pending patch set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
     })
@@ -1098,6 +1110,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 1)
               assert(todoState.errorOnPatch === null)
               assert(todoState.isPatchPending === false)
+              assert(store.getters['my-todos/isPatchPendingById'](0) === false, 'ID pending patch clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(
                 todoState.keyedById[responseFromPatch.id],
                 responseFromPatch
@@ -1109,6 +1124,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnPatch === null)
           assert(todoState.isPatchPending === true)
+          assert(store.getters['my-todos/isPatchPendingById'](0) === true, 'ID pending patch set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === true, 'ID pending save set')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
     })
@@ -1174,6 +1192,9 @@ describe('Service Module - Actions', () => {
               assert(todoState.ids.length === 0)
               assert(todoState.errorOnRemove === null)
               assert(todoState.isRemovePending === false)
+              assert(store.getters['my-todos/isRemovePendingById'](0) === false, 'ID pending remove clear')
+              assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+              assert(store.getters['my-todos/isPendingById'](0) === false, 'ID pending clear')
               assert.deepEqual(todoState.keyedById, {})
               done()
             })
@@ -1186,6 +1207,9 @@ describe('Service Module - Actions', () => {
           assert(todoState.ids.length === 1)
           assert(todoState.errorOnRemove === null)
           assert(todoState.isRemovePending === true)
+          assert(store.getters['my-todos/isRemovePendingById'](0) === true, 'ID pending remove set')
+          assert(store.getters['my-todos/isSavePendingById'](0) === false, 'ID pending save clear')
+          assert(store.getters['my-todos/isPendingById'](0) === true, 'ID pending set')
           assert(todoState.idField === 'id')
         })
     })

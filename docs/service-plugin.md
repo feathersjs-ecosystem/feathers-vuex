@@ -156,7 +156,12 @@ Each service comes loaded with the following default state:
     errorOnCreate: undefined,
     errorOnUpdate: undefined,
     errorOnPatch: undefined,
-    errorOnRemove: undefined
+    errorOnRemove: undefined,
+
+    isIdCreatePending: [],
+    isIdUpdatePending: [],
+    isIdPatchPending: [],
+    isIdRemovePending: [],
   }
 ```
 
@@ -193,6 +198,13 @@ The following state attribute will be populated with any request error, serializ
 - `errorOnPatch {Error}`
 - `errorOnRemo {Error}`
 
+The following state attributes allow you to bind to the pending state of requests *per item ID*
+
+- `isIdCreatePending {Array}` - Contains `id` if there's a pending `create` request for `id`.
+- `isIdUpdatePending {Array}` -Contains `id` if there's a pending `update` request for `id`.
+- `isIdPatchPending {Array}` - Contains `id` if there's a pending `patch` request for `id`.
+- `isIdRemovePending {Array}` - Contains `id` if there's a pending `remove` request for `id`.
+
 ## Service Getters
 
 Service modules include the following getters:
@@ -208,6 +220,15 @@ Service modules include the following getters:
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.
   - `id {Number|String}` - the id of the data to be retrieved by id from the store.
   - `params {Object}` - an object containing a Feathers `query` object.
+
+The following getters ease access to per-instance pending status
+
+- `isCreatePendingById(id) {Function}` - Check if `create` is pending for `id`
+- `isUpdatePendingById(id) {Function}` - Check if `update` is pending for `id`
+- `isPatchPendingById(id) {Function}` - Check if `patch` is pending for `id`
+- `isRemovePendingById(id) {Function}` - Check if `remove` is pending for `id`
+- `isSavePendingById(id) {Function}` - Check if `create`, `update`, or `patch` is pending for `id`
+- `isPendingById(id) {Function}` - Check if `create`, `update`, `patch` or `remove` is pending for `id`
 
 ## Service Mutations
 
@@ -265,7 +286,9 @@ Clears all data from `ids`, `keyedById`, and `currentId`
 The following mutations are called automatically by the service actions, and will rarely, if ever, need to be used manually.
 
 - `setPending(state, method)` - sets the `is${method}Pending` attribute to true
+- `setIdPending(state, { method, id })` - adds `id` to `isId${method}Pending` array
 - `unsetPending(state, method)` - sets the `is${method}Pending` attribute to false
+- `unsetIdPending(state, { method, id })` - removes `id` from `isId${method}Pending` array
 
 ### Mutations for Managing Errors
 
