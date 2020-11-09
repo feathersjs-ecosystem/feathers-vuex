@@ -262,7 +262,7 @@ For an example of how you might use `setupInstance`, suppose we have two service
 setupInstance(data, { store, models }) {
   if (data.posts) {
     // Turn posts into an array of Post instances
-    data.posts = data.posts.map(post => new models.Post(post))
+    data.posts = data.posts.map(post => new models.api.Post(post))
   }
   return data
 }
