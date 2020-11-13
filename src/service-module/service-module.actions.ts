@@ -173,6 +173,11 @@ export default function makeServiceActions(service: Service<any>) {
       if (params && params.data) {
         data = params.data
       }
+      
+      if (Object.keys(data).length === 0 && data.constructor === Object) {
+        // skip request if empty data
+        return Promise.resolve(state.keyedById[id])
+      }
 
       return service
         .patch(id, data, params)
