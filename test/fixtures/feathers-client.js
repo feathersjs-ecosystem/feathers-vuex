@@ -11,37 +11,62 @@ const baseUrl = 'http://localhost:3030'
 
 // These are fixtures used in the service-modulet.test.js under socket events.
 let id = 0
-mockServer.on('things::create', function(data) {
+mockServer.on('things::create', function (data, params, cb) {
   data.id = id
   id++
   mockServer.emit('things created', data)
+  cb(null, data)
 })
-mockServer.on('things::patch', function(id, data) {
+mockServer.on('things::patch', function (id, data, params, cb) {
   Object.assign(data, { id, test: true })
   mockServer.emit('things patched', data)
+  cb(null, data)
 })
-mockServer.on('things::update', function(id, data) {
+mockServer.on('things::update', function (id, data, params, cb) {
   Object.assign(data, { id, test: true })
   mockServer.emit('things updated', data)
+  cb(null, data)
 })
-mockServer.on('things::remove', function(id) {
-  mockServer.emit('things removed', { id, test: true })
+mockServer.on('things::remove', function (id, obj, cb) {
+  const response = { id, test: true }
+  mockServer.emit('things removed', response)
+  cb(null, response)
+})
+
+let idDebounce = 0
+
+mockServer.on('things-debounced::create', function (data, obj, cb) {
+  data.id = idDebounce
+  idDebounce++
+  mockServer.emit('things-debounced created', data)
+  cb(null, data)
+})
+mockServer.on('things-debounced::patch', function (id, data, params, cb) {
+  Object.assign(data, { id, test: true })
+  mockServer.emit('things-debounced patched', data)
+  cb(null, data)
+})
+mockServer.on('things-debounced::update', function (id, data, params, cb) {
+  Object.assign(data, { id, test: true })
+  mockServer.emit('things-debounced updated', data)
+  cb(null, data)
+})
+mockServer.on('things-debounced::remove', function (id, params, cb) {
+  const response = { id, test: true }
+  mockServer.emit('things-debounced removed', response)
+  cb(null, response)
 })
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function makeFeathersSocketClient(baseUrl) {
   const socket = io(baseUrl)
 
-  return feathers()
-    .configure(socketio(socket))
-    .configure(auth())
+  return feathers().configure(socketio(socket)).configure(auth())
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function makeFeathersRestClient(baseUrl) {
-  return feathers()
-    .configure(rest(baseUrl).axios(axios))
-    .configure(auth())
+  return feathers().configure(rest(baseUrl).axios(axios)).configure(auth())
 }
 
 const sock = io(baseUrl)

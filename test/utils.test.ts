@@ -4,6 +4,7 @@ import { ServiceState } from './service-module/types'
 import { isNode, isBrowser } from '../src/utils'
 import { diff as deepDiff } from 'deep-object-diff'
 import {
+  getId,
   initAuth,
   hydrateApi,
   getServicePrefix,
@@ -18,101 +19,143 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 interface RootState {
-  auth: AuthState,
+  auth: AuthState
   users: ServiceState
 }
 
-describe('Utils', function() {
-  before(function() {
-    const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(
-      feathersClient,
-      { serverAlias: 'utils' }
-    )
-
-    class User extends BaseModel {
-      public static modelName = 'User'
-      public static test: boolean = true
-    }
-
-    Object.assign(this, {
-      makeServicePlugin,
-      makeAuthPlugin,
-      BaseModel,
-      User
+describe('Utils', function () {
+  describe('getId', () => {
+    const idField = '_id'
+    it('converts objects to strings', () => {
+      const _id = { test: true }
+      const id = getId({ _id }, idField)
+      assert.strictEqual(typeof id, 'string')
+      assert.strictEqual(id, _id.toString())
+    })
+    it('does not convert number ids', () => {
+      const _id = 1
+      const id = getId({ _id }, idField)
+      assert.strictEqual(typeof id, 'number')
+      assert.strictEqual(id, _id)
+    })
+    it('automatically finds _id', () => {
+      const _id = 1
+      const id = getId({ _id })
+      assert.strictEqual(id, _id)
+    })
+    it('automatically finds id', () => {
+      const referenceId = 1
+      const id = getId({ id: referenceId })
+      assert.strictEqual(id, referenceId)
+    })
+    it('prefers id over _id (only due to their order in the code)', () => {
+      const _id = 1
+      const referenceId = 2
+      const id = getId({ _id, id: referenceId })
+      assert.strictEqual(id, referenceId)
     })
   })
-  it('properly populates auth', function() {
-    const store = new Vuex.Store<RootState>({
-      plugins: [
-        this.makeServicePlugin({
-          Model: this.User,
-          servicePath: 'users',
-          service: feathersClient.service('users')
-        }),
-        this.makeAuthPlugin({})
-      ]
-    })
-    const accessToken =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoiOTk5OTk5OTk5OTkiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZX0.lUlEd3xH-TnlNRbKM3jnDVTNoIg10zgzaS6QyFZE-6g'
-    const req = {
-      headers: {
-        cookie: 'feathers-jwt=' + accessToken
+
+  describe('Auth & SSR', () => {
+    before(function () {
+      const {
+        makeServicePlugin,
+        makeAuthPlugin,
+        BaseModel
+      } = feathersVuex(feathersClient, { serverAlias: 'utils' })
+
+      class User extends BaseModel {
+        public static modelName = 'User'
+        public static test = true
       }
-    }
-    return initAuth({
-      commit: store.commit,
-      req,
-      moduleName: 'auth',
-      cookieName: 'feathers-jwt',
-      feathersClient
+
+      Object.assign(this, {
+        makeServicePlugin,
+        makeAuthPlugin,
+        BaseModel,
+        User
+      })
     })
-      .then(() => {
-        assert(
-          store.state.auth.accessToken === accessToken,
-          'the token was in place'
-        )
-        assert(store.state.auth.payload, 'the payload was set')
-        return feathersClient.authentication.getAccessToken()
+    it('properly populates auth', function () {
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          this.makeServicePlugin({
+            Model: this.User,
+            servicePath: 'users',
+            service: feathersClient.service('users')
+          }),
+          this.makeAuthPlugin({})
+        ]
       })
-      .then(token => {
-        assert.isDefined(token, 'the feathers client storage was set')
+      const accessToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoiOTk5OTk5OTk5OTkiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZX0.lUlEd3xH-TnlNRbKM3jnDVTNoIg10zgzaS6QyFZE-6g'
+      const req = {
+        headers: {
+          cookie: 'feathers-jwt=' + accessToken
+        }
+      }
+      return initAuth({
+        commit: store.commit,
+        req,
+        moduleName: 'auth',
+        cookieName: 'feathers-jwt',
+        feathersClient
       })
-  })
-
-  it('properly hydrate SSR store', function() {
-    const { makeServicePlugin, BaseModel, models } = feathersVuex(
-      feathersClient,
-      { serverAlias: 'hydrate' }
-    )
-
-    class User extends BaseModel {
-      public static modelName = 'User'
-      public static test: boolean = true
-    }
-
-    const store = new Vuex.Store<RootState>({
-      plugins: [
-        makeServicePlugin({
-          Model: User,
-          servicePath: 'users',
-          service: feathersClient.service('users'),
-          mutations: {
-            addServerItem (state) {
-              state.keyedById['abcdefg'] = { id: 'abcdefg', name: 'Guzz' }
-            }
-          }
+        .then(() => {
+          assert(
+            store.state.auth.accessToken === accessToken,
+            'the token was in place'
+          )
+          assert(store.state.auth.payload, 'the payload was set')
+          return feathersClient.authentication.getAccessToken()
         })
-      ]
+        .then(token => {
+          assert.isDefined(token, 'the feathers client storage was set')
+        })
     })
-    store.commit('users/addServerItem')
-    assert(store.state.users.keyedById['abcdefg'], 'server document added')
-    assert(store.state.users.keyedById['abcdefg'] instanceof Object, 'server document is pure javascript object')
-    hydrateApi({ api: models.hydrate })
-    assert(store.state.users.keyedById['abcdefg'] instanceof User, 'document hydrated')
+
+    it('properly hydrate SSR store', function () {
+      const {
+        makeServicePlugin,
+        BaseModel,
+        models
+      } = feathersVuex(feathersClient, { serverAlias: 'hydrate' })
+
+      class User extends BaseModel {
+        public static modelName = 'User'
+        public static test = true
+      }
+
+      const store = new Vuex.Store<RootState>({
+        plugins: [
+          makeServicePlugin({
+            Model: User,
+            servicePath: 'users',
+            service: feathersClient.service('users'),
+            mutations: {
+              addServerItem(state) {
+                state.keyedById['abcdefg'] = { id: 'abcdefg', name: 'Guzz' }
+              }
+            }
+          })
+        ]
+      })
+      store.commit('users/addServerItem')
+      assert(store.state.users.keyedById['abcdefg'], 'server document added')
+      assert(
+        store.state.users.keyedById['abcdefg'] instanceof Object,
+        'server document is pure javascript object'
+      )
+      hydrateApi({ api: models.hydrate })
+      assert(
+        store.state.users.keyedById['abcdefg'] instanceof User,
+        'document hydrated'
+      )
+    })
   })
 
-  describe('Inflections', function() {
-    it('properly inflects the service prefix', function() {
+  describe('Inflections', function () {
+    it('properly inflects the service prefix', function () {
       const decisionTable = [
         ['todos', 'todos'],
         ['TODOS', 'tODOS'],
@@ -131,7 +174,7 @@ describe('Utils', function() {
       })
     })
 
-    it('properly inflects the service capitalization', function() {
+    it('properly inflects the service capitalization', function () {
       const decisionTable = [
         ['todos', 'Todos'],
         ['TODOS', 'TODOS'],
@@ -162,8 +205,8 @@ describe('Utils', function() {
   })
 })
 
-describe('Pagination', function() {
-  it('getQueryInfo', function() {
+describe('Pagination', function () {
+  it('getQueryInfo', function () {
     const params = {
       qid: 'main-list',
       query: {
@@ -200,11 +243,10 @@ describe('Pagination', function() {
     }
     const diff = deepDiff(info, expected)
 
-    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 
-  it('getQueryInfo no limit or skip', function() {
+  it('getQueryInfo no limit or skip', function () {
     const params = {
       qid: 'main-list',
       query: {
@@ -237,7 +279,6 @@ describe('Pagination', function() {
     }
     const diff = deepDiff(info, expected)
 
-    // @ts-ignore
     assert.deepEqual(info, expected, 'query info formatted correctly')
   })
 })

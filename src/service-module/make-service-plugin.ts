@@ -3,32 +3,49 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import { FeathersVuexOptions, MakeServicePluginOptions } from './types'
+import {
+  FeathersVuexOptions,
+  MakeServicePluginOptions,
+  ServicePluginExtendOptions
+} from './types'
+
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
+import enableServiceEvents from './service-module.events'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import _get from 'lodash/get'
 
 interface ServiceOptionsDefaults {
   servicePath: string
   namespace: string
+  extend: (
+    options: ServicePluginExtendOptions
+  ) => {
+    state: any
+    getters: any
+    mutations: any
+    actions: any
+  }
   state: {}
   getters: {}
   mutations: {}
   actions: {}
   instanceDefaults: () => {}
   setupInstance: (instance: {}) => {}
+  debounceEventsMaxWait: number
 }
 
 const defaults: ServiceOptionsDefaults = {
   namespace: '', // The namespace for the Vuex module. Will generally be derived from the service.path, service.name, when available. Otherwise, it must be provided here, explicitly.
   servicePath: '',
+  extend: ({ module }) => module, // for custom plugin (replaces state, getters, mutations, and actions)
   state: {}, // for custom state
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
-  setupInstance: instance => instance // Default setupInstance returns the instance
+  setupInstance: instance => instance, // Default setupInstance returns the instance
+  debounceEventsMaxWait: 1000
 }
 const events = ['created', 'patched', 'updated', 'removed']
 
@@ -88,12 +105,12 @@ export default function prepareMakeServicePlugin(
     return store => {
       // (1^) Create and register the Vuex module
       options.namespace = makeNamespace(namespace, servicePath, nameStyle)
-      const module = makeServiceModule(service, options)
+      const module = makeServiceModule(service, options, store)
       // Don't preserve state if reinitialized (prevents state pollution in SSR)
       store.registerModule(options.namespace, module, { preserveState: false })
 
       // (2a^) Monkey patch the BaseModel in globalModels
-      const BaseModel = _get(globalModels, `[${options.serverAlias}].BaseModel`)
+      const BaseModel = _get(globalModels, [options.serverAlias, 'BaseModel'])
       if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
           store
@@ -120,39 +137,7 @@ export default function prepareMakeServicePlugin(
 
       // (3^) Setup real-time events
       if (options.enableEvents) {
-        const handleEvent = (eventName, item, mutationName) => {
-          const handler = options.handleEvents[eventName]
-          const confirmOrArray = handler(item, {
-            model: Model,
-            models: globalModels
-          })
-          const [affectsStore, modified = item] = Array.isArray(confirmOrArray)
-            ? confirmOrArray
-            : [confirmOrArray]
-          if (affectsStore) {
-            eventName === 'removed'
-              ? store.commit(`${options.namespace}/removeItem`, modified)
-              : store.dispatch(`${options.namespace}/${mutationName}`, modified)
-          }
-        }
-
-        // Listen to socket events when available.
-        service.on('created', item => {
-          handleEvent('created', item, 'addOrUpdate')
-          Model.emit && Model.emit('created', item)
-        })
-        service.on('updated', item => {
-          handleEvent('updated', item, 'addOrUpdate')
-          Model.emit && Model.emit('updated', item)
-        })
-        service.on('patched', item => {
-          handleEvent('patched', item, 'addOrUpdate')
-          Model.emit && Model.emit('patched', item)
-        })
-        service.on('removed', item => {
-          handleEvent('removed', item, 'removeItem')
-          Model.emit && Model.emit('removed', item)
-        })
+        enableServiceEvents({ service, Model, store, options })
       }
     }
   }

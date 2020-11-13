@@ -20,6 +20,8 @@ export interface FeathersVuexOptions {
   idField?: string
   tempIdField?: string
   keepCopiesInStore?: boolean
+  debounceEventsTime?: number
+  debounceEventsMaxWait?: number
   nameStyle?: string
   paramsForServer?: string[]
   preferUpdate?: boolean
@@ -33,6 +35,11 @@ export interface HandleEvents {
   patched?: Function
   updated?: Function
   removed?: Function
+}
+
+export interface ServicePluginExtendOptions {
+  store: Store<any>
+  module: any
 }
 
 export interface MakeServicePluginOptions {
@@ -50,6 +57,8 @@ export interface MakeServicePluginOptions {
   replaceItems?: boolean
   skipRequestIfExists?: boolean
   nameStyle?: string
+  debounceEventsTime?: number
+  debounceEventsMaxWait?: number
 
   servicePath?: string
   namespace?: string
@@ -60,6 +69,15 @@ export interface MakeServicePluginOptions {
   instanceDefaults?: () => {}
   setupInstance?: (data: any, { models, store }) => {}
   handleEvents?: HandleEvents
+
+  extend?: (
+    options: ServicePluginExtendOptions
+  ) => {
+    state?: any
+    getters?: any
+    mutations?: any
+    actions?: any
+  }
   state?: {}
   getters?: {}
   mutations?: {}
@@ -245,7 +263,9 @@ export interface ModelStatic extends EventEmitter {
    * A proxy for the `find` getter
    * @param params Find params
    */
-  findInStore<M extends Model = Model>(params?: Params | Ref<Params>): Paginated<M>
+  findInStore<M extends Model = Model>(
+    params?: Params | Ref<Params>
+  ): Paginated<M>
 
   /**
    * A proxy for the `count` action
@@ -269,7 +289,10 @@ export interface ModelStatic extends EventEmitter {
    * @param id ID of record to retrieve
    * @param params Get params
    */
-  getFromStore<M extends Model = Model>(id: Id | Ref<Id>, params?: Params | Ref<Params>): M | undefined
+  getFromStore<M extends Model = Model>(
+    id: Id | Ref<Id>,
+    params?: Params | Ref<Params>
+  ): M | undefined
 }
 
 /** Model instance interface */
@@ -287,6 +310,32 @@ export interface Model {
    * model is a clone?
    */
   readonly __isClone?: boolean
+
+  /**
+   * `Create` is currently pending on this model
+   */
+  readonly isCreatePending: boolean
+  /**
+   * `Update` is currently pending on this model
+   */
+  readonly isUpdatePending: boolean
+  /**
+   * `Patch` is currently pending on this model
+   */
+  readonly isPatchPending: boolean
+  /**
+   * `Remove` is currently pending on this model
+   */
+  readonly isRemovePending: boolean
+  /**
+   * Any of `create`, `update` or `patch` is currently pending on this model
+   */
+  readonly isSavePending: boolean
+  /**
+   * Any method is currently pending on this model
+   */
+  readonly isPending: boolean
+
   /**
    * Creates a deep copy of the record and stores it on
    * `Model.copiesById`. This allows you to make changes
