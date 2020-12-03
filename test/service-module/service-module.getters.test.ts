@@ -12,11 +12,13 @@ import {
   clearModels
 } from '../../src/service-module/global-models'
 
+import { values as _values } from 'lodash'
+
 const options = {
   idField: '_id',
   tempIdField: '__id',
   autoRemove: false,
-  serverAlias: 'default',
+  serverAlias: 'service-module-getters',
   Model: null,
   service: null
 }
@@ -81,10 +83,9 @@ describe('Service Module - Getters', function () {
         1: { test: true }
       }
     }
-    // @ts-ignore
+
     const result = getCopyById(state)(1)
 
-    // @ts-ignore
     assert(result.test, 'got the copy')
   })
 
@@ -92,13 +93,10 @@ describe('Service Module - Getters', function () {
     const state = {
       keepCopiesInStore: false,
       servicePath: 'todos',
-      serverAlias: 'my-getters-test',
-      copiesById: {
-        1: { test: true }
-      }
+      serverAlias: 'my-getters-test'
     }
     Object.assign(globalModels, {
-      'my-getters-test': {
+      [state.serverAlias]: {
         byServicePath: {
           todos: {
             copiesById: {
@@ -108,10 +106,9 @@ describe('Service Module - Getters', function () {
         }
       }
     })
-    // @ts-ignore
+
     const result = getCopyById(state)(1)
 
-    // @ts-ignore
     assert(result.test, 'got the copy')
 
     clearModels()
@@ -119,20 +116,18 @@ describe('Service Module - Getters', function () {
 
   it('get works on keyedById', function () {
     const { state, items } = this
-    // @ts-ignore
+
     const result = get(state)(1)
 
-    // @ts-ignore
     assert.deepEqual(result, items[0])
   })
 
   it('get works on tempsById', function () {
     const { state } = this
     const tempId = Object.keys(state.tempsById)[0]
-    // @ts-ignore
+
     const result = get(state)(tempId)
 
-    // @ts-ignore
     assert(result.__id === tempId)
   })
 
@@ -161,6 +156,162 @@ describe('Service Module - Getters', function () {
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
     assert(results.total === 4, 'total was correct')
+  })
+
+  it('find - no copies by default', function () {
+    const state = {
+      keepCopiesInStore: false,
+      servicePath: 'todos',
+      serverAlias: 'my-getters-test',
+      keyedById: {
+        1: { _id: 1, test: true, __isClone: false },
+        2: { _id: 2, test: true, __isClone: false },
+        3: { _id: 3, test: true, __isClone: false }
+      },
+      copiesById: {
+        1: { _id: 1, test: true, __isClone: true }
+      }
+    }
+    Object.assign(globalModels, {
+      [state.serverAlias]: {
+        byServicePath: {
+          todos: {
+            copiesById: {
+              1: { _id: 1, test: true, __isClone: true }
+            }
+          }
+        }
+      }
+    })
+
+    const params = { query: {} }
+    const results = find(state)(params)
+
+    assert.deepEqual(
+      results.data,
+      _values(state.keyedById).filter(i => !i.__isClone),
+      'the list was correct'
+    )
+    assert(results.limit === 0, 'limit was correct')
+    assert(results.skip === 0, 'skip was correct')
+    assert(results.total === 3, 'total was correct')
+
+    clearModels()
+  })
+
+  it('find - with copies with keepCopiesInStore:true', function () {
+    const state = {
+      keepCopiesInStore: true,
+      idField: '_id',
+      keyedById: {
+        1: { _id: 1, test: true, __isClone: false },
+        2: { _id: 2, test: true, __isClone: false },
+        3: { _id: 3, test: true, __isClone: false }
+      },
+      copiesById: {
+        1: { _id: 1, test: true, __isClone: true }
+      }
+    }
+
+    const params = { query: {}, copies: true }
+    const results = find(state)(params)
+
+    const expected = [
+      { _id: 1, test: true, __isClone: true },
+      { _id: 2, test: true, __isClone: false },
+      { _id: 3, test: true, __isClone: false }
+    ]
+
+    assert.deepEqual(results.data, expected, 'the list was correct')
+    assert(results.limit === 0, 'limit was correct')
+    assert(results.skip === 0, 'skip was correct')
+    assert(results.total === 3, 'total was correct')
+  })
+
+  it('find - with copies with keepCopiesInStore:false', function () {
+    const state = {
+      keepCopiesInStore: false,
+      servicePath: 'todos',
+      serverAlias: 'my-getters-test',
+      idField: '_id',
+      keyedById: {
+        1: { _id: 1, test: true, __isClone: false },
+        2: { _id: 2, test: true, __isClone: false },
+        3: { _id: 3, test: true, __isClone: false }
+      }
+    }
+    Object.assign(globalModels, {
+      [state.serverAlias]: {
+        byServicePath: {
+          todos: {
+            copiesById: {
+              1: { _id: 1, test: true, __isClone: true }
+            }
+          }
+        }
+      }
+    })
+
+    const params = { query: {}, copies: true }
+    const results = find(state)(params)
+
+    const expected = [
+      { _id: 1, test: true, __isClone: true },
+      { _id: 2, test: true, __isClone: false },
+      { _id: 3, test: true, __isClone: false }
+    ]
+
+    assert.deepEqual(results.data, expected, 'the list was correct')
+    assert(results.limit === 0, 'limit was correct')
+    assert(results.skip === 0, 'skip was correct')
+    assert(results.total === 3, 'total was correct')
+
+    clearModels()
+  })
+
+  it('find - with copies and temps', function () {
+    const state = {
+      keepCopiesInStore: false,
+      servicePath: 'todos',
+      serverAlias: 'my-getters-test',
+      idField: '_id',
+      keyedById: {
+        1: { _id: 1, test: true, __isClone: false },
+        2: { _id: 2, test: true, __isClone: false },
+        3: { _id: 3, test: true, __isClone: false }
+      },
+      tempsById: {
+        abc: { __id: 'abc', test: true, __isClone: false, __isTemp: true }
+      }
+    }
+    Object.assign(globalModels, {
+      [state.serverAlias]: {
+        byServicePath: {
+          todos: {
+            copiesById: {
+              1: { _id: 1, test: true, __isClone: true }
+            }
+          }
+        }
+      }
+    })
+
+    const params = { query: {}, copies: true, temps: true }
+    const results = find(state)(params)
+
+    const expected = [
+      { _id: 1, test: true, __isClone: true },
+      { _id: 2, test: true, __isClone: false },
+      { _id: 3, test: true, __isClone: false },
+      { __id: 'abc', test: true, __isClone: false, __isTemp: true }
+    ]
+
+    assert.deepEqual(results.data, expected, 'the list was correct')
+    assert(results.limit === 0, 'limit was correct')
+    assert(results.skip === 0, 'skip was correct')
+    assert(results.total === 4, 'total was correct')
+
+    clearModels()
   })
 
   it('find with query', function () {

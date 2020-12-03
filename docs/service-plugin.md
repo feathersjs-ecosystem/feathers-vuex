@@ -211,7 +211,10 @@ Service modules include the following getters:
 
 - `list {Array}` - an array of items. The array form of `keyedById`  Read only.
 - `find(params) {Function}` - a helper function that allows you to use the [Feathers Adapter Common API](https://docs.feathersjs.com/api/databases/common) and [Query API](https://docs.feathersjs.com/api/databases/querying) to pull data from the store.  This allows you to treat the store just like a local Feathers database adapter (but without hooks).
-  - `params {Object}` - an object with a `query` object and optional `paginate` and `temps` boolean properties. The `query` is in the FeathersJS query format. You can set `params.paginate` to `false` to disable pagination for a single request.
+  - `params {Object}` - an object with a `query` object and optional properties. You can set the following  properties:
+    - `params.query {Boolean}` - The `query` is in the FeathersJS query format.
+    - `params.temps {Boolean}` - **Default:** `false` - if `true` also consider temporary records from `tempsById`
+    - `params.copies {Boolean}` - **Default:** `false` - if `true`: first search for the regular records and then replace the records with the related copies from `copiesById`
 - `count(params) {Function}` - a helper function that counts items in the store matching the provided query in the params and returns this number <Badge text="3.12.0+" />
   - `params {Object}` - an object with a `query` object and an optional `temps` boolean property.
 - `get(id[, params]) {Function}` - a function that allows you to query the store for a single item, by id.  It works the same way as `get` requests in Feathers database adapters.

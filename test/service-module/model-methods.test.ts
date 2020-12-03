@@ -23,8 +23,9 @@ interface TodoState extends ServiceState {
   isTrue: boolean
 }
 interface RootState {
-  todos: TodoState
-  tasks: ServiceState
+  ['model-methods-persons']: ServiceState
+  ['model-methods-todos']: TodoState
+  ['model-methods-tasks']: ServiceState
   tests: ServiceState
   blah: ServiceState
   things: ServiceState
@@ -42,9 +43,9 @@ function makeContext() {
     context.result = JSON.parse(JSON.stringify(context.result))
   }
 
-  feathersClient.use('letters', memory())
+  feathersClient.use('model-methods-letters', memory())
 
-  const lettersService = feathersClient.service('letters')
+  const lettersService = feathersClient.service('model-methods-letters')
 
   // Setup hooks on letters service to simulate toJSON serialization that occurs
   // with a remote API request.
@@ -63,14 +64,14 @@ function makeContext() {
 
   class Task extends BaseModel {
     public static modelName = 'Task'
-    public static servicePath: 'tasks'
+    public static servicePath: 'model-methods-tasks'
     public constructor(data?, options?) {
       super(data, options)
     }
   }
   class Todo extends BaseModel {
     public static modelName = 'Todo'
-    public static servicePath: 'todos'
+    public static servicePath: 'model-methods-todos'
     public constructor(data?, options?) {
       super(data, options)
     }
@@ -81,6 +82,7 @@ function makeContext() {
       super(data, options)
     }
     public static modelName = 'Letter'
+    public static servicePath = 'model-methods-letters'
     public static instanceDefaults(data, { models, store }) {
       return {
         to: '',
@@ -98,30 +100,120 @@ function makeContext() {
     }
   }
 
+  class Person extends BaseModel {
+    public static modelName = 'Person'
+    public static servicePath = 'model-methods-persons'
+    public constructor(data?, options?) {
+      super(data, options)
+    }
+  }
+
   const store = new Vuex.Store<RootState>({
     strict: true,
     plugins: [
       makeServicePlugin({
         Model: Task,
-        service: feathersClient.service('tasks'),
-        preferUpdate: true
+        servicePath: 'model-methods-tasks',
+        service: feathersClient.service('model-methods-tasks'),
+        preferUpdate: true,
+        namespace: 'model-methods-tasks'
       }),
       makeServicePlugin({
         Model: Todo,
-        service: feathersClient.service('todos')
+        servicePath: 'model-methods-todos',
+        service: feathersClient.service('model-methods-todos'),
+        namespace: 'model-methods-todos'
       }),
       makeServicePlugin({
         Model: Letter,
-        servicePath: 'letters',
-        service: feathersClient.service('letters')
+        servicePath: 'model-methods-letters',
+        service: feathersClient.service('model-methods-letters'),
+        namespace: 'model-methods-letters'
+      }),
+      makeServicePlugin({
+        Model: Person,
+        servicePath: 'model-methods-persons',
+        service: feathersClient.service('model-methods-persons'),
+        keepCopiesInStore: true,
+        namespace: 'model-methods-persons'
       })
     ]
   })
+
+  // Fake server call
+  feathersClient.service('model-methods-tasks').hooks({
+    before: {
+      create: [
+        context => {
+          delete context.data.__id
+          delete context.data.__isTemp
+        },
+        context => {
+          context.result = { _id: 24, ...context.data }
+          return context
+        }
+      ],
+      update: [
+        context => {
+          context.result = { ...context.data }
+          return context
+        }
+      ],
+      patch: [
+        context => {
+          context.result = { ...context.data }
+          return context
+        }
+      ],
+      remove: [
+        context => {
+          context.result = {}
+          return context
+        }
+      ]
+    }
+  })
+
+  // Fake server call
+  feathersClient.service('model-methods-persons').hooks({
+    before: {
+      create: [
+        context => {
+          delete context.data.__id
+          delete context.data.__isTemp
+        },
+        context => {
+          context.result = { _id: 24, ...context.data }
+          return context
+        }
+      ],
+      update: [
+        context => {
+          context.result = { ...context.data }
+          return context
+        }
+      ],
+      patch: [
+        context => {
+          context.result = { ...context.data }
+          return context
+        }
+      ],
+      remove: [
+        context => {
+          context.result = {}
+          return context
+        }
+      ]
+    }
+  })
+
   return {
     BaseModel,
     Task,
     Todo,
     Letter,
+    Person,
     lettersService,
     store
   }
@@ -280,13 +372,94 @@ describe('Models - Methods', function () {
 
     task.remove()
 
-    // @ts-ignore
-    assert(!store.state.tasks.tempsById[tempId], 'temp was removed')
+    assert(
+      !store.state['model-methods-tasks'].tempsById[tempId],
+      'temp was removed'
+    )
   })
 
-  it.skip('instance.remove removes cloned records from the store', function () {})
-  it.skip('instance.remove removes cloned records from the Model.copiesById', function () {})
-  it.skip('removes clone and original upon calling clone.remove()', function () {})
+  it('instance.remove removes cloned record from the store', async function () {
+    const { Person, store } = makeContext()
+    const person = new Person({ _id: 1, test: true })
+    const id = person._id
+
+    // @ts-ignore
+    const { copiesById } = store.state['model-methods-persons']
+
+    person.clone()
+
+    assert(copiesById[id], 'clone exists')
+
+    await person.remove()
+
+    assert(!copiesById[id], 'clone was removed')
+  })
+
+  it('instance.remove removes cloned record from Model.copiesById', async function () {
+    const { Task } = makeContext()
+    const task = new Task({ _id: 2, test: true })
+    const id = task._id
+
+    task.clone()
+
+    assert(Task.copiesById[id], 'clone exists')
+
+    await task.remove()
+
+    assert(!Task.copiesById[id], 'clone was removed')
+  })
+
+  it('instance.remove for temp record removes cloned record from the store', function () {
+    const { Person, store } = makeContext()
+    const person = new Person({ test: true })
+    const tempId = person.__id
+
+    // @ts-ignore
+    const { copiesById } = store.state['model-methods-persons']
+
+    person.clone()
+
+    assert(copiesById[tempId], 'clone exists')
+
+    person.remove()
+
+    assert(!copiesById[tempId], 'clone was removed')
+  })
+
+  it('instance.remove for temp record removes cloned record from the Model.copiesById', function () {
+    const { Task } = makeContext()
+    const task = new Task({ test: true })
+    const tempId = task.__id
+
+    task.clone()
+
+    assert(Task.copiesById[tempId], 'clone exists')
+
+    task.remove()
+
+    assert(!Task.copiesById[tempId], 'clone was removed')
+  })
+
+  it('removes clone and original upon calling clone.remove()', async function () {
+    const { Person, store } = makeContext()
+    const person = new Person({ _id: 1, test: true })
+    const id = person._id
+
+    // @ts-ignore
+    const { copiesById, keyedById } = store.state['model-methods-persons']
+
+    person.clone()
+
+    assert(copiesById[id], 'clone exists')
+    assert(keyedById[id], 'original exists')
+
+    const clone = copiesById[id]
+
+    await clone.remove()
+
+    assert(!copiesById[id], 'clone was removed')
+    assert(!keyedById[id], 'original was removed')
+  })
 
   it('instance methods still available in store data after updateItem mutation (or socket event)', async function () {
     const { Letter, store, lettersService } = makeContext()
@@ -300,7 +473,7 @@ describe('Models - Methods', function () {
       'saved instance has a save method'
     )
 
-    store.commit('letters/updateItem', {
+    store.commit('model-methods-letters/updateItem', {
       id: letter.id,
       name: 'Garmadon / Dad',
       age: 1026

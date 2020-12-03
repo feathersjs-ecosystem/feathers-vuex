@@ -57,6 +57,7 @@ export interface MakeServicePluginOptions {
   replaceItems?: boolean
   skipRequestIfExists?: boolean
   nameStyle?: string
+  keepCopiesInStore?: boolean
   debounceEventsTime?: number
   debounceEventsMaxWait?: number
 

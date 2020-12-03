@@ -30,7 +30,7 @@ function makeContext() {
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
 
-describe('Find Mixin', function() {
+describe('Find Mixin', function () {
   const { makeServicePlugin, FindModel } = makeContext()
   const serviceName = 'todos'
   const store = new Vuex.Store({
@@ -42,7 +42,7 @@ describe('Find Mixin', function() {
     ]
   })
 
-  it('correctly forms mixin data', function() {
+  it('correctly forms mixin data', function () {
     const todosMixin = makeFindMixin({ service: 'todos' })
     interface TodosComponent {
       todos: []
@@ -99,7 +99,7 @@ describe('Find Mixin', function() {
     )
   })
 
-  it('correctly forms mixin data for dynamic service', function() {
+  it('correctly forms mixin data for dynamic service', function () {
     const tasksMixin = makeFindMixin({
       service() {
         return this.serviceName

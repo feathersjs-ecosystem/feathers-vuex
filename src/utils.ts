@@ -28,6 +28,8 @@ interface Params {
   provider?: string
   route?: { [key: string]: string }
   headers?: { [key: string]: any }
+  temps?: boolean
+  copies?: boolean
 
   [key: string]: any // (JL) not sure if we want this
 }
