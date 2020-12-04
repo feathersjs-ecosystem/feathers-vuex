@@ -1,3 +1,4 @@
+import FeathersVuexCount from './components/FeathersVuexCount'
 import FeathersVuexFind from './components/FeathersVuexFind'
 import FeathersVuexGet from './components/FeathersVuexGet'
 import FeathersVuexFormWrapper from './components/FeathersVuexFormWrapper'
@@ -36,6 +37,7 @@ import { AuthState } from './auth-module/types'
 
 export {
   // Components
+  FeathersVuexCount,
   FeathersVuexFind,
   FeathersVuexGet,
   FeathersVuexFormWrapper,
