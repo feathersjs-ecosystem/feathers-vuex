@@ -3,15 +3,16 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import FeathersVuexFind from '@feathersjs/vuex-commons/components/FeathersVuexFind'
-import FeathersVuexGet from '@feathersjs/vuex-commons/components/FeathersVuexGet'
-import FeathersVuexFormWrapper from '@feathersjs/vuex-commons/components/FeathersVuexFormWrapper'
-import FeathersVuexInputWrapper from '@feathersjs/vuex-commons/components/FeathersVuexInputWrapper'
-import FeathersVuexPagination from '@feathersjs/vuex-commons/components/FeathersVuexPagination'
-import FeathersVuexCount from '@feathersjs/vuex-commons/components/FeathersVuexCount'
-import { globalModels } from '@feathersjs/vuex-commons/service-module/global-models'
-// import { GlobalModels } from '../service-module/types'
-
+import {
+  FeathersVuexFind,
+  FeathersVuexGet,
+  FeathersVuexFormWrapper,
+  FeathersVuexInputWrapper,
+  FeathersVuexPagination,
+  FeathersVuexCount,
+  models
+  // GlobalModels
+} from '@feathersjs/vuex-commons'
 // Augment global models onto VueConstructor and instance
 // declare module 'vue/types/vue' {
 //   interface VueConstructor {
@@ -27,8 +28,8 @@ export const FeathersVuex = {
     const shouldSetupComponents = options.components !== false
 
     // Make $fv available on app instance
-    app.config.globalProperties.$FeathersVuex = globalModels
-    app.config.globalProperties.$fv = globalModels
+    app.config.globalProperties.$FeathersVuex = models
+    app.config.globalProperties.$fv = models
 
     if (shouldSetupComponents) {
       app.component('FeathersVuexFind', FeathersVuexFind)
