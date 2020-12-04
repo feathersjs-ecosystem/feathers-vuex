@@ -40,3 +40,4 @@ lib/
 *.njsproj
 *.sln
 /dist
+/packages/*/dist
