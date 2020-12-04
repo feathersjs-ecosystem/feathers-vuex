@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Commons for feathers-vuex and @feathersjs/vuex",
   "scripts": {
+    "prepublish": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "shx rm -rf lib/ && tsc && npm run lint-dist"
   },
