@@ -32,7 +32,7 @@
     "release:pre": "npm version prerelease && npm publish --access public --tag next",
     "prepublish": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "shx rm -rf lib/ && tsc"
+    "compile": "shx rm -rf dist/ && tsc"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^4.5.2",
