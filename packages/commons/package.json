@@ -1,6 +1,6 @@
 {
   "name": "@feathersjs/vuex-commons",
-  "version": "0.0.1-pre.0",
+  "version": "0.0.1-pre",
   "description": "Commons for feathers-vuex and @feathersjs/vuex",
   "scripts": {
     "prepublish": "npm run compile",
