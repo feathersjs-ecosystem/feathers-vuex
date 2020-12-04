@@ -2,7 +2,7 @@ import { Service, Id } from '@feathersjs/feathers'
 import { Params, Paginated } from '../utils'
 import { EventEmitter } from 'events'
 import { Store } from 'vuex'
-import { Ref } from '@vue/composition-api'
+import { Ref } from 'vue-demi'
 
 export { Id } from '@feathersjs/feathers'
 

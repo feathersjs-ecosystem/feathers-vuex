@@ -1,20 +1,8 @@
 import {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  createElement as baseCreateElement,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  h,
+  createElement,
   computed,
   watch
-} from '@vue/composition-api'
-import { CreateElement } from 'vue'
-
-/**
- * Allow for usage with newer (^1.0.0) @vue/composition-api releases
- * See: https://github.com/feathersjs-ecosystem/feathers-vuex/issues/504
- */
-const createElement = (baseCreateElement || h) as CreateElement
+} from 'vue-demi'
 
 export default {
   name: 'FeathersVuexPagination',

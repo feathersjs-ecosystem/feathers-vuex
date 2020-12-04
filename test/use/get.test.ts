@@ -17,7 +17,7 @@ import memory from 'feathers-memory'
 import Vuex from 'vuex'
 // import { mount, shallowMount } from '@vue/test-utils'
 // import InstrumentComponent from './InstrumentComponent'
-import { isRef } from '@vue/composition-api'
+import { isRef } from 'vue-demi'
 import { HookContext } from '@feathersjs/feathers'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100

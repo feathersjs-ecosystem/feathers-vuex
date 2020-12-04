@@ -9,7 +9,7 @@ import {
   Ref,
   toRefs,
   watch
-} from '@vue/composition-api'
+} from 'vue-demi'
 import debounce from 'lodash/debounce'
 import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from './utils'
 import { ModelStatic, Model } from './service-module/types'

@@ -15,7 +15,7 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import useFind from '../../src/useFind'
 import Vuex from 'vuex'
 // import { shallowMount } from '@vue/test-utils'
-import { computed, isRef } from '@vue/composition-api'
+import { computed, isRef } from 'vue-demi'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
