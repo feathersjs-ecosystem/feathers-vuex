@@ -31,6 +31,7 @@
   },
   "scripts": {
     "prepublish": "npm run compile",
+    "compile": "shx rm -rf lib/ && tsc",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
     "test": "cross-env TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register 'test/**/*.test.ts'",
     "docs": "vuepress dev docs",
