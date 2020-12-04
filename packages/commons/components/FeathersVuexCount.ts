@@ -1,4 +1,4 @@
-import { randomString } from './utils'
+import { randomString } from '../utils'
 
 export default {
   props: {
@@ -65,7 +65,7 @@ export default {
         if (params) {
           return this.$store
             .dispatch(`${this.service}/count`, params)
-            .then(response => {
+            .then((response) => {
               this.isCountPending = false
               this.serverTotal = response
             })
@@ -101,7 +101,7 @@ export default {
     const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
 
     if (this.fetchParams || this.params) {
-      watch.forEach(prop => {
+      watch.forEach((prop) => {
         if (typeof prop !== 'string') {
           throw new Error(`Values in the 'watch' array must be strings.`)
         }

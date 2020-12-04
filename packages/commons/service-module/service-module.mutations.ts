@@ -18,7 +18,7 @@ import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
 import { Id } from '@feathersjs/feathers'
-import { ServiceState } from '..'
+import { ServiceState } from './service-module.state'
 
 export type PendingServiceMethodName =
   | 'find'
@@ -186,7 +186,7 @@ export default function makeServiceMutations() {
       const { idField } = state
       const idToBeRemoved = _isObject(item) ? getId(item, idField) : item
       const isIdOk = idToBeRemoved !== null && idToBeRemoved !== undefined
-      const index = state.ids.findIndex(i => i === idToBeRemoved)
+      const index = state.ids.findIndex((i) => i === idToBeRemoved)
 
       const Model = _get(models, `[${state.serverAlias}][${state.modelName}]`)
       const copiesById = state.keepCopiesInStore
@@ -204,7 +204,7 @@ export default function makeServiceMutations() {
 
     // Removes temp records
     removeTemps(state, tempIds) {
-      tempIds.forEach(id => {
+      tempIds.forEach((id) => {
         const temp = state.tempsById[id]
         if (temp) {
           if (temp[state.idField]) {
@@ -228,7 +228,7 @@ export default function makeServiceMutations() {
       // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && _isObject(items[0])
       const idsToRemove = containsObjects
-        ? items.map(item => getId(item, idField))
+        ? items.map((item) => getId(item, idField))
         : items
       const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
         map[id] = true
@@ -244,7 +244,7 @@ export default function makeServiceMutations() {
         ? state.copiesById
         : Model.copiesById
 
-      idsToRemove.forEach(id => {
+      idsToRemove.forEach((id) => {
         Vue.delete(state.keyedById, id)
         if (copiesById.hasOwnProperty(id)) {
           Vue.delete(copiesById, id)
@@ -270,7 +270,7 @@ export default function makeServiceMutations() {
           }
         }
       )
-      indexesInReverseOrder.forEach(indexInIdsArray => {
+      indexesInReverseOrder.forEach((indexInIdsArray) => {
         Vue.delete(state.ids, indexInIdsArray)
       })
     },
@@ -287,7 +287,7 @@ export default function makeServiceMutations() {
           'byServicePath',
           state.servicePath
         ])
-        Object.keys(Model.copiesById).forEach(k =>
+        Object.keys(Model.copiesById).forEach((k) =>
           Vue.delete(Model.copiesById, k)
         )
       }
@@ -390,7 +390,7 @@ export default function makeServiceMutations() {
     updatePaginationForQuery(state, { qid, response, query = {} }) {
       const { data, total } = response
       const { idField } = state
-      const ids = data.map(i => i[idField])
+      const ids = data.map((i) => i[idField])
       const queriedAt = new Date().getTime()
       const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
         { qid, query },
@@ -456,7 +456,7 @@ export default function makeServiceMutations() {
       ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
-      ids.forEach(id => {
+      ids.forEach((id) => {
         if (typeof id === 'number' || typeof id === 'string') {
           isIdMethodPending.push(id)
         }
@@ -473,7 +473,7 @@ export default function makeServiceMutations() {
       ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
-      ids.forEach(id => {
+      ids.forEach((id) => {
         const idx = isIdMethodPending.indexOf(id)
         if (idx >= 0) {
           Vue.delete(isIdMethodPending, idx)

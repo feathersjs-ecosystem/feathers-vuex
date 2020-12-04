@@ -92,7 +92,6 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     BaseModel,
     makeAuthPlugin,
     FeathersVuex,
-    FeathersVuexApp,
     models: models as GlobalModels,
     clients
   }
@@ -107,7 +106,6 @@ export {
   FeathersVuexInputWrapper,
   FeathersVuexPagination,
   FeathersVuex,
-  FeathersVuexApp,
   makeFindMixin,
   makeGetMixin,
   models,
