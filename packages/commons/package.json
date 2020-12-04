@@ -32,5 +32,8 @@
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-beta.1",
     "vue": "^2.0.0 || >=3.0.3"
+  },
+  "devDependencies": {
+    "shx": "^0.3.2"
   }
 }

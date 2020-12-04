@@ -36,12 +36,15 @@
     "docs": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
+  "dependencies": {
+    "@feathersjs/vuex-commons": "^0.0.1",
+    "@types/feathersjs__feathers": "^3.1.5"
+  },
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-beta.1",
     "vue": "^2.0.0"
   },
-  "dependencies": {
-    "@feathersjs/vuex-commons": "^0.0.1",
-    "@types/feathersjs__feathers": "^3.1.5"
+  "devDependencies": {
+    "shx": "^0.3.2"
   }
 }

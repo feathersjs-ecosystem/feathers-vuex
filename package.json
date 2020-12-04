@@ -146,7 +146,6 @@
     "mocha": "^7.1.2",
     "omit-deep-lodash": "^1.1.4",
     "prettier": "^2.0.5",
-    "shx": "^0.3.2",
     "socket.io-client": "^2.3.0",
     "standard": "^14.3.3",
     "steal": "^2.2.4",
