@@ -1,6 +1,6 @@
 {
   "name": "@feathersjs/vuex-commons",
-  "version": "0.0.2-pre.2",
+  "version": "0.0.2-pre.4",
   "description": "Commons for feathers-vuex and @feathersjs/vuex",
   "main": "dist/",
   "module": "dist/",
@@ -29,6 +29,7 @@
   },
   "license": "MIT",
   "scripts": {
+    "release:pre": "npm version prerelease && npm publish --access public --tag next",
     "prepublish": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "shx rm -rf lib/ && tsc"

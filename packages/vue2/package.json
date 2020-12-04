@@ -38,7 +38,7 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
-    "@feathersjs/vuex-commons": "^0.0.1",
+    "@feathersjs/vuex-commons": "^0.0.2-pre.4",
     "@types/feathersjs__feathers": "^3.1.5"
   },
   "peerDependencies": {

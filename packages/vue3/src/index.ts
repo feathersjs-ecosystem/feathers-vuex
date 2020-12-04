@@ -3,28 +3,32 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import FeathersVuexFind from '@feathersjs/vuex-commons/components/FeathersVuexFind'
-import FeathersVuexGet from '@feathersjs/vuex-commons/components/FeathersVuexGet'
-import FeathersVuexFormWrapper from '@feathersjs/vuex-commons/components/FeathersVuexFormWrapper'
-import FeathersVuexInputWrapper from '@feathersjs/vuex-commons/components/FeathersVuexInputWrapper'
-import FeathersVuexPagination from '@feathersjs/vuex-commons/components/FeathersVuexPagination'
-
-import makeFindMixin from '@feathersjs/vuex-commons/mixins/make-find-mixin'
-import makeGetMixin from '@feathersjs/vuex-commons/mixins/make-get-mixin'
-
-import useFind from '@feathersjs/vuex-commons/use/useFind'
-import useGet from '@feathersjs/vuex-commons//use/useGet'
-
-import { globalModels as models } from '@feathersjs/vuex-commons/service-module/global-models'
 import {
+  // Components
+  FeathersVuexFind,
+  FeathersVuexGet,
+  FeathersVuexFormWrapper,
+  FeathersVuexInputWrapper,
+  FeathersVuexPagination,
+  // Mixins
+  makeFindMixin,
+  makeGetMixin,
+  // Composition API Utils
+  useFind,
+  useGet,
+  // Models
+  models,
+  makeBaseModel,
+  // Clients
   clients,
-  addClient
-} from '@feathersjs/vuex-commons/service-module/global-clients'
-import makeBaseModel from '@feathersjs/vuex-commons/service-module/make-base-model'
-import prepareMakeServicePlugin from '@feathersjs/vuex-commons/service-module/make-service-plugin'
-import prepareMakeAuthPlugin from '@feathersjs/vuex-commons/auth-module/make-auth-plugin'
-
-import {
+  addClient,
+  // Plugin Factories
+  prepareMakeServicePlugin,
+  prepareMakeAuthPlugin,
+  // Utils,
+  initAuth,
+  hydrateApi,
+  // Types
   FeathersVuexOptions,
   HandleEvents,
   Model,
@@ -33,13 +37,12 @@ import {
   Id,
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
-  GlobalModels
-} from '@feathersjs/vuex-commons/service-module/types'
-import { initAuth, hydrateApi } from '@feathersjs/vuex-commons/utils'
+  GlobalModels,
+  ServiceState,
+  AuthState
+} from '@feathersjs/vuex-commons'
 
 import { FeathersVuex } from './app-plugin'
-import { ServiceState } from '@feathersjs/vuex-commons/service-module/service-module.state'
-import { AuthState } from '@feathersjs/vuex-commons/auth-module/types'
 
 const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
