@@ -9,7 +9,27 @@
   "author": "Marshall Thompson",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.20",
+    "@feathersjs/adapter-commons": "^4.5.2",
+    "@feathersjs/commons": "^4.5.3",
+    "@feathersjs/errors": "^4.5.3",
+    "@types/feathersjs__feathers": "^3.1.5",
+    "@types/inflection": "^1.5.28",
+    "@types/lodash": "^4.14.150",
+    "@types/npm": "^2.0.31",
+    "bson-objectid": "^1.3.0",
+    "debug": "^4.1.1",
+    "events": "^3.1.0",
+    "fast-copy": "^2.1.0",
+    "fast-json-stable-stringify": "^2.1.0",
+    "inflection": "^1.12.0",
+    "jwt-decode": "^2.2.0",
+    "lodash": "^4.17.15",
+    "serialize-error": "^5.0.0",
+    "sift": "^9.0.4",
     "vue-demi": "latest"
+  },
+  "peerDependencies": {
+    "@vue/composition-api": "^1.0.0-beta.1",
+    "vue": "^2.0.0 || >=3.0.3"
   }
 }
