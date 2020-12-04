@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue, and Nuxt for the artisan developer",
-  "version": "3.14.0",
+  "version": "3.15.0",
   "homepage": "https:feathers-vuex.feathersjs-ecosystem.com",
   "main": "dist/",
   "module": "dist/",
