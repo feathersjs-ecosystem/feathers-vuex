@@ -31,6 +31,7 @@ import {
 } from './service-module/types'
 import { initAuth, hydrateApi } from './utils'
 import { FeathersVuex } from './vue-plugin/vue-plugin'
+import { FeathersVuexApp } from './vue-plugin/app-plugin'
 import { ServiceState } from './service-module/service-module.state'
 import { AuthState } from './auth-module/types'
 const events = ['created', 'patched', 'updated', 'removed']
@@ -85,6 +86,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     BaseModel,
     makeAuthPlugin,
     FeathersVuex,
+    FeathersVuexApp,
     models: models as GlobalModels,
     clients
   }
@@ -99,6 +101,7 @@ export {
   FeathersVuexInputWrapper,
   FeathersVuexPagination,
   FeathersVuex,
+  FeathersVuexApp,
   makeFindMixin,
   makeGetMixin,
   models,
