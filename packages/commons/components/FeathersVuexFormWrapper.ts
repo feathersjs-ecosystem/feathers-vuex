@@ -40,6 +40,7 @@ export default {
       deep: true
     }
   },
+  emits: ['saved', 'saved-new', 'reset', 'removed'],
   methods: {
     setup() {
       if (this.item) {
@@ -62,7 +63,7 @@ export default {
       if (this.eager) {
         this.clone.commit()
       }
-      return this.clone.save(params).then(response => {
+      return this.clone.save(params).then((response) => {
         this.$emit('saved', response)
         if (this.isNew) {
           this.$emit('saved-new', response)

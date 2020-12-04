@@ -10,7 +10,7 @@ import { globalModels as models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
 import { isRef } from 'vue-demi'
-import { ServiceState } from '..'
+import { ServiceState } from './service-module.state'
 import { Id } from '@feathersjs/feathers'
 
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
@@ -34,9 +34,9 @@ const getCopiesById = ({
 export default function makeServiceGetters() {
   return {
     list(state) {
-      return state.ids.map(id => state.keyedById[id])
+      return state.ids.map((id) => state.keyedById[id])
     },
-    find: state => params => {
+    find: (state) => (params) => {
       if (isRef(params)) {
         params = params.value
       }
@@ -89,7 +89,9 @@ export default function makeServiceGetters() {
       }
 
       if (filters.$select) {
-        values = values.map(value => _.pick(value, ...filters.$select.slice()))
+        values = values.map((value) =>
+          _.pick(value, ...filters.$select.slice())
+        )
       }
 
       return {
@@ -99,7 +101,7 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    count: (state, getters) => params => {
+    count: (state, getters) => (params) => {
       if (isRef(params)) {
         params = params.value
       }
@@ -131,7 +133,7 @@ export default function makeServiceGetters() {
 
       return tempRecord || null
     },
-    getCopyById: state => id => {
+    getCopyById: (state) => (id) => {
       const copiesById = getCopiesById(state)
       return copiesById[id]
     },

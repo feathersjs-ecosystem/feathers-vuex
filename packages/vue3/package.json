@@ -1,0 +1,45 @@
+{
+  "name": "@feathersjs/vuex",
+  "description": "FeathersJS, Vue 3, and Nuxt for the artisan developer",
+  "version": "4.0.0-pre-1",
+  "homepage": "https:vuex.feathersjs.com",
+  "main": "dist/",
+  "module": "dist/",
+  "types": "dist/",
+  "keywords": [
+    "vue",
+    "feathers",
+    "feathers-plugin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/feathersjs-ecosystem/feathers-vuex.git"
+  },
+  "author": {
+    "name": "Marshall Thompson",
+    "email": "marshall@creativeideal.net",
+    "url": "https://github.com/marshallswain"
+  },
+  "funding": {
+    "type": "Github sponsor",
+    "url": "https://github.com/sponsors/marshallswain"
+  },
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"
+  },
+  "scripts": {
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
+    "test": "cross-env TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register 'test/**/*.test.ts'",
+    "docs": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "@types/feathersjs__feathers": "^3.1.5",
+    "@feathersjs/vuex-commons": "^0.0.1"
+  }
+}

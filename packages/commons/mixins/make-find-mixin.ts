@@ -12,7 +12,7 @@ import {
   getQueryInfo,
   getServiceCapitalization,
   getServicePrefix
-} from './utils'
+} from '../utils'
 
 export default function makeFindMixin(options) {
   const {
@@ -140,7 +140,7 @@ export default function makeFindMixin(options) {
       },
       // Exposes `findItemsInStore
       [FIND_GETTER]() {
-        return params => {
+        return (params) => {
           const serviceName = this[SERVICE_NAME]
           return this.$store.getters[`${serviceName}/find`](params)
         }
@@ -197,7 +197,7 @@ export default function makeFindMixin(options) {
 
             return this.$store
               .dispatch(`${serviceName}/find`, paramsToUse)
-              .then(response => {
+              .then((response) => {
                 // To prevent thrashing, only clear ERROR on response, not on initial request.
                 this[ERROR] = null
 
@@ -210,7 +210,7 @@ export default function makeFindMixin(options) {
                 this[IS_FIND_PENDING] = false
                 return response
               })
-              .catch(error => {
+              .catch((error) => {
                 this[ERROR] = error
                 return error
               })
@@ -247,7 +247,7 @@ export default function makeFindMixin(options) {
           pType.hasOwnProperty(PARAMS) ||
           pType.hasOwnProperty(FETCH_PARAMS)
         ) {
-          watch.forEach(prop => {
+          watch.forEach((prop) => {
             if (typeof prop !== 'string') {
               throw new Error(`Values in the 'watch' array must be strings.`)
             }
@@ -258,7 +258,7 @@ export default function makeFindMixin(options) {
                 prop = prop.replace(PARAMS, FETCH_PARAMS)
               }
             }
-            this.$watch(prop, function() {
+            this.$watch(prop, function () {
               // If the request is going to be debounced, set IS_FIND_PENDING to true.
               // Without this, there's not a way to show a loading indicator during the debounce timeout.
               const paramsToUse = getParams({
@@ -286,7 +286,7 @@ export default function makeFindMixin(options) {
   }
 
   function hasSomeAttribute(vm, ...attributes) {
-    return attributes.some(a => {
+    return attributes.some((a) => {
       return vm.hasOwnProperty(a) || Object.getPrototypeOf(vm).hasOwnProperty(a)
     })
   }
@@ -300,7 +300,7 @@ export default function makeFindMixin(options) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
-      mixin.computed[NAME] = function() {
+      mixin.computed[NAME] = function () {
         // If the specified computed prop wasn't found, display an error.
         if (!returnTheValue) {
           if (!hasSomeAttribute(this, value, NAME)) {

@@ -2,17 +2,15 @@
 eslint
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  computed,
-  isRef,
-  reactive,
-  Ref,
-  toRefs,
-  watch
-} from 'vue-demi'
+import { computed, isRef, reactive, Ref, toRefs, watch } from 'vue-demi'
 import debounce from 'lodash/debounce'
-import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from './utils'
-import { ModelStatic, Model } from './service-module/types'
+import {
+  getItemsFromQueryInfo,
+  getQueryInfo,
+  Params,
+  Paginated
+} from '../utils'
+import { ModelStatic, Model } from '../service-module/types'
 
 interface UseFindOptions {
   model: ModelStatic
@@ -51,7 +49,9 @@ interface UseFindData<M> {
 const unwrapParams = (params: Params | Ref<Params>): Params =>
   isRef(params) ? params.value : params
 
-export default function find<M extends Model = Model>(options: UseFindOptions): UseFindData<M> {
+export default function find<M extends Model = Model>(
+  options: UseFindOptions
+): UseFindData<M> {
   const defaults: UseFindOptions = {
     model: null,
     params: null,
@@ -139,11 +139,11 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find<M>(params).then(response => {
+      return model.find<M>(params).then((response) => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
-        if(!Array.isArray(response)) {
+        if (!Array.isArray(response)) {
           const queryInfo = getQueryInfo(params, response)
           queryInfo.response = response
           queryInfo.isOutdated = false

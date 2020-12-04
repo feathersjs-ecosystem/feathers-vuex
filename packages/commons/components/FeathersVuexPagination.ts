@@ -1,8 +1,4 @@
-import {
-  createElement,
-  computed,
-  watch
-} from 'vue-demi'
+import { createElement, computed, watch } from 'vue-demi'
 
 export default {
   name: 'FeathersVuexPagination',
@@ -10,7 +6,7 @@ export default {
     /**
      * An object containing { $limit, and $skip }
      */
-    value: {
+    modelValue: {
       type: Object,
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       default: () => null
@@ -24,6 +20,10 @@ export default {
       default: () => null
     }
   },
+  model: {
+    prop: 'modelValue'
+  },
+  emits: ['input'],
   // eslint-disable-next-line
   setup(props, context) {
     /**
@@ -56,6 +56,7 @@ export default {
         const $skip = $limit * (pageNumber - 1)
 
         context.emit('input', { $limit, $skip })
+        context.emit('update:modelValue', { $limit, $skip })
       },
       get() {
         const params = props.value

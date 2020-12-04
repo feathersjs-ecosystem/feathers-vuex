@@ -3,20 +3,26 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import FeathersVuexFind from './FeathersVuexFind'
-import FeathersVuexGet from './FeathersVuexGet'
-import FeathersVuexFormWrapper from './FeathersVuexFormWrapper'
-import FeathersVuexInputWrapper from './FeathersVuexInputWrapper'
-import FeathersVuexPagination from './FeathersVuexPagination'
-import makeFindMixin from './make-find-mixin'
-import makeGetMixin from './make-get-mixin'
-import { globalModels as models } from './service-module/global-models'
-import { clients, addClient } from './service-module/global-clients'
-import makeBaseModel from './service-module/make-base-model'
-import prepareMakeServicePlugin from './service-module/make-service-plugin'
-import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
-import useFind from './useFind'
-import useGet from './useGet'
+import FeathersVuexFind from '@feathersjs/vuex-commons/components/FeathersVuexFind'
+import FeathersVuexGet from '@feathersjs/vuex-commons/components/FeathersVuexGet'
+import FeathersVuexFormWrapper from '@feathersjs/vuex-commons/components/FeathersVuexFormWrapper'
+import FeathersVuexInputWrapper from '@feathersjs/vuex-commons/components/FeathersVuexInputWrapper'
+import FeathersVuexPagination from '@feathersjs/vuex-commons/components/FeathersVuexPagination'
+
+import makeFindMixin from '@feathersjs/vuex-commons/mixins/make-find-mixin'
+import makeGetMixin from '@feathersjs/vuex-commons/mixins/make-get-mixin'
+
+import useFind from '@feathersjs/vuex-commons/use/useFind'
+import useGet from '@feathersjs/vuex-commons//use/useGet'
+
+import { globalModels as models } from '@feathersjs/vuex-commons/service-module/global-models'
+import {
+  clients,
+  addClient
+} from '@feathersjs/vuex-commons/service-module/global-clients'
+import makeBaseModel from '@feathersjs/vuex-commons/service-module/make-base-model'
+import prepareMakeServicePlugin from '@feathersjs/vuex-commons/service-module/make-service-plugin'
+import prepareMakeAuthPlugin from '@feathersjs/vuex-commons/auth-module/make-auth-plugin'
 
 import {
   FeathersVuexOptions,
@@ -28,13 +34,12 @@ import {
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
   GlobalModels
-} from './service-module/types'
-import { initAuth, hydrateApi } from './utils'
-import { FeathersVuex } from './vue-plugin/vue-plugin'
-import { FeathersVuexApp } from './vue-plugin/app-plugin'
-import { ServiceState } from './service-module/service-module.state'
-import { AuthState } from './auth-module/types'
-const events = ['created', 'patched', 'updated', 'removed']
+} from '@feathersjs/vuex-commons/service-module/types'
+import { initAuth, hydrateApi } from '@feathersjs/vuex-commons/utils'
+
+import { FeathersVuex } from './app-plugin'
+import { ServiceState } from '@feathersjs/vuex-commons/service-module/service-module.state'
+import { AuthState } from '@feathersjs/vuex-commons/auth-module/types'
 
 const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
@@ -53,6 +58,7 @@ const defaults: FeathersVuexOptions = {
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   whitelist: [] // Custom query operators that will be allowed in the find getter.
 }
+const events = ['created', 'patched', 'updated', 'removed']
 
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {

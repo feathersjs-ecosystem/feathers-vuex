@@ -2,16 +2,9 @@
 eslint
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  reactive,
-  computed,
-  toRefs,
-  isRef,
-  watch,
-  Ref
-} from 'vue-demi'
-import { Params } from './utils'
-import { ModelStatic, Model, Id } from './service-module/types'
+import { reactive, computed, toRefs, isRef, watch, Ref } from 'vue-demi'
+import { Params } from '../utils'
+import { ModelStatic, Model, Id } from '../service-module/types'
 
 interface UseGetOptions {
   model: ModelStatic
@@ -39,7 +32,9 @@ interface UseGetData<M> {
   get(id: Id, params?: Params): Promise<M | undefined>
 }
 
-export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
+export default function get<M extends Model = Model>(
+  options: UseGetOptions
+): UseGetData<M> {
   const defaults: UseGetOptions = {
     model: null,
     id: null,
@@ -92,8 +87,6 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
     servicePath: computed(() => model.servicePath)
   }
 
-
-
   function get(id: Id, params?: Params): Promise<M | undefined> {
     const idToUse = isRef<Id>(id) ? id.value : id
     const paramsToUse = isRef(params) ? params.value : params
@@ -108,12 +101,12 @@ export default function get<M extends Model = Model>(options: UseGetOptions): Us
           : model.get(idToUse)
 
       return promise
-        .then(response => {
+        .then((response) => {
           state.isPending = false
           state.hasLoaded = true
           return response
         })
-        .catch(error => {
+        .catch((error) => {
           state.isPending = false
           state.error = error
           return error

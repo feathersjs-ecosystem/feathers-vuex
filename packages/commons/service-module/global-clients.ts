@@ -32,7 +32,7 @@ export function addClient({ client, serverAlias }) {
 
 export function clearClients() {
   function deleteKeys(path) {
-    Object.keys(clients[path]).forEach(key => {
+    Object.keys(clients[path]).forEach((key) => {
       delete clients[path][key]
     })
   }

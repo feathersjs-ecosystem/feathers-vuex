@@ -3,13 +3,13 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import FeathersVuexFind from '../FeathersVuexFind'
-import FeathersVuexGet from '../FeathersVuexGet'
-import FeathersVuexFormWrapper from '../FeathersVuexFormWrapper'
-import FeathersVuexInputWrapper from '../FeathersVuexInputWrapper'
-import FeathersVuexPagination from '../FeathersVuexPagination'
-import FeathersVuexCount from '../FeathersVuexCount'
-import { globalModels } from '../service-module/global-models'
+import FeathersVuexFind from '@feathersjs/vuex-commons/components/FeathersVuexFind'
+import FeathersVuexGet from '@feathersjs/vuex-commons/components/FeathersVuexGet'
+import FeathersVuexFormWrapper from '@feathersjs/vuex-commons/components/FeathersVuexFormWrapper'
+import FeathersVuexInputWrapper from '@feathersjs/vuex-commons/components/FeathersVuexInputWrapper'
+import FeathersVuexPagination from '@feathersjs/vuex-commons/components/FeathersVuexPagination'
+import FeathersVuexCount from '@feathersjs/vuex-commons/components/FeathersVuexCount'
+import { globalModels } from '@feathersjs/vuex-commons/service-module/global-models'
 // import { GlobalModels } from '../service-module/types'
 
 // Augment global models onto VueConstructor and instance
@@ -22,7 +22,7 @@ import { globalModels } from '../service-module/global-models'
 //   }
 // }
 
-export const FeathersVuexApp = {
+export const FeathersVuex = {
   install(app, options = { components: true }) {
     const shouldSetupComponents = options.components !== false
 

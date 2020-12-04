@@ -1,0 +1,14 @@
+{
+  "name": "@feathersjs/vuex-commons",
+  "version": "0.0.1",
+  "description": "Commons for feathers-vuex and @feathersjs/vuex",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marshall Thompson",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "vue-demi": "latest"
+  }
+}
