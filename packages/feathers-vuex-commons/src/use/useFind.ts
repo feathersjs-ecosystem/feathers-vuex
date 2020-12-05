@@ -2,14 +2,14 @@
 eslint
 @typescript-eslint/no-explicit-any: 0
 */
-import { computed, isRef, reactive, Ref, toRefs, watch } from 'vue-demi'
+import { computed, reactive, Ref, toRefs, watch } from 'vue-demi'
 import debounce from 'lodash/debounce'
 import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from '../utils'
 import { Model } from '../service-module/types'
 import { UseFindOptions, UseFindState, UseFindData } from './types'
 
 const unwrapParams = (params: Params | Ref<Params>): Params =>
-  isRef(params) ? params.value : params
+  params && params.value ? params.value : params
 
 export default function find<M extends Model = Model>(options: UseFindOptions): UseFindData<M> {
   const defaults: UseFindOptions = {
@@ -86,7 +86,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
 
   function find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
     params = unwrapParams(params)
-    if (queryWhen.value && !state.isLocal) {
+    if (params && queryWhen.value && !state.isLocal) {
       state.isPending = true
       state.haveBeenRequested = true
 

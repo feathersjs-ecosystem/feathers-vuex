@@ -14,7 +14,6 @@ import memory from 'feathers-memory'
 import Vuex from 'vuex'
 // import { mount, shallowMount } from '@vue/test-utils'
 // import InstrumentComponent from './InstrumentComponent'
-import { isRef } from 'vue-demi'
 import { HookContext } from '@feathersjs/feathers'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
@@ -87,22 +86,11 @@ describe('use/get', function () {
 
     const { error, hasBeenRequested, hasLoaded, isPending, isLocal, item } = instrumentData
 
-    assert(isRef(error))
     assert(error.value === null)
-
-    assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === true)
-
-    assert(isRef(hasLoaded))
     assert(hasLoaded.value === false)
-
-    assert(isRef(isPending))
     assert(isPending.value === true)
-
-    assert(isRef(isLocal))
     assert(isLocal.value === false)
-
-    assert(isRef(item))
     assert(item.value === null)
   })
 
@@ -113,7 +101,6 @@ describe('use/get', function () {
     const instrumentData = useGet({ model: Instrument, id, immediate: false })
     const { hasBeenRequested } = instrumentData
 
-    assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false)
   })
 
@@ -124,7 +111,6 @@ describe('use/get', function () {
     const instrumentData = useGet({ model: Instrument, id })
     const { hasBeenRequested } = instrumentData
 
-    assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false)
   })
 
@@ -135,7 +121,6 @@ describe('use/get', function () {
     const instrumentData = useGet({ model: Instrument, id, local: true })
     const { hasBeenRequested, get } = instrumentData
 
-    assert(isRef(hasBeenRequested))
     assert(hasBeenRequested.value === false, 'no request during init')
 
     get(id)

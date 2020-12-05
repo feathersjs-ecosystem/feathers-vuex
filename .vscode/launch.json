@@ -16,8 +16,8 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "TS - Mocha Tests",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "name": "Vue2 Mocha",
+      "program": "${workspaceFolder}/packages/feathers-vuex-vue2/node_modules/mocha/bin/_mocha",
       "args": [
         "--require",
         "ts-node/register",
@@ -27,10 +27,10 @@
         "999999",
         "--colors",
         "--recursive",
-        "${workspaceFolder}/test/**/*.ts"
+        "${workspaceFolder}/packages/feathers-vuex-vue2/test/**/*.ts"
       ],
       "env": {
-        "TS_NODE_PROJECT": "tsconfig.test.json"
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/feathers-vuex-vue2/tsconfig.test.json"
       },
       "internalConsoleOptions": "openOnSessionStart"
     },

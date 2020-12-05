@@ -12,7 +12,7 @@ import { feathersRestClient as feathersClient } from '../fixtures/feathers-clien
 import { useFind } from '@feathersjs/vuex-commons'
 import Vuex from 'vuex'
 // import { shallowMount } from '@vue/test-utils'
-import { computed, isRef } from 'vue-demi'
+import { computed } from 'vue-demi'
 jsdom()
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -40,7 +40,7 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe.only('use/find', function () {
+describe('use/find', function () {
   it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
@@ -68,39 +68,21 @@ describe.only('use/find', function () {
       qid,
     } = instrumentsData
 
-    assert(isRef(debounceTime))
-    assert(debounceTime.value === null)
+    assert.strictEqual(debounceTime.value, null)
+    assert.strictEqual(error.value, null)
+    assert.strictEqual(haveBeenRequested.value, true)
+    assert.strictEqual(haveLoaded.value, false)
+    assert.strictEqual(isPending.value, true)
+    assert.strictEqual(isLocal.value, false)
+    assert.strictEqual(Array.isArray(items.value), true)
+    assert.strictEqual(items.value.length, 0)
+    assert.strictEqual(latestQuery.value, null)
+    assert.strictEqual(qid.value, 'default')
 
-    assert(isRef(error))
-    assert(error.value === null)
-
-    assert(isRef(haveBeenRequested))
-    assert(haveBeenRequested.value === true)
-
-    assert(isRef(haveLoaded))
-    assert(haveLoaded.value === false)
-
-    assert(isRef(isPending))
-    assert(isPending.value === true)
-
-    assert(isRef(isLocal))
-    assert(isLocal.value === false)
-
-    assert(isRef(items))
-    assert(Array.isArray(items.value))
-    assert(items.value.length === 0)
-
-    assert(isRef(latestQuery))
-    assert(latestQuery.value === null)
-
-    assert(isRef(paginationData))
     assert.deepStrictEqual(paginationData.value, {
       defaultLimit: null,
       defaultSkip: null,
     })
-
-    assert(isRef(qid))
-    assert(qid.value === 'default')
   })
 
   it('returns correct default data even when params is not reactive', function () {
@@ -127,39 +109,21 @@ describe.only('use/find', function () {
       qid,
     } = instrumentsData
 
-    assert(isRef(debounceTime))
-    assert(debounceTime.value === null)
+    assert.strictEqual(debounceTime.value, null)
+    assert.strictEqual(error.value, null)
+    assert.strictEqual(haveBeenRequested.value, true)
+    assert.strictEqual(haveLoaded.value, false)
+    assert.strictEqual(isPending.value, true)
+    assert.strictEqual(isLocal.value, false)
+    assert.strictEqual(Array.isArray(items.value), true)
+    assert.strictEqual(items.value.length, 0)
+    assert.strictEqual(latestQuery.value, null)
+    assert.strictEqual(qid.value, 'default')
 
-    assert(isRef(error))
-    assert(error.value === null)
-
-    assert(isRef(haveBeenRequested))
-    assert(haveBeenRequested.value === true)
-
-    assert(isRef(haveLoaded))
-    assert(haveLoaded.value === false)
-
-    assert(isRef(isPending))
-    assert(isPending.value === true)
-
-    assert(isRef(isLocal))
-    assert(isLocal.value === false)
-
-    assert(isRef(items))
-    assert(Array.isArray(items.value))
-    assert(items.value.length === 0)
-
-    assert(isRef(latestQuery))
-    assert(latestQuery.value === null)
-
-    assert(isRef(paginationData))
     assert.deepStrictEqual(paginationData.value, {
       defaultLimit: null,
       defaultSkip: null,
     })
-
-    assert(isRef(qid))
-    assert(qid.value === 'default')
   })
 
   it('allows passing {immediate:false} to not query immediately', function () {
@@ -178,7 +142,6 @@ describe.only('use/find', function () {
     })
     const { haveBeenRequested } = instrumentsData
 
-    assert(isRef(haveBeenRequested))
     assert(haveBeenRequested.value === false)
   })
 
@@ -195,7 +158,6 @@ describe.only('use/find', function () {
     })
     const { haveBeenRequested } = instrumentsData
 
-    assert(isRef(haveBeenRequested))
     assert(haveBeenRequested.value === false)
   })
 
@@ -214,7 +176,6 @@ describe.only('use/find', function () {
     })
     const { haveBeenRequested, find } = instrumentsData
 
-    assert(isRef(haveBeenRequested))
     assert(haveBeenRequested.value === false, 'no request during init')
 
     find()
