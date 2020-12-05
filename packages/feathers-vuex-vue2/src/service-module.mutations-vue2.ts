@@ -7,14 +7,19 @@ no-var: 0
 import Vue from 'vue'
 import { serializeError } from 'serialize-error'
 import { updateOriginal, mergeWithAccessors } from './utils-vue2'
-import { assignTempId, getId, getQueryInfo, models, ServiceState } from '@feathersjs/vuex-commons'
+import {
+  models,
+  ServiceState,
+  assignTempId,
+  getId,
+  getQueryInfo,
+  PendingServiceMethodName,
+  PendingIdServiceMethodName,
+} from '@feathersjs/vuex-commons'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
 import { Id } from '@feathersjs/feathers'
-
-export type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
-export type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
