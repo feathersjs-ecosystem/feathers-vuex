@@ -31,6 +31,7 @@
   "scripts": {
     "release:pre": "npm version prerelease && npm publish --access public --tag next",
     "prepublish": "npm run compile",
+    "publish": "git push origin --tags && git push origin",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "shx rm -rf dist/ && tsc"
   },
