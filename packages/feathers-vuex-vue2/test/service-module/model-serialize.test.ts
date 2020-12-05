@@ -6,7 +6,7 @@ eslint
 import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
-import { clearModels } from '../../src/service-module/global-models'
+import { clearModels } from '@feathersjs/vuex-commons'
 import _omit from 'lodash/omit'
 
 describe('Models - Serialize', function () {
@@ -16,7 +16,7 @@ describe('Models - Serialize', function () {
 
   it('allows customizing toJSON', function () {
     const { BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'myApi'
+      serverAlias: 'myApi',
     })
     class Task extends BaseModel {
       public static modelName = 'Task'
@@ -24,7 +24,7 @@ describe('Models - Serialize', function () {
         return {
           id: null,
           description: '',
-          isComplete: false
+          isComplete: false,
         }
       }
       public toJSON() {
@@ -37,7 +37,7 @@ describe('Models - Serialize', function () {
 
     const task = new Task({
       description: 'Hello, World!',
-      isComplete: true
+      isComplete: true,
     })
 
     assert(!task.toJSON().hasOwnProperty('isComplete'), 'custom toJSON worked')

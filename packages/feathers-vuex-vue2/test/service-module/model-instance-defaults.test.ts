@@ -6,12 +6,11 @@ eslint
 import { ServiceState, Location } from './types'
 import { assert } from 'chai'
 import feathersVuex, { models } from '../../src/index'
-import { mergeWithAccessors } from '../../src/utils'
-import { clearModels } from '../../src/service-module/global-models'
+import { clearModels } from '@feathersjs/vuex-commons'
 import {
   makeFeathersRestClient,
   feathersRestClient as feathersClient,
-  feathersSocketioClient
+  feathersSocketioClient,
 } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
 import { makeContext as makeLetterContext } from './model-methods.test'
@@ -33,7 +32,7 @@ interface RootState {
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'service-module'
+    serverAlias: 'service-module',
   })
 
   class Todo extends BaseModel {
@@ -77,24 +76,24 @@ function makeContext() {
 
   const todosPlugin = makeServicePlugin({
     Model: Todo,
-    service: feathersClient.service('service-todos')
+    service: feathersClient.service('service-todos'),
   })
   const store = new Vuex.Store<RootState>({
     plugins: [
       todosPlugin,
       makeServicePlugin({
         Model: Person,
-        service: feathersClient.service('people')
+        service: feathersClient.service('people'),
       }),
       makeServicePlugin({
         Model: Car,
-        service: feathersClient.service('cars')
+        service: feathersClient.service('cars'),
       }),
       makeServicePlugin({
         Model: Group,
-        service: feathersClient.service('groups')
-      })
-    ]
+        service: feathersClient.service('groups'),
+      }),
+    ],
   })
 
   return {
@@ -108,16 +107,16 @@ function makeContext() {
     Group,
     Test,
     Thing,
-    store
+    store,
   }
 }
 
-describe('Models - Default Values', function() {
+describe('Models - Default Values', function () {
   beforeEach(() => {
     clearModels()
   })
 
-  it('models default to an empty object when there is no BaseModel.store', function() {
+  it('models default to an empty object when there is no BaseModel.store', function () {
     const { BaseModel } = makeContext()
 
     // Since we're not using this NakedTodo model in a service plugin, it doesn't get
@@ -131,41 +130,33 @@ describe('Models - Default Values', function() {
     assert.deepEqual(todo.toJSON(), {}, 'default model is an empty object')
   })
 
-  it('models have tempIds when there is a store', function() {
+  it('models have tempIds when there is a store', function () {
     const { Todo } = makeContext()
     const todo = new Todo()
 
     const expectedProps = ['__id', '__isTemp']
 
-    assert.deepEqual(
-      Object.keys(todo),
-      expectedProps,
-      'default model is a temp'
-    )
+    assert.deepEqual(Object.keys(todo), expectedProps, 'default model is a temp')
   })
 
-  it('adds new instances containing an id to the store', function() {
+  it('adds new instances containing an id to the store', function () {
     const { Todo } = makeContext()
 
     const todo = new Todo({
       id: 1,
       description: 'test',
-      isComplete: true
+      isComplete: true,
     })
     const todoInStore = Todo.store.state['service-todos'].keyedById[1]
 
     assert.deepEqual(todoInStore, todo, 'task was added to the store')
   })
 
-  it('stores clones in Model.copiesById by default', function() {
+  it('stores clones in Model.copiesById by default', function () {
     const { Todo } = makeContext()
     const todo = new Todo({ id: 1, description: 'This is the original' })
 
-    assert.deepEqual(
-      Todo.copiesById,
-      {},
-      'Model.copiesById should start out empty'
-    )
+    assert.deepEqual(Todo.copiesById, {}, 'Model.copiesById should start out empty')
 
     const todoClone = todo.clone()
     assert(Todo.copiesById[1], 'should have a copy stored on Model.copiesById')
@@ -173,39 +164,26 @@ describe('Models - Default Values', function() {
     todoClone.description = `I'm a clone, now!`
     todoClone.commit()
 
-    assert.equal(
-      todo.description,
-      `I'm a clone, now!`,
-      'the original should have been updated'
-    )
+    assert.equal(todo.description, `I'm a clone, now!`, 'the original should have been updated')
   })
 
-  it('each model has its own Model.copiesById', function() {
+  it('each model has its own Model.copiesById', function () {
     const { Todo, Person } = makeContext()
     const todo = new Todo({ id: 1, description: 'This is the original' })
     const person = new Person({ id: 2, name: 'Xavier' })
 
     todo.clone()
     assert(Todo.copiesById[1], 'should have a copy stored on Todo.copiesById')
-    assert(
-      !Person.copiesById[1],
-      'should not have a copy stored on Person.copiesById'
-    )
+    assert(!Person.copiesById[1], 'should not have a copy stored on Person.copiesById')
 
     person.clone()
-    assert(
-      Person.copiesById[2],
-      'should have a copy stored on Person.copiesById'
-    )
-    assert(
-      !Todo.copiesById[2],
-      'should not have a copy stored on Todo.copiesById'
-    )
+    assert(Person.copiesById[2], 'should have a copy stored on Person.copiesById')
+    assert(!Todo.copiesById[2], 'should not have a copy stored on Todo.copiesById')
   })
 
-  it('allows instance defaults, including getters and setters', function() {
+  it('allows instance defaults, including getters and setters', function () {
     const { BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Car extends BaseModel {
@@ -239,9 +217,9 @@ describe('Models - Default Values', function() {
     assert.equal(car.combined, '1900 Tesla Roadster', 'setters work, too!')
   })
 
-  it('allows overriding default values in the constructor', function() {
+  it('allows overriding default values in the constructor', function () {
     const { BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Car extends BaseModel {
@@ -263,16 +241,16 @@ describe('Models - Default Values', function() {
     assert.equal(car.make, 'Porsche', 'default make set')
   })
 
-  it(`uses the class defaults if you don't override them in the constructor`, function() {
+  it(`uses the class defaults if you don't override them in the constructor`, function () {
     const { BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Person extends BaseModel {
       public id?
       public firstName = 'Harry'
       public location: Location = {
-        coordinates: [0, 0]
+        coordinates: [0, 0],
       }
 
       public constructor(data?, options?) {
@@ -292,7 +270,7 @@ describe('Models - Default Values', function() {
     }
 
     const location: Location = {
-      coordinates: [1, 1]
+      coordinates: [1, 1],
     }
 
     const person1 = new Person({ firstName: 'Marshall', location })
@@ -307,16 +285,16 @@ describe('Models - Default Values', function() {
     assert.deepEqual(person1.location.coordinates, [0, 0], 'defaults won')
   })
 
-  it('does not share nested objects between instances when you override class defaults in the constructor', function() {
+  it('does not share nested objects between instances when you override class defaults in the constructor', function () {
     const { BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Person extends BaseModel {
       public id?
       public firstName: string
       public location: Location = {
-        coordinates: [0, 0]
+        coordinates: [0, 0],
       }
 
       public constructor(data?, options?) {
@@ -331,7 +309,7 @@ describe('Models - Default Values', function() {
     }
 
     const location: Location = {
-      coordinates: [1, 1]
+      coordinates: [1, 1],
     }
 
     // Look, I'm passing in location with coordinates [1, 1]
@@ -343,9 +321,9 @@ describe('Models - Default Values', function() {
     assert(!areSame, 'the locations are different objects')
   })
 
-  it('allows passing instanceDefaults in the service plugin options', function() {
+  it('allows passing instanceDefaults in the service plugin options', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Person extends BaseModel {
@@ -357,7 +335,7 @@ describe('Models - Default Values', function() {
     }
 
     const location: Location = {
-      coordinates: [1, 1]
+      coordinates: [1, 1],
     }
 
     new Vuex.Store({
@@ -375,33 +353,25 @@ describe('Models - Default Values', function() {
             set fullName(val) {
               const [firstName, lastName] = val.split(' ')
               Object.assign(this, { firstName, lastName })
-            }
-          })
-        })
-      ]
+            },
+          }),
+        }),
+      ],
     })
 
     const person1 = new Person({ firstName: 'Marshall', lastName: 'Thompson' })
     const person2 = new Person({
       firstName: 'Kai',
       location: { coordinates: [0, 0] },
-      fullName: 'Jerry Seinfeld'
+      fullName: 'Jerry Seinfeld',
     })
     const areSame = person1.location === person2.location
     assert(!areSame, 'nested objects are unique')
 
     assert.equal(person1.lastName, 'Thompson', 'person1 has correct lastName')
     assert.equal(person2.lastName, 'Potter', 'person2 got default lastName')
-    assert.deepEqual(
-      person1.location.coordinates,
-      [1, 1],
-      'person1 got default location'
-    )
-    assert.deepEqual(
-      person2.location.coordinates,
-      [0, 0],
-      'person2 got provided location'
-    )
+    assert.deepEqual(person1.location.coordinates, [1, 1], 'person1 got default location')
+    assert.deepEqual(person2.location.coordinates, [0, 0], 'person2 got provided location')
     assert.equal(person1.fullName, 'Marshall Thompson', 'getter is in place')
     assert.equal(person2.fullName, 'Kai Potter', 'getter is still in place')
 
@@ -414,9 +384,9 @@ describe('Models - Default Values', function() {
     assert.equal(person2.lastName, 'Me', 'lastName was set')
   })
 
-  it('instanceDefault accessors stay intact with clone and commit', function() {
+  it('instanceDefault accessors stay intact with clone and commit', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'instance-defaults'
+      serverAlias: 'instance-defaults',
     })
 
     class Person extends BaseModel {
@@ -428,7 +398,7 @@ describe('Models - Default Values', function() {
     }
 
     const location: Location = {
-      coordinates: [1, 1]
+      coordinates: [1, 1],
     }
 
     new Vuex.Store({
@@ -446,10 +416,10 @@ describe('Models - Default Values', function() {
             set fullName(val) {
               const [firstName, lastName] = val.split(' ')
               Object.assign(this, { firstName, lastName })
-            }
-          })
-        })
-      ]
+            },
+          }),
+        }),
+      ],
     })
 
     const person = new Person({ firstName: 'Marshall', lastName: 'Thompson' })
@@ -464,11 +434,7 @@ describe('Models - Default Values', function() {
 
     // Check the setter
     clone.fullName = 'Marshall Me'
-    assert.equal(
-      `${clone.firstName} ${clone.lastName}`,
-      'Marshall Me',
-      'Setter is in place'
-    )
+    assert.equal(`${clone.firstName} ${clone.lastName}`, 'Marshall Me', 'Setter is in place')
 
     // Commit the clone
     clone.commit()
@@ -480,14 +446,10 @@ describe('Models - Default Values', function() {
 
     // Check the setter
     person.fullName = 'Scooby Doo'
-    assert.equal(
-      `${person.firstName} ${person.lastName}`,
-      'Scooby Doo',
-      'Setter is in place'
-    )
+    assert.equal(`${person.firstName} ${person.lastName}`, 'Scooby Doo', 'Setter is in place')
   })
 
-  it('instanceDefaults in place after patch', async function() {
+  it('instanceDefaults in place after patch', async function () {
     const { Letter, store, lettersService } = makeLetterContext()
     let letter = new Letter({ name: 'Garmadon', age: 1025 })
 

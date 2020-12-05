@@ -8,7 +8,7 @@ import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import Vuex from 'vuex'
-import { clearModels } from '../../src/service-module/global-models'
+import { clearModels } from '@feathersjs/vuex-commons'
 import memory from 'feathers-memory'
 import { makeStore } from '../test-utils'
 import { isDate } from 'date-fns'
@@ -33,7 +33,7 @@ interface RootState {
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'model-methods'
+    serverAlias: 'model-methods',
   })
 
   const serialize = context => {
@@ -53,13 +53,13 @@ function makeContext() {
     before: {
       create: [serialize],
       update: [serialize],
-      patch: [serialize]
+      patch: [serialize],
     },
     after: {
       create: [deserialize],
       patch: [deserialize],
-      update: [deserialize]
-    }
+      update: [deserialize],
+    },
   })
 
   class Task extends BaseModel {
@@ -86,7 +86,7 @@ function makeContext() {
     public static instanceDefaults(data, { models, store }) {
       return {
         to: '',
-        from: ''
+        from: '',
       }
     }
     public static setupInstance(data, { models }) {
@@ -116,28 +116,28 @@ function makeContext() {
         servicePath: 'model-methods-tasks',
         service: feathersClient.service('model-methods-tasks'),
         preferUpdate: true,
-        namespace: 'model-methods-tasks'
+        namespace: 'model-methods-tasks',
       }),
       makeServicePlugin({
         Model: Todo,
         servicePath: 'model-methods-todos',
         service: feathersClient.service('model-methods-todos'),
-        namespace: 'model-methods-todos'
+        namespace: 'model-methods-todos',
       }),
       makeServicePlugin({
         Model: Letter,
         servicePath: 'model-methods-letters',
         service: feathersClient.service('model-methods-letters'),
-        namespace: 'model-methods-letters'
+        namespace: 'model-methods-letters',
       }),
       makeServicePlugin({
         Model: Person,
         servicePath: 'model-methods-persons',
         service: feathersClient.service('model-methods-persons'),
         keepCopiesInStore: true,
-        namespace: 'model-methods-persons'
-      })
-    ]
+        namespace: 'model-methods-persons',
+      }),
+    ],
   })
 
   // Fake server call
@@ -151,27 +151,27 @@ function makeContext() {
         context => {
           context.result = { _id: 24, ...context.data }
           return context
-        }
+        },
       ],
       update: [
         context => {
           context.result = { ...context.data }
           return context
-        }
+        },
       ],
       patch: [
         context => {
           context.result = { ...context.data }
           return context
-        }
+        },
       ],
       remove: [
         context => {
           context.result = {}
           return context
-        }
-      ]
-    }
+        },
+      ],
+    },
   })
 
   // Fake server call
@@ -185,27 +185,27 @@ function makeContext() {
         context => {
           context.result = { _id: 24, ...context.data }
           return context
-        }
+        },
       ],
       update: [
         context => {
           context.result = { ...context.data }
           return context
-        }
+        },
       ],
       patch: [
         context => {
           context.result = { ...context.data }
           return context
-        }
+        },
       ],
       remove: [
         context => {
           context.result = {}
           return context
-        }
-      ]
-    }
+        },
+      ],
+    },
   })
 
   return {
@@ -215,7 +215,7 @@ function makeContext() {
     Letter,
     Person,
     lettersService,
-    store
+    store,
   }
 }
 
@@ -291,7 +291,7 @@ describe('Models - Methods', function () {
     // This should trigger an event from the bottom of make-service-plugin.ts
     const letter = new Letter({
       from: 'Me',
-      to: 'Santa'
+      to: 'Santa',
     }).save()
   })
 
@@ -302,11 +302,8 @@ describe('Models - Methods', function () {
     Object.defineProperty(task, 'create', {
       value(params) {
         assert(arguments.length === 1, 'should have only called with params')
-        assert(
-          params === undefined,
-          'no params should have been passed this time'
-        )
-      }
+        assert(params === undefined, 'no params should have been passed this time')
+      },
     })
 
     task.save()
@@ -322,7 +319,7 @@ describe('Models - Methods', function () {
         assert(arguments.length === 1, 'should have only called with params')
         assert(params.test, 'should have received params')
         called = true
-      }
+      },
     })
 
     task.save({ test: true })
@@ -339,7 +336,7 @@ describe('Models - Methods', function () {
         assert(arguments.length === 1, 'should have only called with params')
         assert(params.test, 'should have received params')
         called = true
-      }
+      },
     })
 
     todo.save({ test: true })
@@ -358,7 +355,7 @@ describe('Models - Methods', function () {
         assert(arguments.length === 1, 'should have only called with params')
         assert(params.test, 'should have received params')
         called = true
-      }
+      },
     })
 
     task.save({ test: true })
@@ -372,10 +369,7 @@ describe('Models - Methods', function () {
 
     task.remove()
 
-    assert(
-      !store.state['model-methods-tasks'].tempsById[tempId],
-      'temp was removed'
-    )
+    assert(!store.state['model-methods-tasks'].tempsById[tempId], 'temp was removed')
   })
 
   it('instance.remove removes cloned record from the store', async function () {
@@ -467,29 +461,21 @@ describe('Models - Methods', function () {
 
     letter = await letter.save()
 
-    assert.equal(
-      typeof letter.save,
-      'function',
-      'saved instance has a save method'
-    )
+    assert.equal(typeof letter.save, 'function', 'saved instance has a save method')
 
     store.commit('model-methods-letters/updateItem', {
       id: letter.id,
       name: 'Garmadon / Dad',
-      age: 1026
+      age: 1026,
     })
 
     const letter2 = new Letter({
       id: letter.id,
       name: 'Just Garmadon',
-      age: 1027
+      age: 1027,
     })
 
-    assert.equal(
-      typeof letter2.save,
-      'function',
-      'new instance has a save method'
-    )
+    assert.equal(typeof letter2.save, 'function', 'new instance has a save method')
   })
 
   it('Dates remain as dates after changes', async function () {
@@ -497,7 +483,7 @@ describe('Models - Methods', function () {
     let letter = new Letter({
       name: 'Garmadon',
       age: 1025,
-      createdAt: new Date().toString()
+      createdAt: new Date().toString(),
     })
 
     assert(isDate(letter.createdAt), 'createdAt should be a date')
@@ -516,7 +502,7 @@ describe('Models - Methods', function () {
     Object.defineProperty(task, 'getter', {
       get() {
         return `got'er`
-      }
+      },
     })
 
     assert.equal(task.getter, `got'er`)
@@ -526,10 +512,10 @@ describe('Models - Methods', function () {
     assert(json, 'got json')
   })
 
-  it('Model pending status sets/clears for create/update/patch/remove', async function() {
+  it('Model pending status sets/clears for create/update/patch/remove', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'model-methods'
+      serverAlias: 'model-methods',
     })
     class PendingThing extends BaseModel {
       public static modelName = 'PendingThing'
@@ -541,15 +527,15 @@ describe('Models - Methods', function () {
       plugins: [
         makeServicePlugin({
           Model: PendingThing,
-          service: feathersClient.service('methods-pending-things')
-        })
-      ]
+          service: feathersClient.service('methods-pending-things'),
+        }),
+      ],
     })
 
     // Create instance
     const thing = new PendingThing({ description: 'pending test' })
     const clone = thing.clone()
-    assert(!!thing.__id, "thing has a tempId")
+    assert(!!thing.__id, 'thing has a tempId')
     assert(clone.__id === thing.__id, "clone has thing's tempId")
 
     // Manually set the result in a hook to simulate the server request.
@@ -567,7 +553,7 @@ describe('Models - Methods', function () {
             assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
-          }
+          },
         ],
         update: [
           context => {
@@ -581,7 +567,7 @@ describe('Models - Methods', function () {
             assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
-          }
+          },
         ],
         patch: [
           context => {
@@ -595,7 +581,7 @@ describe('Models - Methods', function () {
             assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
-          }
+          },
         ],
         remove: [
           context => {
@@ -609,9 +595,9 @@ describe('Models - Methods', function () {
             assert(clone.isSavePending === false, 'isSavePending clear on remove on clone')
             assert(clone.isPending === true, 'isPending set on clone')
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     // Create and verify status

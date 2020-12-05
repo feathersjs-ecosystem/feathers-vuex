@@ -1,16 +1,17 @@
 import { assert } from 'chai'
-import { AuthState } from '../src/auth-module/types'
+import { AuthState } from '@feathersjs/vuex-commons'
 import { ServiceState } from './service-module/types'
-import { isNode, isBrowser } from '../src/utils'
-import { diff as deepDiff } from 'deep-object-diff'
 import {
+  isNode,
+  isBrowser,
   getId,
   initAuth,
   hydrateApi,
   getServicePrefix,
   getServiceCapitalization,
-  getQueryInfo
-} from '../src/utils'
+  getQueryInfo,
+} from '@feathersjs/vuex-commons/src/utils'
+import { diff as deepDiff } from 'deep-object-diff'
 import feathersVuex from '../src/index'
 import { feathersSocketioClient as feathersClient } from './fixtures/feathers-client'
 import Vue from 'vue'
@@ -58,11 +59,9 @@ describe('Utils', function () {
 
   describe('Auth & SSR', () => {
     before(function () {
-      const {
-        makeServicePlugin,
-        makeAuthPlugin,
-        BaseModel
-      } = feathersVuex(feathersClient, { serverAlias: 'utils' })
+      const { makeServicePlugin, makeAuthPlugin, BaseModel } = feathersVuex(feathersClient, {
+        serverAlias: 'utils',
+      })
 
       class User extends BaseModel {
         public static modelName = 'User'
@@ -73,7 +72,7 @@ describe('Utils', function () {
         makeServicePlugin,
         makeAuthPlugin,
         BaseModel,
-        User
+        User,
       })
     })
     it('properly populates auth', function () {
@@ -82,30 +81,27 @@ describe('Utils', function () {
           this.makeServicePlugin({
             Model: this.User,
             servicePath: 'users',
-            service: feathersClient.service('users')
+            service: feathersClient.service('users'),
           }),
-          this.makeAuthPlugin({})
-        ]
+          this.makeAuthPlugin({}),
+        ],
       })
       const accessToken =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoiOTk5OTk5OTk5OTkiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZX0.lUlEd3xH-TnlNRbKM3jnDVTNoIg10zgzaS6QyFZE-6g'
       const req = {
         headers: {
-          cookie: 'feathers-jwt=' + accessToken
-        }
+          cookie: 'feathers-jwt=' + accessToken,
+        },
       }
       return initAuth({
         commit: store.commit,
         req,
         moduleName: 'auth',
         cookieName: 'feathers-jwt',
-        feathersClient
+        feathersClient,
       })
         .then(() => {
-          assert(
-            store.state.auth.accessToken === accessToken,
-            'the token was in place'
-          )
+          assert(store.state.auth.accessToken === accessToken, 'the token was in place')
           assert(store.state.auth.payload, 'the payload was set')
           return feathersClient.authentication.getAccessToken()
         })
@@ -115,11 +111,9 @@ describe('Utils', function () {
     })
 
     it('properly hydrate SSR store', function () {
-      const {
-        makeServicePlugin,
-        BaseModel,
-        models
-      } = feathersVuex(feathersClient, { serverAlias: 'hydrate' })
+      const { makeServicePlugin, BaseModel, models } = feathersVuex(feathersClient, {
+        serverAlias: 'hydrate',
+      })
 
       class User extends BaseModel {
         public static modelName = 'User'
@@ -135,10 +129,10 @@ describe('Utils', function () {
             mutations: {
               addServerItem(state) {
                 state.keyedById['abcdefg'] = { id: 'abcdefg', name: 'Guzz' }
-              }
-            }
-          })
-        ]
+              },
+            },
+          }),
+        ],
       })
       store.commit('users/addServerItem')
       assert(store.state.users.keyedById['abcdefg'], 'server document added')
@@ -147,10 +141,7 @@ describe('Utils', function () {
         'server document is pure javascript object'
       )
       hydrateApi({ api: models.hydrate })
-      assert(
-        store.state.users.keyedById['abcdefg'] instanceof User,
-        'document hydrated'
-      )
+      assert(store.state.users.keyedById['abcdefg'] instanceof User, 'document hydrated')
     })
   })
 
@@ -162,7 +153,7 @@ describe('Utils', function () {
         ['environment-Panos', 'environmentPanos'],
         ['env-panos', 'envPanos'],
         ['envPanos', 'envPanos'],
-        ['api/v1/env-panos', 'envPanos']
+        ['api/v1/env-panos', 'envPanos'],
       ]
       decisionTable.forEach(([path, prefix]) => {
         assert(
@@ -181,7 +172,7 @@ describe('Utils', function () {
         ['environment-Panos', 'EnvironmentPanos'],
         ['env-panos', 'EnvPanos'],
         ['envPanos', 'EnvPanos'],
-        ['api/v1/env-panos', 'EnvPanos']
+        ['api/v1/env-panos', 'EnvPanos'],
       ]
       decisionTable.forEach(([path, prefix]) => {
         assert(
@@ -212,14 +203,14 @@ describe('Pagination', function () {
       query: {
         test: true,
         $limit: 10,
-        $skip: 0
-      }
+        $skip: 0,
+      },
     }
     const response = {
       data: [],
       limit: 10,
       skip: 0,
-      total: 500
+      total: 500,
     }
     const info = getQueryInfo(params, response)
     const expected = {
@@ -228,18 +219,18 @@ describe('Pagination', function () {
       query: {
         test: true,
         $limit: 10,
-        $skip: 0
+        $skip: 0,
       },
       queryId: '{"test":true}',
       queryParams: {
-        test: true
+        test: true,
       },
       pageParams: {
         $limit: 10,
-        $skip: 0
+        $skip: 0,
       },
       pageId: '{"$limit":10,"$skip":0}',
-      response: undefined
+      response: undefined,
     }
     const diff = deepDiff(info, expected)
 
@@ -250,32 +241,32 @@ describe('Pagination', function () {
     const params = {
       qid: 'main-list',
       query: {
-        test: true
-      }
+        test: true,
+      },
     }
     const response = {
       data: [],
       limit: 10,
       skip: 0,
-      total: 500
+      total: 500,
     }
     const info = getQueryInfo(params, response)
     const expected = {
       isOutdated: undefined,
       qid: 'main-list',
       query: {
-        test: true
+        test: true,
       },
       queryId: '{"test":true}',
       queryParams: {
-        test: true
+        test: true,
       },
       pageParams: {
         $limit: 10,
-        $skip: 0
+        $skip: 0,
       },
       pageId: '{"$limit":10,"$skip":0}',
-      response: undefined
+      response: undefined,
     }
     const diff = deepDiff(info, expected)
 

@@ -4,14 +4,8 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import { assert } from 'chai'
-import makeServiceGetters from '../../src/service-module/service-module.getters'
-import makeServiceMutations from '../../src/service-module/service-module.mutations'
-import makeServiceState from '../../src/service-module/service-module.state'
-import {
-  globalModels,
-  clearModels
-} from '../../src/service-module/global-models'
-
+import makeServiceMutations from '../../src/service-module.mutations-vue2'
+import { makeServiceGetters, makeServiceState, models, clearModels } from '@feathersjs/vuex-commons'
 import { values as _values } from 'lodash'
 
 const options = {
@@ -20,10 +14,22 @@ const options = {
   autoRemove: false,
   serverAlias: 'service-module-getters',
   Model: null,
-  service: null
+  service: null,
 }
 
-const { find, count, list, get, getCopyById, isCreatePendingById, isUpdatePendingById, isPatchPendingById, isRemovePendingById, isSavePendingById, isPendingById } = makeServiceGetters()
+const {
+  find,
+  count,
+  list,
+  get,
+  getCopyById,
+  isCreatePendingById,
+  isUpdatePendingById,
+  isPatchPendingById,
+  isRemovePendingById,
+  isSavePendingById,
+  isPendingById,
+} = makeServiceGetters()
 const { addItems, setIdPending, unsetIdPending } = makeServiceMutations()
 
 describe('Service Module - Getters', function () {
@@ -35,7 +41,7 @@ describe('Service Module - Getters', function () {
         otherField: true,
         age: 21,
         teethRemaining: 2.501,
-        test: true
+        test: true,
       },
       {
         _id: 2,
@@ -44,7 +50,7 @@ describe('Service Module - Getters', function () {
         age: 24,
         teethRemaining: 2.5,
         test: true,
-        movies: [{ actors: ['Jerry the Mouse'] }]
+        movies: [{ actors: ['Jerry the Mouse'] }],
       },
       {
         _id: 3,
@@ -52,14 +58,14 @@ describe('Service Module - Getters', function () {
         age: 27,
         teethRemaining: 12,
         test: false,
-        movies: [{ actors: ['Tom Hanks', 'Tom Cruise', 'Tomcat'] }]
+        movies: [{ actors: ['Tom Hanks', 'Tom Cruise', 'Tomcat'] }],
       },
       {
         name: 'Mariah',
         age: 19,
         teethRemaining: 24,
-        status: 'temp'
-      }
+        status: 'temp',
+      },
     ]
     addItems(state, this.items)
     this.state = state
@@ -80,8 +86,8 @@ describe('Service Module - Getters', function () {
     const state = {
       keepCopiesInStore: true,
       copiesById: {
-        1: { test: true }
-      }
+        1: { test: true },
+      },
     }
 
     const result = getCopyById(state)(1)
@@ -93,18 +99,18 @@ describe('Service Module - Getters', function () {
     const state = {
       keepCopiesInStore: false,
       servicePath: 'todos',
-      serverAlias: 'my-getters-test'
+      serverAlias: 'my-getters-test',
     }
-    Object.assign(globalModels, {
+    Object.assign(models, {
       [state.serverAlias]: {
         byServicePath: {
           todos: {
             copiesById: {
-              1: { test: true }
-            }
-          }
-        }
-      }
+              1: { test: true },
+            },
+          },
+        },
+      },
     })
 
     const result = getCopyById(state)(1)
@@ -166,22 +172,22 @@ describe('Service Module - Getters', function () {
       keyedById: {
         1: { _id: 1, test: true, __isClone: false },
         2: { _id: 2, test: true, __isClone: false },
-        3: { _id: 3, test: true, __isClone: false }
+        3: { _id: 3, test: true, __isClone: false },
       },
       copiesById: {
-        1: { _id: 1, test: true, __isClone: true }
-      }
+        1: { _id: 1, test: true, __isClone: true },
+      },
     }
-    Object.assign(globalModels, {
+    Object.assign(models, {
       [state.serverAlias]: {
         byServicePath: {
           todos: {
             copiesById: {
-              1: { _id: 1, test: true, __isClone: true }
-            }
-          }
-        }
-      }
+              1: { _id: 1, test: true, __isClone: true },
+            },
+          },
+        },
+      },
     })
 
     const params = { query: {} }
@@ -206,11 +212,11 @@ describe('Service Module - Getters', function () {
       keyedById: {
         1: { _id: 1, test: true, __isClone: false },
         2: { _id: 2, test: true, __isClone: false },
-        3: { _id: 3, test: true, __isClone: false }
+        3: { _id: 3, test: true, __isClone: false },
       },
       copiesById: {
-        1: { _id: 1, test: true, __isClone: true }
-      }
+        1: { _id: 1, test: true, __isClone: true },
+      },
     }
 
     const params = { query: {}, copies: true }
@@ -219,7 +225,7 @@ describe('Service Module - Getters', function () {
     const expected = [
       { _id: 1, test: true, __isClone: true },
       { _id: 2, test: true, __isClone: false },
-      { _id: 3, test: true, __isClone: false }
+      { _id: 3, test: true, __isClone: false },
     ]
 
     assert.deepEqual(results.data, expected, 'the list was correct')
@@ -237,19 +243,19 @@ describe('Service Module - Getters', function () {
       keyedById: {
         1: { _id: 1, test: true, __isClone: false },
         2: { _id: 2, test: true, __isClone: false },
-        3: { _id: 3, test: true, __isClone: false }
-      }
+        3: { _id: 3, test: true, __isClone: false },
+      },
     }
-    Object.assign(globalModels, {
+    Object.assign(models, {
       [state.serverAlias]: {
         byServicePath: {
           todos: {
             copiesById: {
-              1: { _id: 1, test: true, __isClone: true }
-            }
-          }
-        }
-      }
+              1: { _id: 1, test: true, __isClone: true },
+            },
+          },
+        },
+      },
     })
 
     const params = { query: {}, copies: true }
@@ -258,7 +264,7 @@ describe('Service Module - Getters', function () {
     const expected = [
       { _id: 1, test: true, __isClone: true },
       { _id: 2, test: true, __isClone: false },
-      { _id: 3, test: true, __isClone: false }
+      { _id: 3, test: true, __isClone: false },
     ]
 
     assert.deepEqual(results.data, expected, 'the list was correct')
@@ -278,22 +284,22 @@ describe('Service Module - Getters', function () {
       keyedById: {
         1: { _id: 1, test: true, __isClone: false },
         2: { _id: 2, test: true, __isClone: false },
-        3: { _id: 3, test: true, __isClone: false }
+        3: { _id: 3, test: true, __isClone: false },
       },
       tempsById: {
-        abc: { __id: 'abc', test: true, __isClone: false, __isTemp: true }
-      }
+        abc: { __id: 'abc', test: true, __isClone: false, __isTemp: true },
+      },
     }
-    Object.assign(globalModels, {
+    Object.assign(models, {
       [state.serverAlias]: {
         byServicePath: {
           todos: {
             copiesById: {
-              1: { _id: 1, test: true, __isClone: true }
-            }
-          }
-        }
-      }
+              1: { _id: 1, test: true, __isClone: true },
+            },
+          },
+        },
+      },
     })
 
     const params = { query: {}, copies: true, temps: true }
@@ -303,7 +309,7 @@ describe('Service Module - Getters', function () {
       { _id: 1, test: true, __isClone: true },
       { _id: 2, test: true, __isClone: false },
       { _id: 3, test: true, __isClone: false },
-      { __id: 'abc', test: true, __isClone: false, __isTemp: true }
+      { __id: 'abc', test: true, __isClone: false, __isTemp: true },
     ]
 
     assert.deepEqual(results.data, expected, 'the list was correct')
@@ -365,7 +371,7 @@ describe('Service Module - Getters', function () {
     const { state } = this
     state.whitelist = ['$regex', '$options']
     const query = {
-      name: { $regex: 'marsh', $options: 'igm' }
+      name: { $regex: 'marsh', $options: 'igm' },
     }
     const params = { query }
     let results
@@ -385,8 +391,8 @@ describe('Service Module - Getters', function () {
     const { state } = this
     const query = {
       movies: {
-        $elemMatch: { actors: 'Jerry the Mouse' }
-      }
+        $elemMatch: { actors: 'Jerry the Mouse' },
+      },
     }
     const params = { query }
     const results = find(state)(params)
@@ -444,11 +450,7 @@ describe('Service Module - Getters', function () {
     results.data.forEach(result => {
       assert(Object.keys(result).length <= 1, 'only one field was returned')
     })
-    assert.equal(
-      results.data.filter(i => i.otherField).length,
-      3,
-      'three records have the field.'
-    )
+    assert.equal(results.data.filter(i => i.otherField).length, 3, 'three records have the field.')
     assert(results.limit === 0, 'limit was correct')
     assert(results.skip === 0, 'skip was correct')
     assert(results.total === 3, 'total was correct')
@@ -458,8 +460,8 @@ describe('Service Module - Getters', function () {
     const { state } = this
     const params = {
       query: {
-        $sort: { age: 1 }
-      }
+        $sort: { age: 1 },
+      },
     }
     const results = find(state)(params)
 
@@ -475,8 +477,8 @@ describe('Service Module - Getters', function () {
     const { state } = this
     const params = {
       query: {
-        $sort: { age: -1 }
-      }
+        $sort: { age: -1 },
+      },
     }
     const results = find(state)(params)
 
@@ -492,18 +494,15 @@ describe('Service Module - Getters', function () {
     const { state } = this
     const params = {
       query: {
-        $sort: { teethRemaining: 1 }
-      }
+        $sort: { teethRemaining: 1 },
+      },
     }
     const results = find(state)(params)
 
     results.data
       .map(i => i.teethRemaining)
       .reduce((oldest, current) => {
-        assert(
-          current > oldest,
-          'teethRemaining should have been older than previous'
-        )
+        assert(current > oldest, 'teethRemaining should have been older than previous')
         return current
       }, 0)
   })
@@ -512,18 +511,15 @@ describe('Service Module - Getters', function () {
     const { state } = this
     const params = {
       query: {
-        $sort: { teethRemaining: -1 }
-      }
+        $sort: { teethRemaining: -1 },
+      },
     }
     const results = find(state)(params)
 
     results.data
       .map(i => i.teethRemaining)
       .reduce((oldest, current) => {
-        assert(
-          current < oldest,
-          'teethRemaining should have been younger than previous'
-        )
+        assert(current < oldest, 'teethRemaining should have been younger than previous')
         return current
       }, 100)
   })
@@ -555,7 +551,7 @@ describe('Service Module - Getters', function () {
     assert(total === 3, 'count is 3')
   })
 
-  it('is*PendingById', function() {
+  it('is*PendingById', function () {
     const { state } = this
 
     // Set up getters
@@ -565,7 +561,7 @@ describe('Service Module - Getters', function () {
       isPatchPendingById: isPatchPendingById(state),
       isRemovePendingById: isRemovePendingById(state),
       isSavePendingById,
-      isPendingById
+      isPendingById,
     }
     getters.isSavePendingById = isSavePendingById(state, getters)
     getters.isPendingById = isPendingById(state, getters)
@@ -578,7 +574,7 @@ describe('Service Module - Getters', function () {
     assert(isPendingById(state, getters)(42) === false, 'any method pending status is clear')
 
     // Create
-    setIdPending(state, { method: 'create', id: 42})
+    setIdPending(state, { method: 'create', id: 42 })
     assert(isCreatePendingById(state)(42) === true, 'creating status is set')
     assert(isSavePendingById(state, getters)(42) === true, 'saving status is set')
     assert(isPendingById(state, getters)(42) === true, 'any method pending status is set')
@@ -592,7 +588,7 @@ describe('Service Module - Getters', function () {
     assert(isPendingById(state, getters)(42) === false, 'any method pending status is clear')
 
     // Update
-    setIdPending(state, { method: 'update', id: 42})
+    setIdPending(state, { method: 'update', id: 42 })
     assert(isUpdatePendingById(state)(42) === true, 'updating status is set')
     assert(isSavePendingById(state, getters)(42) === true, 'saving status is set')
     assert(isPendingById(state, getters)(42) === true, 'any method pending status is set')
@@ -606,7 +602,7 @@ describe('Service Module - Getters', function () {
     assert(isPendingById(state, getters)(42) === false, 'any method pending status is clear')
 
     // Patch
-    setIdPending(state, { method: 'patch', id: 42})
+    setIdPending(state, { method: 'patch', id: 42 })
     assert(isPatchPendingById(state)(42) === true, 'patching status is set')
     assert(isSavePendingById(state, getters)(42) === true, 'saving status is set')
     assert(isPendingById(state, getters)(42) === true, 'any method pending status is set')
@@ -620,7 +616,7 @@ describe('Service Module - Getters', function () {
     assert(isPendingById(state, getters)(42) === false, 'any method pending status is clear')
 
     // Remove
-    setIdPending(state, { method: 'remove', id: 42})
+    setIdPending(state, { method: 'remove', id: 42 })
     assert(isRemovePendingById(state)(42) === true, 'removing status is set')
     assert(isSavePendingById(state, getters)(42) === false, 'saving status is clear for remove')
     assert(isPendingById(state, getters)(42) === true, 'any method pending status is set')

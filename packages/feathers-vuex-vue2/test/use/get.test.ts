@@ -5,14 +5,11 @@ eslint
 @typescript-eslint/no-empty-function: 0
 */
 import Vue from 'vue'
-import VueCompositionApi from '@vue/composition-api'
-Vue.use(VueCompositionApi)
-
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
-import useGet from '../../src/useGet'
+import { useGet } from '@feathersjs/vuex-commons'
 import memory from 'feathers-memory'
 import Vuex from 'vuex'
 // import { mount, shallowMount } from '@vue/test-utils'
@@ -35,7 +32,7 @@ Vue.use(FeathersVuex)
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'useGet'
+    serverAlias: 'useGet',
   })
 
   class Instrument extends BaseModel {
@@ -45,7 +42,7 @@ function makeContext() {
     public static modelName = 'Instrument'
     public static instanceDefaults(data) {
       return {
-        name: ''
+        name: '',
       }
     }
   }
@@ -55,12 +52,12 @@ function makeContext() {
     memory({
       store: {
         0: { id: 0, name: 'trumpet' },
-        1: { id: 1, name: 'trombone' }
+        1: { id: 1, name: 'trombone' },
       },
       paginate: {
         default: 10,
-        max: 50
-      }
+        max: 50,
+      },
     })
   )
 
@@ -70,9 +67,9 @@ function makeContext() {
       makeServicePlugin({
         Model: Instrument,
         servicePath,
-        service: feathersClient.service(servicePath)
-      })
-    ]
+        service: feathersClient.service(servicePath),
+      }),
+    ],
   })
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
@@ -88,14 +85,7 @@ describe('use/get', function () {
 
     const instrumentData = useGet({ model: Instrument, id })
 
-    const {
-      error,
-      hasBeenRequested,
-      hasLoaded,
-      isPending,
-      isLocal,
-      item
-    } = instrumentData
+    const { error, hasBeenRequested, hasLoaded, isPending, isLocal, item } = instrumentData
 
     assert(isRef(error))
     assert(error.value === null)
@@ -155,7 +145,7 @@ describe('use/get', function () {
 
   it('API only hit once on initial render', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'useGet'
+      serverAlias: 'useGet',
     })
 
     class Dohickey extends BaseModel {
@@ -168,9 +158,9 @@ describe('use/get', function () {
         makeServicePlugin({
           Model: Dohickey,
           servicePath,
-          service: feathersClient.service(servicePath)
-        })
-      ]
+          service: feathersClient.service(servicePath),
+        }),
+      ],
     })
 
     let getCalls = 0
@@ -180,13 +170,13 @@ describe('use/get', function () {
           (ctx: HookContext) => {
             getCalls += 1
             ctx.result = { id: ctx.id }
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     useGet({ model: Dohickey, id: 42 })
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     assert(getCalls === 1, '`get` called once')
   })

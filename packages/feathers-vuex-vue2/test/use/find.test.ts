@@ -5,14 +5,11 @@ eslint
 @typescript-eslint/no-empty-function: 0
 */
 import Vue from 'vue'
-import VueCompositionApi from '@vue/composition-api'
-Vue.use(VueCompositionApi)
-
 import jsdom from 'jsdom-global'
 import { assert } from 'chai'
 import feathersVuex, { FeathersVuex } from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
-import useFind from '../../src/useFind'
+import { useFind } from '@feathersjs/vuex-commons'
 import Vuex from 'vuex'
 // import { shallowMount } from '@vue/test-utils'
 import { computed, isRef } from 'vue-demi'
@@ -24,7 +21,7 @@ Vue.use(FeathersVuex)
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'useFind'
+    serverAlias: 'useFind',
   })
 
   class Instrument extends BaseModel {
@@ -36,9 +33,9 @@ function makeContext() {
     plugins: [
       makeServicePlugin({
         Model: Instrument,
-        service: feathersClient.service(serviceName)
-      })
-    ]
+        service: feathersClient.service(serviceName),
+      }),
+    ],
   })
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
@@ -50,12 +47,12 @@ describe('use/find', function () {
     const instrumentParams = computed(() => {
       return {
         query: {},
-        paginate: false
+        paginate: false,
       }
     })
     const instrumentsData = useFind({
       model: Instrument,
-      params: instrumentParams
+      params: instrumentParams,
     })
 
     const {
@@ -68,7 +65,7 @@ describe('use/find', function () {
       items,
       latestQuery,
       paginationData,
-      qid
+      qid,
     } = instrumentsData
 
     assert(isRef(debounceTime))
@@ -99,7 +96,7 @@ describe('use/find', function () {
     assert(isRef(paginationData))
     assert.deepStrictEqual(paginationData.value, {
       defaultLimit: null,
-      defaultSkip: null
+      defaultSkip: null,
     })
 
     assert(isRef(qid))
@@ -113,8 +110,8 @@ describe('use/find', function () {
       model: Instrument,
       params: {
         query: {},
-        paginate: false
-      }
+        paginate: false,
+      },
     })
 
     const {
@@ -127,7 +124,7 @@ describe('use/find', function () {
       items,
       latestQuery,
       paginationData,
-      qid
+      qid,
     } = instrumentsData
 
     assert(isRef(debounceTime))
@@ -158,7 +155,7 @@ describe('use/find', function () {
     assert(isRef(paginationData))
     assert.deepStrictEqual(paginationData.value, {
       defaultLimit: null,
-      defaultSkip: null
+      defaultSkip: null,
     })
 
     assert(isRef(qid))
@@ -171,13 +168,13 @@ describe('use/find', function () {
     const instrumentParams = computed(() => {
       return {
         query: {},
-        paginate: false
+        paginate: false,
       }
     })
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      immediate: false
+      immediate: false,
     })
     const { haveBeenRequested } = instrumentsData
 
@@ -194,7 +191,7 @@ describe('use/find', function () {
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      immediate: true
+      immediate: true,
     })
     const { haveBeenRequested } = instrumentsData
 
@@ -207,13 +204,13 @@ describe('use/find', function () {
 
     const instrumentParams = computed(() => {
       return {
-        query: {}
+        query: {},
       }
     })
     const instrumentsData = useFind({
       model: Instrument,
       params: instrumentParams,
-      local: true
+      local: true,
     })
     const { haveBeenRequested, find } = instrumentsData
 

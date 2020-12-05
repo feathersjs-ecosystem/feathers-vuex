@@ -6,11 +6,8 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { clearModels } from '../../src/service-module/global-models'
-import {
-  feathersRestClient as feathers,
-  makeFeathersRestClient
-} from '../fixtures/feathers-client'
+import { clearModels } from '@feathersjs/vuex-commons'
+import { feathersRestClient as feathers, makeFeathersRestClient } from '../fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 
 Vue.use(Vuex)
@@ -38,7 +35,7 @@ describe('makeModel / BaseModel', function () {
       preferUpdate,
       serverAlias,
       models,
-      copiesById
+      copiesById,
     } = BaseModel
 
     assert(name === 'BaseModel', 'name in place')
@@ -63,7 +60,7 @@ describe('makeModel / BaseModel', function () {
       'count',
       'countInStore',
       'get',
-      'getFromStore'
+      'getFromStore',
     ]
     staticMethods.forEach(method => {
       assert(typeof BaseModel[method] === 'function', `has ${method} method`)
@@ -78,13 +75,10 @@ describe('makeModel / BaseModel', function () {
       'create',
       'patch',
       'update',
-      'remove'
+      'remove',
     ]
     prototypeMethods.forEach(method => {
-      assert(
-        typeof BaseModel.prototype[method] === 'function',
-        `has ${method} method`
-      )
+      assert(typeof BaseModel.prototype[method] === 'function', `has ${method} method`)
     })
 
     // Utility Methods
@@ -100,7 +94,7 @@ describe('makeModel / BaseModel', function () {
       'emit',
       'addListener',
       'removeListener',
-      'removeAllListeners'
+      'removeAllListeners',
     ]
     eventMethods.forEach(method => {
       assert(typeof BaseModel[method] === 'function', `has ${method} method`)
@@ -112,7 +106,7 @@ describe('makeModel / BaseModel', function () {
       'isPatchPending',
       'isRemovePending',
       'isSavePending',
-      'isPending'
+      'isPending',
     ]
     const m = new BaseModel()
     getterMethods.forEach(method => {
@@ -127,7 +121,7 @@ describe('makeModel / BaseModel', function () {
     const { BaseModel } = feathersVuex(feathers, {
       serverAlias: 'myApi',
       idField: '_id',
-      preferUpdate: true
+      preferUpdate: true,
     })
     const { idField, preferUpdate, serverAlias } = BaseModel
 
@@ -138,16 +132,16 @@ describe('makeModel / BaseModel', function () {
 
   it('receives store & other props after Vuex plugin is registered', function () {
     const { BaseModel, makeServicePlugin } = feathersVuex(feathers, {
-      serverAlias: 'myApi'
+      serverAlias: 'myApi',
     })
     BaseModel.modelName = 'TestModel'
     const plugin = makeServicePlugin({
       servicePath: 'todos',
       service: feathers.service('todos'),
-      Model: BaseModel
+      Model: BaseModel,
     })
     new Vuex.Store({
-      plugins: [plugin]
+      plugins: [plugin],
     })
     const { store, namespace, servicePath } = BaseModel
 
@@ -160,7 +154,7 @@ describe('makeModel / BaseModel', function () {
     const serverAlias = 'model-base'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
-      serverAlias
+      serverAlias,
     })
 
     // Create a Todo Model & Plugin
@@ -171,7 +165,7 @@ describe('makeModel / BaseModel', function () {
     const todosPlugin = makeServicePlugin({
       servicePath: 'todos',
       Model: Todo,
-      service: feathers.service('todos')
+      service: feathers.service('todos'),
     })
 
     // Create a Task Model & Plugin
@@ -182,12 +176,12 @@ describe('makeModel / BaseModel', function () {
     const tasksPlugin = makeServicePlugin({
       servicePath: 'tasks',
       Model: Task,
-      service: feathers.service('tasks')
+      service: feathers.service('tasks'),
     })
 
     // Register the plugins
     new Vuex.Store({
-      plugins: [todosPlugin, tasksPlugin]
+      plugins: [todosPlugin, tasksPlugin],
     })
 
     assert(models[serverAlias][Todo.name] === Todo)
@@ -200,7 +194,7 @@ describe('makeModel / BaseModel', function () {
     const feathersMyApi = makeFeathersRestClient('https://api.my-api.com')
     const myApi = feathersVuex(feathersMyApi, {
       idField: '_id',
-      serverAlias: 'myApi'
+      serverAlias: 'myApi',
     })
     class Todo extends myApi.BaseModel {
       public static modelName = 'Todo'
@@ -208,13 +202,13 @@ describe('makeModel / BaseModel', function () {
     }
     const todosPlugin = myApi.makeServicePlugin({
       Model: Todo,
-      service: feathersMyApi.service('todos')
+      service: feathersMyApi.service('todos'),
     })
 
     // Create a Task Model & Plugin on theirApi
     const feathersTheirApi = makeFeathersRestClient('https://api.their-api.com')
     const theirApi = feathersVuex(feathersTheirApi, {
-      serverAlias: 'theirApi'
+      serverAlias: 'theirApi',
     })
     class Task extends theirApi.BaseModel {
       public static modelName = 'Task'
@@ -222,12 +216,12 @@ describe('makeModel / BaseModel', function () {
     }
     const tasksPlugin = theirApi.makeServicePlugin({
       Model: Task,
-      service: feathersTheirApi.service('tasks')
+      service: feathersTheirApi.service('tasks'),
     })
 
     // Register the plugins
     new Vuex.Store({
-      plugins: [todosPlugin, tasksPlugin]
+      plugins: [todosPlugin, tasksPlugin],
     })
     const { models } = myApi
 

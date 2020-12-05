@@ -7,7 +7,7 @@ import { ServiceState } from './types'
 import { assert } from 'chai'
 import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
-import { clearModels } from '../../src/service-module/global-models'
+import { clearModels } from '@feathersjs/vuex-commons'
 import { Service as MemoryService } from 'feathers-memory'
 import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
@@ -42,7 +42,7 @@ function makeContext() {
     new ComicService({ store: makeStore() })
   )
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'model-temp-ids'
+    serverAlias: 'model-temp-ids',
   })
   class Comic extends BaseModel {
     public static modelName = 'Comic'
@@ -58,15 +58,15 @@ function makeContext() {
       makeServicePlugin({
         Model: Comic,
         service: feathersClient.service('comics'),
-        servicePath: 'comics'
-      })
-    ]
+        servicePath: 'comics',
+      }),
+    ],
   })
   return {
     makeServicePlugin,
     BaseModel,
     Comic,
-    store
+    store,
   }
 }
 
@@ -78,7 +78,7 @@ describe('Models - Temp Ids', function () {
   it('adds tempIds for items without an [idField]', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Transaction extends BaseModel {
       public static modelName = 'Transaction'
@@ -90,14 +90,14 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Transaction,
-          service: feathersClient.service('transactions')
-        })
-      ]
+          service: feathersClient.service('transactions'),
+        }),
+      ],
     })
     const txn = new Transaction({
       description: 'Green Pasture - No More Dentists!',
       website: 'https://www.greenpasture.org',
-      amount: 1.99
+      amount: 1.99,
     })
 
     // Make sure we got an id.
@@ -123,7 +123,7 @@ describe('Models - Temp Ids', function () {
   it('adds to state.tempsById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Transaction extends BaseModel {
       public static modelName = 'Transaction'
@@ -135,16 +135,15 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Transaction,
-          service: feathersClient.service('transactions')
-        })
-      ]
+          service: feathersClient.service('transactions'),
+        }),
+      ],
     })
 
     const txn = new Transaction({
       description: 'Amazon - Cure Teeth Book',
-      website:
-        'https://www.amazon.com/Cure-Tooth-Decay-Cavities-Nutrition-ebook/dp/B004GB0JIM',
-      amount: 1.99
+      website: 'https://www.amazon.com/Cure-Tooth-Decay-Cavities-Nutrition-ebook/dp/B004GB0JIM',
+      amount: 1.99,
     })
 
     // Make sure we got an id.
@@ -154,7 +153,7 @@ describe('Models - Temp Ids', function () {
   it('maintains reference to temp item after save', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Thing extends BaseModel {
       public static modelName = 'Thing'
@@ -166,9 +165,9 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Thing,
-          service: feathersClient.service('things')
-        })
-      ]
+          service: feathersClient.service('things'),
+        }),
+      ],
     })
 
     // Manually set the result in a hook to simulate the server request.
@@ -182,28 +181,24 @@ describe('Models - Temp Ids', function () {
           },
           context => {
             assert(!context.data.__id, '__id was not sent to API server')
-            assert(
-              !context.data.__isTemp,
-              '__isTemp was not sent to API server'
-            )
+            assert(!context.data.__isTemp, '__isTemp was not sent to API server')
             context.result = {
               _id: 1,
               description: 'Robb Wolf - the Paleo Solution',
               website:
                 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
-              amount: 1.99
+              amount: 1.99,
             }
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     const thing = new Thing({
       description: 'Robb Wolf - the Paleo Solution',
-      website:
-        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
-      amount: 1.99
+      website: 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99,
     })
 
     assert(store.state.things.tempsById[thing.__id], 'item is in the tempsById')
@@ -219,7 +214,7 @@ describe('Models - Temp Ids', function () {
   it('removes uncreated temp', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Thing extends BaseModel {
       public static modelName = 'Thing'
@@ -231,16 +226,15 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Thing,
-          service: feathersClient.service('things')
-        })
-      ]
+          service: feathersClient.service('things'),
+        }),
+      ],
     })
 
     const thing = new Thing({
       description: 'Robb Wolf - the Paleo Solution',
-      website:
-        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
-      amount: 1.99
+      website: 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99,
     })
 
     assert(store.state.things.tempsById[thing.__id], 'item is in the tempsById')
@@ -253,7 +247,7 @@ describe('Models - Temp Ids', function () {
   it('clones into Model.copiesById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Transaction extends BaseModel {
       public static modelName = 'Transaction'
@@ -265,15 +259,14 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Transaction,
-          service: feathersClient.service('transactions')
-        })
-      ]
+          service: feathersClient.service('transactions'),
+        }),
+      ],
     })
     const txn = new Transaction({
       description: 'Robb Wolf - the Paleo Solution',
-      website:
-        'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
-      amount: 1.99
+      website: 'https://robbwolf.com/shop-old/products/the-paleo-solution-the-original-human-diet/',
+      amount: 1.99,
     })
 
     txn.clone()
@@ -284,7 +277,7 @@ describe('Models - Temp Ids', function () {
   it('commits into store.tempsById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Transaction extends BaseModel {
       public static modelName = 'Transaction'
@@ -296,14 +289,14 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Transaction,
-          service: feathersClient.service('transactions')
-        })
-      ]
+          service: feathersClient.service('transactions'),
+        }),
+      ],
     })
     const txn = new Transaction({
       description: 'Rovit Monthly Subscription',
       website: 'https://rovit.com',
-      amount: 1.99
+      amount: 1.99,
     })
 
     // Clone it, change it and commit it.
@@ -318,7 +311,7 @@ describe('Models - Temp Ids', function () {
 
   it('can reset a temp clone', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Transaction extends BaseModel {
       public static modelName = 'Transaction'
@@ -330,14 +323,14 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Transaction,
-          service: feathersClient.service('transactions')
-        })
-      ]
+          service: feathersClient.service('transactions'),
+        }),
+      ],
     })
     const txn = new Transaction({
       description: 'Rovit Monthly Subscription',
       website: 'https://rovit.com',
-      amount: 1.99
+      amount: 1.99,
     })
 
     // Clone it, change it and commit it.
@@ -353,7 +346,7 @@ describe('Models - Temp Ids', function () {
 
     const comic = new Comic({
       name: 'The Uncanny X-Men',
-      year: 1969
+      year: 1969,
     })
 
     // Create a temp and make sure it's in the tempsById
@@ -380,7 +373,7 @@ describe('Models - Temp Ids', function () {
   it('removes __isTemp from temp and clone', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Thing extends BaseModel {
       public static modelName = 'Thing'
@@ -389,9 +382,9 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Thing,
-          service: feathersClient.service('things')
-        })
-      ]
+          service: feathersClient.service('things'),
+        }),
+      ],
     })
 
     const thing = new Thing()
@@ -409,7 +402,7 @@ describe('Models - Temp Ids', function () {
   it('updateTemp assigns ID to temp and migrates it from tempsById to keyedById', function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Thing extends BaseModel {
       public static modelName = 'Thing'
@@ -418,9 +411,9 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Thing,
-          service: feathersClient.service('things')
-        })
-      ]
+          service: feathersClient.service('things'),
+        }),
+      ],
     })
 
     const thing = new Thing()
@@ -432,17 +425,14 @@ describe('Models - Temp Ids', function () {
     assert(thing._id === 42, 'thing got _id')
     assert(store.state.things.keyedById[42] === thing, 'thing is in keyedById')
     assert(store.state.things.ids.includes(42), "thing's _id is in ids")
-    assert(
-      !store.state.things.tempsById[thing.__id],
-      'thing is no longer in tempsById'
-    )
+    assert(!store.state.things.tempsById[thing.__id], 'thing is no longer in tempsById')
   })
 
   it('Clone gets _id after save (create only called once)', async function () {
     // Test ensures subsequent calls to clone.save() do not call create
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class Thing extends BaseModel {
       public static modelName = 'Thing'
@@ -454,9 +444,9 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: Thing,
-          service: feathersClient.service('things')
-        })
-      ]
+          service: feathersClient.service('things'),
+        }),
+      ],
     })
 
     // Manually set the result in a hook to simulate the server request.
@@ -469,22 +459,19 @@ describe('Models - Temp Ids', function () {
             createCalled = true
             context.result = { _id: 42, ...context.data }
             return context
-          }
+          },
         ],
         patch: [
           context => {
             assert(context.data.__isClone, 'Patch called on clone')
             assert(context.id === 42, 'context has correct ID')
             assert(context.data._id === 42, 'patch called with correct _id')
-            assert(
-              context.data.description === 'Thing 3',
-              'patch called with correct description'
-            )
+            assert(context.data.description === 'Thing 3', 'patch called with correct description')
             context.result = { ...context.data }
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     // Create instance and clone
@@ -513,7 +500,7 @@ describe('Models - Temp Ids', function () {
   it('find() getter does not return duplicates with temps: true', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class FooModel extends BaseModel {
       public static modelName = 'FooModel'
@@ -526,9 +513,9 @@ describe('Models - Temp Ids', function () {
         makeServicePlugin({
           Model: FooModel,
           service: feathersClient.service('foos'),
-          servicePath: 'foos'
-        })
-      ]
+          servicePath: 'foos',
+        }),
+      ],
     })
 
     // Fake server call
@@ -542,9 +529,9 @@ describe('Models - Temp Ids', function () {
           context => {
             context.result = { _id: 24, ...context.data }
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     // Create component with find() computed prop
@@ -555,15 +542,15 @@ describe('Models - Temp Ids', function () {
         things() {
           return store.getters['foos/find']({
             query: { test: true },
-            temps: true
+            temps: true,
           }).data
-        }
+        },
       },
       watch: {
         things(items) {
           watchEvents.push(fastCopy(items))
-        }
-      }
+        },
+      },
     }).$mount()
 
     const item = new FooModel({ test: true })
@@ -578,10 +565,10 @@ describe('Models - Temp Ids', function () {
     })
   })
 
-  it('Model pending status updated for tempIds and clones', async function() {
+  it('Model pending status updated for tempIds and clones', async function () {
     const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
       idField: '_id',
-      serverAlias: 'temp-ids'
+      serverAlias: 'temp-ids',
     })
     class PendingThing extends BaseModel {
       public static modelName = 'PendingThing'
@@ -593,9 +580,9 @@ describe('Models - Temp Ids', function () {
       plugins: [
         makeServicePlugin({
           Model: PendingThing,
-          service: feathersClient.service('pending-things')
-        })
-      ]
+          service: feathersClient.service('pending-things'),
+        }),
+      ],
     })
 
     // Create instance
@@ -619,9 +606,9 @@ describe('Models - Temp Ids', function () {
             assert(clone.isSavePending === true, 'isSavePending set on clone')
             assert(clone.isPending === true, 'isPending set')
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     // Save and verify status

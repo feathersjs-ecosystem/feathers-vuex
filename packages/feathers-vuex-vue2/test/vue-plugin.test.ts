@@ -41,7 +41,7 @@ function makeContext() {
   }
 }
 
-describe.only('Vue Plugin', function () {
+describe('Vue Plugin', function () {
   it('Adds the `$FeathersVuex` object to components', function () {
     const { store } = makeContext()
     const vm = new Vue({

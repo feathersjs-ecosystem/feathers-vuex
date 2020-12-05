@@ -1,4 +1,4 @@
-import useGet from '../../src/useGet'
+import useGet from '@feathersjs/vuex-commons'
 
 export default {
   name: 'InstrumentComponent',
@@ -6,8 +6,8 @@ export default {
   props: {
     id: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   setup(props, context) {
     const { Instrument } = context.root.$FeathersVuex
@@ -15,7 +15,7 @@ export default {
     const instrumentData = useGet({ model: Instrument, id: props.id })
 
     return {
-      instrument: instrumentData.item
+      instrument: instrumentData.item,
     }
-  }
+  },
 }

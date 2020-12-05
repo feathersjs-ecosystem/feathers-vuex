@@ -5,29 +5,28 @@ eslint
 */
 import { assert } from 'chai'
 import { assertGetter, makeStore } from '../test-utils'
-import makeServiceMutations, {
-  PendingServiceMethodName, PendingIdServiceMethodName
-} from '../../src/service-module/service-module.mutations'
-import makeServiceState from '../../src/service-module/service-module.state'
+import makeServiceMutations from '../../src/service-module.mutations-vue2'
+import {
+  makeServiceState,
+  PendingServiceMethodName,
+  PendingIdServiceMethodName,
+  getQueryInfo,
+  models,
+  clearModels,
+} from '@feathersjs/vuex-commons'
 import errors from '@feathersjs/errors'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import fakeData from '../fixtures/fake-data'
 import { Service as MemoryService } from 'feathers-memory'
-import { getQueryInfo } from '../../src/utils'
 import { diff as deepDiff } from 'deep-object-diff'
 import omitDeep from 'omit-deep-lodash'
 import feathersVuex from '../../src/index'
 
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 
-import {
-  globalModels,
-  clearModels
-} from '../../src/service-module/global-models'
-
 const { BaseModel } = feathersVuex(feathersClient, {
-  serverAlias: 'mutations'
+  serverAlias: 'mutations',
 })
 
 Vue.use(Vuex)
@@ -43,7 +42,7 @@ const options = {
   autoRemove: false,
   serverAlias: 'myApi',
   service: feathersClient.service('mutations-todo'),
-  Model: Todo
+  Model: Todo,
 }
 
 const {
@@ -64,7 +63,7 @@ const {
   setError,
   clearError,
   setIdPending,
-  unsetIdPending
+  unsetIdPending,
 } = makeServiceMutations()
 
 class ComicService extends MemoryService {
@@ -89,7 +88,7 @@ function makeContext() {
     new ComicService({ store: makeStore() })
   )
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'service-module-mutations'
+    serverAlias: 'service-module-mutations',
   })
   class Comic extends BaseModel {
     public static modelName = 'Comic'
@@ -107,15 +106,15 @@ function makeContext() {
         service: feathersClient.service('comics'),
         servicePath: 'comics',
         idField: '_id',
-        tempIdField: '__id'
-      })
-    ]
+        tempIdField: '__id',
+      }),
+    ],
   })
   return {
     makeServicePlugin,
     BaseModel,
     Comic,
-    store
+    store,
   }
 }
 
@@ -130,11 +129,11 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const item2 = {
         _id: 2,
-        test: true
+        test: true,
       }
 
       addItem(state, item1)
@@ -161,11 +160,11 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const item2 = {
         _id: 2,
-        test: true
+        test: true,
       }
       const items = [item1, item2]
       addItems(state, items)
@@ -180,22 +179,22 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const item2 = {
         _id: 2,
-        test: true
+        test: true,
       }
       const items = [item1, item2]
       addItems(state, items)
 
       const item1updated = {
         _id: 1,
-        test: false
+        test: false,
       }
       const item2updated = {
         _id: 2,
-        test: false
+        test: false,
       }
       const itemsToUpdate = [item1updated, item2updated]
       updateItems(state, itemsToUpdate)
@@ -251,17 +250,14 @@ describe('Service Module - Mutations', function () {
         { _id: 1, test: true },
         { _id: 2, test: true },
         { _id: 3, test: true },
-        { _id: 4, test: true }
+        { _id: 4, test: true },
       ]
       addItems(state, items)
       const itemsToRemove = [1, 2]
       removeItems(state, itemsToRemove)
 
       assert(state.ids.length === 2, 'should have 2 ids left')
-      assert(
-        Object.keys(state.keyedById).length === 2,
-        'should have 2 items left'
-      )
+      assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
     })
 
     it('removeItems with array of items', function () {
@@ -270,20 +266,17 @@ describe('Service Module - Mutations', function () {
         { _id: 1, test: true },
         { _id: 2, test: true },
         { _id: 3, test: true },
-        { _id: 4, test: true }
+        { _id: 4, test: true },
       ]
       addItems(state, items)
       const itemsToRemove = [
         { _id: 1, test: true },
-        { _id: 2, test: true }
+        { _id: 2, test: true },
       ]
       removeItems(state, itemsToRemove)
 
       assert(state.ids.length === 2, 'should have 2 ids left')
-      assert(
-        Object.keys(state.keyedById).length === 2,
-        'should have 2 items left'
-      )
+      assert(Object.keys(state.keyedById).length === 2, 'should have 2 items left')
     })
 
     it('removeItems also removes clone', function () {
@@ -293,7 +286,7 @@ describe('Service Module - Mutations', function () {
         { _id: 1, test: true },
         { _id: 2, test: true },
         { _id: 3, test: true },
-        { _id: 4, test: true }
+        { _id: 4, test: true },
       ])
       const itemsToRemove = [1, 2]
       createCopy(state, 1)
@@ -315,7 +308,7 @@ describe('Service Module - Mutations', function () {
         { _id: 1, test: true },
         { _id: 2, test: true },
         { _id: 3, test: true },
-        { _id: 4, test: true }
+        { _id: 4, test: true },
       ])
 
       const itemsToRemove = [1, 2]
@@ -339,11 +332,11 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const item2 = {
         _id: 2,
-        test: true
+        test: true,
       }
       const items = [item1, item2]
       addItems(state, items)
@@ -351,14 +344,8 @@ describe('Service Module - Mutations', function () {
       createCopy(state, item1._id)
 
       assert(state.ids.length === 2, 'ids are added correctly')
-      assert(
-        Object.keys(state.keyedById).length === 2,
-        'items are added correctly'
-      )
-      assert(
-        Object.keys(state.copiesById).length === 1,
-        'clone is added correctly'
-      )
+      assert(Object.keys(state.keyedById).length === 2, 'items are added correctly')
+      assert(Object.keys(state.copiesById).length === 1, 'clone is added correctly')
 
       clearAll(state)
       assert(state.ids.length === 0, 'ids empty again')
@@ -378,25 +365,19 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const item2 = {
         _id: 2,
-        test: true
+        test: true,
       }
       const items = [item1, item2]
       store.commit('comics/addItems', items)
       store.commit('comics/createCopy', item1._id)
 
       assert(state.ids.length === 2, 'ids are added correctly')
-      assert(
-        Object.keys(state.keyedById).length === 2,
-        'items are added correctly'
-      )
-      assert(
-        Object.keys(Comic.copiesById).length === 1,
-        'clone is added correctly'
-      )
+      assert(Object.keys(state.keyedById).length === 2, 'items are added correctly')
+      assert(Object.keys(Comic.copiesById).length === 1, 'clone is added correctly')
 
       store.commit('comics/clearAll')
 
@@ -412,14 +393,14 @@ describe('Service Module - Mutations', function () {
       state.addOnUpsert = true
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const items = [item1]
       addItems(state, items)
 
       const item1updated = {
         _id: 1,
-        test: false
+        test: false,
       }
       updateItem(state, item1updated)
 
@@ -431,14 +412,14 @@ describe('Service Module - Mutations', function () {
       state.addOnUpsert = false
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const items = [item1]
       addItems(state, items)
 
       const item1updated = {
         _id: 1,
-        test: false
+        test: false,
       }
       updateItem(state, item1updated)
 
@@ -451,7 +432,7 @@ describe('Service Module - Mutations', function () {
 
       const item1updated = {
         _id: 1,
-        test: false
+        test: false,
       }
       updateItem(state, item1updated)
 
@@ -468,7 +449,7 @@ describe('Service Module - Mutations', function () {
 
       const item1updated = {
         _id: 1,
-        test: false
+        test: false,
       }
       updateItem(state, item1updated)
 
@@ -483,7 +464,7 @@ describe('Service Module - Mutations', function () {
         _id: 1,
         get getter() {
           return 'Release the flying monkeys!'
-        }
+        },
       }
       assertGetter(item1, 'getter', 'Release the flying monkeys!')
       const items = [item1]
@@ -495,22 +476,22 @@ describe('Service Module - Mutations', function () {
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.getter'() {
             // eslint-disable-next-line no-console
             console.log(state.keyedById)
             throw new Error('this should never happen')
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        getter: true
+        getter: true,
       }
       updateItem(state, updatedItem)
 
@@ -523,21 +504,21 @@ describe('Service Module - Mutations', function () {
       const item1 = {
         _id: 1,
         test: true,
-        users: ['Marshall', 'Mariah']
+        users: ['Marshall', 'Mariah'],
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.users'() {
             assert(this.item.users.length === 3)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
@@ -545,7 +526,7 @@ describe('Service Module - Mutations', function () {
       const updatedItem = {
         _id: 1,
         test: false,
-        users: ['Marshall', 'Mariah', 'Scooby Doo']
+        users: ['Marshall', 'Mariah', 'Scooby Doo'],
       }
       updateItem(state, updatedItem)
     })
@@ -554,21 +535,21 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.users'() {
             assert(this.item.users.length === 3)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
@@ -576,7 +557,7 @@ describe('Service Module - Mutations', function () {
       const updatedItem = {
         _id: 1,
         test: false,
-        users: ['Marshall', 'Mariah', 'Scooby Doo']
+        users: ['Marshall', 'Mariah', 'Scooby Doo'],
       }
       updateItem(state, updatedItem)
     })
@@ -585,28 +566,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        obj: { test: true }
+        obj: { test: true },
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.obj'() {
             assert(this.item.obj.test === false)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        obj: { test: false }
+        obj: { test: false },
       }
       updateItem(state, updatedItem)
     })
@@ -614,28 +595,28 @@ describe('Service Module - Mutations', function () {
     it('correctly emits events for new object properties', function (done) {
       const state = this.state
       const item1 = {
-        _id: 1
+        _id: 1,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.obj'() {
             assert(this.item.obj.test === false)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        obj: { test: false }
+        obj: { test: false },
       }
       updateItem(state, updatedItem)
     })
@@ -644,28 +625,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        isValid: true
+        isValid: true,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.isValid'() {
             assert(this.item.isValid === false)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        isValid: false
+        isValid: false,
       }
       updateItem(state, updatedItem)
     })
@@ -673,28 +654,28 @@ describe('Service Module - Mutations', function () {
     it('correctly emits events for new boolean properties', function (done) {
       const state = this.state
       const item1 = {
-        _id: 1
+        _id: 1,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.isValid'() {
             assert(this.item.isValid === false)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        isValid: false
+        isValid: false,
       }
       updateItem(state, updatedItem)
     })
@@ -703,28 +684,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        name: 'Marshall'
+        name: 'Marshall',
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        name: 'Xavier'
+        name: 'Xavier',
       }
       updateItem(state, updatedItem)
     })
@@ -732,28 +713,28 @@ describe('Service Module - Mutations', function () {
     it('correctly emits events for new string properties', function (done) {
       const state = this.state
       const item1 = {
-        _id: 1
+        _id: 1,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        name: 'Xavier'
+        name: 'Xavier',
       }
       updateItem(state, updatedItem)
     })
@@ -762,28 +743,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        name: null
+        name: null,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.name'() {
             assert(this.item.name === 'Xavier')
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        name: 'Xavier'
+        name: 'Xavier',
       }
       updateItem(state, updatedItem)
     })
@@ -792,28 +773,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        name: 'Marshall'
+        name: 'Marshall',
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.name'() {
             assert(this.item.name === null)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        name: null
+        name: null,
       }
       updateItem(state, updatedItem)
     })
@@ -822,28 +803,28 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        age: 45
+        age: 45,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.age'() {
             assert(this.item.age === 50)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        age: 50
+        age: 50,
       }
       updateItem(state, updatedItem)
     })
@@ -851,28 +832,28 @@ describe('Service Module - Mutations', function () {
     it('correctly emits events for new number properties', function (done) {
       const state = this.state
       const item1 = {
-        _id: 1
+        _id: 1,
       }
       const items = [item1]
       addItems(state, items)
 
       const vm = new Vue({
         data: {
-          item: state.keyedById[1]
+          item: state.keyedById[1],
         },
         watch: {
           'item.age'() {
             assert(this.item.age === 50)
             done()
-          }
-        }
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
 
       const updatedItem = {
         _id: 1,
-        age: 50
+        age: 50,
       }
       updateItem(state, updatedItem)
     })
@@ -887,7 +868,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.obj.test = val
-        }
+        },
       }
       const items = [item1]
 
@@ -900,7 +881,7 @@ describe('Service Module - Mutations', function () {
       const vm = new Vue({
         data: {
           item,
-          copy
+          copy,
         },
         watch: {
           'item.obj': {
@@ -908,9 +889,9 @@ describe('Service Module - Mutations', function () {
               assert(this.item.obj.test === false)
               done()
             },
-            deep: true
-          }
-        }
+            deep: true,
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
@@ -934,7 +915,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.obj.test = val
-        }
+        },
       }
       const items = [item1]
 
@@ -949,7 +930,7 @@ describe('Service Module - Mutations', function () {
       const vm = new Vue({
         data: {
           item,
-          copy
+          copy,
         },
         watch: {
           'copy.obj': {
@@ -957,9 +938,9 @@ describe('Service Module - Mutations', function () {
               assert(this.copy.obj.test === true)
               done()
             },
-            deep: true
-          }
-        }
+            deep: true,
+          },
+        },
       })
 
       assert(vm.item, 'vm has item')
@@ -983,7 +964,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.test = val
-        }
+        },
       }
       addItem(state, item1)
       const original = state.keyedById[1]
@@ -992,11 +973,7 @@ describe('Service Module - Mutations', function () {
 
       const copy = state.copiesById[item1._id]
 
-      assert.deepEqual(
-        original,
-        copy,
-        `original and copy have the same properties`
-      )
+      assert.deepEqual(original, copy, `original and copy have the same properties`)
 
       copy.setter = false
       assert(copy.getter === 'Life is a Joy!', `getter was preserved`)
@@ -1010,7 +987,7 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       store.commit('comics/addItem', item1)
 
@@ -1021,11 +998,7 @@ describe('Service Module - Mutations', function () {
 
       const copy = Comic.copiesById[item1._id]
 
-      assert.deepEqual(
-        original,
-        copy,
-        `original and copy have the same properties`
-      )
+      assert.deepEqual(original, copy, `original and copy have the same properties`)
 
       copy.test = false
       assert(copy.test === false, `copy was changed through setter`)
@@ -1044,7 +1017,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.test = val
-        }
+        },
       }
       addItem(state, item1)
       const original = state.tempsById[item1[state.tempIdField]]
@@ -1065,7 +1038,7 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         __id: 'abc',
-        test: true
+        test: true,
       }
       store.commit('comics/addItem', item1)
 
@@ -1087,7 +1060,7 @@ describe('Service Module - Mutations', function () {
       const { state } = this
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       addItem(state, item1)
 
@@ -1103,10 +1076,7 @@ describe('Service Module - Mutations', function () {
       const copy2 = state.copiesById[item1._id]
 
       assert(copy === copy2, `only one clone exists`)
-      assert(
-        copy.test === true && copy2.test === true,
-        `new clone overwrites old clone`
-      )
+      assert(copy.test === true && copy2.test === true, `new clone overwrites old clone`)
     })
 
     it('createCopy while existing copy with keepCopiesInStore: false', function () {
@@ -1115,7 +1085,7 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       store.commit('comics/addItem', item1)
 
@@ -1130,10 +1100,7 @@ describe('Service Module - Mutations', function () {
       const copy2 = Comic.copiesById[item1._id]
 
       assert(copy === copy2, `only one clone exists`)
-      assert(
-        copy.test === true && copy2.test === true,
-        `new clone overwrites old clone`
-      )
+      assert(copy.test === true && copy2.test === true, `new clone overwrites old clone`)
 
       clearModels()
     })
@@ -1148,7 +1115,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.test = val
-        }
+        },
       }
       addItem(state, item1)
 
@@ -1173,7 +1140,7 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       store.commit('comics/addItem', item1)
 
@@ -1202,7 +1169,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.test = val
-        }
+        },
       }
       store.commit('comics/addItem', item1)
 
@@ -1234,7 +1201,7 @@ describe('Service Module - Mutations', function () {
         },
         set setter(val) {
           this.test = val
-        }
+        },
       }
       addItem(state, item1)
       const original = state.keyedById[item1._id]
@@ -1255,7 +1222,7 @@ describe('Service Module - Mutations', function () {
 
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       store.commit('comics/addItem', item1)
       // @ts-ignore
@@ -1278,7 +1245,7 @@ describe('Service Module - Mutations', function () {
       const state = this.state
       const item1 = {
         _id: 1,
-        test: true
+        test: true,
       }
       addItem(state, item1)
 
@@ -1320,17 +1287,10 @@ describe('Service Module - Mutations', function () {
             data: fakeData.transactions.slice(0, 10),
             limit: 10,
             skip: 0,
-            total: fakeData.transactions.length
+            total: fakeData.transactions.length,
           },
           makeResult(props) {
-            const {
-              query,
-              queryId,
-              queryParams,
-              pageId,
-              pageParams,
-              queriedAt
-            } = props
+            const { query, queryId, queryParams, pageId, pageParams, queriedAt } = props
 
             return {
               defaultLimit: 10,
@@ -1343,22 +1303,21 @@ describe('Service Module - Mutations', function () {
                   pageId,
                   pageParams,
                   queriedAt,
-                  total: 155
+                  total: 155,
                 },
                 '{}': {
                   total: fakeData.transactions.length,
                   queryParams: {},
-                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":0}']: {
+                    //eslint-disable-line
                     pageParams,
-                    ids: fakeData.transactions
-                      .slice(0, 10)
-                      .map(i => i[state.idField]),
-                    queriedAt
-                  }
-                }
-              }
+                    ids: fakeData.transactions.slice(0, 10).map(i => i[state.idField]),
+                    queriedAt,
+                  },
+                },
+              },
             }
-          }
+          },
         },
         {
           description: 'initial query, limit 10, skip 0',
@@ -1367,17 +1326,10 @@ describe('Service Module - Mutations', function () {
             data: fakeData.transactions.slice(0, 10),
             limit: 10,
             skip: 0,
-            total: fakeData.transactions.length
+            total: fakeData.transactions.length,
           },
           makeResult(props) {
-            const {
-              query,
-              queryId,
-              queryParams,
-              pageId,
-              pageParams,
-              queriedAt
-            } = props
+            const { query, queryId, queryParams, pageId, pageParams, queriedAt } = props
 
             return {
               defaultLimit: 10,
@@ -1390,22 +1342,21 @@ describe('Service Module - Mutations', function () {
                   pageId,
                   pageParams,
                   queriedAt,
-                  total: 155
+                  total: 155,
                 },
                 '{}': {
                   total: fakeData.transactions.length,
                   queryParams: {},
-                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":0}']: {
+                    //eslint-disable-line
                     pageParams,
-                    ids: fakeData.transactions
-                      .slice(0, 10)
-                      .map(i => i[state.idField]),
-                    queriedAt
-                  }
-                }
-              }
+                    ids: fakeData.transactions.slice(0, 10).map(i => i[state.idField]),
+                    queriedAt,
+                  },
+                },
+              },
             }
-          }
+          },
         },
         {
           description: 'initial query, limit 10, skip 10',
@@ -1414,17 +1365,10 @@ describe('Service Module - Mutations', function () {
             data: fakeData.transactions.slice(10, 20),
             limit: 10,
             skip: 10,
-            total: fakeData.transactions.length
+            total: fakeData.transactions.length,
           },
           makeResult(props) {
-            const {
-              query,
-              queryId,
-              queryParams,
-              pageId,
-              pageParams,
-              queriedAt
-            } = props
+            const { query, queryId, queryParams, pageId, pageParams, queriedAt } = props
 
             return {
               defaultLimit: 10,
@@ -1437,35 +1381,33 @@ describe('Service Module - Mutations', function () {
                   pageId,
                   pageParams,
                   queriedAt,
-                  total: 155
+                  total: 155,
                 },
                 '{}': {
                   total: fakeData.transactions.length,
                   queryParams: {},
-                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":0}']: {
+                    //eslint-disable-line
                     pageParams: {
                       $limit: 10,
-                      $skip: 0
+                      $skip: 0,
                     },
-                    ids: fakeData.transactions
-                      .slice(0, 10)
-                      .map(i => i[state.idField]),
-                    queriedAt
+                    ids: fakeData.transactions.slice(0, 10).map(i => i[state.idField]),
+                    queriedAt,
                   },
-                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":10}']: {
+                    //eslint-disable-line
                     pageParams: {
                       $limit: 10,
-                      $skip: 10
+                      $skip: 10,
                     },
-                    ids: fakeData.transactions
-                      .slice(10, 20)
-                      .map(i => i[state.idField]),
-                    queriedAt
-                  }
-                }
-              }
+                    ids: fakeData.transactions.slice(10, 20).map(i => i[state.idField]),
+                    queriedAt,
+                  },
+                },
+              },
             }
-          }
+          },
         },
         {
           description: 'separate query, limit 10, skip 10',
@@ -1474,17 +1416,10 @@ describe('Service Module - Mutations', function () {
             data: fakeData.transactions.slice(10, 20),
             limit: 10,
             skip: 10,
-            total: fakeData.transactions.length
+            total: fakeData.transactions.length,
           },
           makeResult(props) {
-            const {
-              query,
-              queryId,
-              queryParams,
-              pageId,
-              pageParams,
-              queriedAt
-            } = props
+            const { query, queryId, queryParams, pageId, pageParams, queriedAt } = props
 
             return {
               defaultLimit: 10,
@@ -1497,57 +1432,51 @@ describe('Service Module - Mutations', function () {
                   pageId,
                   pageParams,
                   queriedAt,
-                  total: 155
+                  total: 155,
                 },
                 '{}': {
                   total: fakeData.transactions.length,
                   queryParams: {},
-                  ["{\"$limit\":10,\"$skip\":0}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":0}']: {
+                    //eslint-disable-line
                     pageParams: {
                       $limit: 10,
-                      $skip: 0
+                      $skip: 0,
                     },
-                    ids: fakeData.transactions
-                      .slice(0, 10)
-                      .map(i => i[state.idField]),
-                    queriedAt
+                    ids: fakeData.transactions.slice(0, 10).map(i => i[state.idField]),
+                    queriedAt,
                   },
-                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":10}']: {
+                    //eslint-disable-line
                     pageParams: {
                       $limit: 10,
-                      $skip: 10
+                      $skip: 10,
                     },
-                    ids: fakeData.transactions
-                      .slice(10, 20)
-                      .map(i => i[state.idField]),
-                    queriedAt
-                  }
+                    ids: fakeData.transactions.slice(10, 20).map(i => i[state.idField]),
+                    queriedAt,
+                  },
                 },
                 '{"test":true}': {
                   total: fakeData.transactions.length,
                   queryParams: { test: true },
-                  ["{\"$limit\":10,\"$skip\":10}"]: { //eslint-disable-line
+                  ['{"$limit":10,"$skip":10}']: {
+                    //eslint-disable-line
                     pageParams: {
                       $limit: 10,
-                      $skip: 10
+                      $skip: 10,
                     },
-                    ids: fakeData.transactions
-                      .slice(10, 20)
-                      .map(i => i[state.idField]),
-                    queriedAt
-                  }
-                }
-              }
+                    ids: fakeData.transactions.slice(10, 20).map(i => i[state.idField]),
+                    queriedAt,
+                  },
+                },
+              },
             }
-          }
-        }
+          },
+        },
       ]
 
       decisionTable.forEach(({ description, query, response, makeResult }) => {
-        const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
-          { qid, query },
-          response
-        )
+        const { queryId, queryParams, pageId, pageParams } = getQueryInfo({ qid, query }, response)
         const queriedAt = new Date().getTime()
         const expectedResult = makeResult({
           query,
@@ -1555,7 +1484,7 @@ describe('Service Module - Mutations', function () {
           queryParams,
           pageId,
           pageParams,
-          queriedAt
+          queriedAt,
         })
 
         updatePaginationForQuery(state, { qid, response, query })
@@ -1583,7 +1512,7 @@ describe('Service Module - Mutations', function () {
         'create',
         'update',
         'patch',
-        'remove'
+        'remove',
       ]
 
       methods.forEach(method => {
@@ -1601,15 +1530,10 @@ describe('Service Module - Mutations', function () {
     })
   })
 
-  describe('Per-instance Pending', function() {
-    it('setIdPending && unsetIdPending', function() {
+  describe('Per-instance Pending', function () {
+    it('setIdPending && unsetIdPending', function () {
       const state = this.state
-      const methods: PendingIdServiceMethodName[] = [
-        'create',
-        'update',
-        'patch',
-        'remove'
-      ]
+      const methods: PendingIdServiceMethodName[] = ['create', 'update', 'patch', 'remove']
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
@@ -1635,7 +1559,7 @@ describe('Service Module - Mutations', function () {
         'create',
         'update',
         'patch',
-        'remove'
+        'remove',
       ]
 
       methods.forEach(method => {
@@ -1655,14 +1579,14 @@ describe('Service Module - Mutations', function () {
         'create',
         'update',
         'patch',
-        'remove'
+        'remove',
       ]
 
       methods.forEach(method => {
         const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
         setError(state, {
           method,
-          error: new errors.NotAuthenticated('You are not logged in')
+          error: new errors.NotAuthenticated('You are not logged in'),
         })
         assert(state[`errorOn${uppercaseMethod}`].className)
         assert(state[`errorOn${uppercaseMethod}`].code)
@@ -1682,7 +1606,7 @@ describe('Service Module - Mutations', function () {
         'create',
         'update',
         'patch',
-        'remove'
+        'remove',
       ]
 
       methods.forEach(method => {
@@ -1690,10 +1614,7 @@ describe('Service Module - Mutations', function () {
 
         setError(state, { method, error: new Error('This is a test') })
         clearError(state, method)
-        assert(
-          state[`errorOn${uppercaseMethod}`] === null,
-          `errorOn${uppercaseMethod} was cleared`
-        )
+        assert(state[`errorOn${uppercaseMethod}`] === null, `errorOn${uppercaseMethod} was cleared`)
       })
     })
   })
