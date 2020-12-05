@@ -4,7 +4,7 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import fastCopy from 'fast-copy'
-import { globalModels as models } from '../service-module/global-models'
+import { models } from '../service-module/global-models'
 import { getNameFromPath } from '../utils'
 
 export default function makeAuthActions(feathersClient) {

@@ -6,7 +6,7 @@ eslint
 import { FeathersVuexOptions, MakeServicePluginOptions, ServicePluginExtendOptions } from './types'
 
 import makeServiceModule from './make-service-module'
-import { globalModels, prepareAddModel } from './global-models'
+import { models, prepareAddModel } from './global-models'
 import enableServiceEvents from './service-module.events'
 import { makeNamespace, getServicePath, assignIfNotPresent } from '../utils'
 import _get from 'lodash/get'
@@ -101,14 +101,14 @@ export default function prepareMakeServicePlugin(globalOptions: FeathersVuexOpti
       // Don't preserve state if reinitialized (prevents state pollution in SSR)
       store.registerModule(options.namespace, module, { preserveState: false })
 
-      // (2a^) Monkey patch the BaseModel in globalModels
-      const BaseModel = _get(globalModels, [options.serverAlias, 'BaseModel'])
+      // (2a^) Monkey patch the BaseModel in models
+      const BaseModel = _get(models, [options.serverAlias, 'BaseModel'])
       if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
           store,
         })
       }
-      // (2b^) Monkey patch the Model(s) and add to globalModels
+      // (2b^) Monkey patch the Model(s) and add to models
       assignIfNotPresent(Model, {
         namespace: options.namespace,
         servicePath,

@@ -1,6 +1,6 @@
 import { getId } from '../utils'
 import _debounce from 'lodash/debounce'
-import { globalModels } from './global-models'
+import { models } from './global-models'
 
 export interface ServiceEventsDebouncedQueue {
   addOrUpdateById: {}
@@ -65,7 +65,7 @@ export default function enableServiceEvents({
     const handler = options.handleEvents[eventName]
     const confirmOrArray = handler(item, {
       model: Model,
-      models: globalModels,
+      models: models,
     })
     const [affectsStore, modified = item] = Array.isArray(confirmOrArray)
       ? confirmOrArray

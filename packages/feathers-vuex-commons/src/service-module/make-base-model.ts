@@ -14,7 +14,7 @@ import {
   AnyData,
   PatchParams,
 } from './types'
-import { globalModels, prepareAddModel } from './global-models'
+import { models, prepareAddModel } from './global-models'
 import { checkNamespace, getId, Params } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
@@ -49,7 +49,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   const { serverAlias, merge } = options
 
   // If this serverAlias already has a BaseModel, return it
-  const ExistingBaseModel = _get(globalModels, [serverAlias, 'BaseModel'])
+  const ExistingBaseModel = _get(models, [serverAlias, 'BaseModel'])
   if (ExistingBaseModel) {
     return ExistingBaseModel as ModelStatic
   }
@@ -79,7 +79,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     public static preferUpdate: boolean = options.preferUpdate
     public static serverAlias: string = options.serverAlias
 
-    public static readonly models = globalModels as GlobalModels // Can access other Models here
+    public static readonly models = models as GlobalModels // Can access other Models here
 
     public static readonly copiesById: {
       [key: string]: Model | undefined

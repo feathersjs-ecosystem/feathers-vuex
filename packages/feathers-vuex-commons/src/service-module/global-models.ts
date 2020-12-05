@@ -9,7 +9,7 @@ import { FeathersVuexOptions } from './types'
 /**
  * A global object that holds references to all Model Classes in the application.
  */
-export const globalModels: { [k: string]: any } = {}
+export const models: { [k: string]: any } = {}
 
 /**
  * prepareAddModel wraps options in a closure around addModel
@@ -19,27 +19,27 @@ export function prepareAddModel(options: FeathersVuexOptions) {
   const { serverAlias } = options
 
   return function addModel(Model) {
-    globalModels[serverAlias] = globalModels[serverAlias] || {
+    models[serverAlias] = models[serverAlias] || {
       byServicePath: {},
     }
     const name = Model.modelName || Model.name
-    if (globalModels[serverAlias][name] && options.debug) {
+    if (models[serverAlias][name] && options.debug) {
       // eslint-disable-next-line no-console
       console.error(`Overwriting Model: models[${serverAlias}][${name}].`)
     }
-    globalModels[serverAlias][name] = Model
-    globalModels[serverAlias].byServicePath[Model.servicePath] = Model
+    models[serverAlias][name] = Model
+    models[serverAlias].byServicePath[Model.servicePath] = Model
   }
 }
 
 export function clearModels() {
-  Object.keys(globalModels).forEach(key => {
-    const serverAliasObj = globalModels[key]
+  Object.keys(models).forEach(key => {
+    const serverAliasObj = models[key]
 
     Object.keys(serverAliasObj).forEach(key => {
-      delete globalModels[key]
+      delete models[key]
     })
 
-    delete globalModels[key]
+    delete models[key]
   })
 }

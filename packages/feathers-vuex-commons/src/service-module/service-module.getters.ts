@@ -6,7 +6,7 @@ eslint
 import sift from 'sift'
 import { _ } from '@feathersjs/commons'
 import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
-import { globalModels as models } from './global-models'
+import { models } from './global-models'
 import _get from 'lodash/get'
 import _omit from 'lodash/omit'
 import { isRef } from 'vue-demi'

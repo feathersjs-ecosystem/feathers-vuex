@@ -9,7 +9,7 @@ import _isObject from 'lodash/isObject'
 import _trim from 'lodash/trim'
 import _omit from 'lodash/omit'
 import ObjectID from 'bson-objectid'
-import { globalModels as models } from './service-module/global-models'
+import { models } from './service-module/global-models'
 import stringify from 'fast-json-stable-stringify'
 import { Service } from '@feathersjs/feathers'
 
@@ -47,9 +47,7 @@ export function stripSlashes(location: string) {
 export function setByDot(obj, path, value, ifDelete?) {
   if (ifDelete) {
     // eslint-disable-next-line no-console
-    console.log(
-      'DEPRECATED. Use deleteByDot instead of setByDot(obj,path,value,true). (setByDot)'
-    )
+    console.log('DEPRECATED. Use deleteByDot instead of setByDot(obj,path,value,true). (setByDot)')
   }
 
   if (path.indexOf('.') === -1) {
@@ -124,9 +122,8 @@ export function payloadIsValid(payload) {
 
 // from https://github.com/iliakan/detect-node
 export const isNode =
-  Object.prototype.toString.call(
-    typeof process !== 'undefined' ? process : 0
-  ) === '[object process]'
+  Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) ===
+  '[object process]'
 
 export const isBrowser = !isNode
 
@@ -134,7 +131,7 @@ const authDefaults = {
   commit: undefined,
   req: undefined,
   moduleName: 'auth',
-  cookieName: 'feathers-jwt'
+  cookieName: 'feathers-jwt',
 }
 
 export function getValidPayloadFromToken(token) {
@@ -157,14 +154,10 @@ export const initAuth = function initAuth(options) {
   )
 
   if (typeof commit !== 'function') {
-    throw new Error(
-      'You must pass the `commit` function in the `initAuth` function options.'
-    )
+    throw new Error('You must pass the `commit` function in the `initAuth` function options.')
   }
   if (!req) {
-    throw new Error(
-      'You must pass the `req` object in the `initAuth` function options.'
-    )
+    throw new Error('You must pass the `req` object in the `initAuth` function options.')
   }
 
   const accessToken = readCookie(req.headers.cookie, cookieName)
@@ -174,9 +167,7 @@ export const initAuth = function initAuth(options) {
     commit(`${moduleName}/setAccessToken`, accessToken)
     commit(`${moduleName}/setPayload`, payload)
     if (feathersClient) {
-      return feathersClient.authentication
-        .setAccessToken(accessToken)
-        .then(() => payload)
+      return feathersClient.authentication.setAccessToken(accessToken).then(() => payload)
     }
   }
   return Promise.resolve(payload)
@@ -186,7 +177,7 @@ export const initAuth = function initAuth(options) {
  * run de BaseModel hydration on client for each api
  */
 export const hydrateApi = function hydrateApi({ api }) {
-  Object.keys(api).forEach((modelName) => {
+  Object.keys(api).forEach(modelName => {
     if (!['byServicePath', 'BaseModel'].includes(modelName)) {
       const Model = api[modelName]
       Model.hydrateAll()
@@ -264,7 +255,7 @@ export function registerModel(Model, globalModels, apiPrefix, servicePath) {
   globalModels.byServicePath[servicePath] = Model
   return {
     path,
-    name: modelName
+    name: modelName,
   }
 }
 
@@ -293,13 +284,8 @@ export function getQueryInfo(
   const query = params.query || {}
   const qid: string = params.qid || 'default'
   const $limit =
-    response.limit !== null && response.limit !== undefined
-      ? response.limit
-      : query.$limit
-  const $skip =
-    response.skip !== null && response.skip !== undefined
-      ? response.skip
-      : query.$skip
+    response.limit !== null && response.limit !== undefined ? response.limit : query.$limit
+  const $skip = response.skip !== null && response.skip !== undefined ? response.skip : query.$skip
 
   const queryParams = _omit(query, ['$limit', '$skip'])
   const queryId = stringify(queryParams)
@@ -314,7 +300,7 @@ export function getQueryInfo(
     pageParams,
     pageId,
     response: undefined,
-    isOutdated: undefined as boolean | undefined
+    isOutdated: undefined as boolean | undefined,
   }
 }
 
@@ -325,7 +311,7 @@ export function getItemsFromQueryInfo(pagination, queryInfo, keyedById) {
   const ids = pageLevel && pageLevel.ids
 
   if (ids && ids.length) {
-    return ids.map((id) => keyedById[id])
+    return ids.map(id => keyedById[id])
   } else {
     return []
   }
@@ -334,7 +320,7 @@ export function getItemsFromQueryInfo(pagination, queryInfo, keyedById) {
 export function makeNamespace(namespace, servicePath, nameStyle) {
   const nameStyles = {
     short: getShortName,
-    path: getNameFromPath
+    path: getNameFromPath,
   }
   return namespace || nameStyles[nameStyle](servicePath)
 }
@@ -357,8 +343,7 @@ export function getServicePath(service: Service<any>, Model: any) {
 
 export function randomString(length) {
   let text = ''
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
   for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length))
@@ -377,8 +362,8 @@ export function createRelatedInstance({ item, Model, idField, store }) {
 }
 
 export function isBaseModelInstance(item) {
-  const baseModels = Object.keys(models).map((alias) => models[alias].BaseModel)
-  return !!baseModels.find((BaseModel) => {
+  const baseModels = Object.keys(models).map(alias => models[alias].BaseModel)
+  return !!baseModels.find(BaseModel => {
     return item instanceof BaseModel
   })
 }

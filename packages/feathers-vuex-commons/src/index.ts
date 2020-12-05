@@ -11,7 +11,7 @@ import makeGetMixin from './mixins/make-get-mixin'
 import useFind from './use/useFind'
 import useGet from './use/useGet'
 
-import { globalModels as models } from './service-module/global-models'
+import { models, clearModels } from './service-module/global-models'
 import makeBaseModel from './service-module/make-base-model'
 
 import { clients, addClient } from './service-module/global-clients'
@@ -69,6 +69,7 @@ export {
   // Models
   models,
   makeBaseModel,
+  clearModels,
   // Clients
   clients,
   addClient,
