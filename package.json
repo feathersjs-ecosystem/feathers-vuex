@@ -27,7 +27,7 @@
     "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"
   },
   "scripts": {
-    "publish:pre": "lerna publish --dist-tag next",
+    "publish:pre": "lerna publish --dist-tag next --pre-dist-tag next --preid pre",
     "changelog": "github_changelog_generator && git add CHANGELOG.md && git commit -am \"Updating changelog\"",
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard --fix",
