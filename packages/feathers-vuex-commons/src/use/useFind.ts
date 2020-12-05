@@ -9,7 +9,7 @@ import { Model } from '../service-module/types'
 import { UseFindOptions, UseFindState, UseFindData } from './types'
 
 const unwrapParams = (params: Params | Ref<Params>): Params =>
-  params && params.value ? params.value : params
+  params && params.value !== undefined ? params.value : params
 
 export default function find<M extends Model = Model>(options: UseFindOptions): UseFindData<M> {
   const defaults: UseFindOptions = {
@@ -86,7 +86,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
 
   function find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
     params = unwrapParams(params)
-    if (params && queryWhen.value && !state.isLocal) {
+    if (params && params !== null && queryWhen.value && !state.isLocal) {
       state.isPending = true
       state.haveBeenRequested = true
 
