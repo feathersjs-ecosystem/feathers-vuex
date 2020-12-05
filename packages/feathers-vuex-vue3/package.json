@@ -45,9 +45,10 @@
     "serialize-error": "^7.0.1"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.0.4"
   },
   "devDependencies": {
-    "shx": "^0.3.3"
+    "shx": "^0.3.3",
+    "vue": "^3.0.4"
   }
 }
