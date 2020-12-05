@@ -41,9 +41,9 @@ import {
   ServiceState,
   AuthState,
 } from '@feathersjs/vuex-commons'
-import makeServiceMutations from './service-module.mutations-vue3'
-
 import { FeathersVuex } from './app-plugin'
+import makeServiceMutations from './service-module.mutations-vue3'
+import { merge } from './utils.vue3'
 
 const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
@@ -61,6 +61,7 @@ const defaults: FeathersVuexOptions = {
   handleEvents: {} as HandleEvents,
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
   makeServiceMutations,
+  merge,
   whitelist: [], // Custom query operators that will be allowed in the find getter.
 }
 const events = ['created', 'patched', 'updated', 'removed']

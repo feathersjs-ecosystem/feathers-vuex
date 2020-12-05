@@ -19,7 +19,14 @@ import { clients, addClient } from './service-module/global-clients'
 import prepareMakeServicePlugin from './service-module/make-service-plugin'
 import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
 
-import { initAuth, hydrateApi, assignTempId, getId, getQueryInfo } from './utils'
+import {
+  initAuth,
+  hydrateApi,
+  assignTempId,
+  getId,
+  getQueryInfo,
+  isBaseModelInstance,
+} from './utils'
 
 import {
   FeathersVuexOptions,
@@ -66,6 +73,7 @@ export {
   assignTempId,
   getId,
   getQueryInfo,
+  isBaseModelInstance,
   // Types
   FeathersVuexOptions,
   HandleEvents,

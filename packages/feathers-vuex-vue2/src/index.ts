@@ -39,9 +39,11 @@ import {
   FeathersVuexGlobalModels,
   GlobalModels,
   ServiceState,
-  AuthState
+  AuthState,
 } from '@feathersjs/vuex-commons'
 import { FeathersVuex } from './vue-plugin'
+import makeServiceMutations from './service-module.mutations-vue2'
+import { mergeWithAccessors } from './utils-vue2'
 
 const defaults: FeathersVuexOptions = {
   autoRemove: false, // Automatically remove records missing from responses (only use with feathers-rest)
@@ -58,15 +60,15 @@ const defaults: FeathersVuexOptions = {
   serverAlias: 'api',
   handleEvents: {} as HandleEvents,
   skipRequestIfExists: false, // For get action, if the record already exists in store, skip the remote request
-  whitelist: [] // Custom query operators that will be allowed in the find getter.
+  makeServiceMutations,
+  merge: mergeWithAccessors,
+  whitelist: [], // Custom query operators that will be allowed in the find getter.
 }
 const events = ['created', 'patched', 'updated', 'removed']
 
 export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   if (!feathers || !feathers.service) {
-    throw new Error(
-      'The first argument to feathersVuex must be a feathers client.'
-    )
+    throw new Error('The first argument to feathersVuex must be a feathers client.')
   }
 
   // Setup the event handlers. By default they just return the value of `options.enableEvents`
@@ -78,9 +80,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
   options = Object.assign({}, defaults, options)
 
   if (!options.serverAlias) {
-    throw new Error(
-      `You must provide a 'serverAlias' in the options to feathersVuex`
-    )
+    throw new Error(`You must provide a 'serverAlias' in the options to feathersVuex`)
   }
 
   addClient({ client: feathers, serverAlias: options.serverAlias })
@@ -95,7 +95,7 @@ export default function feathersVuex(feathers, options: FeathersVuexOptions) {
     makeAuthPlugin,
     FeathersVuex,
     models: models as GlobalModels,
-    clients
+    clients,
   }
 }
 
@@ -121,5 +121,5 @@ export {
   ModelSetupContext,
   ServiceState,
   FeathersVuexGlobalModels,
-  FeathersVuexStoreState
+  FeathersVuexStoreState,
 }

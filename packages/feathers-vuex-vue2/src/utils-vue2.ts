@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import fastCopy from 'fast-copy'
 import _isObject from 'lodash/isObject'
+import { isBaseModelInstance } from '@feathersjs/vuex-commons'
 
 export function updateOriginal(original, newData) {
   Object.keys(newData).forEach(key => {

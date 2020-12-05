@@ -40,6 +40,7 @@
   "dependencies": {
     "@feathersjs/vuex-commons": "^0.0.2-pre.4",
     "@types/feathersjs__feathers": "^3.1.5",
+    "fast-copy": "^2.1.0",
     "serialize-error": "^7.0.1"
   },
   "peerDependencies": {

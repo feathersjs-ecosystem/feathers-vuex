@@ -15,7 +15,7 @@ export type makeServiceMutations = () => {
   updateItem(state: any, item: any): void
   updateTemp: (state: any, { id, tempId }: { id: any; tempId: Id }) => void
   removeItem(state: any, item: any): void
-  removeTemps(state: any, temps: Array<Id>): void
+  removeTemps(state: any, temps: Id[]): void
   removeItems: (state: any, items: Array<any>) => void
   clearAll(state: any): void
   createCopy: (state: any, id: Id) => void
@@ -26,6 +26,11 @@ export type makeServiceMutations = () => {
     state: any,
     { qid, response, query }: { qid: String; response: any; query: any }
   ) => void
+  setPending: (state: any, method: PendingServiceMethodName) => void
+  unsetPending: (state: any, method: PendingServiceMethodName) => void
+  setIdPending: (state, payload: { method: PendingIdServiceMethodName; id: Id | Id[] }) => void
+  unsetIdPending: (state, payload: { method: PendingIdServiceMethodName; id: Id | Id[] }) => void
+  setError: (state, payload: { method: PendingServiceMethodName; error: Error }) => void
   clearError(state: any, method: PendingServiceMethodName): void
 }
 
@@ -50,7 +55,7 @@ export interface FeathersVuexOptions {
   preferUpdate?: boolean
   replaceItems?: boolean
   skipRequestIfExists?: boolean
-  makeServiceMutations
+  makeServiceMutations: makeServiceMutations
   merge(dest: unknown, source: unknown, blacklist?: string[]): void
 
   whitelist?: string[]
