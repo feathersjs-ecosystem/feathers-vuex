@@ -38,6 +38,14 @@ import {
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
   GlobalModels,
+  // Use types
+  UseFindOptions,
+  UseFindData,
+  UseFindState,
+  UseGetData,
+  UseGetOptions,
+  UseGetState,
+  // State
   ServiceState,
   AuthState,
 } from '@feathersjs/vuex-commons'
@@ -114,12 +122,20 @@ export {
   clients,
   useFind,
   useGet,
-  AuthState,
   Id,
   Model,
   ModelStatic,
   ModelSetupContext,
-  ServiceState,
   FeathersVuexGlobalModels,
   FeathersVuexStoreState,
+  // Use types
+  UseFindOptions,
+  UseFindData,
+  UseFindState,
+  UseGetData,
+  UseGetOptions,
+  UseGetState,
+  // State
+  ServiceState,
+  AuthState,
 }

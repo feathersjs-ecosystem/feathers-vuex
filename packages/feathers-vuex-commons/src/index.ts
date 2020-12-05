@@ -101,7 +101,7 @@ export {
   UseGetData,
   UseGetOptions,
   UseGetState,
-  // Auth types
+  // State
   ServiceState,
   AuthState,
 }
