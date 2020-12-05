@@ -1,7 +1,7 @@
 {
   "name": "feathers-vuex",
   "description": "FeathersJS, Vue 2, and Nuxt for the artisan developer",
-  "version": "4.0.1-pre.5",
+  "version": "4.0.1-pre.6",
   "homepage": "https:vuex.feathersjs.com",
   "main": "dist/",
   "module": "dist/",
@@ -40,7 +40,7 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
-    "@feathersjs/vuex-commons": "^0.0.2-pre.6",
+    "@feathersjs/vuex-commons": "^0.0.2-pre.7",
     "@types/feathersjs__feathers": "^3.1.7",
     "fast-copy": "^2.1.0",
     "serialize-error": "^7.0.1"

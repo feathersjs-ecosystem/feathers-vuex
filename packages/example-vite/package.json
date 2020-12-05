@@ -1,14 +1,14 @@
 {
   "name": "@feathersjs/vuex-vite-example",
   "private": true,
-  "version": "0.0.1-pre.0",
+  "version": "0.0.1-pre.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build"
   },
   "dependencies": {
     "@feathersjs/client": "^4.5.11",
-    "@feathersjs/vuex": "^4.0.1-pre.5",
+    "@feathersjs/vuex": "^4.0.1-pre.6",
     "add": "^2.0.6",
     "fast-copy": "^2.1.0",
     "feathers-memory": "^4.1.0",
