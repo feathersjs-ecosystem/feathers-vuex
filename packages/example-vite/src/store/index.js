@@ -8,3 +8,5 @@ export const store = createStore({
   actions: {},
   plugins: [tasks],
 })
+
+window.store = store

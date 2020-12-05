@@ -32,6 +32,7 @@ const servicePlugin = makeServicePlugin({
   Model: Task,
   service: feathersClient.service(servicePath),
   servicePath,
+  idField: '_id',
 })
 
 // Setup the client-side Feathers hooks.

@@ -3,7 +3,7 @@ import { store } from './store/index'
 import { FeathersVuex } from '@feathersjs/vuex'
 
 import App from './App.vue'
-import './index.css'
+import './index.postcss'
 
 const app = createApp(App)
 app.use(FeathersVuex)

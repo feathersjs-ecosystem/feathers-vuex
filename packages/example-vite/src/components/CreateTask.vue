@@ -1,7 +1,19 @@
 <template>
-  <div>
-    <input type="text" v-model="description" @keyup.enter="createTask" />
-    <button type="button" @click="createTask">Create Task</button>
+  <div class="flex flex-row items-center">
+    <input
+      type="text"
+      v-model="description"
+      @keyup.enter="addTask"
+      class="bg-gray-300 rounded-l-lg px-2 py-1 flex-grow"
+      placeholder="Add a task"
+    />
+    <button
+      type="button"
+      @click="addTask"
+      class="bg-blue-600 text-white rounded-r-lg px-2 py-1 whitespace-no-wrap"
+    >
+      Add
+    </button>
   </div>
 </template>
 
@@ -13,14 +25,14 @@ export default {
     const models = inject('$fv')
     const description = ref('')
 
-    async function createTask() {
+    async function addTask() {
       const task = await new models.api.Task({ description: description.value }).save()
       description.value = ''
     }
 
     return {
       description,
-      createTask,
+      addTask,
     }
   },
 }
