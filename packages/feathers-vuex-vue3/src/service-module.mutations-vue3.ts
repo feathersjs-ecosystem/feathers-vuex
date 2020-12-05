@@ -6,15 +6,20 @@ no-var: 0
 */
 import Vue from 'vue'
 import { serializeError } from 'serialize-error'
-import { updateOriginal, mergeWithAccessors } from './utils.vue3'
-import { models, ServiceState, assignTempId, getId, getQueryInfo } from '@feathersjs/vuex-commons'
+import { updateOriginal, merge } from './utils.vue3'
+import {
+  models,
+  ServiceState,
+  assignTempId,
+  getId,
+  getQueryInfo,
+  PendingServiceMethodName,
+  PendingIdServiceMethodName,
+} from '@feathersjs/vuex-commons'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
 import { Id } from '@feathersjs/feathers'
-
-export type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
-export type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -106,29 +111,29 @@ export default function makeServiceMutations() {
     const id = getId(item, idField)
     const existingItem = state.keyedById[id]
     if (existingItem) {
-      mergeWithAccessors(existingItem, item)
+      merge(existingItem, item)
     }
   }
 
   function merge(state, { dest, source }) {
-    mergeWithAccessors(dest, source)
+    merge(dest, source)
   }
 
   return {
-    mergeInstance,
-    merge,
-    addItem(state, item) {
-      addItems(state, [item])
-    },
     addItems,
-    updateItem(state, item) {
-      updateItems(state, [item])
-    },
     updateItems(state, items) {
       if (!Array.isArray(items)) {
         throw new Error('You must provide an array to the `updateItems` mutation.')
       }
       updateItems(state, items)
+    },
+    mergeInstance,
+    merge,
+    addItem(state, item) {
+      addItems(state, [item])
+    },
+    updateItem(state, item) {
+      updateItems(state, [item])
     },
 
     // Promotes temp to "real" item:
@@ -264,9 +269,7 @@ export default function makeServiceMutations() {
       } else {
         const existingClone = state.copiesById[id]
 
-        item = existingClone
-          ? mergeWithAccessors(existingClone, current)
-          : mergeWithAccessors({}, current)
+        item = existingClone ? merge(existingClone, current) : merge({}, current)
       }
 
       if (keepCopiesInStore) {
@@ -293,7 +296,7 @@ export default function makeServiceMutations() {
 
       if (copy) {
         const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
-        mergeWithAccessors(copy, original)
+        merge(copy, original)
       }
     },
 
@@ -307,7 +310,7 @@ export default function makeServiceMutations() {
 
       if (copy) {
         const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
-        mergeWithAccessors(original, copy)
+        merge(original, copy)
       }
     },
 
