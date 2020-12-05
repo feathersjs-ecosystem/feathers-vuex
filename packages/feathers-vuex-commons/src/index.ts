@@ -31,6 +31,8 @@ import {
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
   GlobalModels,
+  PendingServiceMethodName,
+  PendingIdServiceMethodName,
 } from './service-module/types'
 import { ServiceState } from './service-module/service-module.state'
 import { AuthState } from './auth-module/types'
@@ -74,6 +76,8 @@ export {
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
   GlobalModels,
+  PendingServiceMethodName,
+  PendingIdServiceMethodName,
   ServiceState,
   AuthState,
 }
