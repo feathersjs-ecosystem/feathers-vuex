@@ -5,8 +5,13 @@
   "main": "dist/",
   "module": "dist/",
   "types": "dist/",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "vue",
+    "vuex",
+    "feathers-vuex",
     "feathers",
     "feathers-plugin"
   ],
