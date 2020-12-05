@@ -406,6 +406,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params?: Params): Promise<this> {
+      checkThis(this)
       const { idField, tempIdField, _dispatch, _commit } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -435,4 +436,12 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
   const BaseModelEventEmitter = BaseModel
   assertIsEventEmitter(BaseModelEventEmitter)
   return BaseModelEventEmitter as ModelStatic
+}
+
+function checkThis(context) {
+  if (!context) {
+    throw new Error(
+      `Instance methods must be called with the dot operator. If you are referencing one in an event, use '@click="() => instance.remove()"' so that the correct 'this' context is applied. Using '@click="instance.remove"' will call the remove function with "this" set to 'undefined' because the function is called directly instead of as a method.`
+    )
+  }
 }
