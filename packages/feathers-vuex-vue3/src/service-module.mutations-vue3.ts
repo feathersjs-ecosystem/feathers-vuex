@@ -145,7 +145,7 @@ export default function makeServiceMutations() {
       if (temp) {
         temp[state.idField] = id
         delete temp.__isTemp
-        delete state.tempsbyId[tempId]
+        delete state.tempsById[tempId]
         // If an item already exists in the store from the `created` event firing
         // it will be replaced here
         state.keyedById[id] = temp
