@@ -55,8 +55,8 @@ export interface FeathersVuexOptions {
   preferUpdate?: boolean
   replaceItems?: boolean
   skipRequestIfExists?: boolean
-  makeServiceMutations: makeServiceMutations
-  merge(dest: unknown, source: unknown, blacklist?: string[]): void
+  makeServiceMutations?: makeServiceMutations
+  merge?(dest: unknown, source: unknown, blacklist?: string[]): void
 
   whitelist?: string[]
 }
