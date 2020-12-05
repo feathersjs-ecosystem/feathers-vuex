@@ -32,7 +32,6 @@
     "watch": "shx rm -rf lib/ && babel --watch -d lib/ src/",
     "lint": "standard --fix",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
-    "test": "cross-env TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register 'test/**/*.test.ts'",
     "testee": "testee test/index.html --browsers firefox",
     "start": "npm run compile && node example/app",
     "docs": "vuepress dev docs",
