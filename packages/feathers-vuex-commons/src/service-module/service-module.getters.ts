@@ -16,12 +16,7 @@ import { Id } from '@feathersjs/feathers'
 const FILTERS = ['$sort', '$limit', '$skip', '$select']
 const additionalOperators = ['$elemMatch']
 
-const getCopiesById = ({
-  keepCopiesInStore,
-  servicePath,
-  serverAlias,
-  copiesById
-}) => {
+const getCopiesById = ({ keepCopiesInStore, servicePath, serverAlias, copiesById }) => {
   if (keepCopiesInStore) {
     return copiesById
   } else {
@@ -34,9 +29,9 @@ const getCopiesById = ({
 export default function makeServiceGetters() {
   return {
     list(state) {
-      return state.ids.map((id) => state.keyedById[id])
+      return state.ids.map(id => state.keyedById[id])
     },
-    find: (state) => (params) => {
+    find: state => params => {
       if (isRef(params)) {
         params = params.value
       }
@@ -52,7 +47,7 @@ export default function makeServiceGetters() {
       const q = _omit(params.query || {}, paramsForServer)
 
       const { query, filters } = filterQuery(q, {
-        operators: additionalOperators.concat(whitelist)
+        operators: additionalOperators.concat(whitelist),
       })
       let values = _.values(keyedById)
 
@@ -89,19 +84,17 @@ export default function makeServiceGetters() {
       }
 
       if (filters.$select) {
-        values = values.map((value) =>
-          _.pick(value, ...filters.$select.slice())
-        )
+        values = values.map(value => _.pick(value, ...filters.$select.slice()))
       }
 
       return {
         total,
         limit: filters.$limit || 0,
         skip: filters.$skip || 0,
-        data: values
+        data: values,
       }
     },
-    count: (state, getters) => (params) => {
+    count: (state, getters) => params => {
       if (isRef(params)) {
         params = params.value
       }
@@ -114,10 +107,7 @@ export default function makeServiceGetters() {
 
       return getters.find(params).total
     },
-    get: ({ keyedById, tempsById, idField, tempIdField }) => (
-      id,
-      params = {}
-    ) => {
+    get: ({ keyedById, tempsById, idField, tempIdField }) => (id, params = {}) => {
       if (isRef(id)) {
         id = id.value
       }
@@ -128,12 +118,11 @@ export default function makeServiceGetters() {
       if (record) {
         return record
       }
-      const tempRecord =
-        tempsById[id] && select(params, tempIdField)(tempsById[id])
+      const tempRecord = tempsById[id] && select(params, tempIdField)(tempsById[id])
 
       return tempRecord || null
     },
-    getCopyById: (state) => (id) => {
+    getCopyById: state => id => {
       const copiesById = getCopiesById(state)
       return copiesById[id]
     },
@@ -151,7 +140,7 @@ export default function makeServiceGetters() {
       getters.isUpdatePendingById(id) ||
       getters.isPatchPendingById(id),
     isPendingById: (state: ServiceState, getters) => (id: Id) =>
-      getters.isSavePendingById(id) || getters.isRemovePendingById(id)
+      getters.isSavePendingById(id) || getters.isRemovePendingById(id),
   }
 }
 

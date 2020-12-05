@@ -16,7 +16,7 @@ export default function makeFindMixin(options) {
     local = false,
     qid = 'default',
     item,
-    debug
+    debug,
   } = options
   let { name, watch = [] } = options
 
@@ -26,10 +26,7 @@ export default function makeFindMixin(options) {
     watch = ['query']
   }
 
-  if (
-    !service ||
-    (typeof service !== 'string' && typeof service !== 'function')
-  ) {
+  if (!service || (typeof service !== 'string' && typeof service !== 'function')) {
     throw new Error(
       `The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`
     )
@@ -66,7 +63,7 @@ export default function makeFindMixin(options) {
     [HAS_ITEM_LOADED_ONCE]: false,
     [WATCH]: watch,
     [QID]: qid,
-    [ERROR]: null
+    [ERROR]: null,
   }
 
   const mixin = {
@@ -75,9 +72,7 @@ export default function makeFindMixin(options) {
     },
     computed: {
       [ITEM]() {
-        return this[ID]
-          ? this.$store.getters[`${this[SERVICE_NAME]}/get`](this[ID])
-          : null
+        return this[ID] ? this.$store.getters[`${this[SERVICE_NAME]}/get`](this[ID]) : null
       },
       [QUERY_WHEN]() {
         return true
@@ -88,7 +83,7 @@ export default function makeFindMixin(options) {
           const serviceName = this[SERVICE_NAME]
           return this.$store.getters[`${serviceName}/get`](id)
         }
-      }
+      },
     },
     methods: {
       [GET_ACTION](id, params) {
@@ -116,7 +111,7 @@ export default function makeFindMixin(options) {
               })
           }
         }
-      }
+      },
     },
     // add the created lifecycle hook only if local option is falsy
     ...(!local && {
@@ -153,7 +148,7 @@ export default function makeFindMixin(options) {
                 prop.replace(PARAMS, FETCH_PARAMS)
               }
             }
-            this.$watch(prop, function() {
+            this.$watch(prop, function () {
               return this[GET_ACTION]()
             })
           })
@@ -164,8 +159,8 @@ export default function makeFindMixin(options) {
             `No "${ID}", "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeGetMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`
           )
         }
-      }
-    })
+      },
+    }),
   }
 
   function hasSomeAttribute(vm, ...attributes) {
@@ -174,22 +169,15 @@ export default function makeFindMixin(options) {
     })
   }
 
-  function setupAttribute(
-    NAME,
-    value,
-    computedOrMethods = 'computed',
-    returnTheValue = false
-  ) {
+  function setupAttribute(NAME, value, computedOrMethods = 'computed', returnTheValue = false) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
-      mixin.computed[NAME] = function() {
+      mixin.computed[NAME] = function () {
         // If the specified computed prop wasn't found, display an error.
         if (!returnTheValue) {
           if (!hasSomeAttribute(this, value, NAME)) {
-            throw new Error(
-              `Value for ${NAME} was not found on the component at '${value}'.`
-            )
+            throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
           }
         }
         return returnTheValue ? value : this[value]

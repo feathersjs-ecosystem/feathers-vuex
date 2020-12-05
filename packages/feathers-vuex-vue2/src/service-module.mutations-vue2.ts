@@ -6,31 +6,15 @@ no-var: 0
 */
 import Vue from 'vue'
 import { serializeError } from 'serialize-error'
-import {
-  updateOriginal,
-  mergeWithAccessors,
-  assignTempId,
-  getId,
-  getQueryInfo
-} from '../utils'
-import { globalModels as models } from './global-models'
+import { updateOriginal, mergeWithAccessors } from './utils-vue2'
+import { assignTempId, getId, getQueryInfo, models, ServiceState } from '@feathersjs/vuex-commons'
 import _omit from 'lodash/omit'
 import _get from 'lodash/get'
 import _isObject from 'lodash/isObject'
 import { Id } from '@feathersjs/feathers'
-import { ServiceState } from './service-module.state'
 
-export type PendingServiceMethodName =
-  | 'find'
-  | 'get'
-  | 'create'
-  | 'update'
-  | 'patch'
-  | 'remove'
-export type PendingIdServiceMethodName = Exclude<
-  PendingServiceMethodName,
-  'find' | 'get'
->
+export type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
+export type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
 
 export default function makeServiceMutations() {
   function addItems(state, items) {
@@ -99,11 +83,7 @@ export default function makeServiceMutations() {
              *
              * If there's no Model class, just call updateOriginal on the incoming data.
              */
-            if (
-              Model &&
-              !(item instanceof BaseModel) &&
-              !(item instanceof Model)
-            ) {
+            if (Model && !(item instanceof BaseModel) && !(item instanceof Model)) {
               item = new Model(item)
             } else {
               const original = state.keyedById[id]
@@ -146,9 +126,7 @@ export default function makeServiceMutations() {
     },
     updateItems(state, items) {
       if (!Array.isArray(items)) {
-        throw new Error(
-          'You must provide an array to the `updateItems` mutation.'
-        )
+        throw new Error('You must provide an array to the `updateItems` mutation.')
       }
       updateItems(state, items)
     },
@@ -186,12 +164,10 @@ export default function makeServiceMutations() {
       const { idField } = state
       const idToBeRemoved = _isObject(item) ? getId(item, idField) : item
       const isIdOk = idToBeRemoved !== null && idToBeRemoved !== undefined
-      const index = state.ids.findIndex((i) => i === idToBeRemoved)
+      const index = state.ids.findIndex(i => i === idToBeRemoved)
 
       const Model = _get(models, `[${state.serverAlias}][${state.modelName}]`)
-      const copiesById = state.keepCopiesInStore
-        ? state.copiesById
-        : Model.copiesById
+      const copiesById = state.keepCopiesInStore ? state.copiesById : Model.copiesById
 
       if (isIdOk && index !== null && index !== undefined) {
         Vue.delete(state.ids, index)
@@ -204,7 +180,7 @@ export default function makeServiceMutations() {
 
     // Removes temp records
     removeTemps(state, tempIds) {
-      tempIds.forEach((id) => {
+      tempIds.forEach(id => {
         const temp = state.tempsById[id]
         if (temp) {
           if (temp[state.idField]) {
@@ -221,30 +197,20 @@ export default function makeServiceMutations() {
       const { idField } = state
 
       if (!Array.isArray(items)) {
-        throw new Error(
-          'You must provide an array to the `removeItems` mutation.'
-        )
+        throw new Error('You must provide an array to the `removeItems` mutation.')
       }
       // Make sure we have an array of ids. Assume all are the same.
       const containsObjects = items[0] && _isObject(items[0])
-      const idsToRemove = containsObjects
-        ? items.map((item) => getId(item, idField))
-        : items
+      const idsToRemove = containsObjects ? items.map(item => getId(item, idField)) : items
       const mapOfIdsToRemove = idsToRemove.reduce((map, id) => {
         map[id] = true
         return map
       }, {})
 
-      const Model = _get(models, [
-        state.serverAlias,
-        'byServicePath',
-        state.servicePath
-      ])
-      const copiesById = state.keepCopiesInStore
-        ? state.copiesById
-        : Model.copiesById
+      const Model = _get(models, [state.serverAlias, 'byServicePath', state.servicePath])
+      const copiesById = state.keepCopiesInStore ? state.copiesById : Model.copiesById
 
-      idsToRemove.forEach((id) => {
+      idsToRemove.forEach(id => {
         Vue.delete(state.keyedById, id)
         if (copiesById.hasOwnProperty(id)) {
           Vue.delete(copiesById, id)
@@ -259,18 +225,16 @@ export default function makeServiceMutations() {
         return map
       }, {})
       // Remove highest indexes first, so the indexes don't change
-      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort(
-        (a, b) => {
-          if (a < b) {
-            return 1
-          } else if (a > b) {
-            return -1
-          } else {
-            return 0
-          }
+      const indexesInReverseOrder = Object.keys(mapOfIndexesToRemove).sort((a, b) => {
+        if (a < b) {
+          return 1
+        } else if (a > b) {
+          return -1
+        } else {
+          return 0
         }
-      )
-      indexesInReverseOrder.forEach((indexInIdsArray) => {
+      })
+      indexesInReverseOrder.forEach(indexInIdsArray => {
         Vue.delete(state.ids, indexInIdsArray)
       })
     },
@@ -282,14 +246,8 @@ export default function makeServiceMutations() {
       if (state.keepCopiesInStore) {
         state.copiesById = {}
       } else {
-        const Model = _get(models, [
-          state.serverAlias,
-          'byServicePath',
-          state.servicePath
-        ])
-        Object.keys(Model.copiesById).forEach((k) =>
-          Vue.delete(Model.copiesById, k)
-        )
+        const Model = _get(models, [state.serverAlias, 'byServicePath', state.servicePath])
+        Object.keys(Model.copiesById).forEach(k => Vue.delete(Model.copiesById, k))
       }
     },
 
@@ -328,20 +286,13 @@ export default function makeServiceMutations() {
     // Resets the copy to match the original record, locally
     resetCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(models, [
-        state.serverAlias,
-        'byServicePath',
-        servicePath
-      ])
+      const Model = _get(models, [state.serverAlias, 'byServicePath', servicePath])
       const copy = keepCopiesInStore
         ? state.copiesById[id]
         : Model && _get(Model, ['copiesById', id])
 
       if (copy) {
-        const original =
-          copy[state.idField] != null
-            ? state.keyedById[id]
-            : state.tempsById[id]
+        const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
         mergeWithAccessors(copy, original)
       }
     },
@@ -349,20 +300,13 @@ export default function makeServiceMutations() {
     // Deep assigns copy to original record, locally
     commitCopy(state, id) {
       const { servicePath, keepCopiesInStore } = state
-      const Model = _get(models, [
-        state.serverAlias,
-        'byServicePath',
-        servicePath
-      ])
+      const Model = _get(models, [state.serverAlias, 'byServicePath', servicePath])
       const copy = keepCopiesInStore
         ? state.copiesById[id]
         : Model && _get(Model, ['copiesById', id])
 
       if (copy) {
-        const original =
-          copy[state.idField] != null
-            ? state.keyedById[id]
-            : state.tempsById[id]
+        const original = copy[state.idField] != null ? state.keyedById[id] : state.tempsById[id]
         mergeWithAccessors(original, copy)
       }
     },
@@ -370,11 +314,7 @@ export default function makeServiceMutations() {
     // Removes the copy from copiesById
     clearCopy(state, id) {
       const { keepCopiesInStore } = state
-      const Model = _get(models, [
-        state.serverAlias,
-        'byServicePath',
-        state.servicePath
-      ])
+      const Model = _get(models, [state.serverAlias, 'byServicePath', state.servicePath])
 
       const copiesById = keepCopiesInStore ? state.copiesById : Model.copiesById
 
@@ -390,12 +330,9 @@ export default function makeServiceMutations() {
     updatePaginationForQuery(state, { qid, response, query = {} }) {
       const { data, total } = response
       const { idField } = state
-      const ids = data.map((i) => i[idField])
+      const ids = data.map(i => i[idField])
       const queriedAt = new Date().getTime()
-      const { queryId, queryParams, pageId, pageParams } = getQueryInfo(
-        { qid, query },
-        response
-      )
+      const { queryId, queryParams, pageId, pageParams } = getQueryInfo({ qid, query }, response)
 
       if (!state.pagination[qid]) {
         Vue.set(state.pagination, qid, {})
@@ -414,7 +351,7 @@ export default function makeServiceMutations() {
         pageId,
         pageParams,
         queriedAt,
-        total
+        total,
       }
 
       const qidData = state.pagination[qid] || {}
@@ -422,12 +359,12 @@ export default function makeServiceMutations() {
       qidData[queryId] = qidData[queryId] || {}
       const queryData = {
         total,
-        queryParams
+        queryParams,
       }
       Object.assign(qidData[queryId], queryData)
 
       const pageData = {
-        [pageId]: { pageParams, ids, queriedAt }
+        [pageId]: { pageParams, ids, queriedAt },
       }
       Object.assign(qidData[queryId], pageData)
 
@@ -445,10 +382,7 @@ export default function makeServiceMutations() {
       state[`is${uppercaseMethod}Pending`] = false
     },
 
-    setIdPending(
-      state,
-      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
-    ): void {
+    setIdPending(state, payload: { method: PendingIdServiceMethodName; id: Id | Id[] }): void {
       const { method, id } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       const isIdMethodPending = state[
@@ -456,16 +390,13 @@ export default function makeServiceMutations() {
       ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
-      ids.forEach((id) => {
+      ids.forEach(id => {
         if (typeof id === 'number' || typeof id === 'string') {
           isIdMethodPending.push(id)
         }
       })
     },
-    unsetIdPending(
-      state,
-      payload: { method: PendingIdServiceMethodName; id: Id | Id[] }
-    ): void {
+    unsetIdPending(state, payload: { method: PendingIdServiceMethodName; id: Id | Id[] }): void {
       const { method, id } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       const isIdMethodPending = state[
@@ -473,7 +404,7 @@ export default function makeServiceMutations() {
       ] as ServiceState['isIdCreatePending']
       // if `id` is an array, ensure it doesn't have duplicates
       const ids = Array.isArray(id) ? [...new Set(id)] : [id]
-      ids.forEach((id) => {
+      ids.forEach(id => {
         const idx = isIdMethodPending.indexOf(id)
         if (idx >= 0) {
           Vue.delete(isIdMethodPending, idx)
@@ -481,20 +412,14 @@ export default function makeServiceMutations() {
       })
     },
 
-    setError(
-      state,
-      payload: { method: PendingServiceMethodName; error: Error }
-    ): void {
+    setError(state, payload: { method: PendingServiceMethodName; error: Error }): void {
       const { method, error } = payload
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
-      state[`errorOn${uppercaseMethod}`] = Object.assign(
-        {},
-        serializeError(error)
-      )
+      state[`errorOn${uppercaseMethod}`] = Object.assign({}, serializeError(error))
     },
     clearError(state, method: PendingServiceMethodName): void {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = null
-    }
+    },
   }
 }

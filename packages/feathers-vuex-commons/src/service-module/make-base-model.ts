@@ -12,10 +12,10 @@ import {
   GlobalModels,
   StoreState,
   AnyData,
-  PatchParams
+  PatchParams,
 } from './types'
 import { globalModels, prepareAddModel } from './global-models'
-import { mergeWithAccessors, checkNamespace, getId, Params } from '../utils'
+import { checkNamespace, getId, Params } from '../utils'
 import _merge from 'lodash/merge'
 import _get from 'lodash/get'
 import { EventEmitter } from 'events'
@@ -26,7 +26,7 @@ import { GetterName } from './service-module.getters'
 const defaultOptions = {
   clone: false,
   commit: true,
-  merge: true
+  merge: true,
 }
 
 /** Ensures value has EventEmitter instance props */
@@ -46,7 +46,7 @@ function assertIsEventEmitter(val: unknown): asserts val is EventEmitter {
  */
 export default function makeBaseModel(options: FeathersVuexOptions) {
   const addModel = prepareAddModel(options)
-  const { serverAlias } = options
+  const { serverAlias, merge } = options
 
   // If this serverAlias already has a BaseModel, return it
   const ExistingBaseModel = _get(globalModels, [serverAlias, 'BaseModel'])
@@ -90,7 +90,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     public __isClone: boolean
     public __isTemp: boolean
 
-    public static merge = mergeWithAccessors
+    public static merge = merge
     public static modelName = 'BaseModel'
 
     public constructor(data: AnyData, options: ModelInstanceOptions) {
@@ -109,21 +109,16 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         setupInstance,
         getFromStore,
         namespace,
-        _commit
+        _commit,
       } = this.constructor as typeof BaseModel
       const id = getId(data, idField)
       const hasValidId = id !== null && id !== undefined
-      const tempId =
-        data && data.hasOwnProperty(tempIdField) ? data[tempIdField] : undefined
+      const tempId = data && data.hasOwnProperty(tempIdField) ? data[tempIdField] : undefined
       const hasValidTempId = tempId !== null && tempId !== undefined
-      const copiesById = keepCopiesInStore
-        ? store.state[namespace].copiesById
-        : copiesByIdOnModel
+      const copiesById = keepCopiesInStore ? store.state[namespace].copiesById : copiesByIdOnModel
 
       const existingItem =
-        hasValidId && !options.clone
-          ? getFromStore.call(this.constructor, id)
-          : null
+        hasValidId && !options.clone ? getFromStore.call(this.constructor, id) : null
 
       // If it already exists, update the original and return
       if (existingItem) {
@@ -141,7 +136,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         // This must be done in a mutation to avoid Vuex errors.
         _commit.call(this.constructor, 'merge', {
           dest: existingClone,
-          source: data
+          source: data,
         })
         return existingClone
       }
@@ -150,24 +145,20 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       if (options.clone) {
         Object.defineProperty(this, '__isClone', {
           value: true,
-          enumerable: false
+          enumerable: false,
         })
       }
 
       // Setup instanceDefaults
       if (instanceDefaults && typeof instanceDefaults === 'function') {
-        const defaults =
-          instanceDefaults.call(this, data, { models, store }) || data
-        mergeWithAccessors(this, defaults)
+        const defaults = instanceDefaults.call(this, data, { models, store }) || data
+        merge(this, defaults)
       }
 
       // Handles Vue objects or regular ones. We can't simply assign or return
       // the data due to how Vue wraps everything into an accessor.
       if (options.merge !== false) {
-        mergeWithAccessors(
-          this,
-          setupInstance.call(this, data, { models, store }) || data
-        )
+        merge(this, setupInstance.call(this, data, { models, store }) || data)
       }
 
       // Add the item to the store
@@ -182,10 +173,8 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param getter name of getter to call
      */
     private getGetterWithId(getter: GetterName): unknown {
-      const { _getters, idField, tempIdField } = this
-        .constructor as typeof BaseModel
-      const id =
-        getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+      const { _getters, idField, tempIdField } = this.constructor as typeof BaseModel
+      const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
       return _getters.call(this.constructor, getter, id)
     }
 
@@ -305,43 +294,31 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       if (this.__isClone) {
         throw new Error('You cannot clone a copy')
       }
-      const id =
-        getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
+      const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
       return this._clone(id, data)
     }
 
     private _clone(id, data = {}) {
-      const { store, namespace, _commit, _getters } = this
-        .constructor as typeof BaseModel
+      const { store, namespace, _commit, _getters } = this.constructor as typeof BaseModel
       const { keepCopiesInStore } = store.state[namespace]
 
       _commit.call(this.constructor, `createCopy`, id)
 
       if (keepCopiesInStore) {
-        return Object.assign(
-          _getters.call(this.constructor, 'getCopyById', id),
-          data
-        )
+        return Object.assign(_getters.call(this.constructor, 'getCopyById', id), data)
       } else {
         // const { copiesById } = this.constructor as typeof BaseModel
-        return Object.assign(
-          (this.constructor as typeof BaseModel).copiesById[id],
-          data
-        )
+        return Object.assign((this.constructor as typeof BaseModel).copiesById[id], data)
       }
     }
     /**
      * Reset a clone to match the instance in the store.
      */
     public reset(): this {
-      const { idField, tempIdField, _commit } = this
-        .constructor as typeof BaseModel
+      const { idField, tempIdField, _commit } = this.constructor as typeof BaseModel
 
       if (this.__isClone) {
-        const id =
-          getId(this, idField) != null
-            ? getId(this, idField)
-            : this[tempIdField]
+        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
         _commit.call(this.constructor, 'resetCopy', id)
         return this
       } else {
@@ -353,13 +330,9 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Update a store instance to match a clone.
      */
     public commit(): this {
-      const { idField, tempIdField, _commit, _getters } = this
-        .constructor as typeof BaseModel
+      const { idField, tempIdField, _commit, _getters } = this.constructor as typeof BaseModel
       if (this.__isClone) {
-        const id =
-          getId(this, idField) != null
-            ? getId(this, idField)
-            : this[tempIdField]
+        const id = getId(this, idField) != null ? getId(this, idField) : this[tempIdField]
         _commit.call(this.constructor, 'commitCopy', id)
 
         return _getters.call(this.constructor, 'get', id)
@@ -398,9 +371,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * Calls service patch with the current instance data
      * @param params
      */
-    public patch<D extends {} = AnyData>(
-      params?: PatchParams<D>
-    ): Promise<this> {
+    public patch<D extends {} = AnyData>(params?: PatchParams<D>): Promise<this> {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
@@ -435,8 +406,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param params
      */
     public remove(params?: Params): Promise<this> {
-      const { idField, tempIdField, _dispatch, _commit } = this
-        .constructor as typeof BaseModel
+      const { idField, tempIdField, _dispatch, _commit } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
       if (id != null) {

@@ -15,7 +15,7 @@ export default function enableServiceEvents({
   service,
   Model,
   store,
-  options
+  options,
 }): ServiceEventsDebouncedQueue {
   const debouncedQueue: ServiceEventsDebouncedQueue = {
     addOrUpdateById: {},
@@ -42,7 +42,7 @@ export default function enableServiceEvents({
         if (values.length === 0) return
         await store.dispatch(`${options.namespace}/addOrUpdateList`, {
           data: values,
-          disableRemove: true
+          disableRemove: true,
         })
         this.addOrUpdateById = {}
       },
@@ -58,14 +58,14 @@ export default function enableServiceEvents({
       },
       options.debounceEventsTime || 20,
       { maxWait: options.debounceEventsMaxWait }
-    )
+    ),
   }
 
   const handleEvent = (eventName, item, mutationName): void => {
     const handler = options.handleEvents[eventName]
     const confirmOrArray = handler(item, {
       model: Model,
-      models: globalModels
+      models: globalModels,
     })
     const [affectsStore, modified = item] = Array.isArray(confirmOrArray)
       ? confirmOrArray

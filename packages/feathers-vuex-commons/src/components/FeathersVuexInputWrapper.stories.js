@@ -7,26 +7,26 @@ const User = makeModel()
 const user = new User({
   _id: 1,
   email: 'marshall@rovit.com',
-  carColor: '#FFF'
+  carColor: '#FFF',
 })
 
 export default {
   title: 'FeathersVuexInputWrapper',
-  component: FeathersVuexInputWrapper
+  component: FeathersVuexInputWrapper,
 }
 
 export const basic = () => ({
   components: {
-    FeathersVuexInputWrapper
+    FeathersVuexInputWrapper,
   },
   data: () => ({
-    user
+    user,
   }),
   methods: {
     save({ clone, data }) {
       const user = clone.commit()
       user.patch(data)
-    }
+    },
   },
   template: `
   <div class="p-3">
@@ -43,21 +43,21 @@ export const basic = () => ({
 
     <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
   </div>
-  `
+  `,
 })
 
 export const handlerAsPromise = () => ({
   components: {
-    FeathersVuexInputWrapper
+    FeathersVuexInputWrapper,
   },
   data: () => ({
-    user
+    user,
   }),
   methods: {
     async save({ clone, data }) {
       const user = clone.commit()
       return user.patch(data)
-    }
+    },
   },
   template: `
   <div class="p-3">
@@ -75,21 +75,21 @@ export const handlerAsPromise = () => ({
 
     <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
   </div>
-  `
+  `,
 })
 
 export const multipleOnDistinctProperties = () => ({
   components: {
-    FeathersVuexInputWrapper
+    FeathersVuexInputWrapper,
   },
   data: () => ({
-    user
+    user,
   }),
   methods: {
     async save({ event, clone, prop, data }) {
       const user = clone.commit()
       return user.patch(data)
-    }
+    },
   },
   template: `
   <div class="p-3">
@@ -117,25 +117,25 @@ export const multipleOnDistinctProperties = () => ({
 
     <pre class="bg-black text-white text-xs mt-2 p-1">{{user}}</pre>
   </div>
-  `
+  `,
 })
 
 export const noInputInSlot = () => ({
   components: {
-    FeathersVuexInputWrapper
+    FeathersVuexInputWrapper,
   },
   data: () => ({
-    user
+    user,
   }),
   methods: {
     async save({ clone, data }) {
       const user = clone.commit()
       user.patch(data)
-    }
+    },
   },
   template: `
   <div class="p-3">
     <FeathersVuexInputWrapper :item="user" prop="email" />
   </div>
-  `
+  `,
 })

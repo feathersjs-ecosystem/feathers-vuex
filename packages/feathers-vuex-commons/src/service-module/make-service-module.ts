@@ -7,7 +7,6 @@ import _pick from 'lodash/pick'
 import _merge from 'lodash/merge'
 import makeDefaultState from './service-module.state'
 import makeGetters from './service-module.getters'
-import makeMutations from './service-module.mutations'
 import makeActions from './service-module.actions'
 import { Service } from '@feathersjs/feathers'
 import { MakeServicePluginOptions } from './types'
@@ -18,19 +17,14 @@ export default function makeServiceModule(
   options: MakeServicePluginOptions,
   store: Store<any>
 ) {
+  const fromOptions = _pick(options, ['state', 'getters', 'mutations', 'actions', 'makeMutations'])
   const defaults = {
     namespaced: true,
     state: makeDefaultState(options),
     getters: makeGetters(),
-    mutations: makeMutations(),
-    actions: makeActions(service)
+    mutations: fromOptions.makeMutations(),
+    actions: makeActions(service),
   }
-  const fromOptions = _pick(options, [
-    'state',
-    'getters',
-    'mutations',
-    'actions'
-  ])
   const merged = _merge({}, defaults, fromOptions)
   const extended = options.extend({ store, module: merged })
   const finalModule = _merge({}, merged, extended)

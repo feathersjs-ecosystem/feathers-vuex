@@ -6,14 +6,14 @@ export default {
      */
     service: {
       type: String,
-      required: true
+      required: true,
     },
     /**
      * Must match the `serverAlias` that was provided in the service's configuration.
      */
     serverAlias: {
       type: String,
-      default: 'api'
+      default: 'api',
     },
     /**
      * By default, `query` is used to get data from the Vuex store AND the API request.
@@ -21,14 +21,14 @@ export default {
      */
     query: {
       type: Object,
-      default: null
+      default: null,
     },
     /**
      * If a separate query is desired to fetch data, use fetchQuery
      * The watchers are automatically updated, so you don't have to write 'fetchQuery.propName'
      */
     fetchQuery: {
-      type: Object
+      type: Object,
     },
     /**
      * Can be used in place of the `query` prop to provide more params. Only params.query is
@@ -36,7 +36,7 @@ export default {
      */
     params: {
       type: Object,
-      default: null
+      default: null,
     },
     /**
      * Can be used in place of the `fetchQuery` prop to provide more params. Only params.query is
@@ -44,19 +44,19 @@ export default {
      */
     fetchParams: {
       type: Object,
-      default: null
+      default: null,
     },
     /**
      * When `queryWhen` evaluates to false, no API request will be made.
      */
     queryWhen: {
       type: [Boolean, Function],
-      default: true
+      default: true,
     },
     // For get requests
     id: {
       type: [Number, String],
-      default: null
+      default: null,
     },
     /**
      * Specify which properties in the query to watch and re-trigger API requests.
@@ -65,14 +65,14 @@ export default {
       type: [String, Array],
       default() {
         return []
-      }
+      },
     },
     /**
      * Set `local` to true to only requests from the Vuex data store and not make API requests.
      */
     local: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /**
      * This function is called by the getter and allows you to intercept the `item` in the
@@ -83,12 +83,12 @@ export default {
       type: Function,
       default(scope) {
         return scope
-      }
-    }
+      },
+    },
   },
   data: () => ({
     isFindPending: false,
-    isGetPending: false
+    isGetPending: false,
   }),
   computed: {
     item() {
@@ -113,7 +113,7 @@ export default {
       const defaultScope = { item, isGetPending }
 
       return this.editScope(defaultScope) || defaultScope
-    }
+    },
   },
   methods: {
     getArgs(queryToUse) {
@@ -131,19 +131,12 @@ export default {
     getData() {
       const getArgs = this.getArgs()
 
-      if (
-        typeof this.queryWhen === 'function'
-          ? this.queryWhen(...getArgs)
-          : this.queryWhen
-      ) {
+      if (typeof this.queryWhen === 'function' ? this.queryWhen(...getArgs) : this.queryWhen) {
         this.isGetPending = true
 
         if (this.id) {
           return this.$store
-            .dispatch(
-              `${this.service}/get`,
-              getArgs.length === 1 ? this.id : getArgs
-            )
+            .dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
             .then(response => {
               this.isGetPending = false
               return response
@@ -165,7 +158,7 @@ export default {
         // eslint-disable-next-line no-console
         console.log(`No query and no id provided, so no data will be fetched.`)
       }
-    }
+    },
   },
   created() {
     if (!this.$FeathersVuex) {
@@ -174,9 +167,7 @@ export default {
       )
     }
     if (!this.$store.state[this.service]) {
-      throw new Error(
-        `The '${this.service}' plugin is not registered with feathers-vuex`
-      )
+      throw new Error(`The '${this.service}' plugin is not registered with feathers-vuex`)
     }
 
     const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
@@ -204,5 +195,5 @@ export default {
   },
   render() {
     return this.$scopedSlots.default(this.scope)
-  }
+  },
 }

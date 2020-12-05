@@ -11,7 +11,7 @@ import {
   getItemsFromQueryInfo,
   getQueryInfo,
   getServiceCapitalization,
-  getServicePrefix
+  getServicePrefix,
 } from '../utils'
 
 export default function makeFindMixin(options) {
@@ -23,7 +23,7 @@ export default function makeFindMixin(options) {
     local = false,
     qid = 'default',
     items,
-    debug
+    debug,
   } = options
   let { name, watch = [] } = options
 
@@ -33,10 +33,7 @@ export default function makeFindMixin(options) {
     watch = ['params']
   }
 
-  if (
-    !service ||
-    (typeof service !== 'string' && typeof service !== 'function')
-  ) {
+  if (!service || (typeof service !== 'string' && typeof service !== 'function')) {
     throw new Error(
       `The 'service' option is required in the FeathersVuex make-find-mixin and must be a string.`
     )
@@ -75,7 +72,7 @@ export default function makeFindMixin(options) {
     [WATCH]: watch,
     [QID]: qid,
     [MOST_RECENT_QUERY]: null,
-    [ERROR]: null
+    [ERROR]: null,
   }
   // Should only be used with actual fetching API calls.
   const getParams = ({ providedParams, params, fetchParams }) => {
@@ -100,10 +97,7 @@ export default function makeFindMixin(options) {
         const serviceState = this.$store.state[serviceName]
 
         // If both queries are provided, we're not using fall-through pagination.
-        if (
-          (this[FETCH_PARAMS] && this[PARAMS]) ||
-          (this[PARAMS] && !this[PARAMS].paginate)
-        ) {
+        if ((this[FETCH_PARAMS] && this[PARAMS]) || (this[PARAMS] && !this[PARAMS].paginate)) {
           return this.$store.getters[`${serviceName}/find`](this[PARAMS]).data
         }
 
@@ -117,11 +111,7 @@ export default function makeFindMixin(options) {
           const pagination = this[PAGINATION][params.qid || this[QID]] || {}
           const response = skip != null && limit != null ? { limit, skip } : {}
           const queryInfo = getQueryInfo(params, response)
-          const items = getItemsFromQueryInfo(
-            pagination,
-            queryInfo,
-            serviceState.keyedById
-          )
+          const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
 
           if (items && items.length) {
             return items
@@ -140,32 +130,26 @@ export default function makeFindMixin(options) {
       },
       // Exposes `findItemsInStore
       [FIND_GETTER]() {
-        return (params) => {
+        return params => {
           const serviceName = this[SERVICE_NAME]
           return this.$store.getters[`${serviceName}/find`](params)
         }
-      }
+      },
     },
     methods: {
       [`${FIND_ACTION}DebouncedProxy`](params) {
         const paramsToUse = getParams({
           providedParams: params,
           params: this[PARAMS],
-          fetchParams: this[FETCH_PARAMS]
+          fetchParams: this[FETCH_PARAMS],
         })
         if (paramsToUse && paramsToUse.debounce) {
           const cachedDebounceFunction = this[`${FIND_ACTION}Debounced`]
           const mostRecentTime = this[`${FIND_ACTION}MostRecentDebounceTime`]
 
-          if (
-            !cachedDebounceFunction ||
-            mostRecentTime != paramsToUse.debounce
-          ) {
+          if (!cachedDebounceFunction || mostRecentTime != paramsToUse.debounce) {
             this[`${FIND_ACTION}MostRecentDebounceTime`] = paramsToUse.debounce
-            this[`${FIND_ACTION}Debounced`] = debounce(
-              this[FIND_ACTION],
-              paramsToUse.debounce
-            )
+            this[`${FIND_ACTION}Debounced`] = debounce(this[FIND_ACTION], paramsToUse.debounce)
           }
           return this[`${FIND_ACTION}Debounced`](paramsToUse)
         } else {
@@ -177,13 +161,11 @@ export default function makeFindMixin(options) {
         const paramsToUse = getParams({
           providedParams: params,
           params: this[PARAMS],
-          fetchParams: this[FETCH_PARAMS]
+          fetchParams: this[FETCH_PARAMS],
         })
 
         const shouldExecuteQuery =
-          typeof this[QUERY_WHEN] === 'function'
-            ? this[QUERY_WHEN](paramsToUse)
-            : this[QUERY_WHEN]
+          typeof this[QUERY_WHEN] === 'function' ? this[QUERY_WHEN](paramsToUse) : this[QUERY_WHEN]
 
         if (shouldExecuteQuery) {
           if (paramsToUse) {
@@ -197,7 +179,7 @@ export default function makeFindMixin(options) {
 
             return this.$store
               .dispatch(`${serviceName}/find`, paramsToUse)
-              .then((response) => {
+              .then(response => {
                 // To prevent thrashing, only clear ERROR on response, not on initial request.
                 this[ERROR] = null
 
@@ -210,7 +192,7 @@ export default function makeFindMixin(options) {
                 this[IS_FIND_PENDING] = false
                 return response
               })
-              .catch((error) => {
+              .catch(error => {
                 this[ERROR] = error
                 return error
               })
@@ -228,7 +210,7 @@ export default function makeFindMixin(options) {
         const pageInfo = _get(pagination, [qid, queryId, pageId], {})
 
         return { queryInfo, pageInfo }
-      }
+      },
     },
     // add the created hook only if the local option is falsy
     ...(!local && {
@@ -243,11 +225,8 @@ export default function makeFindMixin(options) {
 
         const pType = Object.getPrototypeOf(this)
 
-        if (
-          pType.hasOwnProperty(PARAMS) ||
-          pType.hasOwnProperty(FETCH_PARAMS)
-        ) {
-          watch.forEach((prop) => {
+        if (pType.hasOwnProperty(PARAMS) || pType.hasOwnProperty(FETCH_PARAMS)) {
+          watch.forEach(prop => {
             if (typeof prop !== 'string') {
               throw new Error(`Values in the 'watch' array must be strings.`)
             }
@@ -264,7 +243,7 @@ export default function makeFindMixin(options) {
               const paramsToUse = getParams({
                 providedParams: null,
                 params: this[PARAMS],
-                fetchParams: this[FETCH_PARAMS]
+                fetchParams: this[FETCH_PARAMS],
               })
               if (paramsToUse && paramsToUse.debounce) {
                 this[IS_FIND_PENDING] = true
@@ -281,22 +260,17 @@ export default function makeFindMixin(options) {
             `No "${PARAMS}" or "${FETCH_PARAMS}" attribute was found in the makeFindMixin for the "${service}" service (using name "${nameToUse}").  No queries will be made.`
           )
         }
-      }
-    })
+      },
+    }),
   }
 
   function hasSomeAttribute(vm, ...attributes) {
-    return attributes.some((a) => {
+    return attributes.some(a => {
       return vm.hasOwnProperty(a) || Object.getPrototypeOf(vm).hasOwnProperty(a)
     })
   }
 
-  function setupAttribute(
-    NAME,
-    value,
-    computedOrMethods = 'computed',
-    returnTheValue = false
-  ) {
+  function setupAttribute(NAME, value, computedOrMethods = 'computed', returnTheValue = false) {
     if (typeof value === 'boolean') {
       data[NAME] = !!value
     } else if (typeof value === 'string') {
@@ -304,9 +278,7 @@ export default function makeFindMixin(options) {
         // If the specified computed prop wasn't found, display an error.
         if (!returnTheValue) {
           if (!hasSomeAttribute(this, value, NAME)) {
-            throw new Error(
-              `Value for ${NAME} was not found on the component at '${value}'.`
-            )
+            throw new Error(`Value for ${NAME} was not found on the component at '${value}'.`)
           }
         }
         return returnTheValue ? value : this[value]

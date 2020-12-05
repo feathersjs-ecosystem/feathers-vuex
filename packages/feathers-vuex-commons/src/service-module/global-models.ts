@@ -20,7 +20,7 @@ export function prepareAddModel(options: FeathersVuexOptions) {
 
   return function addModel(Model) {
     globalModels[serverAlias] = globalModels[serverAlias] || {
-      byServicePath: {}
+      byServicePath: {},
     }
     const name = Model.modelName || Model.name
     if (globalModels[serverAlias][name] && options.debug) {

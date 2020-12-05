@@ -3,11 +3,7 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-import {
-  FeathersVuexOptions,
-  MakeServicePluginOptions,
-  ServicePluginExtendOptions
-} from './types'
+import { FeathersVuexOptions, MakeServicePluginOptions, ServicePluginExtendOptions } from './types'
 
 import makeServiceModule from './make-service-module'
 import { globalModels, prepareAddModel } from './global-models'
@@ -30,6 +26,7 @@ interface ServiceOptionsDefaults {
   getters: {}
   mutations: {}
   actions: {}
+  makeMutations: any
   instanceDefaults: () => {}
   setupInstance: (instance: {}) => {}
   debounceEventsMaxWait: number
@@ -43,9 +40,10 @@ const defaults: ServiceOptionsDefaults = {
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
+  makeMutations: () => {}, // Provided by vue2 or vue3 version of feathers-vuex
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
   setupInstance: instance => instance, // Default setupInstance returns the instance
-  debounceEventsMaxWait: 1000
+  debounceEventsMaxWait: 1000,
 }
 const events = ['created', 'patched', 'updated', 'removed']
 
@@ -53,9 +51,7 @@ const events = ['created', 'patched', 'updated', 'removed']
  * prepare only wraps the makeServicePlugin to provide the globalOptions.
  * @param globalOptions
  */
-export default function prepareMakeServicePlugin(
-  globalOptions: FeathersVuexOptions
-) {
+export default function prepareMakeServicePlugin(globalOptions: FeathersVuexOptions) {
   const addModel = prepareAddModel(globalOptions)
   /**
    * (1) Make a Vuex plugin for the provided service.
@@ -77,15 +73,11 @@ export default function prepareMakeServicePlugin(
       nameStyle,
       instanceDefaults,
       setupInstance,
-      preferUpdate
+      preferUpdate,
     } = options
 
     if (globalOptions.handleEvents && options.handleEvents) {
-      options.handleEvents = Object.assign(
-        {},
-        globalOptions.handleEvents,
-        options.handleEvents
-      )
+      options.handleEvents = Object.assign({}, globalOptions.handleEvents, options.handleEvents)
     }
 
     events.forEach(eventName => {
@@ -113,7 +105,7 @@ export default function prepareMakeServicePlugin(
       const BaseModel = _get(globalModels, [options.serverAlias, 'BaseModel'])
       if (BaseModel && !BaseModel.store) {
         Object.assign(BaseModel, {
-          store
+          store,
         })
       }
       // (2b^) Monkey patch the Model(s) and add to globalModels
@@ -122,16 +114,14 @@ export default function prepareMakeServicePlugin(
         servicePath,
         instanceDefaults,
         setupInstance,
-        preferUpdate
+        preferUpdate,
       })
       // As per 1^, don't preserve state on the model either (prevents state pollution in SSR)
       Object.assign(Model, {
-        store
+        store,
       })
       if (!Model.modelName || Model.modelName === 'BaseModel') {
-        throw new Error(
-          'The modelName property is required for Feathers-Vuex Models'
-        )
+        throw new Error('The modelName property is required for Feathers-Vuex Models')
       }
       addModel(Model)
 

@@ -12,16 +12,16 @@ export default {
   parameters: {
     component: FeathersVuexFormWrapper,
     readme: {
-      sidebar: Readme
-    }
-  }
+      sidebar: Readme,
+    },
+  },
 }
 
 export const Basic = () => ({
   components: { FeathersVuexFormWrapper },
   data: () => ({
     date: null,
-    UserModel: models.api.User
+    UserModel: models.api.User,
   }),
   store,
   template: `<div class="p-3">
@@ -41,5 +41,5 @@ export const Basic = () => ({
       </FormComponent>
     </template>
   </FeathersVuexFormWrapper>
-</div>`
+</div>`,
 })

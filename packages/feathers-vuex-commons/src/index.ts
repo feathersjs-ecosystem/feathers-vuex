@@ -19,7 +19,7 @@ import { clients, addClient } from './service-module/global-clients'
 import prepareMakeServicePlugin from './service-module/make-service-plugin'
 import prepareMakeAuthPlugin from './auth-module/make-auth-plugin'
 
-import { initAuth, hydrateApi } from './utils'
+import { initAuth, hydrateApi, assignTempId, getId, getQueryInfo } from './utils'
 
 import {
   FeathersVuexOptions,
@@ -30,7 +30,7 @@ import {
   Id,
   FeathersVuexStoreState,
   FeathersVuexGlobalModels,
-  GlobalModels
+  GlobalModels,
 } from './service-module/types'
 import { ServiceState } from './service-module/service-module.state'
 import { AuthState } from './auth-module/types'
@@ -61,6 +61,9 @@ export {
   // Utils
   initAuth,
   hydrateApi,
+  assignTempId,
+  getId,
+  getQueryInfo,
   // Types
   FeathersVuexOptions,
   HandleEvents,
@@ -72,5 +75,5 @@ export {
   FeathersVuexGlobalModels,
   GlobalModels,
   ServiceState,
-  AuthState
+  AuthState,
 }

@@ -5,20 +5,20 @@ export default {
   props: {
     service: {
       type: String,
-      required: true
+      required: true,
     },
     query: {
       type: Object,
-      default: null
+      default: null,
     },
     queryWhen: {
       type: [Boolean, Function],
-      default: true
+      default: true,
     },
     // If a separate query is desired to fetch data, use fetchQuery
     // The watchers will automatically be updated, so you don't have to write 'fetchQuery.propName'
     fetchQuery: {
-      type: Object
+      type: Object,
     },
     /**
      * Can be used in place of the `query` prop to provide more params. Only params.query is
@@ -26,7 +26,7 @@ export default {
      */
     params: {
       type: Object,
-      default: null
+      default: null,
     },
     /**
      * Can be used in place of the `fetchQuery` prop to provide more params. Only params.query is
@@ -34,42 +34,42 @@ export default {
      */
     fetchParams: {
       type: Object,
-      default: null
+      default: null,
     },
     watch: {
       type: [String, Array],
       default() {
         return []
-      }
+      },
     },
     local: {
       type: Boolean,
-      default: false
+      default: false,
     },
     editScope: {
       type: Function,
       default(scope) {
         return scope
-      }
+      },
     },
     qid: {
       type: String,
       default() {
         return randomString(10)
-      }
+      },
     },
     /**
      * Set `temps` to true to include temporary records from the store.
      */
     temps: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data: () => ({
     isFindPending: false,
     queryId: null,
-    pageId: null
+    pageId: null,
   }),
   computed: {
     items() {
@@ -90,12 +90,7 @@ export default {
       return _get(this.pagination, this.queryId, {})
     },
     pageInfo() {
-      if (
-        this.pagination == null ||
-        this.queryId == null ||
-        this.pageId == null
-      )
-        return {}
+      if (this.pagination == null || this.queryId == null || this.pageId == null) return {}
       return _get(this.pagination, [this.queryId, this.pageId], {})
     },
     scope() {
@@ -105,11 +100,11 @@ export default {
         pagination,
         items,
         queryInfo,
-        pageInfo
+        pageInfo,
       }
 
       return this.editScope(defaultScope) || defaultScope
-    }
+    },
   },
   methods: {
     findData() {
@@ -130,14 +125,12 @@ export default {
             params = { query, qid: this.qid || 'default' }
           }
 
-          return this.$store
-            .dispatch(`${this.service}/find`, params)
-            .then((response) => {
-              this.isFindPending = false
-              const { queryId, pageId } = getQueryInfo(params, response)
-              this.queryId = queryId
-              this.pageId = pageId
-            })
+          return this.$store.dispatch(`${this.service}/find`, params).then(response => {
+            this.isFindPending = false
+            const { queryId, pageId } = getQueryInfo(params, response)
+            this.queryId = queryId
+            this.pageId = pageId
+          })
         }
       }
     },
@@ -148,12 +141,10 @@ export default {
         } else {
           // TODO: access debug boolean from the store config, somehow.
           // eslint-disable-next-line no-console
-          console.log(
-            `No query and no id provided, so no data will be fetched.`
-          )
+          console.log(`No query and no id provided, so no data will be fetched.`)
         }
       }
-    }
+    },
   },
   created() {
     if (!this.$FeathersVuex) {
@@ -162,15 +153,13 @@ export default {
       )
     }
     if (!this.$store.state[this.service]) {
-      throw new Error(
-        `The '${this.service}' plugin not registered with feathers-vuex`
-      )
+      throw new Error(`The '${this.service}' plugin not registered with feathers-vuex`)
     }
 
     const watch = Array.isArray(this.watch) ? this.watch : [this.watch]
 
     if (this.fetchQuery || this.query || this.params) {
-      watch.forEach((prop) => {
+      watch.forEach(prop => {
         if (typeof prop !== 'string') {
           throw new Error(`Values in the 'watch' array must be strings.`)
         }
@@ -192,5 +181,5 @@ export default {
   },
   render() {
     return this.$scopedSlots.default(this.scope)
-  }
+  },
 }

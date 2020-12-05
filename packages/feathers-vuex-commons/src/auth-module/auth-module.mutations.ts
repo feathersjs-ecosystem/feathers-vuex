@@ -49,6 +49,6 @@ export default function makeAuthMutations() {
       if (state.user) {
         state.user = null
       }
-    }
+    },
   }
 }

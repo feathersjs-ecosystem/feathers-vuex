@@ -9,7 +9,7 @@ export default function setupAuthState({
   userService,
   serverAlias,
   responseEntityField = 'user',
-  entityIdField = 'userId'
+  entityIdField = 'userId',
 }) {
   const state: AuthState = {
     accessToken: null, // The JWT
@@ -24,7 +24,7 @@ export default function setupAuthState({
     errorOnLogout: null,
     user: null, // For a reactive user object, use the `user` getter.
     userService: null,
-    serverAlias
+    serverAlias,
   }
   // If a userService string was passed, add a user attribute
   if (userService) {

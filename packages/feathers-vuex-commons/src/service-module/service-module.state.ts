@@ -3,7 +3,6 @@ eslint
 @typescript-eslint/explicit-function-return-type: 0,
 @typescript-eslint/no-explicit-any: 0
 */
-
 import _omit from 'lodash/omit'
 
 import { MakeServicePluginOptions, Model } from './types'
@@ -111,7 +110,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     'state',
     'getters',
     'mutations',
-    'actions'
+    'actions',
   ]
 
   const state: ServiceStateExclusiveDefaults = {
@@ -121,7 +120,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     tempsById: {}, // Really should be called tempsByTempId
     pagination: {
       defaultLimit: null,
-      defaultSkip: null
+      defaultSkip: null,
     },
     paramsForServer: ['$populateParams'],
     debounceEventsTime: null,
@@ -143,7 +142,7 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     isIdCreatePending: [],
     isIdUpdatePending: [],
     isIdPatchPending: [],
-    isIdRemovePending: []
+    isIdRemovePending: [],
   }
 
   if (options.Model) {

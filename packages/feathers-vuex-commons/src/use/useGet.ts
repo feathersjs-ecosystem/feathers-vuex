@@ -32,22 +32,16 @@ interface UseGetData<M> {
   get(id: Id, params?: Params): Promise<M | undefined>
 }
 
-export default function get<M extends Model = Model>(
-  options: UseGetOptions
-): UseGetData<M> {
+export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
   const defaults: UseGetOptions = {
     model: null,
     id: null,
     params: null,
     queryWhen: computed((): boolean => true),
     local: false,
-    immediate: true
+    immediate: true,
   }
-  const { model, id, params, queryWhen, local, immediate } = Object.assign(
-    {},
-    defaults,
-    options
-  )
+  const { model, id, params, queryWhen, local, immediate } = Object.assign({}, defaults, options)
 
   if (!model) {
     throw new Error(
@@ -67,7 +61,7 @@ export default function get<M extends Model = Model>(
     hasBeenRequested: false,
     hasLoaded: false,
     error: null,
-    isLocal: local
+    isLocal: local,
   })
 
   const computes = {
@@ -84,7 +78,7 @@ export default function get<M extends Model = Model>(
         return model.getFromStore<M>(getterId) || null
       }
     }),
-    servicePath: computed(() => model.servicePath)
+    servicePath: computed(() => model.servicePath),
   }
 
   function get(id: Id, params?: Params): Promise<M | undefined> {
@@ -95,18 +89,15 @@ export default function get<M extends Model = Model>(
       state.isPending = true
       state.hasBeenRequested = true
 
-      const promise =
-        paramsToUse != null
-          ? model.get(idToUse, paramsToUse)
-          : model.get(idToUse)
+      const promise = paramsToUse != null ? model.get(idToUse, paramsToUse) : model.get(idToUse)
 
       return promise
-        .then((response) => {
+        .then(response => {
           state.isPending = false
           state.hasLoaded = true
           return response
         })
-        .catch((error) => {
+        .catch(error => {
           state.isPending = false
           state.error = error
           return error
@@ -127,6 +118,6 @@ export default function get<M extends Model = Model>(
   return {
     ...toRefs(state),
     ...computes,
-    get
+    get,
   }
 }

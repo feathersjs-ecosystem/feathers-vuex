@@ -5,32 +5,32 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true
+      required: true,
     },
     prop: {
       type: String,
-      required: true
+      required: true,
     },
     debounce: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data: () => ({
-    clone: null
+    clone: null,
   }),
   computed: {
     current() {
       return this.clone || this.item
-    }
+    },
   },
   watch: {
     debounce: {
       handler(wait) {
         this.debouncedHandler = _debounce(this.handler, wait)
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   methods: {
     createClone(e) {
@@ -49,19 +49,19 @@ export default {
         event: e,
         clone: this.clone,
         prop: this.prop,
-        data: { [this.prop]: this.clone[this.prop] }
+        data: { [this.prop]: this.clone[this.prop] },
       })
       if (maybePromise && maybePromise.then) {
         maybePromise.then(this.cleanup)
       } else {
         this.cleanup()
       }
-    }
+    },
   },
   render() {
     const { current, prop, createClone } = this
     const handler = this.debounce ? this.debouncedHandler : this.handler
 
     return this.$scopedSlots.default({ current, prop, createClone, handler })
-  }
+  },
 }

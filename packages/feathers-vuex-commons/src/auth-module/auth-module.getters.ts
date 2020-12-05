@@ -19,7 +19,7 @@ export default function makeAuthGetters({ userService }) {
       },
       isAuthenticated(state, getters) {
         return !!getters.user
-      }
+      },
     })
   }
 

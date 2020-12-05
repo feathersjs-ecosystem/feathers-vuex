@@ -2,12 +2,12 @@ export default {
   name: 'FeathersVuexFormWrapper',
   model: {
     prop: 'item',
-    event: 'update:item'
+    event: 'update:item',
   },
   props: {
     item: {
       type: Object,
-      required: true
+      required: true,
     },
     /**
      * By default, when you call the `save` method, the cloned data will be
@@ -16,29 +16,29 @@ export default {
      */
     eager: {
       type: Boolean,
-      default: true
+      default: true,
     },
     // Set to false to prevent re-cloning if the object updates.
     watch: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data: () => ({
     clone: null,
-    isDirty: false
+    isDirty: false,
   }),
   computed: {
     isNew() {
       return (this.item && this.item.__isTemp) || false
-    }
+    },
   },
   watch: {
     item: {
       handler: 'setup',
       immediate: true,
-      deep: true
-    }
+      deep: true,
+    },
   },
   emits: ['saved', 'saved-new', 'reset', 'removed'],
   methods: {
@@ -55,7 +55,7 @@ export default {
         // Watch the new clone.
         this.unwatchClone = this.$watch('clone', {
           handler: 'markAsDirty',
-          deep: true
+          deep: true,
         })
       }
     },
@@ -63,7 +63,7 @@ export default {
       if (this.eager) {
         this.clone.commit()
       }
-      return this.clone.save(params).then((response) => {
+      return this.clone.save(params).then(response => {
         this.$emit('saved', response)
         if (this.isNew) {
           this.$emit('saved-new', response)
@@ -85,7 +85,7 @@ export default {
       if (!this.isDirty) {
         this.isDirty = true
       }
-    }
+    },
   },
   render() {
     const { clone, save, reset, remove, isDirty, isNew } = this
@@ -95,7 +95,7 @@ export default {
       reset,
       remove,
       isDirty,
-      isNew
+      isNew,
     })
-  }
+  },
 }

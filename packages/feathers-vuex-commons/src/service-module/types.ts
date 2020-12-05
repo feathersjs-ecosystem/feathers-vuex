@@ -27,6 +27,7 @@ export interface FeathersVuexOptions {
   preferUpdate?: boolean
   replaceItems?: boolean
   skipRequestIfExists?: boolean
+  merge(dest: unknown, source: unknown, blacklist?: string[]): void
   whitelist?: string[]
 }
 
@@ -83,6 +84,7 @@ export interface MakeServicePluginOptions {
   getters?: {}
   mutations?: {}
   actions?: {}
+  makeMutations?: any
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -95,9 +97,7 @@ export interface FeathersVuexGlobalModels {
 }
 
 // Alias and default to any if user doesn't augment interfaces
-export type StoreState = keyof FeathersVuexStoreState extends never
-  ? any
-  : FeathersVuexStoreState
+export type StoreState = keyof FeathersVuexStoreState extends never ? any : FeathersVuexStoreState
 export type GlobalModels = keyof FeathersVuexGlobalModels extends never
   ? any
   : FeathersVuexGlobalModels
@@ -264,9 +264,7 @@ export interface ModelStatic extends EventEmitter {
    * A proxy for the `find` getter
    * @param params Find params
    */
-  findInStore<M extends Model = Model>(
-    params?: Params | Ref<Params>
-  ): Paginated<M>
+  findInStore<M extends Model = Model>(params?: Params | Ref<Params>): Paginated<M>
 
   /**
    * A proxy for the `count` action

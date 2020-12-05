@@ -221,7 +221,7 @@ export default function makeServiceActions(service: Service<any>) {
           commit('unsetPending', 'remove')
           commit('unsetIdPending', { method: 'remove', id })
         })
-    }
+    },
   }
 
   const actions = {
@@ -249,10 +249,7 @@ export default function makeServiceActions(service: Service<any>) {
      *         Feathers client.  The client modifies the params object.
      *   @param response
      */
-    async handleFindResponse(
-      { state, commit, dispatch },
-      { params, response }
-    ) {
+    async handleFindResponse({ state, commit, dispatch }, { params, response }) {
       const { qid = 'default', query } = params
       const { idField } = state
 
@@ -266,16 +263,13 @@ export default function makeServiceActions(service: Service<any>) {
       }
 
       // The pagination data will be under `pagination.default` or whatever qid is passed.
-      response.data &&
-        commit('updatePaginationForQuery', { qid, response, query })
+      response.data && commit('updatePaginationForQuery', { qid, response, query })
 
       // Swap out the response records for their Vue-observable store versions
       const data = response.data || response
       const mappedFromState = data.map(mapItemFromState)
       if (mappedFromState[0] !== undefined) {
-        response.data
-          ? (response.data = mappedFromState)
-          : (response = mappedFromState)
+        response.data ? (response.data = mappedFromState) : (response = mappedFromState)
       }
 
       response = await dispatch('afterFind', response)
@@ -347,10 +341,7 @@ export default function makeServiceActions(service: Service<any>) {
 
       const isIdOk = id !== null && id !== undefined
 
-      if (
-        service.FeathersVuexModel &&
-        !(item instanceof service.FeathersVuexModel)
-      ) {
+      if (service.FeathersVuexModel && !(item instanceof service.FeathersVuexModel)) {
         item = new service.FeathersVuexModel(item, { commit: false })
       }
 
@@ -362,7 +353,7 @@ export default function makeServiceActions(service: Service<any>) {
         }
       }
       return item
-    }
+    },
   }
   /**
    * Only add a method to the store if the service actually has that same method.

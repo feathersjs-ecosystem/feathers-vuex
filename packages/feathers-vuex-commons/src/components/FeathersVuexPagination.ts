@@ -9,7 +9,7 @@ export default {
     modelValue: {
       type: Object,
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-      default: () => null
+      default: () => null,
     },
     /**
      * The `latestQuery` object from the useFind data
@@ -17,11 +17,11 @@ export default {
     latestQuery: {
       type: Object,
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-      default: () => null
-    }
+      default: () => null,
+    },
   },
   model: {
-    prop: 'modelValue'
+    prop: 'modelValue',
   },
   emits: ['input'],
   // eslint-disable-next-line
@@ -65,7 +65,7 @@ export default {
         } else {
           return 1
         }
-      }
+      },
     })
 
     watch(
@@ -114,14 +114,14 @@ export default {
           toEnd,
           toPage,
           prev,
-          next
+          next,
         })
       } else {
         return h('div', {}, [
           h('p', `FeathersVuexPagination uses the default slot:`),
-          h('p', `#default="{ currentPage, pageCount }"`)
+          h('p', `#default="{ currentPage, pageCount }"`),
         ])
       }
     }
-  }
+  },
 }

@@ -11,9 +11,7 @@ export default function makeAuthActions(feathersClient) {
   return {
     authenticate(store, dataOrArray) {
       const { commit, state, dispatch } = store
-      const [data, params] = Array.isArray(dataOrArray)
-        ? dataOrArray
-        : [dataOrArray]
+      const [data, params] = Array.isArray(dataOrArray) ? dataOrArray : [dataOrArray]
 
       commit('setAuthenticatePending')
       if (state.errorOnAuthenticate) {
@@ -43,7 +41,9 @@ export default function makeAuthActions(feathersClient) {
           if (state.serverAlias && state.userService) {
             const Model = Object.keys(models[state.serverAlias])
               .map(modelName => models[state.serverAlias][modelName])
-              .find(model => getNameFromPath(model.servicePath) === getNameFromPath(state.userService))
+              .find(
+                model => getNameFromPath(model.servicePath) === getNameFromPath(state.userService)
+              )
             if (Model) {
               // Copy user object to avoid setupInstance modifying payload state
               user = new Model(fastCopy(user))
@@ -51,14 +51,8 @@ export default function makeAuthActions(feathersClient) {
           }
           commit('setUser', user)
           commit('unsetAuthenticatePending')
-        } else if (
-          state.userService &&
-          response.hasOwnProperty(state.entityIdField)
-        ) {
-          return dispatch(
-            'populateUser',
-            response[state.entityIdField]
-          ).then(() => {
+        } else if (state.userService && response.hasOwnProperty(state.entityIdField)) {
+          return dispatch('populateUser', response[state.entityIdField]).then(() => {
             commit('unsetAuthenticatePending')
             return response
           })
@@ -72,12 +66,10 @@ export default function makeAuthActions(feathersClient) {
     },
 
     populateUser({ commit, state, dispatch }, userId) {
-      return dispatch(`${state.userService}/get`, userId, { root: true }).then(
-        user => {
-          commit('setUser', user)
-          return user
-        }
-      )
+      return dispatch(`${state.userService}/get`, userId, { root: true }).then(user => {
+        commit('setUser', user)
+        return user
+      })
     },
 
     logout({ commit }) {
@@ -92,6 +84,6 @@ export default function makeAuthActions(feathersClient) {
         .catch(error => {
           return Promise.reject(error)
         })
-    }
+    },
   }
 }

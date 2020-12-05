@@ -4,12 +4,7 @@ eslint
 */
 import { computed, isRef, reactive, Ref, toRefs, watch } from 'vue-demi'
 import debounce from 'lodash/debounce'
-import {
-  getItemsFromQueryInfo,
-  getQueryInfo,
-  Params,
-  Paginated
-} from '../utils'
+import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from '../utils'
 import { ModelStatic, Model } from '../service-module/types'
 
 interface UseFindOptions {
@@ -49,22 +44,16 @@ interface UseFindData<M> {
 const unwrapParams = (params: Params | Ref<Params>): Params =>
   isRef(params) ? params.value : params
 
-export default function find<M extends Model = Model>(
-  options: UseFindOptions
-): UseFindData<M> {
+export default function find<M extends Model = Model>(options: UseFindOptions): UseFindData<M> {
   const defaults: UseFindOptions = {
     model: null,
     params: null,
     qid: 'default',
     queryWhen: computed((): boolean => true),
     local: false,
-    immediate: true
+    immediate: true,
   }
-  const { model, params, queryWhen, qid, local, immediate } = Object.assign(
-    {},
-    defaults,
-    options
-  )
+  const { model, params, queryWhen, qid, local, immediate } = Object.assign({}, defaults, options)
 
   if (!model) {
     throw new Error(
@@ -97,7 +86,7 @@ export default function find<M extends Model = Model>(
     error: null,
     debounceTime: null,
     latestQuery: null,
-    isLocal: local
+    isLocal: local,
   })
   const computes = {
     // The find getter
@@ -110,15 +99,10 @@ export default function find<M extends Model = Model>(
           const { defaultSkip, defaultLimit } = serviceState.pagination
           const skip = getterParams.query.$skip || defaultSkip
           const limit = getterParams.query.$limit || defaultLimit
-          const pagination =
-            computes.paginationData.value[getterParams.qid || state.qid] || {}
+          const pagination = computes.paginationData.value[getterParams.qid || state.qid] || {}
           const response = skip != null && limit != null ? { limit, skip } : {}
           const queryInfo = getQueryInfo(getterParams, response)
-          const items = getItemsFromQueryInfo(
-            pagination,
-            queryInfo,
-            serviceState.keyedById
-          )
+          const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
           return items
         } else {
           return model.findInStore(getterParams).data
@@ -130,7 +114,7 @@ export default function find<M extends Model = Model>(
     paginationData: computed(() => {
       return model.store.state[model.servicePath].pagination
     }),
-    servicePath: computed<string>(() => model.servicePath)
+    servicePath: computed<string>(() => model.servicePath),
   }
 
   function find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>> {
@@ -139,7 +123,7 @@ export default function find<M extends Model = Model>(
       state.isPending = true
       state.haveBeenRequested = true
 
-      return model.find<M>(params).then((response) => {
+      return model.find<M>(params).then(response => {
         // To prevent thrashing, only clear error on response, not on initial request.
         state.error = null
         state.haveLoaded = true
@@ -157,7 +141,7 @@ export default function find<M extends Model = Model>(
   const methods = {
     findDebounced(params?: Params) {
       return find(params)
-    }
+    },
   }
   function findProxy(params?: Params | Ref<Params>) {
     const paramsToUse = getFetchParams(params)
@@ -186,6 +170,6 @@ export default function find<M extends Model = Model>(
   return {
     ...computes,
     ...toRefs(state),
-    find
+    find,
   }
 }
