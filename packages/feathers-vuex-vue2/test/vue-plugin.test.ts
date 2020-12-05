@@ -20,7 +20,7 @@ interface VueWithFeathers {
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'make-find-mixin'
+    serverAlias: 'make-find-mixin',
   })
   class FindModel extends BaseModel {
     public static modelName = 'FindModel'
@@ -32,22 +32,22 @@ function makeContext() {
     plugins: [
       makeServicePlugin({
         Model: FindModel,
-        service: feathersClient.service(serviceName)
-      })
-    ]
+        service: feathersClient.service(serviceName),
+      }),
+    ],
   })
   return {
-    store
+    store,
   }
 }
 
-describe('Vue Plugin', function () {
+describe.only('Vue Plugin', function () {
   it('Adds the `$FeathersVuex` object to components', function () {
     const { store } = makeContext()
     const vm = new Vue({
       name: 'todos-component',
       store,
-      template: `<div></div>`
+      template: `<div></div>`,
     }).$mount()
 
     assert(vm.$FeathersVuex, 'registeredPlugin correctly')

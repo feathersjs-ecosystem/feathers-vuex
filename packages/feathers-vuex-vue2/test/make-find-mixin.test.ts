@@ -8,7 +8,7 @@ import jsdom from 'jsdom-global'
 import Vue from 'vue/dist/vue'
 import Vuex from 'vuex'
 import feathersVuex, { FeathersVuex } from '../src/index'
-import makeFindMixin from '../src/make-find-mixin'
+import { makeFindMixin } from '@feathersjs/vuex-commons'
 import { feathersRestClient as feathersClient } from './fixtures/feathers-client'
 
 jsdom()
@@ -16,7 +16,7 @@ require('events').EventEmitter.prototype._maxListeners = 100
 
 function makeContext() {
   const { makeServicePlugin, BaseModel } = feathersVuex(feathersClient, {
-    serverAlias: 'make-find-mixin'
+    serverAlias: 'make-find-mixin',
   })
 
   class FindModel extends BaseModel {
@@ -37,9 +37,9 @@ describe('Find Mixin', function () {
     plugins: [
       makeServicePlugin({
         Model: FindModel,
-        service: feathersClient.service(serviceName)
-      })
-    ]
+        service: feathersClient.service(serviceName),
+      }),
+    ],
   })
 
   it('correctly forms mixin data', function () {
@@ -62,7 +62,7 @@ describe('Find Mixin', function () {
       name: 'todos-component',
       mixins: [todosMixin],
       store,
-      template: `<div></div>`
+      template: `<div></div>`,
     }).$mount()
 
     assert.deepEqual(vm.todos, [], 'todos prop was empty array')
@@ -72,10 +72,7 @@ describe('Find Mixin', function () {
     )
     assert(vm.todosServiceName === 'todos', 'service name was correct')
     assert(vm.isFindTodosPending === false, 'loading boolean is in place')
-    assert(
-      vm.haveTodosBeenRequestedOnce === false,
-      'requested once boolean is in place'
-    )
+    assert(vm.haveTodosBeenRequestedOnce === false, 'requested once boolean is in place')
     assert(vm.haveTodosLoadedOnce === false, 'loaded once boolean is in place')
     assert(typeof vm.findTodos === 'function', 'the find action is in place')
     assert(vm.todosLocal === false, 'local boolean is false by default')
@@ -83,10 +80,7 @@ describe('Find Mixin', function () {
       typeof vm.$options.created[0] === 'function',
       'created lifecycle hook function is in place given that local is false'
     )
-    assert(
-      vm.todosQid === 'default',
-      'the default query identifier is in place'
-    )
+    assert(vm.todosQid === 'default', 'the default query identifier is in place')
     assert(vm.todosQueryWhen === true, 'the default queryWhen is true')
     // assert(vm.todosWatch.length === 0, 'the default watch is an empty array')
     assert(
@@ -104,7 +98,7 @@ describe('Find Mixin', function () {
       service() {
         return this.serviceName
       },
-      local: true
+      local: true,
     })
 
     interface TasksComponent {
@@ -122,11 +116,11 @@ describe('Find Mixin', function () {
     const vm = new Vue({
       name: 'tasks-component',
       data: () => ({
-        serviceName: 'tasks'
+        serviceName: 'tasks',
       }),
       mixins: [tasksMixin],
       store,
-      template: `<div></div>`
+      template: `<div></div>`,
     }).$mount()
 
     assert.deepEqual(vm.items, [], 'items prop was empty array')
@@ -142,10 +136,7 @@ describe('Find Mixin', function () {
       typeof vm.$options.created === 'undefined',
       'created lifecycle hook function is NOT in place given that local is true'
     )
-    assert(
-      vm.serviceQid === 'default',
-      'the default query identifier is in place'
-    )
+    assert(vm.serviceQid === 'default', 'the default query identifier is in place')
     assert(vm.serviceQueryWhen === true, 'the default queryWhen is true')
     // assert(vm.tasksWatch.length === 0, 'the default watch is an empty array')
     assert(

@@ -6,9 +6,7 @@ eslint
 import { assert } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { ServiceState } from './types'
-import { clearModels } from '../../src/service-module/global-models'
-import { clients } from '../../src/service-module/global-clients'
+import { clients, clearModels, ServiceState } from '@feathersjs/vuex-commons'
 import { feathersRestClient as feathers } from '../../test/fixtures/feathers-client'
 import feathersVuex from '../../src/index'
 import _pick from 'lodash/pick'
@@ -23,7 +21,7 @@ describe('makeServicePlugin', function () {
 
   it('adds Feathers client to the global clients', () => {
     feathersVuex(feathers, {
-      serverAlias: 'this is a test'
+      serverAlias: 'this is a test',
     })
     assert(clients.byAlias['this is a test'], 'got a reference to the client.')
   })
@@ -35,7 +33,7 @@ describe('makeServicePlugin', function () {
 
     const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
-      serverAlias
+      serverAlias,
     })
     const servicePath = 'make-service-plugin-todos'
     class Todo extends BaseModel {
@@ -46,7 +44,7 @@ describe('makeServicePlugin', function () {
       servicePath,
       Model: Todo,
       service: feathers.service(servicePath),
-      namespace: 'make-service-plugin-todos'
+      namespace: 'make-service-plugin-todos',
     })
     const store = new Vuex.Store<RootState>({ plugins: [todosPlugin] })
 
@@ -82,7 +80,7 @@ describe('makeServicePlugin', function () {
       namespace: 'make-service-plugin-todos',
       pagination: {
         defaultLimit: null,
-        defaultSkip: null
+        defaultSkip: null,
       },
       paramsForServer: ['$populateParams'],
       preferUpdate: false,
@@ -95,7 +93,7 @@ describe('makeServicePlugin', function () {
       isIdCreatePending: [],
       isIdUpdatePending: [],
       isIdPatchPending: [],
-      isIdRemovePending: []
+      isIdRemovePending: [],
     }
 
     assert.deepEqual(_omit(received), _omit(expected), 'defaults in place.')
@@ -104,7 +102,7 @@ describe('makeServicePlugin', function () {
   it('sets up Model.store && service.FeathersVuexModel', function () {
     const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
-      serverAlias
+      serverAlias,
     })
 
     const servicePath = 'make-service-plugin-todos'
@@ -125,7 +123,7 @@ describe('makeServicePlugin', function () {
     const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel, models } = feathersVuex(feathers, {
       idField: '_id',
-      serverAlias
+      serverAlias,
     })
 
     const servicePath = 'make-service-plugin-todos'
@@ -136,11 +134,11 @@ describe('makeServicePlugin', function () {
     const todosPlugin = makeServicePlugin({
       servicePath,
       Model: Todo,
-      service: feathers.service(servicePath)
+      service: feathers.service(servicePath),
     })
 
     const store = new Vuex.Store({
-      plugins: [todosPlugin]
+      plugins: [todosPlugin],
     })
 
     assert(models[serverAlias][Todo.name] === Todo)
@@ -152,7 +150,7 @@ describe('makeServicePlugin', function () {
     const serverAlias = 'make-service-plugin'
     const { makeServicePlugin, BaseModel } = feathersVuex(feathers, {
       idField: '_id',
-      serverAlias
+      serverAlias,
     })
 
     const servicePath = 'make-service-plugin-todos'
@@ -186,12 +184,12 @@ describe('makeServicePlugin', function () {
         removed() {
           removedCalled = true
           return true
-        }
-      }
+        },
+      },
     })
 
     const store = new Vuex.Store({
-      plugins: [todosPlugin]
+      plugins: [todosPlugin],
     })
 
     const todo = new Todo()
@@ -207,27 +205,27 @@ describe('makeServicePlugin', function () {
           context => {
             context.result = { _id: 24, ...context.data }
             return context
-          }
+          },
         ],
         update: [
           context => {
             context.result = { ...context.data }
             return context
-          }
+          },
         ],
         patch: [
           context => {
             context.result = { ...context.data }
             return context
-          }
+          },
         ],
         remove: [
           context => {
             context.result = { ...todo }
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     await todo.create()
@@ -270,8 +268,8 @@ describe('makeServicePlugin', function () {
         removed() {
           globalRemovedCalled = true
           return true
-        }
-      }
+        },
+      },
     })
 
     const servicePath = 'make-service-plugin-todos'
@@ -291,12 +289,12 @@ describe('makeServicePlugin', function () {
         updated() {
           specificUpdatedCalled = true
           return true
-        }
-      }
+        },
+      },
     })
 
     const store = new Vuex.Store({
-      plugins: [todosPlugin]
+      plugins: [todosPlugin],
     })
 
     const todo = new Todo()
@@ -312,27 +310,27 @@ describe('makeServicePlugin', function () {
           context => {
             context.result = { _id: 24, ...context.data }
             return context
-          }
+          },
         ],
         update: [
           context => {
             context.result = { ...context.data }
             return context
-          }
+          },
         ],
         patch: [
           context => {
             context.result = { ...context.data }
             return context
-          }
+          },
         ],
         remove: [
           context => {
             context.result = { ...todo }
             return context
-          }
-        ]
-      }
+          },
+        ],
+      },
     })
 
     await todo.create()
@@ -367,8 +365,8 @@ describe('makeServicePlugin', function () {
         },
         removed(e) {
           return [true, e.myRemovedPropWithActualData]
-        }
-      }
+        },
+      },
     })
 
     const servicePath = 'make-service-plugin-todos'
@@ -382,11 +380,11 @@ describe('makeServicePlugin', function () {
       servicePath,
       Model: Todo,
       service: todosService,
-      namespace: 'make-service-plugin-todos'
+      namespace: 'make-service-plugin-todos',
     })
 
     const store = new Vuex.Store<{ todos: ServiceState }>({
-      plugins: [todosPlugin]
+      plugins: [todosPlugin],
     })
     const { keyedById } = store.state['make-service-plugin-todos']
 
@@ -403,7 +401,7 @@ describe('makeServicePlugin', function () {
 
     todosService.emit('created', {
       context: 'foo',
-      myCreatedPropWithActualData: { _id: 42, text: '' }
+      myCreatedPropWithActualData: { _id: 42, text: '' },
     })
     assert(keyedById[42], 'todo added to store')
     assert(keyedById[42].text === '', 'todo string is empty')
@@ -415,7 +413,7 @@ describe('makeServicePlugin', function () {
 
     todosService.emit('updated', {
       context: 'bar',
-      myUpdatedPropWithActualData: { _id: 42, text: 'updated' }
+      myUpdatedPropWithActualData: { _id: 42, text: 'updated' },
     })
     assert(keyedById[42].text === 'updated', 'todo was updated')
     assert(updatedData, "Model's updated event fired")
@@ -426,7 +424,7 @@ describe('makeServicePlugin', function () {
 
     todosService.emit('patched', {
       context: 'baz',
-      myPatchedPropWithActualData: { _id: 42, text: 'patched' }
+      myPatchedPropWithActualData: { _id: 42, text: 'patched' },
     })
     assert(keyedById[42].text === 'patched', 'todo was patched')
     assert(patchedData, "Model's patched event fired")
@@ -437,7 +435,7 @@ describe('makeServicePlugin', function () {
 
     todosService.emit('removed', {
       context: 'spam',
-      myRemovedPropWithActualData: { _id: 42 }
+      myRemovedPropWithActualData: { _id: 42 },
     })
     assert(Object.keys(keyedById).length === 0, 'todo removed from store')
     assert(removedData, "Model's removed event fired")
