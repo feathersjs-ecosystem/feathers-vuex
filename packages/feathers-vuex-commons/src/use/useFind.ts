@@ -5,41 +5,8 @@ eslint
 import { computed, isRef, reactive, Ref, toRefs, watch } from 'vue-demi'
 import debounce from 'lodash/debounce'
 import { getItemsFromQueryInfo, getQueryInfo, Params, Paginated } from '../utils'
-import { ModelStatic, Model } from '../service-module/types'
-
-interface UseFindOptions {
-  model: ModelStatic
-  params: Params | Ref<Params>
-  fetchParams?: Params | Ref<Params>
-  queryWhen?: Ref<boolean>
-  qid?: string
-  local?: boolean
-  immediate?: boolean
-}
-interface UseFindState {
-  debounceTime: null | number
-  qid: string
-  isPending: boolean
-  haveBeenRequested: boolean
-  haveLoaded: boolean
-  error: null | Error
-  latestQuery: null | object
-  isLocal: boolean
-}
-interface UseFindData<M> {
-  items: Ref<Readonly<M[]>>
-  servicePath: Ref<string>
-  isPending: Ref<boolean>
-  haveBeenRequested: Ref<boolean>
-  haveLoaded: Ref<boolean>
-  isLocal: Ref<boolean>
-  qid: Ref<string>
-  debounceTime: Ref<number>
-  latestQuery: Ref<object>
-  paginationData: Ref<object>
-  error: Ref<Error>
-  find(params?: Params | Ref<Params>): Promise<M[] | Paginated<M>>
-}
+import { Model } from '../service-module/types'
+import { UseFindOptions, UseFindState, UseFindData } from './types'
 
 const unwrapParams = (params: Params | Ref<Params>): Params =>
   isRef(params) ? params.value : params

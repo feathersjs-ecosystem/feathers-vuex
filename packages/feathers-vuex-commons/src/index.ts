@@ -41,6 +41,14 @@ import {
   PendingServiceMethodName,
   PendingIdServiceMethodName,
 } from './service-module/types'
+import {
+  UseFindOptions,
+  UseFindData,
+  UseFindState,
+  UseGetData,
+  UseGetOptions,
+  UseGetState,
+} from './use/types'
 import { ServiceState } from './service-module/service-module.state'
 import { AuthState } from './auth-module/types'
 
@@ -86,6 +94,14 @@ export {
   GlobalModels,
   PendingServiceMethodName,
   PendingIdServiceMethodName,
+  // Use types
+  UseFindOptions,
+  UseFindData,
+  UseFindState,
+  UseGetData,
+  UseGetOptions,
+  UseGetState,
+  // Auth types
   ServiceState,
   AuthState,
 }

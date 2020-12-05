@@ -4,33 +4,8 @@ eslint
 */
 import { reactive, computed, toRefs, isRef, watch, Ref } from 'vue-demi'
 import { Params } from '../utils'
-import { ModelStatic, Model, Id } from '../service-module/types'
-
-interface UseGetOptions {
-  model: ModelStatic
-  id: null | string | number | Ref<null> | Ref<string> | Ref<number>
-  params?: Params | Ref<Params>
-  queryWhen?: Ref<boolean>
-  local?: boolean
-  immediate?: boolean
-}
-interface UseGetState {
-  isPending: boolean
-  hasBeenRequested: boolean
-  hasLoaded: boolean
-  error: null | Error
-  isLocal: boolean
-}
-interface UseGetData<M> {
-  item: Ref<Readonly<M | null>>
-  servicePath: Ref<string>
-  isPending: Ref<boolean>
-  hasBeenRequested: Ref<boolean>
-  hasLoaded: Ref<boolean>
-  isLocal: Ref<boolean>
-  error: Ref<Error>
-  get(id: Id, params?: Params): Promise<M | undefined>
-}
+import { Model, Id } from '../service-module/types'
+import { UseGetOptions, UseGetState, UseGetData } from './types'
 
 export default function get<M extends Model = Model>(options: UseGetOptions): UseGetData<M> {
   const defaults: UseGetOptions = {
