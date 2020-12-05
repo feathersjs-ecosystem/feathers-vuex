@@ -7,8 +7,15 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@feathersjs/vuex": "^4.0.1-pre.3",
-    "vue": "^3.0.4"
+    "@feathersjs/client": "^4.5.11",
+    "@feathersjs/vuex": "^4.0.1-pre.4",
+    "add": "^2.0.6",
+    "fast-copy": "^2.1.0",
+    "feathers-memory": "^4.1.0",
+    "lodash": "^4.17.20",
+    "vue": "^3.0.4",
+    "vuex": "^4.0.0-rc.2",
+    "yarn": "^1.22.10"
   },
   "devDependencies": {
     "@vue/compiler-sfc": "^3.0.4",
