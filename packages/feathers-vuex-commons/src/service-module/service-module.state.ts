@@ -111,6 +111,8 @@ export default function makeDefaultState(options: MakeServicePluginOptions) {
     'getters',
     'mutations',
     'actions',
+    'makeServiceMutations',
+    'merge',
   ]
 
   const state: ServiceStateExclusiveDefaults = {

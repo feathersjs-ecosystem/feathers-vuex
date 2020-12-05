@@ -40,7 +40,7 @@ function makeContext() {
   return { store, Instrument, BaseModel, makeServicePlugin }
 }
 
-describe('use/find', function () {
+describe.only('use/find', function () {
   it('returns correct default data', function () {
     const { Instrument } = makeContext()
 
