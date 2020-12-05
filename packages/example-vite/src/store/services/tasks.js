@@ -12,8 +12,8 @@ class Task extends BaseModel {
   // Define default properties here
   static instanceDefaults() {
     return {
-      email: '',
-      password: '',
+      description: '',
+      isComplete: false,
     }
   }
 }
