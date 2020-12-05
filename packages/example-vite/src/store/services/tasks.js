@@ -4,9 +4,6 @@ import { keyBy } from 'lodash'
 import { tasks } from './tasks.fixtures.js'
 
 class Task extends BaseModel {
-  constructor(data, options) {
-    super(data, options)
-  }
   // Required for $FeathersVuex plugin to work after production transpile.
   static modelName = 'Task'
   // Define default properties here
