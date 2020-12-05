@@ -30,6 +30,7 @@
     "url": "https://github.com/feathersjs-ecosystem/feathers-vuex/issues"
   },
   "scripts": {
+    "release:pre": "npm version prerelease && npm publish --access public --tag next",
     "prepublish": "npm run compile",
     "compile": "shx rm -rf dist/ && tsc",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
