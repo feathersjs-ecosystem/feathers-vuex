@@ -5,12 +5,15 @@
 
   <CreateTask />
 
-  <ul v-if="tasks.length">
-    <li v-for="task in tasks" :key="task._id" style="display: flex; flex-direction: row;">
-      <div>{{ task.description }}</div>
-      <div>{{ task.isComplete ? 'Complete' : '' }}</div>
-    </li>
-  </ul>
+  <table v-if="tasks.length">
+    <tr v-for="task in tasks" :key="task._id">
+      <td>{{ task.description }}</td>
+      <td>{{ task.isComplete ? 'Complete' : '' }}</td>
+      <td>
+        <button type="button" @click="task.remove">Delete</button>
+      </td>
+    </tr>
+  </table>
 
   <div v-else>No Tasks</div>
 </template>
