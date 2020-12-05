@@ -10,7 +10,7 @@ import {
   FeathersVuexInputWrapper,
   FeathersVuexPagination,
   FeathersVuexCount,
-  models
+  models,
   // GlobalModels
 } from '@feathersjs/vuex-commons'
 // Augment global models onto VueConstructor and instance
@@ -24,12 +24,12 @@ import {
 // }
 
 export const FeathersVuex = {
-  install(app, options = { components: true }) {
+  install(app, options = { components: true, alias: '$fv' }) {
     const shouldSetupComponents = options.components !== false
 
     // Make $fv available on app instance
-    app.config.globalProperties.$FeathersVuex = models
-    app.config.globalProperties.$fv = models
+    app.provide('$FeathersVuex', models)
+    app.provide(options.alias, models)
 
     if (shouldSetupComponents) {
       app.component('FeathersVuexFind', FeathersVuexFind)
@@ -39,5 +39,5 @@ export const FeathersVuex = {
       app.component('FeathersVuexPagination', FeathersVuexPagination)
       app.component('FeathersVuexCount', FeathersVuexCount)
     }
-  }
+  },
 }

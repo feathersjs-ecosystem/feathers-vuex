@@ -11,7 +11,7 @@ import {
   FeathersVuexPagination,
   FeathersVuexCount,
   models,
-  GlobalModels
+  GlobalModels,
 } from '@feathersjs/vuex-commons'
 
 // Augment global models onto VueConstructor and instance
@@ -25,16 +25,16 @@ declare module 'vue/types/vue' {
 }
 
 export const FeathersVuex = {
-  install(Vue, options = { components: true }) {
+  install(Vue, options = { components: true, alias: '$fv' }) {
     const shouldSetupComponents = options.components !== false
 
-    // Make $fv available on Vue
+    // Make available on Vue
     Vue.$FeathersVuex = models
-    Vue.$fv = models
+    Vue[options.alias] = models
 
-    // Make $fv available on component instances
+    // Make available on component instances
     Vue.prototype.$FeathersVuex = models
-    Vue.prototype.$fv = models
+    Vue.prototype[options.alias] = models
 
     if (shouldSetupComponents) {
       Vue.component('FeathersVuexFind', FeathersVuexFind)
@@ -44,5 +44,5 @@ export const FeathersVuex = {
       Vue.component('FeathersVuexPagination', FeathersVuexPagination)
       Vue.component('FeathersVuexCount', FeathersVuexCount)
     }
-  }
+  },
 }
