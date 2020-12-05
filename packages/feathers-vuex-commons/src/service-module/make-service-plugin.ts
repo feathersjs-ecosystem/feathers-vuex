@@ -26,7 +26,7 @@ interface ServiceOptionsDefaults {
   getters: {}
   mutations: {}
   actions: {}
-  makeMutations: any
+  makeServiceMutations: any
   instanceDefaults: () => {}
   setupInstance: (instance: {}) => {}
   debounceEventsMaxWait: number
@@ -40,7 +40,7 @@ const defaults: ServiceOptionsDefaults = {
   getters: {}, // for custom getters
   mutations: {}, // for custom mutations
   actions: {}, // for custom actions
-  makeMutations: () => {}, // Provided by vue2 or vue3 version of feathers-vuex
+  makeServiceMutations: () => {}, // Provided by vue2 or vue3 version of feathers-vuex
   instanceDefaults: () => ({}), // Default instanceDefaults returns an empty object
   setupInstance: instance => instance, // Default setupInstance returns the instance
   debounceEventsMaxWait: 1000,

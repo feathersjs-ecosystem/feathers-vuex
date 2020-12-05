@@ -17,12 +17,12 @@ export default function makeServiceModule(
   options: MakeServicePluginOptions,
   store: Store<any>
 ) {
-  const fromOptions = _pick(options, ['state', 'getters', 'mutations', 'actions', 'makeMutations'])
+  const fromOptions = _pick(options, ['state', 'getters', 'mutations', 'actions'])
   const defaults = {
     namespaced: true,
     state: makeDefaultState(options),
     getters: makeGetters(),
-    mutations: fromOptions.makeMutations(),
+    mutations: options.makeServiceMutations(),
     actions: makeActions(service),
   }
   const merged = _merge({}, defaults, fromOptions)
