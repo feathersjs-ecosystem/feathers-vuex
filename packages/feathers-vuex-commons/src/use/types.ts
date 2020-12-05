@@ -1,5 +1,5 @@
 import { Ref } from 'vue-demi'
-import { ModelStatic } from '../service-module/types'
+import { ModelStatic, Id } from '../service-module/types'
 import { Params, Paginated } from '../utils'
 
 // useFind types
