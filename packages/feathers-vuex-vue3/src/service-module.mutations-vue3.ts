@@ -111,12 +111,12 @@ export default function makeServiceMutations() {
     const id = getId(item, idField)
     const existingItem = state.keyedById[id]
     if (existingItem) {
-      merge(existingItem, item)
+      updateOriginal(existingItem, item)
     }
   }
 
   function merge(state, { dest, source }) {
-    merge(dest, source)
+    updateOriginal(dest, source)
   }
 
   return {
