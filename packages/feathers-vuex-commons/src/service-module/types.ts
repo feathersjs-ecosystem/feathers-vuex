@@ -6,6 +6,29 @@ import { Ref } from 'vue-demi'
 
 export { Id } from '@feathersjs/feathers'
 
+export type makeServiceMutations = () => {
+  addItems: (state: any, items: Array<any>) => void
+  updateItems: (state: any, items: Array<any>) => void
+  mergeInstance: (state: any, item: any) => void
+  merge: (state: any, { dest, source }: { dest: any; source: any }) => void
+  addItem(state: any, item: any): void
+  updateItem(state: any, item: any): void
+  updateTemp: (state: any, { id, tempId }: { id: any; tempId: Id }) => void
+  removeItem(state: any, item: any): void
+  removeTemps(state: any, temps: Array<Id>): void
+  removeItems: (state: any, items: Array<any>) => void
+  clearAll(state: any): void
+  createCopy: (state: any, id: Id) => void
+  resetCopy: (state: any, id: Id) => void
+  commitCopy: (state: any, id: Id) => void
+  clearCopy: (state: any, id: Id) => void
+  updatePaginationForQuery: (
+    state: any,
+    { qid, response, query }: { qid: String; response: any; query: any }
+  ) => void
+  clearError(state: any, method: PendingServiceMethodName): void
+}
+
 /*
 eslint
 @typescript-eslint/no-explicit-any: 0
@@ -27,9 +50,14 @@ export interface FeathersVuexOptions {
   preferUpdate?: boolean
   replaceItems?: boolean
   skipRequestIfExists?: boolean
+  makeServiceMutations
   merge(dest: unknown, source: unknown, blacklist?: string[]): void
+
   whitelist?: string[]
 }
+
+export type PendingServiceMethodName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
+export type PendingIdServiceMethodName = Exclude<PendingServiceMethodName, 'find' | 'get'>
 
 export interface HandleEvents {
   created?: Function
