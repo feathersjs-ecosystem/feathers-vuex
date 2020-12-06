@@ -1,10 +1,9 @@
 ---
-title: Vue Plugin
+title: Using the Vue Plugin
 description: ''
 position: 2
+category: Guides
 ---
-
-# The Vue Plugin
 
 This `feathers-vuex` release includes a Vue plugin which gives all of your components easy access to the data modeling classes. It also automatically registers the included components. The below example is based on the [setup instructions in the API overview](/api-overview.html#setup).
 

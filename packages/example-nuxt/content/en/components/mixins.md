@@ -2,6 +2,7 @@
 title: Mixins
 description: ''
 position: 2
+category: Components
 ---
 
 # Mixins

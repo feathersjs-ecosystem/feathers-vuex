@@ -2,6 +2,7 @@
 title: Working with Forms
 description: ''
 position: 2
+category: Components
 ---
 
 # Working with Forms

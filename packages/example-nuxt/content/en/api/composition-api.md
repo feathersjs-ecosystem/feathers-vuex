@@ -2,6 +2,7 @@
 title: Composition API
 description: ''
 position: 2
+category: 'API'
 ---
 
 # Feathers-Vuex Composition API <Badge text="3.0.0+" />

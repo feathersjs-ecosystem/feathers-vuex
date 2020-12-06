@@ -2,6 +2,7 @@
 title: Common Patterns
 description: ''
 position: 2
+category: Guides
 ---
 
 ## Set the `idField`

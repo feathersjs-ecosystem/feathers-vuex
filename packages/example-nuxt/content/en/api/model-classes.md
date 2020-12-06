@@ -2,6 +2,7 @@
 title: Data Modeling
 description: ''
 position: 2
+category: 'API'
 ---
 
 # Data Modeling with Model Classes

@@ -2,9 +2,8 @@
 title: Renderless Data Components
 description: ''
 position: 2
+category: Components
 ---
-
-# Renderless Data Components
 
 There are three renderless data provider components: `<FeathersVuexFind>`, `<FeathersVuexGet>` and `<FeathersVuexCount>`. They simplify performing queries against the store and/or the API server. They make the data available inside each component's default slot.
 

@@ -1,7 +1,8 @@
 ---
-title: Nuxt
+title: Working with Nuxt
 description: ''
 position: 2
+category: Guides
 ---
 
 # Nuxt
