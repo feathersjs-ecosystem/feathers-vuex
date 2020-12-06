@@ -1,0 +1,10 @@
+{
+  "title": "Feathers-Vuex",
+  "url": "https://vuex.feathersjs.com",
+  "logo": {
+    "light": "/logo-light.svg",
+    "dark": "/logo-dark.svg"
+  },
+  "github": "@feathersjs-ecosystem/feathers-vuex",
+  "twitter": "@feathersjs"
+}
