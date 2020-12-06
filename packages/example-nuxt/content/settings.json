@@ -5,6 +5,6 @@
     "light": "/logo-light.svg",
     "dark": "/logo-dark.svg"
   },
-  "github": "@feathersjs-ecosystem/feathers-vuex",
+  "github": "feathersjs-ecosystem/feathers-vuex",
   "twitter": "@feathersjs"
 }
