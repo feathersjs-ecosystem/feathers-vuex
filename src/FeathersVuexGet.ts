@@ -1,3 +1,5 @@
+import _debounce from 'lodash/debounce'
+
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 export default {
   props: {
@@ -65,6 +67,15 @@ export default {
       type: [String, Array],
       default() {
         return []
+      }
+    },
+    /**
+     * Time in milliseconds to debounce the fetch when a property defined in watch property changes
+     */
+    debounceWatch: {
+      type: Number,
+      default() {
+        return 0
       }
     },
     /**
@@ -196,7 +207,11 @@ export default {
             prop.replace('query', 'fetchQuery')
           }
         }
-        this.$watch(prop, this.fetchData)
+        if (this.debounceWatch) {
+          this.$watch(prop, _debounce(this.fetchData, this.debounceWatch))
+        } else {
+          this.$watch(prop, this.fetchData)
+        }
       })
 
       this.fetchData()

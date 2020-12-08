@@ -1,5 +1,6 @@
 import { randomString, getQueryInfo } from './utils'
 import _get from 'lodash/get'
+import _debounce from 'lodash/debounce'
 
 export default {
   props: {
@@ -42,6 +43,15 @@ export default {
         return []
       }
     },
+    /**
+     * Time in milliseconds to debounce the fetch when a property defined in watch property changes
+     */
+    debounceWatch: {
+      type: Number,
+      default() {
+        return 0
+      }
+    },
     local: {
       type: Boolean,
       default: false
@@ -75,7 +85,7 @@ export default {
     items() {
       let { query, service, $store, temps } = this
       let { params } = this
-      
+
       query = query || {}
 
       params = params || { query, temps }
@@ -184,7 +194,11 @@ export default {
             prop = prop.replace('params', 'fetchParams')
           }
         }
-        this.$watch(prop, this.fetchData)
+        if (this.debounceWatch) {
+          this.$watch(prop, _debounce(this.fetchData, this.debounceWatch))
+        } else {
+          this.$watch(prop, this.fetchData)
+        }
       })
 
       this.fetchData()
