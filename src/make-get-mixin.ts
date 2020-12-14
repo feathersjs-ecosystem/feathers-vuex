@@ -38,7 +38,7 @@ export default function makeFindMixin(options) {
     name = 'service'
   }
 
-  const nameToUse = (name || service).replace('-', '_')
+  const nameToUse = (name || service).replace(/-/g, '_')
   const singularized = inflection.singularize(nameToUse)
   const prefix = inflection.camelize(singularized, true)
   const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1)
