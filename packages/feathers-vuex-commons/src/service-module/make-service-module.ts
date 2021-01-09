@@ -23,7 +23,7 @@ export default function makeServiceModule(
     state: makeDefaultState(options),
     getters: makeGetters(),
     mutations: options.makeServiceMutations(),
-    actions: makeActions(service),
+    actions: makeActions({service, options}),
   }
   const merged = _merge({}, defaults, fromOptions)
   const extended = options.extend({ store, module: merged })
