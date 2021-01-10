@@ -6,8 +6,14 @@ eslint
 import fastCopy from 'fast-copy'
 import { getId } from '../utils'
 import { Service } from '@feathersjs/feathers'
+import { MakeServicePluginOptions } from './types'
 
-export default function makeServiceActions(service: Service<any>) {
+interface serviceAndOptions {
+  service: Service<any>
+  options: MakeServicePluginOptions
+}
+
+export default function makeServiceActions({service, options}: serviceAndOptions) {
   const serviceActions = {
     find({ commit, dispatch }, params) {
       params = params || {}
@@ -322,9 +328,9 @@ export default function makeServiceActions(service: Service<any>) {
         commit('removeItems', toRemove) // commit removal
       }
 
-      if (service.FeathersVuexModel) {
+      if (options.Model) {
         toAdd.forEach((item, index) => {
-          toAdd[index] = new service.FeathersVuexModel(item, { commit: false })
+          toAdd[index] = new options.Model(item, { commit: false })
         })
       }
 
