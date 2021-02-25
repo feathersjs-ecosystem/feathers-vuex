@@ -423,11 +423,12 @@ store.dispatch('todos/patch', [1, data, params])
 
 Make sure your returned records have a unique field that matches the `idField` option for the service plugin.
 
-### `remove(id)`
+### `remove(id)` or `remove([id, params])`
 
 Remove/delete the record with the given `id`.
 
 - `id {Number|String}` - the `id` of the existing record being requested from the API server.
+- `params {Object}` - optional - an object containing a `query` object.
 
 ```js
 store.dispatch('todos/remove', 1)
