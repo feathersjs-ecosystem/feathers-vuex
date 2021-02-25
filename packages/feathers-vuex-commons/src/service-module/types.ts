@@ -325,6 +325,43 @@ export interface ModelStatic extends EventEmitter {
     id: Id | Ref<Id>,
     params?: Params | Ref<Params>
   ): M | undefined
+
+  /**
+   * A proxy for the `create` action
+   * @param data The data to create (single or multiple items)
+   * @param params Create params
+   */
+  create<M extends Model = Model>(data: AnyData, params?: Params): Promise<M>
+  create<M extends Model = Model>(data: AnyData[], params?: Params): Promise<M[]>
+  create(data: any, params?: Params): Promise<any>
+
+  /**
+   * A proxy for the `update` action
+   * @param id ID of record
+   * @param data The data to update
+   * @param params Update params
+   */
+  update<M extends Model = Model>(id: Id, data: AnyData, params?: Params): Promise<M>
+
+  /**
+   * A proxy for the `patch` action
+   * @param id ID of record or null for multi patch
+   * @param data The data to patch
+   * @param params Patch params
+   */
+  patch<M extends Model = Model>(id: Id, data: AnyData, params?: Params): Promise<M>
+  patch<M extends Model = Model>(id: null, data: AnyData, params?: Params): Promise<M[]>
+  patch(id: any, data: AnyData, params?: Params): Promise<any>
+
+  /**
+   * A proxy for the `remove` action
+   * @param id ID of record
+   * @param data The data to update
+   * @param params Remove params
+   */
+  remove<M extends Model = Model>(id: Id, data: AnyData, params?: Params): Promise<M>
+  remove<M extends Model = Model>(id: null, data: AnyData, params?: Params): Promise<M[]>
+  remove(id: any, data: AnyData, params?: Params): Promise<any>
 }
 
 /** Model instance interface */
