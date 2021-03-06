@@ -421,7 +421,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       const { idField, _dispatch } = this.constructor as typeof BaseModel
       const id = getId(this, idField)
 
-      if (!id) {
+      if (id !== 0 && !id) {
         const error = new Error(
           `Missing ${idField} property. You must create the data before you can update with this data`
         )
