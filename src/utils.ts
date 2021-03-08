@@ -274,7 +274,7 @@ export function getServicePrefix(servicePath) {
   const parts = servicePath.split('/')
   let name = parts[parts.length - 1]
   // name = inflection.underscore(name)
-  name = name.replace('-', '_')
+  name = name.replace(/-/g, '_')
   name = inflection.camelize(name, true)
   return name
 }
@@ -283,7 +283,7 @@ export function getServiceCapitalization(servicePath) {
   const parts = servicePath.split('/')
   let name = parts[parts.length - 1]
   // name = inflection.underscore(name)
-  name = name.replace('-', '_')
+  name = name.replace(/-/g, '_')
   name = inflection.camelize(name)
   return name
 }

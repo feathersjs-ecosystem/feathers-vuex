@@ -162,7 +162,8 @@ describe('Utils', function () {
         ['environment-Panos', 'environmentPanos'],
         ['env-panos', 'envPanos'],
         ['envPanos', 'envPanos'],
-        ['api/v1/env-panos', 'envPanos']
+        ['api/v1/env-panos', 'envPanos'],
+        ['very-long-service', 'veryLongService']
       ]
       decisionTable.forEach(([path, prefix]) => {
         assert(
@@ -181,7 +182,8 @@ describe('Utils', function () {
         ['environment-Panos', 'EnvironmentPanos'],
         ['env-panos', 'EnvPanos'],
         ['envPanos', 'EnvPanos'],
-        ['api/v1/env-panos', 'EnvPanos']
+        ['api/v1/env-panos', 'EnvPanos'],
+        ['very-long-service', 'VeryLongService']
       ]
       decisionTable.forEach(([path, prefix]) => {
         assert(

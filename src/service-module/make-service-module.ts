@@ -23,7 +23,7 @@ export default function makeServiceModule(
     state: makeDefaultState(options),
     getters: makeGetters(),
     mutations: makeMutations(),
-    actions: makeActions(service)
+    actions: makeActions({service, options})
   }
   const fromOptions = _pick(options, [
     'state',
