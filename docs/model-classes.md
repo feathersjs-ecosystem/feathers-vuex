@@ -184,7 +184,7 @@ created () {
 }
 ```
 
-### get(id, params)
+### get(id, params?)
 
 Model classes have a `get` method, which is a proxy to the [`get` action](./service-plugin.html#get-id-or-get-id-params).   <Badge text="1.7.0+" /> Notice that the signature is more Feathers-like, and doesn't require using an array to passing both id and params.
 
@@ -205,6 +205,62 @@ Model classes have a `getFromStore` method, which is a proxy to the [`get` gette
 created () {
   const { Todo } = this.$FeathersVuex.api
   const todo = Todo.getFromStore(this.id)
+}
+```
+
+### create(data, params?)
+
+Model classes have a `create` method, which is a proxy to the [`create` action](./service-plugin.html#create-data-paramarray). In most cases you'll want to use the [`instance.create` method](./model-classes.html#instance-create-params) instead. Beyond that, you can use the static `create` action for creating multiple items at once, if your corresponding service supports that.
+
+```js
+// In your Vue component
+created () {
+  const { Todo } = this.$FeathersVuex.api
+  Todo.create({ title: 'test' }).then(/* ... */)
+  // or multiple data:
+  Todo.create([{ title: 'test1' }, { title: 'test2' }]).then(/* ... */)
+}
+```
+
+### update(id, data, params?)
+
+Model classes have an `update` method, which is a proxy to the [`update` action](./service-plugin.html#update-paramarray). In most cases you'll want to use the [`instance.update` method](./model-classes.html#instance-update-params) instead.
+
+```js
+// In your Vue component
+async created () {
+  const { Todo } = this.$FeathersVuex.api
+  const todo = await Todo.create({ title: 'test' });
+  Todo.update(todo.id, { title: 'test2'} ).then(/* ... */)
+  // most of the time you use the following instead:
+  // - `todo.title: 'test2'`
+  // - `todo.update().then(/* ... */`
+}
+```
+
+### patch(id, data, params?)
+
+Model classes have a `patch` method, which is a proxy to the [`patch` action](./service-plugin.html#patch-paramarray). In most cases you'll want to use the [`instance.patch` method](./model-classes.html#instance-patch-params) instead. Beyond that, you can use the static `patch` action for patching multiple items at once, if your corresponding service supports that. For this, set the first parameter `id: null`.
+
+```js
+// In your Vue component
+async created () {
+  const { Todo } = this.$FeathersVuex.api
+  // multiple data - use it with caution!
+  Todo.patch(null, { title: 'test2'} ).then(/* ... */)
+}
+```
+
+### remove(id, data, params?)
+
+Model classes have a `remove` method, which is a proxy to the [`remove` action](.service-plugin.html#remove-id-or-remove-id-params). In most cases you'll want to use the [`instance.remove` method](./model-classes.html#instance-remove-params) instead. Beyond that, you can use the static `remove` action for removing multiple items at once, if your corresponding service supports that. For this, set the first parameter `id: null`.
+
+```js
+// In your Vue component
+async created () {
+  const { Todo } = this.$FeathersVuex.api
+  // multiple data - use it with caution!
+  Todo.patch(null, { title: 'test2'} ).then(/* ... */)
 }
 ```
 

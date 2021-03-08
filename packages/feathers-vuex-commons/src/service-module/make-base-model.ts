@@ -22,6 +22,7 @@ import { EventEmitter } from 'events'
 import { ModelSetupContext } from './types'
 import { Store } from 'vuex'
 import { GetterName } from './service-module.getters'
+import { ActionName } from './service-module.actions'
 
 const defaultOptions = {
   clone: false,
@@ -230,6 +231,28 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._getters('get', id, params)
     }
 
+    public static create(data: AnyData, params?: Params): Promise<BaseModel>;
+    public static create(data: AnyData[], params?: Params): Promise<BaseModel[]>;
+    public static create(data: any, params?: Params): Promise<any> {
+      return this._dispatch('create', [data, params])
+    }
+
+    public static update(id: Id, data: AnyData, params?: Params): Promise<BaseModel> {
+      return this._dispatch('update', [id, data, params])
+    }
+
+    public static patch(id: Id, data: AnyData, params?: Params): Promise<BaseModel>;
+    public static patch(id: null, data: AnyData, params?: Params): Promise<BaseModel[]>;
+    public static patch(id: any, data: AnyData, params?: Params): Promise<any> {
+      return this._dispatch('patch', [id, data, params]);
+    }
+
+    public static remove(id: Id, params?: Params): Promise<BaseModel>;
+    public static remove(id: null, params?: Params): Promise<BaseModel[]>;
+    public static remove(id: any, params?: Params): Promise<any> {
+      return this._dispatch('remove', [id, params]);
+    }
+
     /**
      * An alias for store.getters. Can only call function-based getters, since
      * it's meant for only `find` and `get`.
@@ -263,7 +286,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
      * @param method the vuex action name without the namespace
      * @param payload the payload for the action
      */
-    public static _dispatch(method: string, payload: any) {
+    public static _dispatch(method: ActionName, payload: any) {
       const { namespace, store } = this
 
       if (checkNamespace(namespace, this, options.debug)) {
