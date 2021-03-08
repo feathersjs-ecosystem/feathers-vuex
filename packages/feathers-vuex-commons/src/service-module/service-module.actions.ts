@@ -371,3 +371,5 @@ export default function makeServiceActions({service, options}: serviceAndOptions
   })
   return actions
 }
+
+export type ActionName = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove' | keyof ReturnType<typeof makeServiceActions>;
