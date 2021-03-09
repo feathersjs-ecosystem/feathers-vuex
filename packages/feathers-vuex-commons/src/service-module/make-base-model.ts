@@ -28,6 +28,7 @@ const defaultOptions = {
   clone: false,
   commit: true,
   merge: true,
+  skipStore: false,
 }
 
 /** Ensures value has EventEmitter instance props */
@@ -118,28 +119,30 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       const hasValidTempId = tempId !== null && tempId !== undefined
       const copiesById = keepCopiesInStore ? store.state[namespace].copiesById : copiesByIdOnModel
 
-      const existingItem =
-        hasValidId && !options.clone ? getFromStore.call(this.constructor, id) : null
+      // If we're not explicitly skipping the store, update existing items items and/or clones.
+      if (!options.skipStore) {
+        let existingItem =
+          hasValidId && !options.clone ? getFromStore.call(this.constructor, id) : null
 
-      // If it already exists, update the original and return
-      if (existingItem) {
-        data = setupInstance.call(this, data, { models, store }) || data
-        _commit.call(this.constructor, 'mergeInstance', data)
-        return existingItem
-      }
-
-      // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
-      const existingClone =
-        (hasValidId || hasValidTempId) && options.clone
-          ? copiesById[id] || copiesById[tempId]
-          : null
-      if (existingClone) {
-        // This must be done in a mutation to avoid Vuex errors.
-        _commit.call(this.constructor, 'merge', {
-          dest: existingClone,
-          source: data,
-        })
-        return existingClone
+        // If it already exists, update the original and return
+        if (existingItem) {
+          data = setupInstance.call(this, data, { models, store }) || data
+          _commit.call(this.constructor, 'mergeInstance', data)
+          return existingItem
+        }
+        // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
+        let existingClone =
+          (hasValidId || hasValidTempId) && options.clone
+            ? copiesById[id] || copiesById[tempId]
+            : null
+        if (existingClone) {
+          // This must be done in a mutation to avoid Vuex errors.
+          _commit.call(this.constructor, 'merge', {
+            dest: existingClone,
+            source: data,
+          })
+          return existingClone
+        }
       }
 
       // Mark as a clone
@@ -156,14 +159,13 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         merge(this, defaults)
       }
 
-      // Handles Vue objects or regular ones. We can't simply assign or return
-      // the data due to how Vue wraps everything into an accessor.
+      // Call setupInstance (separately manage related data)
       if (options.merge !== false) {
         merge(this, setupInstance.call(this, data, { models, store }) || data)
       }
 
       // Add the item to the store
-      if (!options.clone && options.commit !== false && store) {
+      if (!options.clone && options.commit !== false && !options.skipStore && store) {
         _commit.call(this.constructor, 'addItem', this)
       }
       return this
