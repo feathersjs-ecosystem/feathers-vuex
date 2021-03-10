@@ -61,6 +61,7 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
       const getterParams = unwrapParams(params)
 
       if (getterParams) {
+        let items
         if (getterParams.paginate) {
           const serviceState = model.store.state[model.servicePath]
           const { defaultSkip, defaultLimit } = serviceState.pagination
@@ -69,11 +70,11 @@ export default function find<M extends Model = Model>(options: UseFindOptions): 
           const pagination = computes.paginationData.value[getterParams.qid || state.qid] || {}
           const response = skip != null && limit != null ? { limit, skip } : {}
           const queryInfo = getQueryInfo(getterParams, response)
-          const items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
-          return items
+          items = getItemsFromQueryInfo(pagination, queryInfo, serviceState.keyedById)
         } else {
-          return model.findInStore(getterParams).data
+          items = model.findInStore(getterParams).data
         }
+        return items
       } else {
         return []
       }
