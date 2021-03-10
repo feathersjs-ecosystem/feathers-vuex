@@ -56,7 +56,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     return ExistingBaseModel as ModelStatic
   }
 
-  abstract class BaseModel implements Model {
+  class BaseModel implements Model {
     // Think of these as abstract static properties
     public static servicePath: string
     public static namespace: string
