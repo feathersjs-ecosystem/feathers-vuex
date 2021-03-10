@@ -48,7 +48,8 @@
     "@feathersjs/vuex-commons": "^0.0.2-pre.11",
     "@types/feathersjs__feathers": "^3.1.7",
     "fast-copy": "^2.1.0",
-    "serialize-error": "^7.0.1"
+    "serialize-error": "^7.0.1",
+    "vue-demi": "latest"
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-beta.20",
@@ -64,6 +65,7 @@
     "@types/mocha": "^7.0.2",
     "@vue/composition-api": "^1.0.0-beta.20",
     "axios": "^0.21.0",
+    "bson-objectid": "^1.3.1",
     "can-fixture-socket": "^2.0.3",
     "chai": "^4.2.0",
     "cross-env": "^7.0.3",
