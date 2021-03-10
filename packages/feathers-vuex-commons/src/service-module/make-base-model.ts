@@ -231,8 +231,14 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._getters('get', id, params)
     }
 
-    public static create(data: AnyData, params?: Params): Promise<BaseModel>;
-    public static create(data: AnyData[], params?: Params): Promise<BaseModel[]>;
+    public static removeFromStore(id: Id) {
+      const { namespace, store } = this
+      const record = store.state[namespace].keyedById[id]
+      this.store.commit(`${namespace}/removeItem`, id)
+    }
+
+    public static create(data: AnyData, params?: Params): Promise<BaseModel>
+    public static create(data: AnyData[], params?: Params): Promise<BaseModel[]>
     public static create(data: any, params?: Params): Promise<any> {
       return this._dispatch('create', [data, params])
     }
@@ -241,16 +247,16 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       return this._dispatch('update', [id, data, params])
     }
 
-    public static patch(id: Id, data: AnyData, params?: Params): Promise<BaseModel>;
-    public static patch(id: null, data: AnyData, params?: Params): Promise<BaseModel[]>;
+    public static patch(id: Id, data: AnyData, params?: Params): Promise<BaseModel>
+    public static patch(id: null, data: AnyData, params?: Params): Promise<BaseModel[]>
     public static patch(id: any, data: AnyData, params?: Params): Promise<any> {
-      return this._dispatch('patch', [id, data, params]);
+      return this._dispatch('patch', [id, data, params])
     }
 
-    public static remove(id: Id, params?: Params): Promise<BaseModel>;
-    public static remove(id: null, params?: Params): Promise<BaseModel[]>;
+    public static remove(id: Id, params?: Params): Promise<BaseModel>
+    public static remove(id: null, params?: Params): Promise<BaseModel[]>
     public static remove(id: any, params?: Params): Promise<any> {
-      return this._dispatch('remove', [id, params]);
+      return this._dispatch('remove', [id, params])
     }
 
     /**
