@@ -426,5 +426,11 @@ export default function makeServiceMutations() {
       const uppercaseMethod = method.charAt(0).toUpperCase() + method.slice(1)
       state[`errorOn${uppercaseMethod}`] = null
     },
+    replaceItem(state, replacement) {
+      const id = replacement[state.idField]
+      if (id) {
+        state.keyedById[id] = replacement
+      }
+    },
   }
 }

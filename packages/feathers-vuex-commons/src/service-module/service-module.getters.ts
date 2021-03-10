@@ -26,7 +26,8 @@ const getCopiesById = ({ keepCopiesInStore, servicePath, serverAlias, copiesById
   }
 }
 
-export default function makeServiceGetters() {
+export default function makeServiceGetters(options) {
+  const { model } = options
   return {
     list(state) {
       return state.ids.map(id => state.keyedById[id])
@@ -86,6 +87,19 @@ export default function makeServiceGetters() {
       if (filters.$select) {
         values = values.map(value => _.pick(value, ...filters.$select.slice()))
       }
+
+      /**
+       * Many are of the opinion that having a mutation inside of a getter is a big "no no", I've followed this way
+       * of thinking for a long time.  This allows SSR apps and vuex-persist apps to just work like normal, and it's
+       * very fast compared to other hydration options.  This enables seamless, lazy hydration to work.
+       */
+      values = values.map(item => {
+        if (!(item instanceof model)) {
+          model.removeFromStore(item[model.idField])
+          item = new model(item)
+        }
+        return item
+      })
 
       return {
         total,

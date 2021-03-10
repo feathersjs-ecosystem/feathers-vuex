@@ -318,6 +318,17 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
     }
 
     /**
+     * Intended to replace nonhydrated data with hydrated instances. It directly writes the record at keyedById{}
+     * for the matching idField in the provided item.
+     *
+     * @param item an instance of the current model class
+     */
+    public static replaceItem(item) {
+      const { namespace, store } = this
+      store.commit(`${namespace}/replaceItem`, item)
+    }
+
+    /**
      * clone the current record using the `createCopy` mutation
      */
     public clone(data: AnyData): this {

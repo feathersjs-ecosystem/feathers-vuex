@@ -97,7 +97,7 @@ export default function prepareMakeServicePlugin(globalOptions: FeathersVuexOpti
     return store => {
       // (1^) Create and register the Vuex module
       options.namespace = makeNamespace(namespace, servicePath, nameStyle)
-      const module = makeServiceModule(service, options, store)
+      const module = makeServiceModule(service, options, store, Model)
       // Don't preserve state if reinitialized (prevents state pollution in SSR)
       store.registerModule(options.namespace, module, { preserveState: false })
 

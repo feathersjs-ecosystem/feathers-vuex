@@ -15,13 +15,14 @@ import { Store } from 'vuex'
 export default function makeServiceModule(
   service: Service<any>,
   options: MakeServicePluginOptions,
-  store: Store<any>
+  store: Store<any>,
+  model: any
 ) {
   const fromOptions = _pick(options, ['state', 'getters', 'mutations', 'actions'])
   const defaults = {
     namespaced: true,
     state: makeDefaultState(options),
-    getters: makeGetters(),
+    getters: makeGetters({ model }),
     mutations: options.makeServiceMutations(),
     actions: makeActions(service),
   }

@@ -29,7 +29,7 @@ const {
   isRemovePendingById,
   isSavePendingById,
   isPendingById,
-} = makeServiceGetters()
+} = makeServiceGetters({})
 const { addItems, setIdPending, unsetIdPending } = makeServiceMutations()
 
 describe('Service Module - Getters', function () {

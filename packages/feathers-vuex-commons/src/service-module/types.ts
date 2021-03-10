@@ -169,6 +169,12 @@ export interface ModelInstanceOptions {
    * Default: `true`
    */
   merge?: boolean
+  /**
+   * Skip the check for existing record and return a model instance?
+   *
+   * Default: `false`
+   */
+  skipStore?: boolean
 }
 
 export type AnyData = { [key: string]: any }
