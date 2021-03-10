@@ -94,9 +94,9 @@ export default function makeServiceGetters(options) {
        * very fast compared to other hydration options.  This enables seamless, lazy hydration to work.
        */
       values = values.map(item => {
-        if (!(item instanceof model)) {
-          model.removeFromStore(item[model.idField])
-          item = new model(item)
+        if (model && !(item instanceof model)) {
+          item = new model(item, { skipStore: true })
+          model.replaceItem(item)
         }
         return item
       })
@@ -128,13 +128,17 @@ export default function makeServiceGetters(options) {
       if (isRef(params)) {
         params = params.value
       }
-      const record = keyedById[id] && select(params, idField)(keyedById[id])
-      if (record) {
-        return record
+      let item = keyedById[id] && select(params, idField)(keyedById[id])
+      if (item) {
+        if (model && !(item instanceof model)) {
+          item = new model(item, { skipStore: true })
+          model.replaceItem(item)
+        }
+        return item
       }
-      const tempRecord = tempsById[id] && select(params, tempIdField)(tempsById[id])
+      const tempItem = tempsById[id] && select(params, tempIdField)(tempsById[id])
 
-      return tempRecord || null
+      return tempItem || null
     },
     getCopyById: state => id => {
       const copiesById = getCopiesById(state)
