@@ -1,6 +1,6 @@
 {
   "name": "@feathersjs/vuex-commons",
-  "version": "0.0.2-pre.14",
+  "version": "0.0.2-pre.15",
   "description": "Commons for feathers-vuex and @feathersjs/vuex",
   "main": "dist/",
   "module": "dist/",
