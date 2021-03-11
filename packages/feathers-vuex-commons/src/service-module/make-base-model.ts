@@ -109,7 +109,6 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         idField,
         tempIdField,
         setupInstance,
-        getFromStore,
         namespace,
         _commit,
       } = this.constructor as typeof BaseModel
@@ -122,7 +121,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       // If we're not explicitly skipping the store, update existing items items and/or clones.
       if (!options.skipStore) {
         let existingItem =
-          hasValidId && !options.clone ? getFromStore.call(this.constructor, id) : null
+          hasValidId && !options.clone ? store.state[namespace].keyedById[id] : null
 
         // If it already exists, update the original and return
         if (existingItem) {
