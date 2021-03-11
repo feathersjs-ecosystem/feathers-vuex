@@ -94,7 +94,9 @@ export default function makeServiceGetters(options) {
        * very fast compared to other hydration options.  This enables seamless, lazy hydration to work.
        */
       values = values.map(item => {
-        if (model && !(item instanceof model)) {
+        const isInstance =
+          (!!model && item instanceof model) || (item.constructor && !!item.constructor.idField)
+        if (model && !isInstance) {
           item = new model(item, { skipStore: true })
           model.replaceItem(item)
         }
@@ -130,7 +132,9 @@ export default function makeServiceGetters(options) {
       }
       let item = keyedById[id] && select(params, idField)(keyedById[id])
       if (item) {
-        if (model && !(item instanceof model)) {
+        const isInstance =
+          (!!model && item instanceof model) || (item.constructor && !!item.constructor.idField)
+        if (model && !isInstance) {
           item = new model(item, { skipStore: true })
           model.replaceItem(item)
         }
