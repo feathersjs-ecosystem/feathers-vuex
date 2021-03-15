@@ -173,8 +173,8 @@ export default function makeServiceActions({service, options}: serviceAndOptions
 
       params = fastCopy(params)
 
-      if (service.FeathersVuexModel && (!params || !params.data)) {
-        data = service.FeathersVuexModel.diffOnPatch(data)
+      if (options.Model && (!params || !params.data)) {
+        data = options.Model.diffOnPatch(data)
       }
       if (params && params.data) {
         data = params.data
@@ -347,8 +347,8 @@ export default function makeServiceActions({service, options}: serviceAndOptions
 
       const isIdOk = id !== null && id !== undefined
 
-      if (service.FeathersVuexModel && !(item instanceof service.FeathersVuexModel)) {
-        item = new service.FeathersVuexModel(item, { commit: false })
+      if (options.Model && !(item instanceof options.Model)) {
+        item = new options.Model(item, { commit: false })
       }
 
       if (isIdOk) {
