@@ -191,8 +191,8 @@ export default {
     })
     const { items: todos } = useFind({ model: Todo, params: todosParams })
     // Notice the "todos.value"
-    const completeTodos = todos.value.filter(todo => todo.isComplete)
-    const incompleteTodos = todos.value.filter(todo => !todo.isComplete)
+    const completeTodos = computed(() => todos.value.filter(todo => todo.isComplete))
+    const incompleteTodos = computed(() => todos.value.filter(todo => !todo.isComplete))
 
     return {
       todos,
