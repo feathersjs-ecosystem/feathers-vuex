@@ -163,13 +163,18 @@ export const initAuth = function initAuth(options) {
       'You must pass the `commit` function in the `initAuth` function options.'
     )
   }
-  if (!req) {
+  let cookies
+  if (req) {
+    cookies = req.headers.cookie
+  } else if (document && document.cookie) {
+    cookies = document.cookie
+  } else {
     throw new Error(
       'You must pass the `req` object in the `initAuth` function options.'
     )
   }
 
-  const accessToken = readCookie(req.headers.cookie, cookieName)
+  const accessToken = readCookie(cookies, cookieName)
   const payload = getValidPayloadFromToken(accessToken)
 
   if (payload) {
