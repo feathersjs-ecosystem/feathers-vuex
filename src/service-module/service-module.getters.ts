@@ -31,8 +31,8 @@ const getCopiesById = ({
 
 export default function makeServiceGetters() {
   return {
-    list: (state) => Object.values(state.keyedById),
-    find: (state) => (_params) => {
+    list: state => Object.values(state.keyedById),
+    find: state => _params => {
       const params = unref(_params) || {}
 
       const {
@@ -50,18 +50,16 @@ export default function makeServiceGetters() {
 
       let values = Object.values(keyedById) as any
 
-      if (params.hasOwnProperty('temps') && params.temps) {
+      if (params.temps) {
         values.push(...(Object.values(tempsById) as any))
       }
 
       values = values.filter(sift(query))
 
-      if (params.hasOwnProperty('copies') && params.copies) {
+      if (params.copies) {
         const copiesById = getCopiesById(state)
         // replace keyedById value with existing clone value
-        values = values.map(
-          (value, index) => copiesById[value[idField]] || value
-        )
+        values = values.map(value => copiesById[value[idField]] || value)
       }
 
       const total = values.length
@@ -87,7 +85,7 @@ export default function makeServiceGetters() {
         data: values
       }
     },
-    count: (state, getters) => (_params) => {
+    count: (state, getters) => _params => {
       const params = unref(_params) || {}
 
       const cleanQuery = _omit(params.query, FILTERS)
@@ -111,7 +109,7 @@ export default function makeServiceGetters() {
 
       return tempRecord || null
     },
-    getCopyById: (state) => (id) => {
+    getCopyById: state => id => {
       const copiesById = getCopiesById(state)
       return copiesById[id]
     },
