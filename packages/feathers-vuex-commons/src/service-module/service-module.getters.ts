@@ -4,12 +4,10 @@ eslint
 @typescript-eslint/no-explicit-any: 0
 */
 import sift from 'sift'
-import { _ } from '@feathersjs/commons'
 import { filterQuery, sorter, select } from '@feathersjs/adapter-commons'
 import { models } from './global-models'
-import _get from 'lodash/get'
 import _omit from 'lodash/omit'
-import { isRef } from 'vue-demi'
+import { unref } from 'vue-demi'
 import { ServiceState } from './service-module.state'
 import { Id } from '@feathersjs/feathers'
 
@@ -20,88 +18,54 @@ const getCopiesById = ({ keepCopiesInStore, servicePath, serverAlias, copiesById
   if (keepCopiesInStore) {
     return copiesById
   } else {
-    const Model = _get(models, [serverAlias, 'byServicePath', servicePath])
+    const Model = models[serverAlias].byServicePath[servicePath]
 
     return Model.copiesById
   }
 }
 
-export default function makeServiceGetters(options) {
-  const { model } = options
+export default function makeServiceGetters() {
   return {
-    list(state) {
-      return state.ids.map(id => state.keyedById[id])
-    },
-    find: state => params => {
-      if (isRef(params)) {
-        params = params.value
-      }
-      params = { ...params } || {}
+    list: state => Object.values(state.keyedById),
+    find: state => _params => {
+      const params = unref(_params) || {}
 
-      // Set params.temps to true to include the tempsById records
-      params.temps = params.hasOwnProperty('temps') ? params.temps : false
-
-      // Set params.copies to true to include the copiesById records
-      params.copies = params.hasOwnProperty('copies') ? params.copies : false
-
-      const { paramsForServer, whitelist, keyedById } = state
+      const { paramsForServer, whitelist, keyedById, idField, tempsById } = state
       const q = _omit(params.query || {}, paramsForServer)
 
       const { query, filters } = filterQuery(q, {
         operators: additionalOperators.concat(whitelist),
       })
-      let values = _.values(keyedById)
+
+      let values = Object.values(keyedById) as any
 
       if (params.temps) {
-        values.push(..._.values(state.tempsById))
+        values.push(...(Object.values(tempsById) as any))
       }
 
       values = values.filter(sift(query))
 
       if (params.copies) {
-        const { idField } = state
         const copiesById = getCopiesById(state)
-        values.forEach((val, i, arr) => {
-          const copy = copiesById[val[idField]]
-          if (copy) {
-            // replace keyedById value with existing clone value
-            arr[i] = copy
-          }
-        })
+        // replace keyedById value with existing clone value
+        values = values.map(value => copiesById[value[idField]] || value)
       }
 
       const total = values.length
 
-      if (filters.$sort) {
+      if (filters.$sort !== undefined) {
         values.sort(sorter(filters.$sort))
       }
 
-      if (filters.$skip) {
-        values = values.slice(filters.$skip)
-      }
-
-      if (typeof filters.$limit !== 'undefined') {
-        values = values.slice(0, filters.$limit)
+      if (filters.$skip !== undefined && filters.$limit !== undefined) {
+        values = values.slice(filters.$skip, filters.$limit + filters.$skip)
+      } else if (filters.$skip !== undefined || filters.$limit !== undefined) {
+        values = values.slice(filters.$skip, filters.$limit)
       }
 
       if (filters.$select) {
-        values = values.map(value => _.pick(value, ...filters.$select.slice()))
+        values = select(params)(values)
       }
-
-      /**
-       * Many are of the opinion that having a mutation inside of a getter is a big "no no", I've followed this way
-       * of thinking for a long time.  This allows SSR apps and vuex-persist apps to just work like normal, and it's
-       * very fast compared to other hydration options.  This enables seamless, lazy hydration to work.
-       */
-      values = values.map(item => {
-        const isInstance =
-          (!!model && item instanceof model) || (item.constructor && !!item.constructor.idField)
-        if (model && !isInstance) {
-          item = new model(item, { skipStore: true })
-          model.replaceItem(item)
-        }
-        return item
-      })
 
       return {
         total,
@@ -110,39 +74,25 @@ export default function makeServiceGetters(options) {
         data: values,
       }
     },
-    count: (state, getters) => params => {
-      if (isRef(params)) {
-        params = params.value
-      }
-      if (!params.query) {
-        throw 'params must contain a query-object'
-      }
+    count: (state, getters) => _params => {
+      const params = unref(_params) || {}
 
       const cleanQuery = _omit(params.query, FILTERS)
       params.query = cleanQuery
 
       return getters.find(params).total
     },
-    get: ({ keyedById, tempsById, idField, tempIdField }) => (id, params = {}) => {
-      if (isRef(id)) {
-        id = id.value
-      }
-      if (isRef(params)) {
-        params = params.value
-      }
-      let item = keyedById[id] && select(params, idField)(keyedById[id])
-      if (item) {
-        const isInstance =
-          (!!model && item instanceof model) || (item.constructor && !!item.constructor.idField)
-        if (model && !isInstance) {
-          item = new model(item, { skipStore: true })
-          model.replaceItem(item)
-        }
-        return item
-      }
-      const tempItem = tempsById[id] && select(params, tempIdField)(tempsById[id])
+    get: ({ keyedById, tempsById, idField, tempIdField }) => (_id, _params = {}) => {
+      const id = unref(_id)
+      const params = unref(_params)
 
-      return tempItem || null
+      const record = keyedById[id] && select(params, idField)(keyedById[id])
+      if (record) {
+        return record
+      }
+      const tempRecord = tempsById[id] && select(params, tempIdField)(tempsById[id])
+
+      return tempRecord || null
     },
     getCopyById: state => id => {
       const copiesById = getCopiesById(state)
