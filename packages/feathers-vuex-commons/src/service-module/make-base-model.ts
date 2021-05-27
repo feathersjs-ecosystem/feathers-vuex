@@ -120,14 +120,16 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
 
       // If we're not explicitly skipping the store, update existing items items and/or clones.
       if (!options.skipStore) {
-        let existingItem =
-          hasValidId && !options.clone ? store.state[namespace].keyedById[id] : null
+        if (store.state[namespace].replaceItems !== true) {
+          let existingItem =
+            hasValidId && !options.clone ? store.state[namespace].keyedById[id] : null
 
-        // If it already exists, update the original and return
-        if (existingItem) {
-          data = setupInstance.call(this, data, { models, store }) || data
-          _commit.call(this.constructor, 'mergeInstance', data)
-          return existingItem
+          // If it already exists, update the original and return
+          if (existingItem) {
+            data = setupInstance.call(this, data, { models, store }) || data
+            _commit.call(this.constructor, 'mergeInstance', data)
+            return existingItem
+          }
         }
         // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
         let existingClone =
