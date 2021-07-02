@@ -48,8 +48,29 @@ export default function makeServiceGetters() {
       // Set params.copies to true to include the copiesById records
       params.copies = params.hasOwnProperty('copies') ? params.copies : false
 
-      const { paramsForServer, whitelist, keyedById } = state
-      const q = _omit(params.query || {}, paramsForServer)
+      const { paramsForServer = [], whitelist, keyedById } = state
+
+      const paramsForServerByValue = paramsForServer.filter(el => Array.isArray(el))
+
+      const q = paramsForServerByValue.reduce(
+        (acc, [key, filter]) => {
+          if (!acc[key]) return acc
+
+          if (
+            ((typeof filter === 'string' || typeof filter === 'number') &&
+              acc[key] === filter) ||
+            (typeof filter === 'function' && filter(acc[key]))
+          ) {
+            return _omit(acc, key)
+          }
+
+          return acc
+        },
+        _omit(
+          params.query || {},
+          paramsForServer.filter(el => typeof el === 'string')
+        )
+      )
 
       const { query, filters } = filterQuery(q, {
         operators: additionalOperators.concat(whitelist)
@@ -112,38 +133,45 @@ export default function makeServiceGetters() {
 
       return getters.find(params).total
     },
-    get: ({ keyedById, tempsById, idField, tempIdField }) => (
-      id,
-      params = {}
-    ) => {
-      if (isRef(id)) {
-        id = id.value
-      }
-      if (isRef(params)) {
-        params = params.value
-      }
-      const record = keyedById[id] && select(params, idField)(keyedById[id])
-      if (record) {
-        return record
-      }
-      const tempRecord =
-        tempsById[id] && select(params, tempIdField)(tempsById[id])
+    get:
+      ({ keyedById, tempsById, idField, tempIdField }) =>
+      (id, params = {}) => {
+        if (isRef(id)) {
+          id = id.value
+        }
+        if (isRef(params)) {
+          params = params.value
+        }
+        const record = keyedById[id] && select(params, idField)(keyedById[id])
+        if (record) {
+          return record
+        }
+        const tempRecord =
+          tempsById[id] && select(params, tempIdField)(tempsById[id])
 
-      return tempRecord || null
-    },
+        return tempRecord || null
+      },
     getCopyById: state => id => {
       const copiesById = getCopiesById(state)
       return copiesById[id]
     },
 
-    isCreatePendingById: ({ isIdCreatePending }: ServiceState) => (id: Id) =>
-      isIdCreatePending.includes(id),
-    isUpdatePendingById: ({ isIdUpdatePending }: ServiceState) => (id: Id) =>
-      isIdUpdatePending.includes(id),
-    isPatchPendingById: ({ isIdPatchPending }: ServiceState) => (id: Id) =>
-      isIdPatchPending.includes(id),
-    isRemovePendingById: ({ isIdRemovePending }: ServiceState) => (id: Id) =>
-      isIdRemovePending.includes(id),
+    isCreatePendingById:
+      ({ isIdCreatePending }: ServiceState) =>
+      (id: Id) =>
+        isIdCreatePending.includes(id),
+    isUpdatePendingById:
+      ({ isIdUpdatePending }: ServiceState) =>
+      (id: Id) =>
+        isIdUpdatePending.includes(id),
+    isPatchPendingById:
+      ({ isIdPatchPending }: ServiceState) =>
+      (id: Id) =>
+        isIdPatchPending.includes(id),
+    isRemovePendingById:
+      ({ isIdRemovePending }: ServiceState) =>
+      (id: Id) =>
+        isIdRemovePending.includes(id),
     isSavePendingById: (state: ServiceState, getters) => (id: Id) =>
       getters.isCreatePendingById(id) ||
       getters.isUpdatePendingById(id) ||
