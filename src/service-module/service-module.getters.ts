@@ -50,11 +50,13 @@ export default function makeServiceGetters() {
 
       const { paramsForServer = [], whitelist, keyedById } = state
 
-      const paramsForServerByValue = paramsForServer.filter(el => Array.isArray(el))
+      const paramsForServerByValue = paramsForServer.filter(el =>
+        Array.isArray(el)
+      )
 
       const q = paramsForServerByValue.reduce(
         (acc, [key, filter]) => {
-          if (!acc[key]) return acc
+          if (!acc[key] || (acc[key] && !filter)) return acc
 
           if (
             ((typeof filter === 'string' || typeof filter === 'number') &&
