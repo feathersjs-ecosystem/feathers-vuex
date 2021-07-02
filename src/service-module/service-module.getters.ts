@@ -55,13 +55,15 @@ export default function makeServiceGetters() {
       )
 
       const q = paramsForServerByValue.reduce(
-        (acc, [key, filter]) => {
-          if (!acc[key] || (acc[key] && !filter)) return acc
+        (acc, [key, valueOrPredicate]) => {
+          if (!acc[key] || (acc[key] && !valueOrPredicate)) return acc
 
           if (
-            ((typeof filter === 'string' || typeof filter === 'number') &&
-              acc[key] === filter) ||
-            (typeof filter === 'function' && filter(acc[key]))
+            ((typeof valueOrPredicate === 'string' ||
+              typeof valueOrPredicate === 'number') &&
+              acc[key] === valueOrPredicate) ||
+            (typeof valueOrPredicate === 'function' &&
+              valueOrPredicate(acc[key]))
           ) {
             return _omit(acc, key)
           }
