@@ -32,7 +32,7 @@ const defaultOptions = {
 /** Ensures value has EventEmitter instance props */
 function assertIsEventEmitter(val: unknown): asserts val is EventEmitter {
   if (
-    !Object.keys(EventEmitter.prototype).every(eeKey =>
+    !Object.keys(EventEmitter.prototype).every((eeKey) =>
       Object.prototype.hasOwnProperty.call(val, eeKey)
     )
   ) {
@@ -120,16 +120,18 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         ? store.state[namespace].copiesById
         : copiesByIdOnModel
 
-      const existingItem =
-        hasValidId && !options.clone
-          ? getFromStore.call(this.constructor, id)
-          : null
+      if (store.state[namespace].replaceItems !== true) {
+        const existingItem =
+          hasValidId && !options.clone
+            ? getFromStore.call(this.constructor, id)
+            : null
 
-      // If it already exists, update the original and return
-      if (existingItem) {
-        data = setupInstance.call(this, data, { models, store }) || data
-        _commit.call(this.constructor, 'mergeInstance', data)
-        return existingItem
+        // If it already exists, update the original and return
+        if (existingItem) {
+          data = setupInstance.call(this, data, { models, store }) || data
+          _commit.call(this.constructor, 'mergeInstance', data)
+          return existingItem
+        }
       }
 
       // If cloning and a clone already exists, update and return the original clone. Only one clone is allowed.
@@ -290,7 +292,7 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
       const state = store.state[namespace]
       const commit = store.commit
       // Replace each plain object with a model instance.
-      Object.keys(state.keyedById).forEach(id => {
+      Object.keys(state.keyedById).forEach((id) => {
         const record = state.keyedById[id]
         commit(`${namespace}/removeItem`, record)
         commit(`${namespace}/addItem`, record)
