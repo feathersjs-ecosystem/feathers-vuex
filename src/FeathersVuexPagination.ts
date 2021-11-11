@@ -3,7 +3,6 @@ import {
   computed,
   watch
 } from '@vue/composition-api'
-import { CreateElement } from 'vue'
 
 export default {
   name: 'FeathersVuexPagination',
