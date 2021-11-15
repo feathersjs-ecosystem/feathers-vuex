@@ -1,20 +1,8 @@
 import {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  createElement as baseCreateElement,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
   h,
   computed,
   watch
 } from '@vue/composition-api'
-import { CreateElement } from 'vue'
-
-/**
- * Allow for usage with newer (^1.0.0) @vue/composition-api releases
- * See: https://github.com/feathersjs-ecosystem/feathers-vuex/issues/504
- */
-const createElement = (baseCreateElement || h) as CreateElement
 
 export default {
   name: 'FeathersVuexPagination',
@@ -128,9 +116,9 @@ export default {
           next
         })
       } else {
-        return createElement('div', {}, [
-          createElement('p', `FeathersVuexPagination uses the default slot:`),
-          createElement('p', `#default="{ currentPage, pageCount }"`)
+        return h('div', {}, [
+          h('p', `FeathersVuexPagination uses the default slot:`),
+          h('p', `#default="{ currentPage, pageCount }"`)
         ])
       }
     }
