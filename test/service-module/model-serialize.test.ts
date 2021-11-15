@@ -8,6 +8,7 @@ import feathersVuex from '../../src/index'
 import { feathersRestClient as feathersClient } from '../fixtures/feathers-client'
 import { clearModels } from '../../src/service-module/global-models'
 import _omit from 'lodash/omit'
+import Vuex from 'vuex'
 
 describe('Models - Serialize', function () {
   beforeEach(() => {
@@ -15,9 +16,10 @@ describe('Models - Serialize', function () {
   })
 
   it('allows customizing toJSON', function () {
-    const { BaseModel } = feathersVuex(feathersClient, {
+    const { BaseModel, makeServicePlugin } = feathersVuex(feathersClient, {
       serverAlias: 'myApi'
     })
+
     class Task extends BaseModel {
       public static modelName = 'Task'
       public static instanceDefaults() {
@@ -34,6 +36,16 @@ describe('Models - Serialize', function () {
         super(data, options)
       }
     }
+
+
+    const servicePath = 'thingies'
+    const plugin = makeServicePlugin({
+      servicePath: 'thingies',
+      Model: Task,
+      service: feathersClient.service(servicePath)
+    })
+
+    new Vuex.Store({ plugins: [plugin] })
 
     const task = new Task({
       description: 'Hello, World!',
