@@ -37,7 +37,6 @@ describe('Models - Serialize', function () {
       }
     }
 
-
     const servicePath = 'thingies'
     const plugin = makeServicePlugin({
       servicePath: 'thingies',
