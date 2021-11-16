@@ -31,7 +31,7 @@ function makeContext() {
     public static modelName = 'Instrument'
   }
 
-  const serviceName = 'instruments'
+  const serviceName = 'things'
   const store = new Vuex.Store({
     plugins: [
       makeServicePlugin({
@@ -106,7 +106,7 @@ describe('use/find', function () {
     assert(qid.value === 'default')
   })
 
-  it('returns correct default data even when params is not reactive', function () {
+  it.skip('returns correct default data even when params is not reactive', function () {
     const { Instrument } = makeContext()
 
     const instrumentsData = useFind({

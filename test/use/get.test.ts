@@ -51,7 +51,7 @@ function makeContext() {
   }
 
   feathersClient.use(
-    'instruments',
+    'things',
     memory({
       store: {
         0: { id: 0, name: 'trumpet' },

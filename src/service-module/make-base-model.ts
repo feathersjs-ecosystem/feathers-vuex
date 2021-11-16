@@ -117,10 +117,10 @@ export default function makeBaseModel(options: FeathersVuexOptions) {
         data && data.hasOwnProperty(tempIdField) ? data[tempIdField] : undefined
       const hasValidTempId = tempId !== null && tempId !== undefined
       const copiesById = keepCopiesInStore
-        ? store.state[namespace].copiesById
+        ? store?.state[namespace].copiesById
         : copiesByIdOnModel
 
-      if (store.state[namespace].replaceItems !== true) {
+      if (store?.state?.[namespace]?.replaceItems !== true) {
         const existingItem =
           hasValidId && !options.clone
             ? getFromStore.call(this.constructor, id)
