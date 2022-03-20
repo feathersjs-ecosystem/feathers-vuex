@@ -489,7 +489,7 @@ If items aren't not getting added to the store properly, try setting the `debug`
 
 ## Full nuxt example
 
-In this example we will create a nuxt configuration with all the features discribed in the [Nuxt Section](./nuxt.md).
+In this example we will create a nuxt configuration with all the features described in the [Nuxt Section](./nuxt.md).
 
 Our application is hosted in 2 different endpoints, one for the feathers api and another with our nuxt SSR, and we will also implement a permission system that will prevent users without an `admin` permission to get into some pages. For that you will need to [customize your payload](https://docs.feathersjs.com/cookbook/authentication/stateless.html#customizing-the-payload) in your feathers api.
 
