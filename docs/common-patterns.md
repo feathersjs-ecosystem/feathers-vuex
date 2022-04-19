@@ -618,7 +618,7 @@ const { makeServicePlugin, makeAuthPlugin, BaseModel, models, FeathersVuex } = f
 export { makeAuthPlugin, makeServicePlugin, BaseModel, models, FeathersVuex, initAuth, hydrateApi }
 ```
 
-I prefere install the `FeathersVuex` plugin in a separate file, it's more consistent with nuxt patterns.
+I prefer install the `FeathersVuex` plugin in a separate file, it's more consistent with nuxt patterns.
 
 ```js
 // ~/plugins/feathers-vuex.js
