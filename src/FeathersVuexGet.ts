@@ -152,7 +152,7 @@ export default {
             })
             .finally(() => {
               this.isGetPending = false
-            }
+            })
         }
       }
     },
