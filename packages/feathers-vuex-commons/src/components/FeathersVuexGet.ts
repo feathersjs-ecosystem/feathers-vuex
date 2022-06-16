@@ -98,8 +98,8 @@ export default {
     },
   },
   data: () => ({
-    isFindPending: false,
     isGetPending: false,
+    error: null
   }),
   computed: {
     item() {
@@ -120,8 +120,8 @@ export default {
       }
     },
     scope() {
-      const { item, isGetPending } = this
-      const defaultScope = { item, isGetPending }
+      const { item, isGetPending, error } = this
+      const defaultScope = { item, isGetPending, error }
 
       return this.editScope(defaultScope) || defaultScope
     },
@@ -149,8 +149,13 @@ export default {
           return this.$store
             .dispatch(`${this.service}/get`, getArgs.length === 1 ? this.id : getArgs)
             .then(response => {
-              this.isGetPending = false
               return response
+            })
+            .catch(error => {
+              this.error = error
+            })
+            .finally(() => {
+              this.isGetPending = false
             })
         }
       }
