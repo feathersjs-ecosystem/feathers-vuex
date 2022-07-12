@@ -102,7 +102,7 @@ export default {
           if (query) {
             args.push(query)
           }
-          return this.$store.getters[`${this.service}/get`](args) || null
+          return this.$store.getters[`${this.service}/get`](this.id) || null
         }
       } else {
         return null
